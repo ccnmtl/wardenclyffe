@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2><a href="/upload/">add video</a></h2>
+
+<table>
+{% for video in videos %}
+<tr>
+<th>{{video.title}}</th>
+<td>{{video.filename}}</td>
+<td>{{video.description}}</td>
+<td>{{video.owner}}</td>
+<td>{{video.uuid}}</td>
+<td>{{video.cap}}</td>
+<td>{{video.created}}</td>
+<td>{{video.modified}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
