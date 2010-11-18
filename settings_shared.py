@@ -54,6 +54,8 @@ TEMPLATE_DIRS = (
     "/var/www/tna/templates/",
     os.path.join(os.path.dirname(__file__),"templates"),
 )
+import djcelery
+djcelery.setup_loader()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -68,6 +70,7 @@ INSTALLED_APPS = (
     'smartif',
     'template_utils',
     'typogrify',
+    'djcelery',
     'main'
 )
 

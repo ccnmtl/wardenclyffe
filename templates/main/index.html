@@ -12,7 +12,7 @@
 <td>{{video.description}}</td>
 <td>{{video.owner}}</td>
 <td>{{video.uuid}}</td>
-<td>{{video.cap}}</td>
+<td>{% ifnotequal video.cap "None" %}saved to tahoe{% endifnotequal %}</td>
 <td>{{video.created}}</td>
 <td>{{video.modified}}</td>
 </tr>

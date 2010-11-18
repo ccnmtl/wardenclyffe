@@ -6,10 +6,8 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from models import Video
 from forms import UploadVideoForm
 import uuid 
-import urllib2
-from poster.encode import multipart_encode
-from poster.streaminghttp import register_openers
-from django.conf import settings
+from tasks import save_file_to_tahoe, submit_to_podcast_producer
+import os
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -25,16 +23,6 @@ class rendered_with(object):
 
         return rendered_func
 
-def save_file_to_tahoe(source_file):
-    filename = source_file.name
-    register_openers()
-    datagen, headers = multipart_encode({"file": source_file,
-                                         "t" : "upload"})
-    request = urllib2.Request(settings.TAHOE_BASE, datagen, headers)
-    
-    cap = urllib2.urlopen(request).read()
-    return cap
-
 @login_required
 @rendered_with('main/index.html')
 def index(request):
@@ -46,16 +34,31 @@ def upload(request):
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
         if form.is_valid():
-            cap = save_file_to_tahoe(request.FILES['source_file'])
-#            cap = "None"
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs("/tmp/tna/")
+                print "made dir"
+            except:
+                print "exception"
+            tmpfilename = "/tmp/tna/" + str(vuuid) + ".mp4"
+            print tmpfilename
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            # make db entry
             v = Video.objects.create(
                 title = form.cleaned_data['title'],
                 description = form.cleaned_data['description'],
                 owner = request.user,
-                cap = cap,
+                cap = "None",
                 filename = request.FILES['source_file'].name,
-                uuid=uuid.uuid5(uuid.NAMESPACE_DNS,'tna.ccnmtl.columbia.edu'))
-            v.submit_to_podcast_producer(request.FILES['source_file'])
+                uuid=uuid)
+            # upload to tahoe
+            save_file_to_tahoe.delay(tmpfilename,v.id)
+            # send to podcast producer
+            submit_to_podcast_producer.delay(tmpfilename,v.id)
             return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
@@ -64,3 +67,4 @@ def upload(request):
 def test_upload(request):
     print request.raw_post_data
     return HttpResponse("a response")
+
