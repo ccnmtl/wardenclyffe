@@ -26,7 +26,7 @@ class rendered_with(object):
 @login_required
 @rendered_with('main/index.html')
 def index(request):
-    return dict(videos=Video.objects.all())
+    return dict(videos=Video.objects.all().order_by("-modified")[:20])
 
 @login_required
 @rendered_with('main/upload.html')

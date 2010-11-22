@@ -6,16 +6,24 @@
 
 <table>
 {% for video in videos %}
+<div class="{% cycle 'odd' 'even' %}">
 <tr>
-<th>{{video.title}}</th>
-<td>{{video.filename}}</td>
-<td>{{video.description}}</td>
+<th colspan="6" align="left">{{video.title}}</th>
+</tr>
+<tr>
 <td>{{video.owner}}</td>
+<td>{{video.filename}}</td>
 <td>{{video.uuid}}</td>
-<td>{% ifnotequal video.cap "None" %}saved to tahoe{% endifnotequal %}</td>
+<td>{% ifnotequal video.cap "None" %}
+<a href="{{video.tahoe_download_url}}">download source</a>{% endifnotequal %}</td>
 <td>{{video.created}}</td>
 <td>{{video.modified}}</td>
 </tr>
+
+<tr>
+<td colspan="6">{{video.description}}</td>
+</tr>
+</div>
 {% endfor %}
 </table>
 
