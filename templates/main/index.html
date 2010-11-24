@@ -1,27 +1,34 @@
 {% extends 'base.html' %}
-
+{% load markup %}
 {% block content %}
 
 <h2><a href="/upload/">add video</a></h2>
 
-<table>
+<table style="width: 100%"> 
 {% for video in videos %}
 <div class="{% cycle 'odd' 'even' %}">
 <tr>
-<th colspan="6" align="left">{{video.title}}</th>
-</tr>
-<tr>
-<td>{{video.owner}}</td>
-<td>{{video.filename}}</td>
-<td>{{video.uuid}}</td>
-<td>{% ifnotequal video.cap "None" %}
-<a href="{{video.tahoe_download_url}}">download source</a>{% endifnotequal %}</td>
-<td>{{video.created}}</td>
-<td>{{video.modified}}</td>
+<th colspan="3" align="left">{{video.title}}</th>
 </tr>
 
 <tr>
-<td colspan="6">{{video.description}}</td>
+<td>{% ifnotequal video.cap "None" %}
+<a href="{{video.tahoe_download_url}}">{{video.filename}}</a>
+{% else %}
+{{video.filename}}
+{% endifnotequal %}
+</td>
+<td>{{video.uuid}}</td>
+</tr>
+<tr>
+
+<td colspan="2">uploaded by <b>{{video.owner.first_name}}
+  {{video.owner.last_name}}</b> at <i>{{video.created|date:"r"}}</i>, last modified:
+<i>{{video.modified|date:"r"}}</i></td>
+</tr>
+
+<tr>
+<td colspan="2">{{video.description|markdown}}</td>
 </tr>
 </div>
 {% endfor %}
