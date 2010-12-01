@@ -5,11 +5,16 @@
 <h1>workflows</h1>
 
 <table style="width: 100%"> 
-<tr><th>workflow</th><th>uuid</th></tr>
+<tr>
+  <th>workflow</th>
+  <th>uuid</th>
+  <th>description</th>
+</tr>
 {% for workflow in workflows %}
 <tr class="{% cycle 'odd' 'even' %}">
 <th align="left">{{workflow.title}}</th>
-<td><tt>{{workflow.uuid}}</tt></td>
+<td><nobr><tt>{{workflow.uuid}}</tt></nobr></td>
+<td>{{workflow.description}}</td>
 </tr>
 {% endfor %}
 </table>

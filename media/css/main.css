@@ -832,6 +832,7 @@ body.fluid #content
 	border: 0;
 }
 
-th { background-color: #ccc;}
-
-tr.even th {background-color: #ddd;}
+th { background-color: #ccc; vertical-align: top;}
+td {vertical-align: top;}
+tr.odd th {background-color: #ddd;}
+tr.even td {background-color: #eee;}
