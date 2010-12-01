@@ -8,6 +8,8 @@ from forms import UploadVideoForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer
 import os
+from angeldust import PCP
+from django.conf import settings
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -40,7 +42,7 @@ def upload(request):
                 os.makedirs("/tmp/tna/")
                 print "made dir"
             except:
-                print "exception"
+                pass
             tmpfilename = "/tmp/tna/" + str(vuuid) + ".mp4"
             print tmpfilename
             tmpfile = open(tmpfilename, 'wb')
@@ -67,4 +69,16 @@ def upload(request):
 def test_upload(request):
     print request.raw_post_data
     return HttpResponse("a response")
+
+def done(request):
+    print request.raw_post_data
+    return HttpResponse("ok")
+
+@login_required
+@rendered_with('main/workflows.html')
+def list_workflows(request):
+    p = PCP(settings.PCP_BASE_URL,
+            settings.PCP_USERNAME,
+            settings.PCP_PASSWORD)
+    return dict(workflows=p.workflows())
 
