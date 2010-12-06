@@ -69,7 +69,7 @@ def upload(request):
                 # upload to tahoe
                 save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
                 # send to podcast producer
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user)
+                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()

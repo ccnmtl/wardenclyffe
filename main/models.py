@@ -71,3 +71,6 @@ class OperationFile(models.Model):
     operation = models.ForeignKey(Operation)
     file = models.ForeignKey(File)
 
+class OperationLog(TimeStampedModel):
+    operation = models.ForeignKey(Operation)
+    info = models.TextField(default="")
