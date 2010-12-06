@@ -837,5 +837,5 @@ td {vertical-align: top;}
 tr.odd th {background-color: #ddd;}
 tr.even td {background-color: #eee;}
 
-td.failed { color: #f00; background-color: #fdd;}
-td.complete { color: #060; background-color: #dfd;}
+tr td.failed { color: #f00; background-color: #fdd;}
+tr td.complete { color: #060; background-color: #dfd;}

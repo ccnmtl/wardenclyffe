@@ -2,7 +2,7 @@
 {% load markup %}
 {% block content %}
 
-<h2>videos</h2>
+<h2>Recent Videos</h2>
 <table style="width: 100%"> 
 {% for video in videos %}
 <tr class="{% cycle 'odd' 'even' %}">
@@ -12,5 +12,34 @@
 </tr>
 {% endfor %}
 </table>
+
+{% if operations %}
+<h2>Recent Operations</h2>
+
+<table style="width: 100%">
+
+<tr>
+  <th>action</th>
+  <th>owner</th>
+  <th>video</th>
+  <th>status</th>
+  <th>started</th>
+  <th>last update</th>
+</tr>
+
+{% for operation in operations %}
+<tr class="{% cycle 'odd' 'even' %}">
+  <td>{{operation.action}}</td>
+  <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
+  <td><a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
+  <td class="{{operation.status}}">{{operation.status}}</td>
+  <td>{{operation.created|date:"r"}}</td>
+  <td>{{operation.modified|date:"r"}}</td>
+</tr>
+{% endfor %}
+
+</table>
+{% endif %}
+
 
 {% endblock %}

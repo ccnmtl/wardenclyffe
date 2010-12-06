@@ -22,7 +22,7 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
   <th>modified</th>
 </tr>
 {% for file in video.file_set.all %}
-<tr>
+<tr class="{% cycle 'odd' 'even' %}">
 <td>{{file.label}}</td>
 <td>{{file.url}}</td>
 <td>{% if file.cap %}<a href="{{file.tahoe_download_url}}">{{file.filename}}</a>{% endif %}</td>
@@ -51,7 +51,7 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
 </tr>
 
 {% for operation in video.operation_set.all %}
-<tr>
+<tr class="{% cycle 'odd' 'even' %}">
   <td>{{operation.action}}</td>
   <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
   <td class="{{operation.status}}">{{operation.status}}</td>

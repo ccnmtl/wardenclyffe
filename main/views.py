@@ -29,7 +29,8 @@ class rendered_with(object):
 @login_required
 @rendered_with('main/index.html')
 def index(request):
-    return dict(videos=Video.objects.all().order_by("-modified")[:20])
+    return dict(videos=Video.objects.all().order_by("-modified")[:20],
+                operations=Operation.objects.all().order_by("-modified")[:20])
 
 @transaction.commit_manually
 @login_required
