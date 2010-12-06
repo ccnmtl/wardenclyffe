@@ -5,7 +5,7 @@
 
 <form action="." method="post">
 <p>Submit <tt>{{video.title}}</tt> to workflow:<br />
-<select name="workfow">
+<select name="workflow">
 <option value="">select workflow</option>
 {% for workflow in workflows %}
 <option value="{{workflow.uuid}}">{{workflow.title}}</option>

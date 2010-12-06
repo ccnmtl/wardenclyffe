@@ -96,6 +96,12 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
         operation.save()
         return
 
+    if workflow == "":
+        operation.status = "failed"
+        log = OperationLog.objects.create(operation=operation,
+                                          info="no workflow specified")
+        return
+
     filename = video.filename()
     suffix = os.path.splitext(filename)[1]
     t = tempfile.NamedTemporaryFile(suffix=suffix)

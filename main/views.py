@@ -99,7 +99,7 @@ def video_pcp_submit(request,id):
         pull_from_tahoe_and_submit_to_pcp.delay(video.id,
                                                 request.user,
                                                 request.POST.get('workflow',''))
-        return HttpResponseRedirect("/")        
+        return HttpResponseRedirect(video.get_absolute_url())        
     p = PCP(settings.PCP_BASE_URL,
             settings.PCP_USERNAME,
             settings.PCP_PASSWORD)
