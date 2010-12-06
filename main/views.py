@@ -3,10 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, File, Operation
+from models import Video, Operation
 from forms import UploadVideoForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -88,6 +88,22 @@ def done(request):
 def video(request,id):
     v = get_object_or_404(Video,id=id)
     return dict(video=v)
+
+@login_required
+@rendered_with('main/pcp_submit.html')
+def video_pcp_submit(request,id):
+    video = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        filename = video.filename()
+        # send to podcast producer
+        pull_from_tahoe_and_submit_to_pcp.delay(video.id,
+                                                request.user,
+                                                request.POST.get('workflow',''))
+        return HttpResponseRedirect("/")        
+    p = PCP(settings.PCP_BASE_URL,
+            settings.PCP_USERNAME,
+            settings.PCP_PASSWORD)
+    return dict(video=video,workflows=p.workflows())
 
 @login_required
 @rendered_with('main/workflows.html')

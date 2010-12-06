@@ -70,5 +70,8 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
 </table>
 {% endif %}
 
+{% if video.tahoe_download_url %}
+<p><a href="pcp_submit/">submit to another PCP workflow</a></p>
+{% endif %}
 
 {% endblock %}
