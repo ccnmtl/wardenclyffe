@@ -840,3 +840,5 @@ tr.even td {background-color: #eee;}
 tr td.failed { color: #f00; background-color: #fdd;}
 tr td.complete { color: #060; background-color: #dfd;}
 tr td.submitted { color: #060; background-color: #dfd;}
+
+tr.log td { color: #666; }

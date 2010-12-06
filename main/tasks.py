@@ -100,6 +100,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
         operation.status = "failed"
         log = OperationLog.objects.create(operation=operation,
                                           info="no workflow specified")
+        operation.save()
         return
 
     filename = video.filename()
@@ -126,6 +127,9 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
     try:
         pcp.upload_file(t,filename,workflow,video.title,video.description)
         operation.status = "submitted"
+        log = OperationLog.objects.create(operation=operation,
+                                          info="submitted to PCP")
+
     except Exception, e:
         operation.status = "failed"
         log = OperationLog.objects.create(operation=operation,

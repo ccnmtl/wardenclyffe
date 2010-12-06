@@ -43,7 +43,6 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
   <th>action</th>
   <th>owner</th>
   <th>status</th>
-  <th>uuid</th>
   <th>params</th>
   <th>file(s)</th>
   <th>started</th>
@@ -55,7 +54,6 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
   <td>{{operation.action}}</td>
   <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
   <td class="{{operation.status}}">{{operation.status}}</td>
-  <td>{{operation.uuid}}</td>
   <td>{{operation.params}}</td>
   <td>{% if operation.operationfile_set.count %}
     yes
@@ -65,6 +63,16 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
   <td>{{operation.created|date:"r"}}</td>
   <td>{{operation.modified|date:"r"}}</td>
 </tr>
+{% if operation.operationlog_set.count %}
+{% for log in operation.operationlog_set.all %}
+<tr class="log">
+<td></td>
+<td colspan="5">{{log.info}}</td>
+<td>{{log.created|date:"r"}}</td>
+
+</tr>
+{% endfor %}
+{% endif %}
 {% endfor %}
 
 </table>
