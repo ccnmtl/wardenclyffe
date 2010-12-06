@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load markup %}
+
+{% block content %}
+<h1>{{video.title}}</h1>
+<p>created: <i>{{video.created|date:"r"}}</i><br />
+last modified: <i>{{video.modified|date:"r"}}</i></p>
+<h2>Description</h2>
+{{video.description|markdown}}
+<h2>Notes</h2>
+{{video.notes|markdown}}
+
+{% if video.file_set.count %}
+<h2>Files</h2>
+<table>
+<tr>
+  <th>label</th>
+  <th>url</th>
+  <th>Tahoe CAP</th>
+  <th>location type</th>
+  <th>added</th>
+  <th>modified</th>
+</tr>
+{% for file in video.file_set.all %}
+<tr>
+<td>{{file.label}}</td>
+<td>{{file.url}}</td>
+<td>{% if file.cap %}<a href="{{file.tahoe_download_url}}">{{file.filename}}</a>{% endif %}</td>
+<td>{{file.location_type}}</td>
+<td>{{file.created|date:"r"}}</td>
+<td>{{file.modified|date:"r"}}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if video.operation_set.count %}
+<h2>Operations</h2>
+
+<table>
+
+<tr>
+  <th>action</th>
+  <th>owner</th>
+  <th>status</th>
+  <th>uuid</th>
+  <th>params</th>
+  <th>file(s)</th>
+  <th>started</th>
+  <th>last update</th>
+</tr>
+
+{% for operation in video.operation_set.all %}
+<tr>
+  <td>{{operation.action}}</td>
+  <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
+  <td class="{{operation.status}}">{{operation.status}}</td>
+  <td>{{operation.uuid}}</td>
+  <td>{{operation.params}}</td>
+  <td>{% if operation.operationfile_set.count %}
+    yes
+    {% else %}
+    no
+    {% endif %}</td>
+  <td>{{operation.created|date:"r"}}</td>
+  <td>{{operation.modified|date:"r"}}</td>
+</tr>
+{% endfor %}
+
+</table>
+{% endif %}
+
+{% endblock %}

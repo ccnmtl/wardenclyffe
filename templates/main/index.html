@@ -9,18 +9,9 @@
 {% for video in videos %}
 <div class="{% cycle 'odd' 'even' %}">
 <tr>
-<th colspan="3" align="left">{{video.title}}</th>
+<th colspan="3" align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
 </tr>
 
-<tr>
-<td>{% ifnotequal video.cap "None" %}
-<a href="{{video.tahoe_download_url}}">{{video.filename}}</a>
-{% else %}
-{{video.filename}}
-{% endifnotequal %}
-</td>
-<td>{{video.uuid}}</td>
-</tr>
 <tr>
 
 <td colspan="2">uploaded by <b>{{video.owner.first_name}}
@@ -31,6 +22,11 @@
 <tr>
 <td colspan="2">{{video.description|markdown}}</td>
 </tr>
+
+<tr>
+<td colspan="2">{{video.notes|markdown}}</td>
+</tr>
+
 </div>
 {% endfor %}
 </table>
