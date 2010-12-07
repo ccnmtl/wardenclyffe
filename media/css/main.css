@@ -837,8 +837,10 @@ td {vertical-align: top;}
 tr.odd th {background-color: #ddd;}
 tr.even td {background-color: #eee;}
 
+tr.operation td { background-color: #eee; }
 tr td.failed { color: #f00; background-color: #fdd;}
 tr td.complete { color: #060; background-color: #dfd;}
-tr td.submitted { color: #060; background-color: #dfd;}
+tr td.submitted { color: #660; background-color: #ffd;}
 
 tr.log td { color: #666; }
+tr.file td {background-color: #ddf;}
