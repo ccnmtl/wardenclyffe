@@ -2,6 +2,7 @@ from django.db import models
 from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
+from sorl.thumbnail.fields import ImageWithThumbnailsField
 TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
 class Video(TimeStampedModel):
@@ -74,3 +75,12 @@ class OperationFile(models.Model):
 class OperationLog(TimeStampedModel):
     operation = models.ForeignKey(Operation)
     info = models.TextField(default="")
+
+class Image(TimeStampedModel):
+    video = models.ForeignKey(Video)
+
+    image = ImageWithThumbnailsField(upload_to="images",thumbnail={'size' : (100,100)})
+
+    class Meta:
+        order_with_respect_to = "video"
+

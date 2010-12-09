@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from models import Video, Operation
 from forms import UploadVideoForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -66,10 +66,9 @@ def upload(request):
                 raise
             else:
                 transaction.commit()
-                # upload to tahoe
                 save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
-                # send to podcast producer
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
+                make_images.delay(tmpfilename,v.id,request.user)
+#                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()

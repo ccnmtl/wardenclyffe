@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load markup %}
+{% load thumbnail %}
 
 {% block content %}
 <h1>{{video.title}}</h1>
@@ -10,6 +11,14 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
 <h2>Notes</h2>
 {{video.notes|markdown}}
 
+{% if video.image_set.count %}
+<h2>Frames</h2>
+{% for image in video.image_set.all %}
+{% thumbnail image.image "200x200" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endfor %}
+<br style="clear:both" />
+{% endif %}
 
 {% if video.operation_set.count %}
 <h2>Operations</h2>
