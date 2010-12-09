@@ -59,7 +59,7 @@ def upload(request):
                     title = form.cleaned_data['title'],
                     description = form.cleaned_data['description'],
                     notes = form.cleaned_data['notes'],
-                    uuid=uuid)
+                    uuid=vuuid)
                 v.save()
             except:
                 transaction.rollback()

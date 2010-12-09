@@ -125,7 +125,10 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
               settings.PCP_PASSWORD)
     filename = str(ouuid) + ".mp4"
     try:
-        pcp.upload_file(t,filename,workflow,video.title,video.description)
+        print "submitted with filename %s" % filename
+        title = "[" + str(ouuid) + "]" + video.title
+        print "submitted with title %s" % title
+        pcp.upload_file(t,filename,workflow, title, video.description)
         operation.status = "submitted"
         log = OperationLog.objects.create(operation=operation,
                                           info="submitted to PCP")
