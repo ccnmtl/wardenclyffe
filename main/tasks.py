@@ -104,7 +104,12 @@ def extract_metadata(tmpfilename,video_id,user,**kwargs):
                                          owner=user,
                                          uuid=ouuid)
     try:
-        output = subprocess.Popen(["/home/anders/code/python/tna/scripts/midentify.sh", tmpfilename], stdout=subprocess.PIPE).communicate()[0]
+        # warning: for now we're expecting the midentify script
+        # to be relatively located to this file. this ought to 
+        # be a bit more configurable
+        pwd = os.path.dirname(__file__)
+        script_dir = os.path.join(pwd,"../scripts/")
+        output = subprocess.Popen([os.path.join(script_dir,"midentify.sh"), tmpfilename], stdout=subprocess.PIPE).communicate()[0]
         pairs = [l.strip().split("=") for l in output.split("\n")]
         for line in output.split("\n"):
             try:
