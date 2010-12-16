@@ -16,7 +16,7 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
 <table>
 {% for m in video.metadata_set.all %}
 <tr class="{% cycle 'even' 'odd' %}">
-<th>{{m.field}}</th>
+<th style="text-align: left">{{m.field}}</th>
 <td>{{m.value}}</td>
 </tr>
 {% endfor %}

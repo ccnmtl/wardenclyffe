@@ -58,6 +58,9 @@ class Metadata(models.Model):
     field = models.CharField(max_length=256,default="")
     value = models.TextField(default="",blank=True,null=True)
 
+    class Meta:
+        ordering = ('field',)
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256,blank=True,null=True,default="")
