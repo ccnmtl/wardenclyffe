@@ -42,6 +42,22 @@ class Video(TimeStampedModel):
     def get_absolute_url(self):
         return "/video/%d/" % self.id
 
+    def set_metadata(self,field,value):
+        r = Metadata.objects.filter(video=self,field=field)
+        if r.count():
+            # update
+            m = r[0]
+            m.value = value
+            m.save()
+        else:
+            # add
+            m = Metadata.objects.create(video=self,field=field,value=value)
+            
+class Metadata(models.Model):
+    video = models.ForeignKey(Video)
+    field = models.CharField(max_length=256,default="")
+    value = models.TextField(default="",blank=True,null=True)
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256,blank=True,null=True,default="")

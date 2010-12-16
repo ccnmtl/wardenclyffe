@@ -8,7 +8,8 @@ from models import Video, File, Operation, OperationFile, OperationLog, Image
 import os.path
 import uuid 
 import tempfile
-
+import subprocess
+from pprint import pprint
 
 @task(ignore_result=True)
 def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
@@ -91,7 +92,37 @@ def make_images(tmpfilename,video_id,user,**kwargs):
                                           info=str(e))
 
             
-        
+@task(ignore_results=True)
+def extract_metadata(tmpfilename,video_id,user,**kwargs):
+    print "extracting metadata"
+    video = Video.objects.get(id=video_id)
+    ouuid = uuid.uuid4()
+    operation = Operation.objects.create(video=video,
+                                         action="extract metadata",
+                                         status="in progress",
+                                         params="",
+                                         owner=user,
+                                         uuid=ouuid)
+    try:
+        output = subprocess.Popen(["/home/anders/code/python/tna/scripts/midentify.sh", tmpfilename], stdout=subprocess.PIPE).communicate()[0]
+        pairs = [l.strip().split("=") for l in output.split("\n")]
+        for line in output.split("\n"):
+            try:
+                line = line.strip()
+                (f,v) = line.split("=")
+                video.set_metadata(f,v)
+            except Exception, e:
+                # just ignore any parsing issues
+                print str(e)
+        operation.status = "complete"
+        operation.save()
+        print "finished extracting metadata"
+    except Exception, e:
+        operation.status = "failed"
+        operation.save()
+        log = OperationLog.objects.create(operation=operation,
+                                          info=str(e))
+        print "failed to extract metadata"
 
     
 
@@ -121,7 +152,7 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,**kwargs):
                                           info=str(e))
     operation.save()
     print "finished submitting to PCP"
-
+    
 
 @task(ignore_result=True)
 def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
@@ -187,3 +218,4 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
                                           info=str(e))
     operation.save()
     print "finished submitting to PCP"
+    
