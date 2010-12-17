@@ -5,6 +5,20 @@
 <form action="." method="post" enctype="multipart/form-data">
 <table>
 {{ form.as_table }}
+<tr>
+<th>Steps</th>
+<td>
+<input type="checkbox" name="upload_to_tahoe" checked="checked" />
+upload source file to tahoe<br />
+<input type="checkbox" name="extract_images" checked="checked" />
+extract images<br />
+<input type="checkbox" name="extract_metadata" checked="checked" />
+extract metadata<br />
+<input type="checkbox" name="submit_to_pcp" checked="checked" />
+submit to Podcast Producer<br />
+
+</td>
+</tr>
 </table>
 <input type="submit" value="upload" />
 </form>

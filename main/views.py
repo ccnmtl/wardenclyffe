@@ -66,10 +66,14 @@ def upload(request):
                 raise
             else:
                 transaction.commit()
-#                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
-                extract_metadata.delay(tmpfilename,v.id,request.user)
-                make_images.delay(tmpfilename,v.id,request.user)
-#                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
+                if request.POST.get('upload_to_tahoe',False):
+                    save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
+                if request.POST.get('extract_metadata',False):
+                    extract_metadata.delay(tmpfilename,v.id,request.user)
+                if request.POST.get('extract_images',False):
+                    make_images.delay(tmpfilename,v.id,request.user)
+                if request.POST.get('submit_to_pcp',False):
+                    submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
