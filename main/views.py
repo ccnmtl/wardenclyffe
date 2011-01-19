@@ -112,8 +112,13 @@ def video_pcp_submit(request,id):
 @login_required
 @rendered_with('main/workflows.html')
 def list_workflows(request):
-    p = PCP(settings.PCP_BASE_URL,
-            settings.PCP_USERNAME,
-            settings.PCP_PASSWORD)
-    return dict(workflows=p.workflows())
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except:
+        workflows = []
+    return dict(workflows=workflows,
+                kino_base=settings.PCP_BASE_URL)
 

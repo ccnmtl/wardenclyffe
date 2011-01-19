@@ -4,6 +4,7 @@
 
 <h1>workflows</h1>
 
+{% if workflows %}
 <table style="width: 100%"> 
 <tr>
   <th>workflow</th>
@@ -18,5 +19,9 @@
 </tr>
 {% endfor %}
 </table>
+
+{% else %}
+<p>Can't get a list of workflows. Is Kino up at <a href="{{kino_base}}">{{kino_base}}</a>?</p>
+{% endif %}
 
 {% endblock %}

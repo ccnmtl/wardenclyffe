@@ -9,7 +9,6 @@ import os.path
 import uuid 
 import tempfile
 import subprocess
-from pprint import pprint
 
 @task(ignore_result=True)
 def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
