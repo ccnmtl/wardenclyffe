@@ -3,6 +3,7 @@
 
 {% block content %}
 
+{% if workflows %}
 <form action="." method="post">
 <p>Submit <tt>{{video.title}}</tt> to workflow:<br />
 <select name="workflow">
@@ -14,5 +15,9 @@
 <br />
 <input type="submit" value="submit" />
 </form>
+
+{% else %}
+<p>Can't get a list of workflows. Is Kino up at <a href="{{kino_base}}">{{kino_base}}</a>?</p>
+{% endif %}
 
 {% endblock %}

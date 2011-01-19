@@ -104,10 +104,15 @@ def video_pcp_submit(request,id):
                                                 request.user,
                                                 request.POST.get('workflow',''))
         return HttpResponseRedirect(video.get_absolute_url())        
-    p = PCP(settings.PCP_BASE_URL,
-            settings.PCP_USERNAME,
-            settings.PCP_PASSWORD)
-    return dict(video=video,workflows=p.workflows())
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except:
+        workflows = []
+    return dict(video=video,workflows=workflows,
+                kino_base=settings.PCP_BASE_URL)
 
 @login_required
 @rendered_with('main/workflows.html')
