@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, Operation, Series, File
+from models import Video, Operation, Series, File, Metadata
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
@@ -77,7 +77,31 @@ def video_index(request):
         params[k] = v
     params.update(dict(videos=videos))
     return params
+
+@login_required
+@rendered_with('main/file_index.html')
+def file_index(request):
+    files = File.objects.all()
+    params = dict()
+    facets = []
+    for k,v in request.GET.items():
+        params[k] = v
+        metadatas = Metadata.objects.filter(field=k,value=v)
+        files = files.filter(id__in=[m.file_id for m in metadatas])
+        facets.append(dict(field=k,value=v))
+    paginator = Paginator(files.order_by('video__title'),100)
     
+    try:
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+
+    try:
+        files = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        files = paginator.page(paginator.num_pages)
+    params.update(dict(files=files,facets=facets))
+    return params
 
 @login_required
 @rendered_with('main/add_series.html')
