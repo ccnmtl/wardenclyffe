@@ -5,10 +5,32 @@ from django.contrib.auth.models import User
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
-class Video(TimeStampedModel):
+class Series(TimeStampedModel):
     title = models.CharField(max_length=256)
+    creator = models.CharField(max_length=256,default="",blank=True)
+    contributor = models.CharField(max_length=256,default="",blank=True)
+    language = models.CharField(max_length=256,default="",blank=True)
     description = models.TextField(default="",blank=True,null=True)
-    notes = models.TextField(default="",blank=True,null=True)
+    subject = models.TextField(default="",blank=True,null=True)    
+    license = models.CharField(max_length=256,default="",blank=True)    
+
+    uuid = UUIDField()
+
+    def __unicode__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return "/series/%d/" % self.id
+
+class Video(TimeStampedModel):
+    series = models.ForeignKey(Series)
+    title = models.CharField(max_length=256)
+    creator = models.CharField(max_length=256,default="",blank=True)
+    description = models.TextField(default="",blank=True,null=True)
+    subject = models.TextField(default="",blank=True,null=True)    
+    license = models.CharField(max_length=256,default="",blank=True)    
+    language = models.CharField(max_length=256,default="",blank=True)
+
     uuid = UUIDField()
 
     def tahoe_file(self):
@@ -42,24 +64,7 @@ class Video(TimeStampedModel):
     def get_absolute_url(self):
         return "/video/%d/" % self.id
 
-    def set_metadata(self,field,value):
-        r = Metadata.objects.filter(video=self,field=field)
-        if r.count():
-            # update
-            m = r[0]
-            m.value = value
-            m.save()
-        else:
-            # add
-            m = Metadata.objects.create(video=self,field=field,value=value)
             
-class Metadata(models.Model):
-    video = models.ForeignKey(Video)
-    field = models.CharField(max_length=256,default="")
-    value = models.TextField(default="",blank=True,null=True)
-
-    class Meta:
-        ordering = ('field',)
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
@@ -68,7 +73,8 @@ class File(TimeStampedModel):
     cap = models.CharField(max_length=256,default="",blank=True,null=True)
     filename = models.CharField(max_length=256)
     location_type = models.CharField(max_length=256,default="tahoe",
-                                     choices=(('tahoe','tahoe'),('pcp','pcp'),('cuit','cuit')))
+                                     choices=(('tahoe','tahoe'),('pcp','pcp'),('cuit','cuit'),
+                                              ('none','none')))
 
     def tahoe_download_url(self):
         if self.location_type == "tahoe":
@@ -78,6 +84,31 @@ class File(TimeStampedModel):
 
     def pcp_filename(self):
         return self.uuid + ".mp4"
+
+    def set_metadata(self,field,value):
+        r = Metadata.objects.filter(file=self,field=field)
+        if r.count():
+            # update
+            m = r[0]
+            m.value = value
+            m.save()
+        else:
+            # add
+            m = Metadata.objects.create(file=self,field=field,value=value)
+
+    def get_absolute_url(self):
+        return "/file/%d/" % self.id
+
+class Metadata(models.Model):
+    """ metadata that we've extracted. more about 
+    encoding/file format kinds of stuff than dublin-core"""
+    file = models.ForeignKey(File)
+    field = models.CharField(max_length=256,default="")
+    value = models.TextField(default="",blank=True,null=True)
+
+    class Meta:
+        ordering = ('field',)
+
 
 class Operation(TimeStampedModel):
     video = models.ForeignKey(Video)

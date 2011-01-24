@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, Operation
-from forms import UploadVideoForm
+from models import Video, Operation, Series, File
+from forms import UploadVideoForm,AddSeriesForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
 import os
@@ -32,6 +32,29 @@ def index(request):
     return dict(videos=Video.objects.all().order_by("-modified")[:20],
                 operations=Operation.objects.all().order_by("-modified")[:20])
 
+@login_required
+@rendered_with('main/series.html')
+def series(request,id):
+    series = get_object_or_404(Series,id=id)
+    videos = Video.objects.filter(series=series).order_by("-modified")
+    return dict(series=series,videos=videos[:20],
+                operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
+
+
+@login_required
+@rendered_with('main/add_series.html')
+def add_series(request):
+    if request.method == "POST":
+        form = AddSeriesForm(request.POST)
+        if form.is_valid():
+            suuid = uuid.uuid4()
+            s = form.save(commit=False)
+            s.uuid = suuid
+            s.save()
+            return HttpResponseRedirect(s.get_absolute_url())
+    return dict(form=AddSeriesForm())
+
+
 @transaction.commit_manually
 @login_required
 @rendered_with('main/upload.html')
@@ -46,7 +69,8 @@ def upload(request):
                 print "made dir"
             except:
                 pass
-            tmpfilename = "/tmp/tna/" + str(vuuid) + ".mp4"
+            extension = request.FILES['source_file'].name.split(".")[-1]
+            tmpfilename = "/tmp/tna/" + str(vuuid) + "." + extension.lower()
             print tmpfilename
             tmpfile = open(tmpfilename, 'wb')
             for chunk in request.FILES['source_file'].chunks():
@@ -55,12 +79,14 @@ def upload(request):
             # make db entry
             try:
                 filename = request.FILES['source_file'].name
-                v = Video.objects.create(
-                    title = form.cleaned_data['title'],
-                    description = form.cleaned_data['description'],
-                    notes = form.cleaned_data['notes'],
-                    uuid=vuuid)
+                v = form.save(commit=False)
+                v.uuid = vuuid
                 v.save()
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='none')
+
             except:
                 transaction.rollback()
                 raise
@@ -69,7 +95,7 @@ def upload(request):
                 if request.POST.get('upload_to_tahoe',False):
                     save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
                 if request.POST.get('extract_metadata',False):
-                    extract_metadata.delay(tmpfilename,v.id,request.user)
+                    extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                 if request.POST.get('extract_images',False):
                     make_images.delay(tmpfilename,v.id,request.user)
                 if request.POST.get('submit_to_pcp',False):
@@ -92,6 +118,13 @@ def done(request):
 def video(request,id):
     v = get_object_or_404(Video,id=id)
     return dict(video=v)
+
+
+@login_required
+@rendered_with('main/file.html')
+def file(request,id):
+    f = get_object_or_404(File,id=id)
+    return dict(file=f)
 
 @login_required
 @rendered_with('main/pcp_submit.html')

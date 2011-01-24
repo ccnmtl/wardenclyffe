@@ -92,9 +92,10 @@ def make_images(tmpfilename,video_id,user,**kwargs):
 
             
 @task(ignore_results=True)
-def extract_metadata(tmpfilename,video_id,user,**kwargs):
+def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
     print "extracting metadata"
     video = Video.objects.get(id=video_id)
+    source_file = File.objects.get(id=source_file_id)
     ouuid = uuid.uuid4()
     operation = Operation.objects.create(video=video,
                                          action="extract metadata",
@@ -114,7 +115,7 @@ def extract_metadata(tmpfilename,video_id,user,**kwargs):
             try:
                 line = line.strip()
                 (f,v) = line.split("=")
-                video.set_metadata(f,v)
+                source_file.set_metadata(f,v)
             except Exception, e:
                 # just ignore any parsing issues
                 print str(e)

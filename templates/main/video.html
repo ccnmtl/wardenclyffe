@@ -3,14 +3,14 @@
 {% load thumbnail %}
 
 {% block content %}
+<p>In Series: <a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></p>
 <h1>{{video.title}}</h1>
 
-{% if video.metadata_set.count %}
+
 <div id="tabs">
 
 <ul>
   <li><a href="#basics">Basics</a></li> 
-  <li><a href="#metadata">Metadata</a></li>
   <li><a href="#frames">Frames</a></li>
   <li><a href="#operations">Operations/History</a></li>
   <li><a href="#files">Files</a></li>
@@ -19,26 +19,21 @@
 
 <div id="basics">
 
-<p>created: <i>{{video.created|date:"r"}}</i><br />
-last modified: <i>{{video.modified|date:"r"}}</i></p>
-<h2>Description</h2>
-{{video.description|markdown}}
-<h2>Notes</h2>
-{{video.notes|markdown}}
 
-</div>
-
-<div id="metadata">
 <table>
-{% for m in video.metadata_set.all %}
-<tr class="{% cycle 'even' 'odd' %}">
-<th style="text-align: left">{{m.field}}</th>
-<td>{{m.value}}</td>
-</tr>
-{% endfor %}
+<tr><th>creator</th><td>{{video.creator}}</td></tr>
+<tr><th>description</th><td>{{video.description}}</td></tr>
+<tr><th>language</th><td>{{video.language}}</td></tr>
+<tr><th>subject</th><td>{{video.subject}}</td></tr>
+<tr><th>license</th><td>{{video.license}}</td></tr>
+<tr><th>created</th><td>{{video.created|date:"r"}}</td></tr>
+<tr><th>last modified</th><td>{{video.modified|date:"r"}}</td></tr>
 </table>
-{% endif %}
+
+
+
 </div>
+
 
 <div id="frames">
 {% if video.image_set.count %}
@@ -62,7 +57,7 @@ last modified: <i>{{video.modified|date:"r"}}</i></p>
 </tr>
 {% for file in video.file_set.all %}
 <tr class="{% cycle 'even' 'odd' %}">
-<th>{{file.label}}</th>
+<th><a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
 <td>{{file.url}}</td>
 <td>{{file.cap}}</td>
 <td>{{file.filename}}</td>

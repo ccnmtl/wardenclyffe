@@ -2,17 +2,31 @@
 {% load markup %}
 {% block content %}
 
+<h1>Series: {{series.title}}</h1>
+
+<table>
+<tr><th>creator</th><td>{{series.creator}}</td></tr>
+<tr><th>contributor</th><td>{{series.contributor}}</td></tr>
+<tr><th>language</th><td>{{series.language}}</td></tr>
+<tr><th>description</th><td>{{series.description}}</td></tr>
+<tr><th>subject</th><td>{{series.subject}}</td></tr>
+<tr><th>license</th><td>{{series.license}}</td></tr>
+</table>
+
+<p><a href="/upload/">add a video</a></p>
+
+{% if videos %}
 <h2>Recent Videos</h2>
 <table style="width: 100%"> 
-<tr><th>video</th><th>uploaded</th><th>modified</th></tr>
 {% for video in videos %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th align="left"><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a>/<a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
-<td><i>{{video.created|date:"r"}}</i></td>
-<td><i>{{video.modified|date:"r"}}</i></td>
+<th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<td>uploaded at <i>{{video.created|date:"r"}}</i>, last modified:
+<i>{{video.modified|date:"r"}}</i></td>
 </tr>
 {% endfor %}
 </table>
+{% endif %}
 
 {% if operations %}
 <h2>Recent Operations</h2>
@@ -32,7 +46,7 @@
 <tr class="{% cycle 'odd' 'even' %}">
   <td>{{operation.action}}</td>
   <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
-  <td><a href="{{operation.video.series.get_absolute_url}}">{{operation.video.series.title}}</a>/<a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
+  <td><a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
   <td class="{{operation.status}}">{{operation.status}}</td>
   <td>{{operation.created|date:"r"}}</td>
   <td>{{operation.modified|date:"r"}}</td>

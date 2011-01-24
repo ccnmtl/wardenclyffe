@@ -1,8 +1,10 @@
-from models import Video
+from models import Video, Series
 from django import forms
 
-class UploadVideoForm(forms.Form):
-    title = forms.CharField(max_length=100)
-    description = forms.CharField(widget=forms.Textarea(attrs={'cols': 80, 'rows': 20}))
-    notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 80, 'rows': 20}))
-    source_file = forms.FileField()
+class AddSeriesForm(forms.ModelForm):
+    class Meta:
+        model = Series
+
+class UploadVideoForm(forms.ModelForm):
+    class Meta:
+        model = Video
