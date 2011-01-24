@@ -21,11 +21,11 @@
 
 
 <table>
-<tr><th>creator</th><td>{{video.creator}}</td></tr>
-<tr><th>description</th><td>{{video.description}}</td></tr>
-<tr><th>language</th><td>{{video.language}}</td></tr>
-<tr><th>subject</th><td>{{video.subject}}</td></tr>
-<tr><th>license</th><td>{{video.license}}</td></tr>
+<tr><th>creator</th><td><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
+<tr><th>description</th><td><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
+<tr><th>language</th><td><a href="/video/?language={{video.language}}">{{video.language}}</a></td></tr>
+<tr><th>subject</th><td><a href="/video/?subject={{video.subject}}">{{video.subject}}</a></td></tr>
+<tr><th>license</th><td><a href="/video/?license={{video.license}}">{{video.license}}</a></td></tr>
 <tr><th>created</th><td>{{video.created|date:"r"}}</td></tr>
 <tr><th>last modified</th><td>{{video.modified|date:"r"}}</td></tr>
 </table>
