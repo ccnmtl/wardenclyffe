@@ -844,3 +844,5 @@ tr td.submitted { color: #660; background-color: #ffd;}
 
 tr.log td { color: #666; }
 tr.file td {background-color: #ddf;}
+
+.dc {font-size: .8em; font-style: italic; color: #666;}
