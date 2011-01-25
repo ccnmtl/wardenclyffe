@@ -167,6 +167,57 @@ def upload(request):
         form = UploadVideoForm()
     return dict(form=form)
 
+
+@transaction.commit_manually
+@login_required
+@rendered_with('main/vitaldrop.html')
+def vitaldrop(request):
+    if request.method == "POST":
+        if request.FILES['source_file']:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs("/tmp/tna/")
+                print "made dir"
+            except:
+                pass
+            extension = request.FILES['source_file'].name.split(".")[-1]
+            tmpfilename = "/tmp/tna/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            # make db entry
+            try:
+                series = Series.objects.filter(title="Vital")[0]
+                filename = request.FILES['source_file'].name
+                v = Video.objects.create(series=series,
+                                         title="vital video uploaded by %s" % request.user.username,
+                                         creator=request.user.username,
+                                         uuid = vuuid)
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='none')
+
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
+                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
+                make_images.delay(tmpfilename,v.id,request.user)
+                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW)
+                return HttpResponseRedirect("/vitaldrop/done/")
+    else:
+        pass
+    return dict()
+
+@rendered_with('main/vitaldrop_done.html')
+def vitaldrop_done(request):
+    return dict()
+
 def test_upload(request):
     print request.raw_post_data
     return HttpResponse("a response")

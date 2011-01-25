@@ -8,3 +8,5 @@ class AddSeriesForm(forms.ModelForm):
 class UploadVideoForm(forms.ModelForm):
     class Meta:
         model = Video
+
+
