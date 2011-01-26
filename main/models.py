@@ -3,6 +3,7 @@ from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
 from sorl.thumbnail.fields import ImageWithThumbnailsField
+from django import forms
 TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
 class Series(TimeStampedModel):
@@ -21,6 +22,13 @@ class Series(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/series/%d/" % self.id
+
+    def add_video_form(self):
+        class AddVideoForm(forms.ModelForm):
+            class Meta:
+                model = Video
+                exclude = ('series')
+        return AddVideoForm()
 
 class Video(TimeStampedModel):
     series = models.ForeignKey(Series)

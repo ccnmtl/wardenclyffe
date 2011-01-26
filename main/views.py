@@ -143,6 +143,9 @@ def upload(request):
                 filename = request.FILES['source_file'].name
                 v = form.save(commit=False)
                 v.uuid = vuuid
+                series_id = request.GET.get('series',None)
+                if series_id:
+                    v.series_id = series_id
                 v.save()
                 source_file = File.objects.create(video=v,
                                                   label="source file",
@@ -165,7 +168,12 @@ def upload(request):
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
-    return dict(form=form)
+        series_id = request.GET.get('series',None)
+        if series_id:
+            series = get_object_or_404(Series,id=series_id)
+            form = series.add_video_form()
+            
+    return dict(form=form,series_id=series_id)
 
 
 @transaction.commit_manually

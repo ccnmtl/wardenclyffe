@@ -26,6 +26,9 @@ submit to Podcast Producer<br />
 </td>
 </tr>
 </table>
+{% if series_id %}
+<input type="hidden" name="series" value="{{series_id}}" />
+{% endif %}
 <input type="submit" value="upload" />
 </form>
 
