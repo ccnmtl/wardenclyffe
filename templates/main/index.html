@@ -2,12 +2,24 @@
 {% load markup %}
 {% block content %}
 
-<h2>Recent Videos</h2>
+<h2>Series [<a href="/add_series/">+</a>]</h2>
+<table style="100%">
+{% for series in series %}
+<tr class="{% cycle 'odd' 'even' %}">
+<th><a href="{{series.get_absolute_url}}">{{series.title}}</a></th>
+</tr>
+{% endfor %}
+</table>
+
+
+
+<h2>Recent Videos [<a href="/upload/">+</a>]</h2>
 <table style="width: 100%"> 
-<tr><th>video</th><th>uploaded</th><th>modified</th></tr>
+<tr><th>video</th><th>series</th><th>uploaded</th><th>modified</th></tr>
 {% for video in videos %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th align="left"><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a>/<a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+<td><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></td>
 <td><i>{{video.created|date:"r"}}</i></td>
 <td><i>{{video.modified|date:"r"}}</i></td>
 </tr>
@@ -24,7 +36,6 @@
   <th>owner</th>
   <th>video</th>
   <th>status</th>
-  <th>started</th>
   <th>last update</th>
 </tr>
 
@@ -34,8 +45,7 @@
   <td>{{operation.owner.first_name}} {{operation.owner.last_name}}</td>
   <td><a href="{{operation.video.series.get_absolute_url}}">{{operation.video.series.title}}</a>/<a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
   <td class="{{operation.status}}">{{operation.status}}</td>
-  <td>{{operation.created|date:"r"}}</td>
-  <td>{{operation.modified|date:"r"}}</td>
+  <td><nobr>{{operation.modified|date:"r"}}</nobr></td>
 </tr>
 {% endfor %}
 
