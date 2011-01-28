@@ -206,7 +206,7 @@ img, img a
 	margin: 0;
 	padding: 0;
 	border: 0;
-	background: transparent url('../img/logo_project.jpg') left center no-repeat;
+	background: transparent left center no-repeat;
 }
 
 #header #logo_ccnmtl
@@ -264,11 +264,13 @@ img, img a
 #standardnav a
 {
 	text-decoration: none;
+	color: #000;
+	background-color: #fff;
 }
 
 #standardnav a:hover
 {
-	color: #c00;
+	color: #ccc;
 	text-decoration: none;
 }
 
@@ -282,8 +284,8 @@ img, img a
 	margin: 0;
 	padding: 0;
 	border: 0;
-	border-top: 1px solid #fc6;
-	background-color: #c30;
+	border-top: 1px solid #eee;
+	background-color: #666;
 }
 
 #primarynav div.encase
@@ -319,24 +321,24 @@ img, img a
 	margin: 3px;
 	padding: 0 0.5em;
 	border: 0;
-	background-color: #fc6;
+	background-color: #999;
 	line-height: 24px;
 }
 
 #primarynav li:hover
 {
-	background-color: #fc9;
+	background-color: #ccc;
 }
 
 #primarynav a
 {
-	color: #900;
+	color: #000;
 	text-decoration: none;
 }
 
 #primarynav a:hover
 {
-	color: #c00;
+	color: #666;
 	text-decoration: none;
 }
 
@@ -344,13 +346,13 @@ img, img a
 {
 	background: transparent;
 	font-weight: bold;
-	color: #fc6;
+	color: #000;
 	
 }
 
 #primarynav #usernav li a
 {
-	color: #fc6;
+	color: #000;
 	
 }
 
@@ -364,7 +366,7 @@ img, img a
 {
 	background: transparent;
 	font-weight: bold;
-	color: #fc6;
+	color: #ccc;
 	
 }
 
