@@ -30,7 +30,6 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
         request = urllib2.Request(settings.TAHOE_BASE, datagen, headers)
         cap = urllib2.urlopen(request).read()
         source_file.close()
-        print "finished saving to tahoe"
         operation.status = "complete"
         f = File.objects.create(video=video,url="",cap=cap,location_type="tahoe",
                                 filename=filename,
@@ -46,7 +45,6 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
 
 @task(ignore_result=True)
 def make_images(tmpfilename,video_id,user,**kwargs):
-    print "making images"
     video = Video.objects.get(id=video_id)
     ouuid = uuid.uuid4()
     operation = Operation.objects.create(video=video,
@@ -62,11 +60,9 @@ def make_images(tmpfilename,video_id,user,**kwargs):
             command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s'" % (frames,tmpfilename)
         else:
             command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 '%s'" % (frames,tmpfilename)
-        print command
         os.system(command)
         imgs = os.listdir("/tmp/wardenclyffe/imgs/")
         if len(imgs) == 0:
-            print "failed to create images. falling back to framerate hack"
             command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -vf framerate=250 '%s'" % (frames,tmpfilename)
             os.system(command)
         imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % video.id
@@ -93,7 +89,6 @@ def make_images(tmpfilename,video_id,user,**kwargs):
             
 @task(ignore_results=True)
 def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
-    print "extracting metadata"
     video = Video.objects.get(id=video_id)
     source_file = File.objects.get(id=source_file_id)
     ouuid = uuid.uuid4()
