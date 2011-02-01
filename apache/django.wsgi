@@ -1,14 +1,14 @@
 import os, sys, site
 
 # enable the virtualenv
-site.addsitedir('/var/www/tna/tna/ve/lib/python2.5/site-packages')
+site.addsitedir('/var/www/wardenclyffe/wardenclyffe/ve/lib/python2.5/site-packages')
 
 # paths we might need to pick up the project's settings
 sys.path.append('/var/www/')
-sys.path.append('/var/www/tna/')
-sys.path.append('/var/www/tna/tna/')
+sys.path.append('/var/www/wardenclyffe/')
+sys.path.append('/var/www/wardenclyffe/wardenclyffe/')
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tna.settings_production'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'wardenclyffe.settings_production'
 
 import django.core.handlers.wsgi
 

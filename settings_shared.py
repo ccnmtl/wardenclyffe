@@ -1,4 +1,4 @@
-# Django settings for tna project.
+# Django settings for wardenclyffe project.
 import os.path
 
 DEBUG = True
@@ -11,7 +11,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'postgresql_psycopg2' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'tna' # Or path to database file if using sqlite3.
+DATABASE_NAME = 'wardenclyffe' # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -21,7 +21,7 @@ TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = False
-MEDIA_ROOT = "/var/www/tna/uploads/"
+MEDIA_ROOT = "/var/www/wardenclyffe/uploads/"
 MEDIA_URL = '/uploads/'
 ADMIN_MEDIA_PREFIX = '/media/'
 SECRET_KEY = ')ng#)ef_u@_^zvvu@dxm7ql-yb^_!a6%v3v^j3b(mp+)l+5%@h'
@@ -44,14 +44,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
 )
 
-ROOT_URLCONF = 'tna.urls'
+ROOT_URLCONF = 'wardenclyffe.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     # Put application templates before these fallback ones:
-    "/var/www/tna/templates/",
+    "/var/www/wardenclyffe/templates/",
     os.path.join(os.path.dirname(__file__),"templates"),
 )
 import djcelery
@@ -75,9 +75,9 @@ INSTALLED_APPS = (
 )
 
 THUMBNAIL_SUBDIR = "thumbs"
-EMAIL_SUBJECT_PREFIX = "[tna] "
+EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "
 EMAIL_HOST = 'localhost'
-SERVER_EMAIL = "tna@ccnmtl.columbia.edu"
+SERVER_EMAIL = "wardenclyffe@ccnmtl.columbia.edu"
 
 # WIND settings
 

@@ -59,7 +59,7 @@
 <tr class="{% cycle 'even' 'odd' %}">
 <th><a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
 <td>{{file.url}}</td>
-<td>{{file.cap}}</td>
+<td>{% if file.cap %}{{file.cap|slice:":50"}}...{% endif %}</td>
 <td>{{file.filename}}</td>
 <td>{{file.location_type}}</td>
 </tr>
@@ -126,7 +126,8 @@
 
 <div id="actions">
 {% if video.tahoe_download_url %}
-<p><a href="pcp_submit/">submit to another PCP workflow</a></p>
+<p><a href="pcp_submit/">submit to another PCP workflow -&gt;</a></p>
+<p><a href="add_file/">manually add a file/location -&gt;</a></p>
 
 <p>Raw HTML Embed code:</p>
 

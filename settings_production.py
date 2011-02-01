@@ -1,13 +1,13 @@
 from settings_shared import *
 
 TEMPLATE_DIRS = (
-    "/var/www/tna/tna/templates",
+    "/var/www/wardenclyffe/wardenclyffe/templates",
 )
 
-MEDIA_ROOT = '/var/www/tna/uploads/'
+MEDIA_ROOT = '/var/www/wardenclyffe/uploads/'
 # put any static media here to override app served static media
 STATICMEDIA_MOUNTS = (
-    ('/sitemedia', '/var/www/tna/tna/sitemedia'),	
+    ('/sitemedia', '/var/www/wardenclyffe/wardenclyffe/sitemedia'),	
 )
 
 

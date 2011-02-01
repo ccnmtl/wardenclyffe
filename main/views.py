@@ -129,12 +129,12 @@ def upload(request):
             # save it locally
             vuuid = uuid.uuid4()
             try: 
-                os.makedirs("/tmp/tna/")
+                os.makedirs("/tmp/wardenclyffe/")
                 print "made dir"
             except:
                 pass
             extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = "/tmp/tna/" + str(vuuid) + "." + extension.lower()
+            tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
             print tmpfilename
             tmpfile = open(tmpfilename, 'wb')
             for chunk in request.FILES['source_file'].chunks():
@@ -187,12 +187,12 @@ def vitaldrop(request):
             # save it locally
             vuuid = uuid.uuid4()
             try: 
-                os.makedirs("/tmp/tna/")
+                os.makedirs("/tmp/wardenclyffe/")
                 print "made dir"
             except:
                 pass
             extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = "/tmp/tna/" + str(vuuid) + "." + extension.lower()
+            tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
             tmpfile = open(tmpfilename, 'wb')
             for chunk in request.FILES['source_file'].chunks():
                 tmpfile.write(chunk)

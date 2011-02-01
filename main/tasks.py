@@ -59,25 +59,25 @@ def make_images(tmpfilename,video_id,user,**kwargs):
         size = os.stat(tmpfilename)[6] / (1024 * 1024)
         frames = size * 2 # 2 frames per MB at the most
         if tmpfilename.lower().endswith("avi"):
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/tna/imgs/ -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s'" % (frames,tmpfilename)
         else:
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/tna/imgs/ -endpos 03:00:00 -frames %d -sstep 10 '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 '%s'" % (frames,tmpfilename)
         print command
         os.system(command)
-        imgs = os.listdir("/tmp/tna/imgs/")
+        imgs = os.listdir("/tmp/wardenclyffe/imgs/")
         if len(imgs) == 0:
             print "failed to create images. falling back to framerate hack"
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/tna/imgs/ -endpos 03:00:00 -frames %d -vf framerate=250 '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -vf framerate=250 '%s'" % (frames,tmpfilename)
             os.system(command)
-        imgdir = "/var/www/tna/uploads/images/%05d/" % video.id
+        imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % video.id
         try:
             os.makedirs(imgdir)
         except:
             pass
-        imgs = os.listdir("/tmp/tna/imgs/")
+        imgs = os.listdir("/tmp/wardenclyffe/imgs/")
         imgs.sort()
         for img in imgs:
-            os.system("mv /tmp/tna/imgs/%s %s" % (img,imgdir))
+            os.system("mv /tmp/wardenclyffe/imgs/%s %s" % (img,imgdir))
             i = Image.objects.create(video=video,image="images/%05d/%s" % (video.id,img))
 
         operation.status = "complete"
