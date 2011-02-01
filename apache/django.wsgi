@@ -9,6 +9,7 @@ sys.path.append('/var/www/wardenclyffe/')
 sys.path.append('/var/www/wardenclyffe/wardenclyffe/')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'wardenclyffe.settings_production'
+os.environ["CELERY_LOADER"] = "django"
 
 import django.core.handlers.wsgi
 
