@@ -123,6 +123,7 @@ def add_series(request):
 @login_required
 @rendered_with('main/upload.html')
 def upload(request):
+    series_id = None
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
         if form.is_valid():
@@ -132,6 +133,8 @@ def upload(request):
                 os.makedirs("/tmp/wardenclyffe/")
             except:
                 pass
+            if not request.FILES.get('source_file',None):
+                return HttpResponse("no video uploaded")
             extension = request.FILES['source_file'].name.split(".")[-1]
             tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
             tmpfile = open(tmpfilename, 'wb')
