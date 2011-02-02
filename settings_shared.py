@@ -4,9 +4,7 @@ import os.path
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    ('CCNMTL', 'ccnmtl-sysadmin@columbia.edu'),
-)
+ADMINS = ( )
 
 MANAGERS = ADMINS
 
@@ -71,8 +69,20 @@ INSTALLED_APPS = (
     'template_utils',
     'typogrify',
     'djcelery',
-    'main'
+    'main',
+    'sentry.client',
 )
+
+import logging
+from sentry.client.handlers import SentryHandler
+logger = logging.getLogger()
+if SentryHandler not in map(lambda x: x.__class__, logger.handlers):
+    logger.addHandler(SentryHandler())
+    logger = logging.getLogger('sentry.errors')
+    logger.propagate = False
+    logger.addHandler(logging.StreamHandler())
+    SENTRY_REMOTE_URL = 'http://sentry.ccnmtl.columbia.edu/sentry/store/'
+SENTRY_SITE = 'wardenclyffe'
 
 THUMBNAIL_SUBDIR = "thumbs"
 EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "
