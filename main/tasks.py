@@ -53,26 +53,31 @@ def make_images(tmpfilename,video_id,user,**kwargs):
                                          owner=user,
                                          uuid=ouuid)
     try:
+        tmpdir = "/tmp/wardenclyffe/imgs/" + str(ouuid) + "/"
+        try:
+            os.makedirs(tmpdir)
+        except:
+            pass
         size = os.stat(tmpfilename)[6] / (1024 * 1024)
         frames = size * 2 # 2 frames per MB at the most
         if tmpfilename.lower().endswith("avi"):
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
         else:
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -sstep 10 '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
         os.system(command)
-        imgs = os.listdir("/tmp/wardenclyffe/imgs/")
+        imgs = os.listdir(tmpdir)
         if len(imgs) == 0:
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=/tmp/wardenclyffe/imgs/ -endpos 03:00:00 -frames %d -vf framerate=250 '%s'" % (frames,tmpfilename)
+            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -vf framerate=250 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
             os.system(command)
         imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % video.id
         try:
             os.makedirs(imgdir)
         except:
             pass
-        imgs = os.listdir("/tmp/wardenclyffe/imgs/")
+        imgs = os.listdir(tmpdir)
         imgs.sort()
         for img in imgs:
-            os.system("mv /tmp/wardenclyffe/imgs/%s %s" % (img,imgdir))
+            os.system("mv %s%s %s" % (tmpdir,img,imgdir))
             i = Image.objects.create(video=video,image="images/%05d/%s" % (video.id,img))
 
         operation.status = "complete"
