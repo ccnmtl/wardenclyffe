@@ -73,6 +73,14 @@ INSTALLED_APPS = (
     'sentry.client',
 )
 
+#CELERY_RESULT_BACKEND = "database"
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+#BROKER_USER = "guest"
+#BROKER_PASSWORD = "guest"
+BROKER_VHOST = "/"
+CELERYD_CONCURRENCY = 4
+
 import logging
 from sentry.client.handlers import SentryHandler
 logger = logging.getLogger()
