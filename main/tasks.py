@@ -1,7 +1,6 @@
 import urllib2
 from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
-from django.conf import settings
 from angeldust import PCP
 from celery.decorators import task
 from models import Video, File, Operation, OperationFile, OperationLog, Image
@@ -11,7 +10,7 @@ import tempfile
 import subprocess
 
 @task(ignore_result=True)
-def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
+def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
     print "saving to tahoe"
     video = Video.objects.get(id=video_id)
     ouuid = uuid.uuid4()
@@ -27,7 +26,7 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,**kwargs):
         datagen, headers = multipart_encode((
             ("t","upload"),
             MultipartParam(name='file',fileobj=source_file,filename=os.path.basename(tmpfilename))))
-        request = urllib2.Request(settings.TAHOE_BASE, datagen, headers)
+        request = urllib2.Request(tahoe_base, datagen, headers)
         cap = urllib2.urlopen(request).read()
         source_file.close()
         operation.status = "complete"
@@ -127,7 +126,7 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
     
 
 @task(ignore_result=True)
-def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,**kwargs):
+def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
     print "submitting to PCP"
     video = Video.objects.get(id=video_id)
     ouuid = uuid.uuid4()
@@ -138,9 +137,7 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,**kwargs):
                                          params="workflow: %s" % workflow,
                                          uuid=ouuid,
                                          )
-    pcp = PCP(settings.PCP_BASE_URL,
-              settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
+    pcp = PCP(pcp_base_url,pcp_username,pcp_password)
     filename = str(ouuid) + ".mp4"
     fileobj = open(tmpfilename)
     try:
@@ -155,7 +152,7 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,**kwargs):
     
 
 @task(ignore_result=True)
-def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
+def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
     ouuid = uuid.uuid4()
@@ -199,9 +196,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,**kwargs):
         return
 
     print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL,
-              settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
+    pcp = PCP(pcp_base_url,pcp_username,pcp_password)
     filename = str(ouuid) + ".mp4"
     try:
         print "submitted with filename %s" % filename

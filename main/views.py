@@ -161,13 +161,14 @@ def upload(request):
             else:
                 transaction.commit()
                 if request.POST.get('upload_to_tahoe',False):
-                    save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
+                    save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
                 if request.POST.get('extract_metadata',False):
                     extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                 if request.POST.get('extract_images',False):
                     make_images.delay(tmpfilename,v.id,request.user)
                 if request.POST.get('submit_to_pcp',False):
-                    submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW)
+                    submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW,
+                                                     settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
@@ -215,10 +216,11 @@ def vitaldrop(request):
                 raise
             else:
                 transaction.commit()
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user)
+                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
                 extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                 make_images.delay(tmpfilename,v.id,request.user)
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW)
+                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
+                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                 return HttpResponseRedirect("/vitaldrop/done/")
     else:
         pass
@@ -256,7 +258,8 @@ def video_pcp_submit(request,id):
         # send to podcast producer
         pull_from_tahoe_and_submit_to_pcp.delay(video.id,
                                                 request.user,
-                                                request.POST.get('workflow',''))
+                                                request.POST.get('workflow',''),
+                                                settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
         p = PCP(settings.PCP_BASE_URL,
