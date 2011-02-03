@@ -64,13 +64,6 @@
 <td>{{file.filename}}</td>
 <td>{{file.location_type}}</td>
 </tr>
-{% if file.url %}
-<tr>
-<td colspan="5">
-{% oembed %}{{file.url}}{% endoembed %}
-</td>
-</tr>
-{% endif %}
 {% endfor %}
 </table>
 {% endif %}
