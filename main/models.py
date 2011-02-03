@@ -72,17 +72,25 @@ class Video(TimeStampedModel):
     def get_absolute_url(self):
         return "/video/%d/" % self.id
 
-            
+    def add_file_form(self,data=None):
+        class AddFileForm(forms.ModelForm):
+            class Meta:
+                model = File
+                exclude = ('video')
+        if data:
+            return AddFileForm(data)
+        else:
+            return AddFileForm()
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256,blank=True,null=True,default="")
     url = models.URLField(default="",blank=True,null=True)
     cap = models.CharField(max_length=256,default="",blank=True,null=True)
-    filename = models.CharField(max_length=256)
+    filename = models.CharField(max_length=256,blank=True,null=True)
     location_type = models.CharField(max_length=256,default="tahoe",
                                      choices=(('tahoe','tahoe'),('pcp','pcp'),('cuit','cuit'),
-                                              ('none','none')))
+                                              ('youtube','youtube'),('none','none')))
 
     def tahoe_download_url(self):
         if self.location_type == "tahoe":
@@ -106,6 +114,7 @@ class File(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/file/%d/" % self.id
+
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 

@@ -272,6 +272,21 @@ def video_pcp_submit(request,id):
                 kino_base=settings.PCP_BASE_URL)
 
 @login_required
+@rendered_with('main/add_file.html')
+def video_add_file(request,id):
+    video = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        form = video.add_file_form(request.POST)
+        if form.is_valid():
+            f = form.save(commit=False)
+            f.video = video
+            f.save()
+        else:
+            print "not valid!"
+        return HttpResponseRedirect(video.get_absolute_url())
+    return dict(video=video)
+
+@login_required
 @rendered_with('main/workflows.html')
 def list_workflows(request):
     try:

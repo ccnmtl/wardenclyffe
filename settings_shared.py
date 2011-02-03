@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'djcelery',
     'main',
     'sentry.client',
+    'oembed',
 )
 
 #CELERY_RESULT_BACKEND = "database"

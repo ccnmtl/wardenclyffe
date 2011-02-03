@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load markup %}
 {% load thumbnail %}
+{% load oembed_tags %}
 
 {% block content %}
 <p>In Series: <a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></p>
@@ -63,6 +64,13 @@
 <td>{{file.filename}}</td>
 <td>{{file.location_type}}</td>
 </tr>
+{% if file.url %}
+<tr>
+<td colspan="5">
+{% oembed %}{{file.url}}{% endoembed %}
+</td>
+</tr>
+{% endif %}
 {% endfor %}
 </table>
 {% endif %}
@@ -125,9 +133,10 @@
 </div>
 
 <div id="actions">
+<p><a href="add_file/">manually add a file/location -&gt;</a></p>
 {% if video.tahoe_download_url %}
 <p><a href="pcp_submit/">submit to another PCP workflow -&gt;</a></p>
-<p><a href="add_file/">manually add a file/location -&gt;</a></p>
+
 
 <p>Raw HTML Embed code:</p>
 
