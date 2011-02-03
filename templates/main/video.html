@@ -51,18 +51,14 @@
 <table>
 <tr>
 <th>label</th>
-<th>url</th>
-<th>tahoe cap</th>
-<th>filename</th>
-<th>location type</th>
+<th>type</th>
+<th></th>
 </tr>
 {% for file in video.file_set.all %}
 <tr class="{% cycle 'even' 'odd' %}">
 <th><a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
-<td>{{file.url}}</td>
-<td>{% if file.cap %}{{file.cap|slice:":50"}}...{% endif %}</td>
-<td>{{file.filename}}</td>
 <td>{{file.location_type}}</td>
+<td>[<a href="{{file.get_absolute_url}}delete/">X</a>]</td>
 </tr>
 {% endfor %}
 </table>

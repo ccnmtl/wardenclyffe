@@ -250,6 +250,17 @@ def file(request,id):
     return dict(file=f)
 
 @login_required
+@rendered_with('main/delete_confirm.html')
+def delete_file(request,id):
+    f = get_object_or_404(File,id=id)
+    if request.method == "POST":
+        video = f.video
+        f.delete()
+        return HttpResponseRedirect(video.get_absolute_url())
+    else:
+        return dict()
+
+@login_required
 @rendered_with('main/pcp_submit.html')
 def video_pcp_submit(request,id):
     video = get_object_or_404(Video,id=id)
