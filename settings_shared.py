@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     'main',
     'sentry.client',
     'oembed',
+    'taggit',
 )
 
 #CELERY_RESULT_BACKEND = "database"

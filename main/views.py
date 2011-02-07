@@ -12,6 +12,7 @@ from angeldust import PCP
 from django.conf import settings
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from taggit.models import Tag
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -43,6 +44,30 @@ def series(request,id):
     return dict(series=series,videos=videos[:20],
                 operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
 
+
+@login_required
+@rendered_with('main/edit_series.html')
+def edit_series(request,id):
+    series = get_object_or_404(Series,id=id)
+    if request.method == "POST":
+        form = series.edit_form(request.POST)
+        if form.is_valid():
+            series = form.save()
+            return HttpResponseRedirect(series.get_absolute_url())
+    form = series.edit_form()
+    return dict(series=series,form=form)
+
+@login_required
+@rendered_with('main/tag.html')
+def tag(request,tagname):
+    return dict(tag=tagname,
+                series=Series.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
+                videos = Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
+
+@login_required
+@rendered_with('main/tags.html')
+def tags(request):
+    return dict(tags=Tag.objects.all().order_by("name"))
 
 @login_required
 @rendered_with('main/video_index.html')
@@ -115,6 +140,7 @@ def add_series(request):
             s = form.save(commit=False)
             s.uuid = suuid
             s.save()
+            s.save_m2m()
             return HttpResponseRedirect(s.get_absolute_url())
     return dict(form=AddSeriesForm())
 
@@ -150,6 +176,7 @@ def upload(request):
                 if series_id:
                     v.series_id = series_id
                 v.save()
+                v.save_m2m()
                 source_file = File.objects.create(video=v,
                                                   label="source file",
                                                   filename=request.FILES['source_file'].name,
@@ -213,6 +240,7 @@ def scan_directory(request):
                 if series_id:
                     v.series_id = series_id
                 v.save()
+                v.save_m2m()
                 source_file = File.objects.create(video=v,
                                                   label="source file",
                                                   filename=request.POST.get('source_file'),

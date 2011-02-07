@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% block content %}
+
+<h1><a href="/tag/">Tag</a>: {{tag}}</h1>
+
+{% if series %}
+<h2>Series</h2>
+<table style="100%">
+{% for series in series %}
+<tr class="{% cycle 'odd' 'even' %}">
+<th><a href="{{series.get_absolute_url}}">{{series.title}}</a></th>
+</tr>
+{% endfor %}
+</table>
+
+{% endif %}
+
+{% if videos %}
+<h2>Videos</h2>
+<table style="width: 100%"> 
+{% for video in videos %}
+<tr class="{% cycle 'odd' 'even' %}">
+<th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<td>uploaded at <i>{{video.created|date:"r"}}</i>, last modified:
+<i>{{video.modified|date:"r"}}</i></td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}

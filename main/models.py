@@ -4,6 +4,8 @@ from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
+from taggit.managers import TaggableManager
+
 TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
 class Series(TimeStampedModel):
@@ -16,6 +18,8 @@ class Series(TimeStampedModel):
     license = models.CharField(max_length=256,default="",blank=True)    
 
     uuid = UUIDField()
+
+    tags = TaggableManager()
 
     def __unicode__(self):
         return self.title
@@ -30,6 +34,15 @@ class Series(TimeStampedModel):
                 exclude = ('series')
         return AddVideoForm()
 
+    def edit_form(self,data=None):
+        class EditForm(forms.ModelForm):
+            class Meta:
+                model = Series
+        if data:
+            return EditForm(data)
+        else:
+            return EditForm(instance=self)
+
 class Video(TimeStampedModel):
     series = models.ForeignKey(Series)
     title = models.CharField(max_length=256)
@@ -40,6 +53,8 @@ class Video(TimeStampedModel):
     language = models.CharField(max_length=256,default="",blank=True)
 
     uuid = UUIDField()
+
+    tags = TaggableManager()
 
     def tahoe_file(self):
         r = self.file_set.filter(location_type='tahoe')

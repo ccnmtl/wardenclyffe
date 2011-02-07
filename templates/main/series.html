@@ -11,7 +11,12 @@
 <tr><th>description<br /><span class="dc">dcterms:description</span></th></th><td>{{series.description}}</td></tr>
 <tr><th>subject<br /><span class="dc">dcterms:subject</span></th></th><td>{{series.subject}}</td></tr>
 <tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{series.license}}</td></tr>
+<tr><th>tags</th>
+<td>
+{% for tag in series.tags.all %}<a href="/tag/{{tag}}/">{{tag}}</a> {% endfor %}
+</td></tr>
 </table>
+<p><a href="edit/">edit series metadata</a></p>
 
 <p><a href="/upload/?series={{series.id}}">add a video</a></p>
 
