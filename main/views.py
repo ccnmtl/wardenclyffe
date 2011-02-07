@@ -182,6 +182,70 @@ def upload(request):
 
 @transaction.commit_manually
 @login_required
+@rendered_with('main/scan_directory.html')
+def scan_directory(request):
+    series_id = None
+    file_listing = []
+    if request.method == "POST":
+        form = UploadVideoForm(request.POST)
+        if form.is_valid():
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs("/tmp/wardenclyffe/")
+            except:
+                pass
+            if not request.POST['source_file']:
+                return HttpResponse("no video uploaded")
+            print str(request.POST)
+            extension = request.POST.get('source_file').split(".")[-1]
+            tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
+
+            os.rename(settings.WATCH_DIRECTORY + request.POST.get('source_file'),tmpfilename)
+
+
+            # make db entry
+            try:
+                filename = request.POST['source_file']
+                v = form.save(commit=False)
+                v.uuid = vuuid
+                series_id = request.GET.get('series',None)
+                if series_id:
+                    v.series_id = series_id
+                v.save()
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.POST.get('source_file'),
+                                                  location_type='none')
+
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+                if request.POST.get('upload_to_tahoe',False):
+                    save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
+                if request.POST.get('extract_metadata',False):
+                    extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
+                if request.POST.get('extract_images',False):
+                    make_images.delay(tmpfilename,v.id,request.user)
+                if request.POST.get('submit_to_pcp',False):
+                    submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW,
+                                                     settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                return HttpResponseRedirect("/")
+    else:
+        form = UploadVideoForm()
+        series_id = request.GET.get('series',None)
+        if series_id:
+            series = get_object_or_404(Series,id=series_id)
+            form = series.add_video_form()
+        file_listing = os.listdir(settings.WATCH_DIRECTORY)
+            
+    return dict(form=form,series_id=series_id,file_listing=file_listing)
+
+
+@transaction.commit_manually
+@login_required
 @rendered_with('main/vitaldrop.html')
 def vitaldrop(request):
     if request.method == "POST":

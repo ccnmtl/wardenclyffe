@@ -2,13 +2,25 @@
 
 {% block content %}
 
-<p>Or, <a href="/scan_directory/">use the drop-off directory</a>.</p>
+<p>Or, <a href="/upload/">upload a file through the browser</a>.</p>
 
 <form action="." method="post" enctype="multipart/form-data">
 <table>
 <tr>
 <th>File</th>
-<td><input type="file" name="source_file" />
+<td>
+{% if file_listing %}
+<table width="100%">
+{% for file in file_listing %}
+<tr class="{% cycle 'even' 'odd'%}">
+<td><input type="radio" value="{{file}}" name="source_file"/></td>
+<td>{{file}}</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p>there are no files in the drop-off directory</p>
+{% endif %}
 </td>
 </tr>
 
