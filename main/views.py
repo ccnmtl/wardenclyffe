@@ -58,6 +58,19 @@ def edit_series(request,id):
     return dict(series=series,form=form)
 
 @login_required
+@rendered_with('main/edit_video.html')
+def edit_video(request,id):
+    video = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        form = video.edit_form(request.POST)
+        if form.is_valid():
+            video = form.save()
+            return HttpResponseRedirect(video.get_absolute_url())
+    form = video.edit_form()
+    return dict(video=video,form=form)
+
+
+@login_required
 @rendered_with('main/tag.html')
 def tag(request,tagname):
     return dict(tag=tagname,

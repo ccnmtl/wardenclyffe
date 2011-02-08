@@ -97,6 +97,16 @@ class Video(TimeStampedModel):
         else:
             return AddFileForm()
 
+    def edit_form(self,data=None):
+        class EditForm(forms.ModelForm):
+            class Meta:
+                model = Video
+        if data:
+            return EditForm(data)
+        else:
+            return EditForm(instance=self)
+
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256,blank=True,null=True,default="")

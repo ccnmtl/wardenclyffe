@@ -29,8 +29,15 @@
 <tr><th>license<br /><span class="dc">dcterms:license</span></th><td><a href="/video/?license={{video.license}}">{{video.license}}</a></td></tr>
 <tr><th>created<br /><span class="dc">dcterms:created</span></th><td>{{video.created|date:"r"}}</td></tr>
 <tr><th>last modified<br /><span class="dc">dcterms:modified</span></th><td>{{video.modified|date:"r"}}</td></tr>
+{% if video.tags.count %}
+<tr><th>tags</th>
+<td>
+{% for tag in video.tags.all %}<a href="/tag/{{tag}}/">{{tag}}</a> {% endfor %}
+</td>
+</tr>
+{% endif %}
 </table>
-
+<p><a href="edit/">edit video metadata</a></p>
 
 
 </div>
