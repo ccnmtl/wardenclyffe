@@ -3,6 +3,22 @@
 {% load thumbnail %}
 {% load oembed_tags %}
 
+{% block js %}
+{{block.super}}
+<script type="text/javascript">
+var removeTag = function(tagName,tagId) {
+   var li = jQuery("#tag-" + tagId);
+   li.addClass("ui-state-disabled");
+   jQuery.ajax({url: "remove_tag/" + tagName + "/?ajax=1",
+   context: li,
+   success: function (){this.hide();}
+});
+//   jQuery("#tag-" + tagId).hide();
+};
+</script>
+
+{% endblock %}
+
 {% block content %}
 <p>In Series: <a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></p>
 <h1>{{video.title}}</h1>
@@ -31,9 +47,16 @@
 <tr><th>last modified<br /><span class="dc">dcterms:modified</span></th><td>{{video.modified|date:"r"}}</td></tr>
 {% if video.tags.count %}
 <tr><th>tags</th>
-<td>
-{% for tag in video.tags.all %}<a href="/tag/{{tag}}/">{{tag}}</a> {% endfor %}
-</td>
+  <td>
+    <ul>
+      {% for tag in video.tags.all %}
+      <li id="tag-{{tag.id}}">
+	<a href="/tag/{{tag}}/">{{tag}}</a>
+	[<a href="remove_tag/{{tag}}/"
+	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
+      </li>{% endfor %}
+    </ul>
+  </td>
 </tr>
 {% endif %}
 </table>

@@ -1,5 +1,22 @@
 {% extends 'base.html' %}
 {% load markup %}
+
+{% block js %}
+{{block.super}}
+<script type="text/javascript">
+var removeTag = function(tagName,tagId) {
+   var li = jQuery("#tag-" + tagId);
+   li.addClass("ui-state-disabled");
+   jQuery.ajax({url: "remove_tag/" + tagName + "/?ajax=1",
+   context: li,
+   success: function (){this.hide();}
+});
+//   jQuery("#tag-" + tagId).hide();
+};
+</script>
+
+{% endblock %}
+
 {% block content %}
 
 <h1>Series: {{series.title}}</h1>
@@ -13,7 +30,15 @@
 <tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{series.license}}</td></tr>
 <tr><th>tags</th>
 <td>
-{% for tag in series.tags.all %}<a href="/tag/{{tag}}/">{{tag}}</a> {% endfor %}
+    <ul>
+      {% for tag in series.tags.all %}
+      <li id="tag-{{tag.id}}">
+	<a href="/tag/{{tag}}/">{{tag}}</a>
+	[<a href="remove_tag/{{tag}}/"
+	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
+      </li>{% endfor %}
+    </ul>
+
 </td></tr>
 </table>
 <p><a href="edit/">edit series metadata</a></p>

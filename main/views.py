@@ -69,6 +69,24 @@ def edit_video(request,id):
     form = video.edit_form()
     return dict(video=video,form=form)
 
+@login_required
+def remove_tag_from_video(request,id,tagname):
+    video = get_object_or_404(Video,id=id)
+    if 'ajax' in request.GET:
+        # we're not being strict about requiring POST,
+        # but let's at least require ajax
+        video.tags.remove(tagname)
+    return HttpResponse("ok")
+
+@login_required
+def remove_tag_from_series(request,id,tagname):
+    series = get_object_or_404(Series,id=id)
+    if 'ajax' in request.GET:
+        # we're not being strict about requiring POST,
+        # but let's at least require ajax
+        series.tags.remove(tagname)
+    return HttpResponse("ok")
+
 
 @login_required
 @rendered_with('main/tag.html')
