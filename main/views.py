@@ -353,6 +353,18 @@ def delete_file(request,id):
         return dict()
 
 @login_required
+@rendered_with('main/delete_confirm.html')
+def delete_operation(request,id):
+    o = get_object_or_404(Operation,id=id)
+    if request.method == "POST":
+        video = o.video
+        o.delete()
+        return HttpResponseRedirect(video.get_absolute_url())
+    else:
+        return dict()
+
+
+@login_required
 @rendered_with('main/pcp_submit.html')
 def video_pcp_submit(request,id):
     video = get_object_or_404(Video,id=id)

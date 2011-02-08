@@ -78,6 +78,7 @@
   <th>params</th>
   <th>started</th>
   <th>last update</th>
+  <th>delete</th>
 </tr>
 
 {% for operation in video.operation_set.all %}
@@ -89,6 +90,7 @@
   <td>
     <nobr>{% ifchanged operation.created.date %}{{operation.created|date:"Y-m-d H:i:s"}}{% else %}{{operation.created|date:"H:i:s"}}{% endifchanged %}</nobr></td>
   <td><nobr>{{operation.modified|date:"Y-m-d H:i:s"}}</nobr></td>
+<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
 </tr>
 {% if operation.operationfile_set.count %}
 {% for of in operation.operationfile_set.all %}
@@ -99,6 +101,7 @@
 <td>{{of.file.location_type}}</td>
 <td><nobr>{{of.file.created|date:"Y-m-d H:i:s"}}</nobr></td>
 <td><nobr>{{of.file.modified|date:"Y-m-d H:i:s"}}</nobr></td>
+<td></td>
 </tr>
 {% endfor %}
 {% endif %}
@@ -109,7 +112,7 @@
 <td></td>
 <td colspan="4">{{log.info}}</td>
 <td><nobr>{{log.created|date:"Y-m-d H:i:s"}}</nobr></td>
-
+<td></td>
 </tr>
 {% endfor %}
 
