@@ -39,7 +39,7 @@ class Series(TimeStampedModel):
             class Meta:
                 model = Series
         if data:
-            return EditForm(data)
+            return EditForm(data,instance=self)
         else:
             return EditForm(instance=self)
 
@@ -102,7 +102,7 @@ class Video(TimeStampedModel):
             class Meta:
                 model = Video
         if data:
-            return EditForm(data)
+            return EditForm(data,instance=self)
         else:
             return EditForm(instance=self)
 
