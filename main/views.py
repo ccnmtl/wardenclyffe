@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from models import Video, Operation, Series, File, Metadata
+from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
@@ -43,6 +44,13 @@ def series(request,id):
     videos = Video.objects.filter(series=series).order_by("-modified")
     return dict(series=series,videos=videos[:20],
                 operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
+
+@login_required
+@rendered_with('main/user.html')
+def user(request,username):
+    user = get_object_or_404(User,username=username)
+    return dict(user=user,
+                operations=Operation.objects.filter(owner__id=user.id).order_by("-modified")[:20])
 
 
 @login_required
