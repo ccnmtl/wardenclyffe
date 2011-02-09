@@ -394,6 +394,15 @@ def delete_video(request,id):
     else:
         return dict()
 
+@login_required
+@rendered_with('main/delete_confirm.html')
+def delete_series(request,id):
+    s = get_object_or_404(Series,id=id)
+    if request.method == "POST":
+        s.delete()
+        return HttpResponseRedirect("/")
+    else:
+        return dict()
 
 @login_required
 @rendered_with('main/delete_confirm.html')
