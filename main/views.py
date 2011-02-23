@@ -266,7 +266,7 @@ def scan_directory(request):
                 pass
             if not request.POST['source_file']:
                 return HttpResponse("no video uploaded")
-            print str(request.POST)
+
             extension = request.POST.get('source_file').split(".")[-1]
             tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
 
@@ -460,7 +460,7 @@ def video_add_file(request,id):
             f.video = video
             f.save()
         else:
-            print "not valid!"
+            pass
         return HttpResponseRedirect(video.get_absolute_url())
     return dict(video=video)
 
