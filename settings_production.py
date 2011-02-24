@@ -14,7 +14,12 @@ STATICMEDIA_MOUNTS = (
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+TMP_DIR = "/var/www/wardenclyffe/tmp/"
+WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
+
+
 try:
     from local_settings import *
 except ImportError:
     pass
+
