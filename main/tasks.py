@@ -8,6 +8,7 @@ import os.path
 import uuid 
 import tempfile
 import subprocess
+from django.conf import settings
 
 @task(ignore_result=True)
 def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
@@ -53,7 +54,7 @@ def make_images(tmpfilename,video_id,user,**kwargs):
                                          owner=user,
                                          uuid=ouuid)
     try:
-        tmpdir = "/tmp/wardenclyffe/imgs/" + str(ouuid) + "/"
+        tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
         try:
             os.makedirs(tmpdir)
         except:

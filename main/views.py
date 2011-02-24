@@ -196,11 +196,11 @@ def upload(request):
             vuuid = uuid.uuid4()
             if request.FILES.get('source_file',None):
                 try: 
-                    os.makedirs("/tmp/wardenclyffe/")
+                    os.makedirs(settings.TMP_DIR)
                 except:
                     pass
                 extension = request.FILES['source_file'].name.split(".")[-1]
-                tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
+                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
                 tmpfile = open(tmpfilename, 'wb')
                 for chunk in request.FILES['source_file'].chunks():
                     tmpfile.write(chunk)
@@ -261,14 +261,14 @@ def scan_directory(request):
             # save it locally
             vuuid = uuid.uuid4()
             try: 
-                os.makedirs("/tmp/wardenclyffe/")
+                os.makedirs(settings.TMP_DIR)
             except:
                 pass
             if not request.POST['source_file']:
                 return HttpResponse("no video uploaded")
 
             extension = request.POST.get('source_file').split(".")[-1]
-            tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
 
             os.rename(settings.WATCH_DIRECTORY + request.POST.get('source_file'),tmpfilename)
 
@@ -323,11 +323,11 @@ def vitaldrop(request):
             # save it locally
             vuuid = uuid.uuid4()
             try: 
-                os.makedirs("/tmp/wardenclyffe/")
+                os.makedirs(settings.TMP_DIR)
             except:
                 pass
             extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = "/tmp/wardenclyffe/" + str(vuuid) + "." + extension.lower()
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
             tmpfile = open(tmpfilename, 'wb')
             for chunk in request.FILES['source_file'].chunks():
                 tmpfile.write(chunk)
