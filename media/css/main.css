@@ -186,6 +186,14 @@ img, img a
 	background: #fffbc7 url('../img/bg_header.jpg') left top no-repeat;
 }
 
+#vitalheader 
+{
+    width: 900px;
+    height: 37px;
+    display: block;
+    background: #eeeeee url('../img/vital.gif') left top no-repeat;
+}
+
 #header #logo_project
 {
 	display: block;
