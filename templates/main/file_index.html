@@ -1,5 +1,22 @@
 {% extends 'base.html' %}
 {% load markup %}
+
+{% block js %}
+
+{{block.super}}
+
+<script type="text/javascript">
+jQuery(document).ready(function() 
+    { 
+        jQuery(".tablesorter").tablesorter({widgets: ['zebra']}); 
+    } 
+); 
+   
+
+</script>
+
+{% endblock %}
+
 {% block content %}
 
 
@@ -28,19 +45,23 @@
 </div>
 
 
-<table style="width: 100%"> 
+<table style="width: 100%" class="tablesorter"> 
+<thead>
   <tr>
     <th>file</th>
     <th>uploaded</th><th>modified</th></tr>
+</thead>
+<tbody>
 {% for file in files.object_list %}
 <tr class="{% cycle 'odd' 'even' %}">
 <th align="left"><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>
   / <a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a>
   / <a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
-<td><i>{{file.created|date:"r"}}</i></td>
-<td><i>{{file.modified|date:"r"}}</i></td>
+<td><i>{{file.created|date:"M d, Y H:i:s"}}</i></td>
+<td><i>{{file.modified|date:"M d, Y H:i:s"}}</i></td>
 </tr>
 {% endfor %}
+</tbody>
 </table>
 
 
