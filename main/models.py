@@ -87,6 +87,9 @@ class Video(TimeStampedModel):
     def get_absolute_url(self):
         return "/video/%d/" % self.id
 
+    def get_oembed_url(self):
+        return "/video/%d/oembed/" % self.id
+
     def add_file_form(self,data=None):
         class AddFileForm(forms.ModelForm):
             class Meta:
