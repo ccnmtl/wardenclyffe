@@ -14,6 +14,8 @@ from django.conf import settings
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from taggit.models import Tag
+from restclient import GET
+from simplejson import loads
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -459,6 +461,26 @@ def video_pcp_submit(request,id):
         workflows = []
     return dict(video=video,workflows=workflows,
                 kino_base=settings.PCP_BASE_URL)
+
+@login_required
+@rendered_with('main/mediathread_submit.html')
+def video_mediathread_submit(request,id):
+    video = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        filename = video.filename()
+        # send to podcast producer
+        # TODO, once mediathread side is implemented
+        return HttpResponseRedirect(video.get_absolute_url())        
+    try:
+        courses = loads(GET(settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" 
+                            + settings.MEDIATHREAD_SECRET + "&user=" + request.user.username))['courses']
+        courses = [dict(id=k,title=v['title']) for (k,v) in courses.items()]
+        courses.sort(key=lambda x: x['title'].lower())
+    except:
+        courses = []
+    return dict(video=video,courses=courses,
+                mediathread_base=settings.MEDIATHREAD_BASE)
+
 
 @login_required
 @rendered_with('main/add_file.html')
