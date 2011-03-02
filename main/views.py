@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, Operation, Series, File, Metadata
+from models import Video, Operation, Series, File, Metadata, OperationLog
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
@@ -368,6 +368,17 @@ def test_upload(request):
     return HttpResponse("a response")
 
 def done(request):
+    title = request.POST.get('title','no title')
+    if title.startswith("[") and "]" in title:
+        (uuid,oldtitle) = title.split("]")
+        uuid = uuid[1:]
+    r = Operation.objects.filter(uuid=uuid)
+    if r.count() == 1:
+        operation = r[0]
+        operation.status = "complete"
+        operation.save()
+        ol = OperationLog.objects.create(operation=operation,
+                                         info="PCP completed")
     return HttpResponse("ok")
 
 @login_required

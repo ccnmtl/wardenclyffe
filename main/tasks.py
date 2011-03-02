@@ -169,6 +169,8 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
                                          params="workflow: %s" % workflow,
                                          uuid=ouuid,
                                          )
+    print "created operation %d with uuid %s" % (operation.id,operation.uuid)
+    ouuid = operation.uuid
     url = video.tahoe_download_url()
     if url == "":
         operation.status = "failed"
