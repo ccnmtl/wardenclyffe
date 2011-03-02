@@ -143,11 +143,12 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,p
                                          params="workflow: %s" % workflow,
                                          uuid=ouuid,
                                          )
+    ouuid = operation.uuid
     pcp = PCP(pcp_base_url,pcp_username,pcp_password)
     filename = str(ouuid) + ".mp4"
     fileobj = open(tmpfilename)
     try:
-        pcp.upload_file(fileobj,filename,workflow,video.title,video.description)
+        pcp.upload_file(fileobj,filename,workflow,"[%s]%s" % (str(ouuid),video.title),video.description)
         operation.status = "submitted"
     except Exception, e:
         operation.status = "failed"
