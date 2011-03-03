@@ -482,7 +482,6 @@ def video_mediathread_submit(request,id):
             'secret' : settings.MEDIATHREAD_SECRET,
             'title' : video.title,
             'mp4' : video.tahoe_download_url(),
-            # TODO: until we let users designate poster images
             'thumb' : video.poster_url(),
             "mp4-metadata" : "w%dh%d" % (width,height),
             "metadata-creator" : video.creator,
@@ -493,7 +492,7 @@ def video_mediathread_submit(request,id):
             "metadata-uuid" : video.uuid,
             "metadata-wardenclyffe-id" : str(video.id),
             }
-        resp,content = POST(settings.MEDIATHREAD_POST_URL,params=params,async=False,resp=True)
+        resp,content = POST(settings.MEDIATHREAD_BASE + "/save/",params=params,async=False,resp=True)
         if resp.status == 302:
             url = resp['location']
             f = File.objects.create(video=video,url=url,cap="",location_type="mediathread",
