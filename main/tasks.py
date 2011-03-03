@@ -9,6 +9,7 @@ import uuid
 import tempfile
 import subprocess
 from django.conf import settings
+from restclient import POST
 
 @task(ignore_result=True)
 def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
@@ -42,6 +43,55 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
                                           info=str(e))
         
     operation.save()
+
+@task(ignore_result=True)
+def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread_base):
+    print "submitting to mediathread"
+    video = Video.objects.get(id=video_id)
+    operation = Operation.objects.create(video=video,
+                                         owner=user,
+                                         action="submit to mediathread",
+                                         status="in progress")
+    try:
+        (width,height) = video.get_dimensions()
+        if not width or not height:
+            pass
+        params = {
+            'set_course' : course_id,
+            'as' : user.username,
+            'secret' : mediathread_secret,
+            'title' : video.title,
+            'mp4' : video.tahoe_download_url(),
+            'thumb' : video.poster_url(),
+            "mp4-metadata" : "w%dh%d" % (width,height),
+            "metadata-creator" : video.creator,
+            "metadata-description" : video.description,
+            "metadata-subject" : video.subject,
+            "metadata-license" : video.license,
+            "metadata-language" : video.language,
+            "metadata-uuid" : video.uuid,
+            "metadata-wardenclyffe-id" : str(video.id),
+            }
+        resp,content = POST(mediathread_base + "/save/",
+                            params=params,async=False,resp=True)
+        if resp.status == 302:
+            url = resp['location']
+            f = File.objects.create(video=video,url=url,cap="",location_type="mediathread",
+                                    filename="",
+                                    label="mediathread")
+            of = OperationFile.objects.create(operation=operation,file=f)
+            operation.status = "complete"
+            operation.save()
+        else:
+            log = OperationLog.objects.create(operation=operation,
+                                              info="mediathread rejected submission")
+            operation.status = "failed"
+            operation.save()
+    except Exception, e:
+        operation.status = "failed"
+        log = OperationLog.objects.create(operation=operation,
+                                          info=str(e))        
+    print "done submitting to mediathread"
 
 @task(ignore_result=True)
 def make_images(tmpfilename,video_id,user,**kwargs):

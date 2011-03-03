@@ -7,7 +7,7 @@ from models import Video, Operation, Series, File, Metadata, OperationLog, Opera
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -467,46 +467,10 @@ def video_pcp_submit(request,id):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        # TODO: convert this to a celery task so it can
-        # run asynchronously
-        operation = Operation.objects.create(video=video,
-                                             owner=request.user,
-                                             action="submit to mediathread",
-                                             status="in progress")
-        (width,height) = video.get_dimensions()
-        if not width or not height:
-            return HttpResponse("can not determine dimensions of video, which mediathread requires")
-        params = {
-            'set_course' : request.POST.get('course',''),
-            'as' : request.user.username,
-            'secret' : settings.MEDIATHREAD_SECRET,
-            'title' : video.title,
-            'mp4' : video.tahoe_download_url(),
-            'thumb' : video.poster_url(),
-            "mp4-metadata" : "w%dh%d" % (width,height),
-            "metadata-creator" : video.creator,
-            "metadata-description" : video.description,
-            "metadata-subject" : video.subject,
-            "metadata-license" : video.license,
-            "metadata-language" : video.language,
-            "metadata-uuid" : video.uuid,
-            "metadata-wardenclyffe-id" : str(video.id),
-            }
-        resp,content = POST(settings.MEDIATHREAD_BASE + "/save/",params=params,async=False,resp=True)
-        if resp.status == 302:
-            url = resp['location']
-            f = File.objects.create(video=video,url=url,cap="",location_type="mediathread",
-                                    filename="",
-                                    label="mediathread")
-            of = OperationFile.objects.create(operation=operation,file=f)
-            operation.status = "complete"
-            operation.save()
-        else:
-            log = OperationLog.objects.create(operation=operation,
-                                              info="mediathread rejected submission")
-            operation.status = "failed"
-            operation.save()
-
+        submit_to_mediathread.delay(video.id,request.user,
+                                    request.POST.get('course',''),
+                                    settings.MEDIATHREAD_SECRET,
+                                    settings.MEDIATHREAD_BASE)
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
         courses = loads(GET(settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" 
