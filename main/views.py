@@ -485,13 +485,13 @@ def video_mediathread_submit(request,id):
             # TODO: until we let users designate poster images
             'thumb' : video.poster_url(),
             "mp4-metadata" : "w%dh%d" % (width,height),
-            "mp4-metadata-creator" : video.creator,
-            "mp4-metadata-description" : video.description,
-            "mp4-metadata-subject" : video.subject,
-            "mp4-metadata-license" : video.license,
-            "mp4-metadata-language" : video.language,
-            "mp4-metadata-uuid" : video.uuid,
-            "mp4-metadata-wardenclyffe-id" : str(video.id),
+            "metadata-creator" : video.creator,
+            "metadata-description" : video.description,
+            "metadata-subject" : video.subject,
+            "metadata-license" : video.license,
+            "metadata-language" : video.language,
+            "metadata-uuid" : video.uuid,
+            "metadata-wardenclyffe-id" : str(video.id),
             }
         resp,content = POST(settings.MEDIATHREAD_POST_URL,params=params,async=False,resp=True)
         if resp.status == 302:
