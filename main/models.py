@@ -63,6 +63,14 @@ class Video(TimeStampedModel):
         else:
             return None
 
+    def source_file(self):
+        r = self.file_set.filter(label='source file')
+        if r.count():
+            return r[0]
+        else:
+            return None
+
+
     def cap(self):
         t = self.tahoe_file()
         if t:
@@ -109,6 +117,18 @@ class Video(TimeStampedModel):
         else:
             return EditForm(instance=self)
 
+    def get_dimensions(self):
+        t = self.source_file()
+        return (t.get_width(),t.get_height())
+
+    def poster_url(self):
+        if self.image_set.all().count() > 0:
+            # TODO: get absolute url of first image
+            # and use that
+            # return self.image_set.all()[0].image
+            pass
+        return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
@@ -142,6 +162,13 @@ class File(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/file/%d/" % self.id
+
+    def get_width(self):
+        return int(self.metadata_set.filter(field="ID_VIDEO_WIDTH")[0].value)
+
+    def get_height(self):
+        return int(self.metadata_set.filter(field="ID_VIDEO_HEIGHT")[0].value)
+
 
 
 class Metadata(models.Model):

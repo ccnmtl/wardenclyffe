@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, Operation, Series, File, Metadata, OperationLog
+from models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
@@ -14,7 +14,7 @@ from django.conf import settings
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from taggit.models import Tag
-from restclient import GET
+from restclient import GET,POST
 from simplejson import loads
 
 class rendered_with(object):
@@ -467,9 +467,47 @@ def video_pcp_submit(request,id):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        filename = video.filename()
-        # send to podcast producer
-        # TODO, once mediathread side is implemented
+        # TODO: convert this to a celery task so it can
+        # run asynchronously
+        operation = Operation.objects.create(video=video,
+                                             owner=request.user,
+                                             action="submit to mediathread",
+                                             status="in progress")
+        (width,height) = video.get_dimensions()
+        if not width or not height:
+            return HttpResponse("can not determine dimensions of video, which mediathread requires")
+        params = {
+            'set_course' : request.POST.get('course',''),
+            'as' : request.user.username,
+            'secret' : settings.MEDIATHREAD_SECRET,
+            'title' : video.title,
+            'mp4' : video.tahoe_download_url(),
+            # TODO: until we let users designate poster images
+            'thumb' : video.poster_url(),
+            "mp4-metadata" : "w%dh%d" % (width,height),
+            "mp4-metadata-creator" : video.creator,
+            "mp4-metadata-description" : video.description,
+            "mp4-metadata-subject" : video.subject,
+            "mp4-metadata-license" : video.license,
+            "mp4-metadata-language" : video.language,
+            "mp4-metadata-uuid" : video.uuid,
+            "mp4-metadata-wardenclyffe-id" : str(video.id),
+            }
+        resp,content = POST(settings.MEDIATHREAD_POST_URL,params=params,async=False,resp=True)
+        if resp.status == 302:
+            url = resp['location']
+            f = File.objects.create(video=video,url=url,cap="",location_type="mediathread",
+                                    filename="",
+                                    label="mediathread")
+            of = OperationFile.objects.create(operation=operation,file=f)
+            operation.status = "complete"
+            operation.save()
+        else:
+            log = OperationLog.objects.create(operation=operation,
+                                              info="mediathread rejected submission")
+            operation.status = "failed"
+            operation.save()
+
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
         courses = loads(GET(settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" 

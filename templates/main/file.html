@@ -8,11 +8,15 @@
 
 <table>
 <tr><th>label</th><td>{{file.label}}</td></tr>
-<tr><th>URL</th><td>{{file.url}}</td></tr>
+<tr><th>URL</th><td>{% if file.url %}<a href="{{file.url}}">{{file.url}}</a>{% endif %}</td></tr>
 <tr><th>Tahoe CAP</th><td>{{file.cap}}</td></tr>
 <tr><th>Filename</th><td>{{file.filename}}</td></tr>
 <tr><th>Location Type</th><td>{{file.location_type}}</td></tr>
 </table>
+
+{% ifequal file.location_type "mediathread" %}
+<p><a href="{{file.url}}">Annotate this video in mediathread</a></p>
+{% endifequal %}
 
 {% ifequal file.location_type "tahoe" %}
 <div id="embed">
@@ -29,6 +33,8 @@
 {% endifequal %}
 
 {% if file.url %}
+{% ifequal file.location_type "mediathread" %}
+{% else %}
 <div id="embed">
 <p>Raw HTML Embed code:</p>
 <textarea rows="5" cols="100">
@@ -37,6 +43,7 @@
 <p>Preview</p>
 {% oembed %}{{file.url}}{% endoembed %}
 </div>
+{% endifequal %}
 {% endif %}
 
 {% if file.metadata_set.count %}
