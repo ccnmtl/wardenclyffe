@@ -16,10 +16,10 @@ $(document).ready(function()
 {% endblock %}
 
 {% block content %}
-<h2>User: {{user.first_name}} {{user.last_name}}</h2>
+<h2>User: {{viewuser.first_name}} {{viewuser.last_name}}</h2>
 
 {% if operations %}
-<h3>Recent Operations for {{user.first_name}} {{user.last_name}}</h3>
+<h3>Recent Operations for {{viewuser.first_name}} {{viewuser.last_name}}</h3>
 
 <table style="width: 100%" class="tablesorter">
 <thead>

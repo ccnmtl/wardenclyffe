@@ -52,7 +52,7 @@ def series(request,id):
 @rendered_with('main/user.html')
 def user(request,username):
     user = get_object_or_404(User,username=username)
-    return dict(user=user,
+    return dict(viewuser=user,
                 operations=Operation.objects.filter(owner__id=user.id).order_by("-modified")[:20])
 
 
