@@ -55,7 +55,17 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
     try:
         (width,height) = video.get_dimensions()
         if not width or not height:
-            pass
+            log = OperationLog.objects.create(operation=operation,
+                                              info="could not figure out dimensions")
+            operation.status = "failed"
+            operation.save()
+            return
+        if not video.tahoe_download_url():
+            log = OperationLog.objects.create(operation=operation,
+                                              info="no video URL")
+            operation.status = "failed"
+            operation.save()
+            return
         params = {
             'set_course' : course_id,
             'as' : user.username,

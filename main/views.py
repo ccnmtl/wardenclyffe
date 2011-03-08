@@ -16,6 +16,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from taggit.models import Tag
 from restclient import GET,POST
 from simplejson import loads
+import hmac, hashlib, datetime
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -381,6 +382,14 @@ def done(request):
         operation.save()
         ol = OperationLog.objects.create(operation=operation,
                                          info="PCP completed")
+        (set_course,username) = operation.video.mediathread_submit()
+        if set_course is not None:
+            user = User.objects.get(username=username)
+            submit_to_mediathread.delay(operation.video.id,user,set_course,
+                                        settings.MEDIATHREAD_SECRET,
+                                        settings.MEDIATHREAD_BASE)
+            operation.video.clear_mediathread_submit()
+
     return HttpResponse("ok")
 
 @login_required
@@ -461,6 +470,86 @@ def video_pcp_submit(request,id):
         workflows = []
     return dict(video=video,workflows=workflows,
                 kino_base=settings.PCP_BASE_URL)
+
+@transaction.commit_manually
+@rendered_with('main/mediathread.html')
+def mediathread(request):
+    if request.method == "POST":
+        if request.FILES['source_file']:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs(settings.TMP_DIR)
+            except:
+                pass
+            extension = request.FILES['source_file'].name.split(".")[-1]
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            # make db entry
+            try:
+                series = Series.objects.filter(title="Mediathread")[0]
+                filename = request.FILES['source_file'].name
+                v = Video.objects.create(series=series,
+                                         title="mediathread video uploaded by %s" % request.session['username'],
+                                         creator=request.session['username'],
+                                         uuid = vuuid)
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='none')
+                # we make a "mediathreadsubmit" file to store the submission
+                # info and serve as a flag that it needs to be submitted
+                # (when PCP comes back)
+                submit_file = File.objects.create(video=v,
+                                                  label="mediathread submit",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='mediathreadsubmit')
+                user = User.objects.get(username=request.session['username'])
+                submit_file.set_metadata("username",request.session['username'])
+                submit_file.set_metadata("set_course",request.session['set_course'])
+                submit_file.set_metadata("redirect_to",request.session['redirect_to'])
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+                
+                save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
+                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
+                make_images.delay(tmpfilename,v.id,request.user)
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
+                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,workflow,
+                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                return HttpResponseRedirect(request.session['redirect_to'])
+    else:
+        # check their credentials
+        nonce = request.GET.get('nonce','')
+        hmc = request.GET.get('hmac','')
+        set_course = request.GET.get('set_course','')
+        username = request.GET.get('as')
+        redirect_to = request.GET.get('redirect_url','')
+        verify = hmac.new(settings.MEDIATHREAD_SECRET,
+                          '%s:%s:%s' % (username,redirect_to,nonce),
+                          hashlib.sha1
+                          ).hexdigest()
+        if verify != hmc:
+            return HttpResponse("invalid authentication token")
+
+        try:
+            user = User.objects.get(username=username)
+        except:
+            user = User.objects.create(username=username)
+        request.session['username'] = username
+        request.session['set_course'] = set_course
+        request.session['nonce'] = nonce
+        request.session['redirect_to'] = redirect_to
+        request.session['hmac'] = hmc
+        return dict(username=username)
 
 @login_required
 @rendered_with('main/mediathread_submit.html')

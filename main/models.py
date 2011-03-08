@@ -129,6 +129,18 @@ class Video(TimeStampedModel):
             pass
         return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
 
+    def mediathread_submit(self):
+        r = self.file_set.filter(location_type="mediathreadsubmit")
+        if r.count() > 0:
+            f = r[0]
+            return (f.get_metadata("set_course"),f.get_metadata("username"),)
+        else:
+            return (None,None)
+
+    def clear_mediathread_submit(self):
+        self.file_set.filter(location_type="mediathreadsubmit").delete()
+            
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
@@ -159,6 +171,13 @@ class File(TimeStampedModel):
         else:
             # add
             m = Metadata.objects.create(file=self,field=field,value=value)
+
+    def get_metadata(self,field):
+        r = Metadata.objects.filter(file=self,field=field)
+        if r.count():
+            return r[0].value
+        else:
+            return None
 
     def get_absolute_url(self):
         return "/file/%d/" % self.id
