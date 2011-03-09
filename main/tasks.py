@@ -20,8 +20,11 @@ def with_operation(f,video,action,params,user,args,kwargs):
                                          owner=user,
                                          uuid=ouuid)
     try:
-        f(video,user,operation,*args,**kwargs)
-        operation.status = "complete"
+        (success,message) = f(video,user,operation,*args,**kwargs)
+        operation.status = success
+        if operation.status == "failed" or message != "":
+            log = OperationLog.objects.create(operation=operation,
+                                              info=message)
     except Exception, e:
         operation.status = "failed"
         log = OperationLog.objects.create(operation=operation,
@@ -49,6 +52,7 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
                                 filename=filename,
                                 label="uploaded source file")
         of = OperationFile.objects.create(operation=operation,file=f)
+        return ("complete","")
 
     args = [tmpfilename,filename,tahoe_base]
     with_operation(
@@ -56,27 +60,17 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
         user,args,kwargs)
 
 @task(ignore_result=True)
-def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread_base):
+def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread_base,**kwargs):
     print "submitting to mediathread"
     video = Video.objects.get(id=video_id)
-    operation = Operation.objects.create(video=video,
-                                         owner=user,
-                                         action="submit to mediathread",
-                                         status="in progress")
-    try:
+
+    action = "submit to mediathread"
+    def _do_submit_to_mediathread(video,user,operation,course_id,mediathread_secret,mediathread_base,**kwargs):
         (width,height) = video.get_dimensions()
         if not width or not height:
-            log = OperationLog.objects.create(operation=operation,
-                                              info="could not figure out dimensions")
-            operation.status = "failed"
-            operation.save()
-            return
+            return ("failed","could not figure out dimensions")
         if not video.tahoe_download_url():
-            log = OperationLog.objects.create(operation=operation,
-                                              info="no video URL")
-            operation.status = "failed"
-            operation.save()
-            return
+            return ("failed","no video URL")
         params = {
             'set_course' : course_id,
             'as' : user.username,
@@ -97,34 +91,25 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
                             params=params,async=False,resp=True)
         if resp.status == 302:
             url = resp['location']
-            f = File.objects.create(video=video,url=url,cap="",location_type="mediathread",
+            f = File.objects.create(video=video,url=url,cap="",
+                                    location_type="mediathread",
                                     filename="",
                                     label="mediathread")
             of = OperationFile.objects.create(operation=operation,file=f)
-            operation.status = "complete"
-            operation.save()
+            return ("complete","")
         else:
-            log = OperationLog.objects.create(operation=operation,
-                                              info="mediathread rejected submission")
-            operation.status = "failed"
-            operation.save()
-    except Exception, e:
-        operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))        
+            return ("failed","mediathread rejected submission")
+    args = [course_id,mediathread_secret,mediathread_base]
+    with_operation(_do_submit_to_mediathread,video,
+                   "submit to mediathread","",
+                   user,args,kwargs)
     print "done submitting to mediathread"
 
 @task(ignore_result=True)
 def make_images(tmpfilename,video_id,user,**kwargs):
     video = Video.objects.get(id=video_id)
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         action="make images",
-                                         status="in progress",
-                                         params="",
-                                         owner=user,
-                                         uuid=ouuid)
-    try:
+    def _do_make_images(video,user,operation,**kwargs):
+        ouuid = operation.uuid
         tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
         try:
             os.makedirs(tmpdir)
@@ -141,6 +126,7 @@ def make_images(tmpfilename,video_id,user,**kwargs):
         if len(imgs) == 0:
             command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -vf framerate=250 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
             os.system(command)
+        # TODO: parameterize
         imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % video.id
         try:
             os.makedirs(imgdir)
@@ -152,29 +138,15 @@ def make_images(tmpfilename,video_id,user,**kwargs):
             os.system("mv %s%s %s" % (tmpdir,img,imgdir))
             i = Image.objects.create(video=video,image="images/%05d/%s" % (video.id,img))
 
-        operation.status = "complete"
-        operation.save()
-        log = OperationLog.objects.create(operation=operation,
-                                          info="created %d images" % len(imgs))
-    except Exception, e:
-        operation.status = "failed"
-        operation.save()
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))
-
+        return ("complete","created %d images" % len(imgs))
+    with_operation(_do_make_images,video,"make images","",
+                   user,[],kwargs)
             
 @task(ignore_results=True)
 def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
     video = Video.objects.get(id=video_id)
-    source_file = File.objects.get(id=source_file_id)
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         action="extract metadata",
-                                         status="in progress",
-                                         params="",
-                                         owner=user,
-                                         uuid=ouuid)
-    try:
+    def _do_extract_metadata(video,user,operation,tmpfilename,source_file_id,**kwargs):
+        source_file = File.objects.get(id=source_file_id)
         # warning: for now we're expecting the midentify script
         # to be relatively located to this file. this ought to 
         # be a bit more configurable
@@ -190,107 +162,58 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
             except Exception, e:
                 # just ignore any parsing issues
                 print str(e)
-        operation.status = "complete"
-        operation.save()
-        print "finished extracting metadata"
-    except Exception, e:
-        operation.status = "failed"
-        operation.save()
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))
-        print "failed to extract metadata"
-
-    
+        return ("complete","")
+    args = [tmpfilename,source_file_id]
+    with_operation(_do_extract_metadata,video,"extract metadata","",
+                   user,args,kwargs)
 
 @task(ignore_result=True)
 def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
     print "submitting to PCP"
     video = Video.objects.get(id=video_id)
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         owner=user,
-                                         action="submit to podcast producer",
-                                         status="in progress",
-                                         params="workflow: %s" % workflow,
-                                         uuid=ouuid,
-                                         )
-    ouuid = operation.uuid
-    pcp = PCP(pcp_base_url,pcp_username,pcp_password)
-    filename = str(ouuid) + ".mp4"
-    fileobj = open(tmpfilename)
-    try:
+    def _do_submit_to_podcast_producer(video,user,operation,tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+        ouuid = operation.uuid
+        pcp = PCP(pcp_base_url,pcp_username,pcp_password)
+        filename = str(ouuid) + ".mp4"
+        fileobj = open(tmpfilename)
         pcp.upload_file(fileobj,filename,workflow,"[%s]%s" % (str(ouuid),video.title),video.description)
-        operation.status = "submitted"
-    except Exception, e:
-        operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))
-    operation.save()
-    print "finished submitting to PCP"
+        return ("submitted","")
+    with_operation(_do_submit_to_podcast_producer,video,"submit to podcast producer",
+                   "workflow: %s" % workflow,user,
+                   [tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password],
+                   kwargs)
     
 
 @task(ignore_result=True)
 def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         owner=user,
-                                         action="pull from tahoe and submit to pcp",
-                                         status="in progress",
-                                         params="workflow: %s" % workflow,
-                                         uuid=ouuid,
-                                         )
-    print "created operation %d with uuid %s" % (operation.id,operation.uuid)
-    ouuid = operation.uuid
-    url = video.tahoe_download_url()
-    if url == "":
-        operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info="does not have a tahoe stored file")
-
-        operation.save()
-        return
-
-    if workflow == "":
-        operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info="no workflow specified")
-        operation.save()
-        return
-
-    filename = video.filename()
-    suffix = os.path.splitext(filename)[1]
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    try:
+    args = [workflow,pcp_base_url,pcp_username,pcp_password]
+    def _do_pull_from_tahoe_and_submit_to_pcp(video,user,operation,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+        ouuid = operation.uuid
+        url = video.tahoe_download_url()
+        if url == "":
+            return ("failed","does not have a tahoe stored file")
+        if workflow == "":
+            return ("failed","no workflow specified")
+        filename = video.filename()
+        suffix = os.path.splitext(filename)[1]
+        t = tempfile.NamedTemporaryFile(suffix=suffix)
         r = urllib2.urlopen(url)
         t.write(r.read())
         t.seek(0)
         log = OperationLog.objects.create(operation=operation,
                                           info="downloaded from tahoe")
-    except Exception, e:
-        log = OperationLog.ojbects.create(operation=operation,
-                                          info=str(e))
-        operation.status = "failed"
-        operation.save()
-        return
-
-    print "submitting to PCP"
-    pcp = PCP(pcp_base_url,pcp_username,pcp_password)
-    filename = str(ouuid) + ".mp4"
-    try:
+        print "submitting to PCP"
+        pcp = PCP(pcp_base_url,pcp_username,pcp_password)
+        filename = str(ouuid) + ".mp4"
         print "submitted with filename %s" % filename
         title = "[" + str(ouuid) + "]" + video.title
         print "submitted with title %s" % title
         pcp.upload_file(t,filename,workflow, title, video.description)
-        operation.status = "submitted"
-        log = OperationLog.objects.create(operation=operation,
-                                          info="submitted to PCP")
-
-    except Exception, e:
-        operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))
-    operation.save()
-    print "finished submitting to PCP"
+        return ("submitted","submitted to PCP")
+    with_operation(_do_pull_from_tahoe_and_submit_to_pcp,video,
+                   "pull from tahoe and submit to pcp",
+                   "workflow: %s" % workflow,
+                   args,kwargs)
     
