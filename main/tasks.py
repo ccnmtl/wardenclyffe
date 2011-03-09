@@ -11,38 +11,49 @@ import subprocess
 from django.conf import settings
 from restclient import POST
 
-@task(ignore_result=True)
-def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
-    print "saving to tahoe"
-    video = Video.objects.get(id=video_id)
+def with_operation(f,video,action,params,user,args,kwargs):
     ouuid = uuid.uuid4()
     operation = Operation.objects.create(video=video,
-                                         action="save to tahoe",
+                                         action=action,
                                          status="in progress",
-                                         params="",
+                                         params=params,
                                          owner=user,
                                          uuid=ouuid)
     try:
-        source_file = open(tmpfilename,"rb")
-        register_openers()
-        datagen, headers = multipart_encode((
-            ("t","upload"),
-            MultipartParam(name='file',fileobj=source_file,filename=os.path.basename(tmpfilename))))
-        request = urllib2.Request(tahoe_base, datagen, headers)
-        cap = urllib2.urlopen(request).read()
-        source_file.close()
+        f(video,user,operation,*args,**kwargs)
         operation.status = "complete"
-        f = File.objects.create(video=video,url="",cap=cap,location_type="tahoe",
-                                filename=filename,
-                                label="uploaded source file")
-
-        of = OperationFile.objects.create(operation=operation,file=f)
     except Exception, e:
         operation.status = "failed"
         log = OperationLog.objects.create(operation=operation,
                                           info=str(e))
-        
     operation.save()
+
+@task(ignore_result=True)
+def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
+    print "saving to tahoe"
+    video = Video.objects.get(id=video_id)
+
+    def _do_save_file_to_tahoe(video,user,operation,tmpfilename,
+                               filename,tahoe_base,**kwargs):
+        source_file = open(tmpfilename,"rb")
+        register_openers()
+        datagen, headers = multipart_encode((
+                ("t","upload"),
+                MultipartParam(name='file',fileobj=source_file,
+                               filename=os.path.basename(tmpfilename))))
+        request = urllib2.Request(tahoe_base, datagen, headers)
+        cap = urllib2.urlopen(request).read()
+        source_file.close()
+        f = File.objects.create(video=video,url="",cap=cap,
+                                location_type="tahoe",
+                                filename=filename,
+                                label="uploaded source file")
+        of = OperationFile.objects.create(operation=operation,file=f)
+
+    args = [tmpfilename,filename,tahoe_base]
+    with_operation(
+        _do_save_file_to_tahoe,video,"save file to tahoe","",
+        user,args,kwargs)
 
 @task(ignore_result=True)
 def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread_base):
