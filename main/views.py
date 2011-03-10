@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread
+import tasks
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -367,6 +368,63 @@ def vitaldrop(request):
 @rendered_with('main/vitaldrop_done.html')
 def vitaldrop_done(request):
     return dict()
+
+
+@transaction.commit_manually
+@login_required
+@rendered_with('main/youtube.html')
+def youtube(request):
+    if request.method == "POST":
+        if request.FILES['source_file']:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs(settings.TMP_DIR)
+            except:
+                pass
+            extension = request.FILES['source_file'].name.split(".")[-1]
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            # make db entry
+            try:
+                series = Series.objects.filter(title="Youtube")[0]
+                filename = request.FILES['source_file'].name
+                v = Video.objects.create(series=series,
+                                         title="youtube video uploaded by %s" % request.user.username,
+                                         creator=request.user.username,
+                                         uuid = vuuid)
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='none')
+
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
+                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
+                make_images.delay(tmpfilename,v.id,request.user)
+                tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
+                                              settings.YOUTUBE_EMAIL,
+                                              settings.YOUTUBE_PASSWORD,
+                                              settings.YOUTUBE_SOURCE,
+                                              settings.YOUTUBE_DEVELOPER_KEY,
+                                              settings.YOUTUBE_CLIENT_ID
+                                              )
+                return HttpResponseRedirect("/youtube/done/")
+    else:
+        pass
+    return dict()
+
+@rendered_with('main/youtube_done.html')
+def youtube_done(request):
+    return dict()
+
 
 def test_upload(request):
     return HttpResponse("a response")
