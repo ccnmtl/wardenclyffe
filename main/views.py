@@ -17,6 +17,7 @@ from taggit.models import Tag
 from restclient import GET,POST
 from simplejson import loads
 import hmac, hashlib, datetime
+from zencoder import Zencoder
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -550,6 +551,22 @@ def mediathread(request):
         request.session['redirect_to'] = redirect_to
         request.session['hmac'] = hmc
         return dict(username=username)
+
+@login_required
+def video_zencoder_submit(request,id):
+    video = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        tahoe_url = video.tahoe_download_url()
+        if not tahoe_url:
+            return HttpResponse("not stored in tahoe")
+        zen = Zencoder(settings.ZENCODER_API_KEY)
+        job = zen.job.create(tahoe_url)
+        f = File.objects.create(video=video,
+                                label="zencoder file",
+                                url=job.body['outputs'][0]['url'],
+                                location_type='zencoder')
+        return HttpResponseRedirect(video.get_absolute_url())
+    return HttpResponse("POST only")
 
 @login_required
 @rendered_with('main/mediathread_submit.html')

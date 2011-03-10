@@ -11,6 +11,7 @@ import subprocess
 from django.conf import settings
 from restclient import POST
 
+# TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
     ouuid = uuid.uuid4()
     operation = Operation.objects.create(video=video,
@@ -174,6 +175,7 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,p
     def _do_submit_to_podcast_producer(video,user,operation,tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
         ouuid = operation.uuid
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
+        # TODO: probably don't always want it to be .mp4
         filename = str(ouuid) + ".mp4"
         fileobj = open(tmpfilename)
         pcp.upload_file(fileobj,filename,workflow,"[%s]%s" % (str(ouuid),video.title),video.description)
@@ -204,6 +206,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         t.seek(0)
         log = OperationLog.objects.create(operation=operation,
                                           info="downloaded from tahoe")
+        # TODO: figure out how to re-use submit_to_podcast_producer()
         print "submitting to PCP"
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
         filename = str(ouuid) + ".mp4"

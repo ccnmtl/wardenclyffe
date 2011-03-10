@@ -145,7 +145,7 @@ class Video(TimeStampedModel):
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256,blank=True,null=True,default="")
-    url = models.URLField(default="",blank=True,null=True)
+    url = models.URLField(default="",blank=True,null=True,max_length=2000)
     cap = models.CharField(max_length=256,default="",blank=True,null=True)
     filename = models.CharField(max_length=256,blank=True,null=True)
     location_type = models.CharField(max_length=256,default="tahoe",

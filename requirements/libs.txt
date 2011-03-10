@@ -17,3 +17,4 @@ requirements/src/psycopg2-2.2.1.tar.gz
 requirements/src/Imaging-1.1.7.tar.gz
 requirements/src/django-extensions-0.4.1.tar.gz
 requirements/src/celery-2.2.1.tar.gz
+requirements/src/zencoder-0.2.tar.gz
