@@ -238,29 +238,20 @@ def upload_to_youtube(tmpfilename,video_id,user,
                               youtube_source,youtube_developer_key,
                               youtube_client_id,**kwargs):
         httplib.MAXAMOUNT = 104857600
-        # initialize YouTube object
-        
         yt_service = gdata.youtube.service.YouTubeService()
-        
-        # client login request
         
         yt_service.email = youtube_email
         yt_service.password = youtube_password
         yt_service.source = youtube_source
- 
-        # authenticate
-							
         yt_service.developer_key = youtube_developer_key
         yt_service.client_id = youtube_client_id
         
         yt_service.ProgrammaticLogin()
  
-        # prepare a media group object to hold our video's meta-data
-        title=video.title
-        description=video.description
+        title = video.title
+        description = video.description
 
         my_media_group = gdata.media.Group(
-
             title=gdata.media.Title(text=title),
             description=gdata.media.Description(description_type='plain', text=description),
             keywords=gdata.media.Keywords(text='education, columbia'),
@@ -271,21 +262,11 @@ def upload_to_youtube(tmpfilename,video_id,user,
             player=None,
             private=gdata.media.Private()
             )
-        
-        # prepare a geo.where object to hold the geographical location
-        
-        # of where the video was recorded
-        
-        # create the gdata.youtube.YouTubeVideoEntry to be uploaded
         video_entry = gdata.youtube.YouTubeVideoEntry(media=my_media_group)
- 
-        # set the path for the video file binary
-        
         video_file_location = tmpfilename
 
         new_entry = yt_service.InsertVideoEntry(video_entry, video_file_location, content_type="video/quicktime")
 
-        # pluck off the new video's key
         feed_url = new_entry.id.text
         youtube_key = feed_url[feed_url.rfind('/')+1:]
         youtube_url = "http://www.youtube.com/watch?v=%s" % youtube_key
