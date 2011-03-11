@@ -74,7 +74,7 @@
                         <li>logged in as <a href="/user/{{user.username}}/">{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}</a></li>
                         {% endif %}
                         {% if user.username %}
-                        <li><a href="/logout/">Log Out</a></li>
+                        <li><a href="/accounts/logout/">Log Out</a></li>
                         {% endif %}
 
 			{% endblock %}
