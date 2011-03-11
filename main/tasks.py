@@ -13,7 +13,7 @@ from restclient import POST
 import httplib
 import gdata.youtube
 import gdata.youtube.service
-
+from django.core.mail import send_mail
 
 # TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
@@ -274,6 +274,11 @@ def upload_to_youtube(tmpfilename,video_id,user,
         f = File.objects.create(video=video,url=youtube_url,
                                 location_type="youtube",
                                 label="youtube")
+        send_mail('Youtube video uploaded', 
+                  """Your video has been uploaded to the Columbia Youtube account. 
+It is available here: %s""" % youtube_url, 
+                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                  ["%s@columbia.edu" % user.username], fail_silently=False)
         return ("complete","")
     with_operation(_do_upload_to_youtube,
                    video,"upload to youtube","",user,
