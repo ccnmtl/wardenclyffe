@@ -85,6 +85,9 @@ class Video(TimeStampedModel):
         else:
             return ""
 
+    def enclosure_url(self):
+        return self.tahoe_download_url()
+
     def filename(self):
         r = self.file_set.filter().exclude(filename="")
         if r.count():
