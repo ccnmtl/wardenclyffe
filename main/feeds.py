@@ -54,7 +54,6 @@ class CCNMTLRssFeed(Rss201rev2Feed):
         <dc:identifier>ccnmtl:302.001</dc:identifier> 
         <dc:language>English</dc:language> """
         super(CCNMTLRssFeed, self).add_item_elements(handler,item)
-        print str(item)
         handler.addQuickElement('itunes:author',item['author_name'])
         handler.addQuickElement('itunes:explicit','no')
         handler.addQuickElement('itunes:subtitle','')
