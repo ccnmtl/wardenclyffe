@@ -111,6 +111,37 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
     print "done submitting to mediathread"
 
 @task(ignore_result=True)
+def submit_to_vital(video_id,user,course_id,vital_secret,vital_base,**kwargs):
+    print "submitting to vital"
+    video = Video.objects.get(id=video_id)
+
+    action = "submit to vital"
+    def _do_submit_to_vital(video,user,operation,course_id,vital_secret,vital_base,**kwargs):
+        (width,height) = video.get_dimensions()
+        if not width or not height:
+            return ("failed","could not figure out dimensions")
+        if not video.tahoe_download_url():
+            return ("failed","no video URL")
+        params = {
+            'set_course' : course_id,
+            'as' : user.username,
+            'secret' : vital_secret,
+            'title' : video.title,
+            'url' : video.tahoe_download_url(),
+            'thumb' : video.poster_url(),
+            }
+        resp,content = POST(vital_base,params=params,async=False,resp=True)
+        if resp.status == 302:
+            return ("complete","")
+        else:
+            return ("failed","vital rejected submission")
+    args = [course_id,vital_secret,vital_base]
+    with_operation(_do_submit_to_vital,video,
+                   "submit to vital","",
+                   user,args,kwargs)
+    print "done submitting to vital"
+
+@task(ignore_result=True)
 def make_images(tmpfilename,video_id,user,**kwargs):
     video = Video.objects.get(id=video_id)
     def _do_make_images(video,user,operation,**kwargs):

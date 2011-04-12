@@ -319,51 +319,6 @@ def scan_directory(request):
     return dict(form=form,series_id=series_id,file_listing=file_listing)
 
 
-@transaction.commit_manually
-@login_required
-@rendered_with('main/vitaldrop.html')
-def vitaldrop(request):
-    if request.method == "POST":
-        if request.FILES['source_file']:
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['source_file'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-            # make db entry
-            try:
-                series = Series.objects.filter(title="Vital")[0]
-                filename = request.FILES['source_file'].name
-                v = Video.objects.create(series=series,
-                                         title="vital video uploaded by %s" % request.user.username,
-                                         creator=request.user.username,
-                                         uuid = vuuid)
-                source_file = File.objects.create(video=v,
-                                                  label="source file",
-                                                  filename=request.FILES['source_file'].name,
-                                                  location_type='none')
-
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
-                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
-                return HttpResponseRedirect("/vitaldrop/done/")
-    else:
-        pass
-    return dict()
 
 @rendered_with('main/vitaldrop_done.html')
 def vitaldrop_done(request):
@@ -441,13 +396,23 @@ def done(request):
         operation.save()
         ol = OperationLog.objects.create(operation=operation,
                                          info="PCP completed")
-        (set_course,username) = operation.video.mediathread_submit()
-        if set_course is not None:
-            user = User.objects.get(username=username)
-            submit_to_mediathread.delay(operation.video.id,user,set_course,
-                                        settings.MEDIATHREAD_SECRET,
-                                        settings.MEDIATHREAD_BASE)
-            operation.video.clear_mediathread_submit()
+        if operation.video.is_mediathread_submit():
+            (set_course,username) = operation.video.mediathread_submit()
+            if set_course is not None:
+                user = User.objects.get(username=username)
+                submit_to_mediathread.delay(operation.video.id,user,set_course,
+                                            settings.MEDIATHREAD_SECRET,
+                                            settings.MEDIATHREAD_BASE)
+                operation.video.clear_mediathread_submit()
+
+        if operation.video.is_vital_submit():
+            (set_course,username,notify_url) = operation.video.vital_submit()
+            if set_course is not None:
+                user = User.objects.get(username=username)
+                submit_to_vital.delay(operation.video.id,user,set_course,
+                                      settings.VITAL_SECRET,
+                                      notify_url)
+                operation.video.clear_vital_submit()
 
     return HttpResponse("ok")
 
@@ -609,6 +574,98 @@ def mediathread(request):
         request.session['redirect_to'] = redirect_to
         request.session['hmac'] = hmc
         return dict(username=username)
+
+@transaction.commit_manually
+@rendered_with('main/vitaldrop.html')
+def vitaldrop(request):
+    if request.method == "POST":
+        if request.FILES['source_file']:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs(settings.TMP_DIR)
+            except:
+                pass
+            extension = request.FILES['source_file'].name.split(".")[-1]
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            # make db entry
+            try:
+                series = Series.objects.filter(title="Vital")[0]
+                filename = request.FILES['source_file'].name
+                v = Video.objects.create(series=series,
+                                         title=request.POST.get('title',''),
+                                         creator=request.session['username'],
+                                         uuid = vuuid)
+                source_file = File.objects.create(video=v,
+                                                  label="source file",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='none')
+                # we make a "vitalsubmit" file to store the submission
+                # info and serve as a flag that it needs to be submitted
+                # (when PCP comes back)
+                submit_file = File.objects.create(video=v,
+                                                  label="vital submit",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='vitalsubmit')
+                user = User.objects.get(username=request.session['username'])
+                submit_file.set_metadata("username",request.session['username'])
+                submit_file.set_metadata("set_course",request.session['set_course'])
+                submit_file.set_metadata("redirect_to",request.session['redirect_to'])
+                submit_file.set_metadata("notify_url",request.session['notify_url'])
+            except:
+                transaction.rollback()
+                print "argh! rolled back!"
+                raise
+            else:
+                transaction.commit()
+                
+                save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
+                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
+                make_images.delay(tmpfilename,v.id,request.user)
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'VITAL_PCP_WORKFLOW'):
+                    workflow = settings.VITAL_PCP_WORKFLOW
+                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,workflow,
+                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                return HttpResponseRedirect(request.session['redirect_to'])
+    else:
+        # check their credentials
+        nonce = request.GET.get('nonce','')
+        hmc = request.GET.get('hmac','')
+        set_course = request.GET.get('set_course','')
+        username = request.GET.get('as')
+        redirect_to = request.GET.get('redirect_url','')
+        notify_url = request.GET.get('notify_url','')
+        verify = hmac.new(settings.VITAL_SECRET,
+                          '%s:%s:%s:%s' % (username,redirect_to,notify_url,nonce),
+                          hashlib.sha1
+                          ).hexdigest()
+        if verify != hmc:
+            return HttpResponse("invalid authentication token")
+        try:
+            r = User.objects.filter(username=username)
+            if r.count():
+                user = User.objects.get(username=username)
+            else:
+                user = User.objects.create(username=username)
+            request.session['username'] = username
+            request.session['set_course'] = set_course
+            request.session['nonce'] = nonce
+            request.session['redirect_to'] = redirect_to
+            request.session['hmac'] = hmc
+            request.session['notify_url'] = notify_url
+        except:
+            transaction.rollback()
+            raise
+        else:
+            transaction.commit()
+
+        return dict(user=user)
+
 
 @login_required
 def video_zencoder_submit(request,id):

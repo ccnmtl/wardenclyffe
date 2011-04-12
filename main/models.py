@@ -132,6 +132,9 @@ class Video(TimeStampedModel):
             pass
         return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
 
+    def is_mediathread_submit(self):
+        return self.file_set.filter(location_type="mediathreadsubmit").count() > 0
+
     def mediathread_submit(self):
         r = self.file_set.filter(location_type="mediathreadsubmit")
         if r.count() > 0:
@@ -142,6 +145,20 @@ class Video(TimeStampedModel):
 
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
+
+    def is_vital_submit(self):
+        return self.file_set.filter(location_type="vitalsubmit").count() > 0
+
+    def vital_submit(self):
+        r = self.file_set.filter(location_type="vitalsubmit")
+        if r.count() > 0:
+            f = r[0]
+            return (f.get_metadata("set_course"),f.get_metadata("username"),)
+        else:
+            return (None,None)
+
+    def clear_mediathread_submit(self):
+        self.file_set.filter(location_type="vitalsubmit").delete()
             
 
 

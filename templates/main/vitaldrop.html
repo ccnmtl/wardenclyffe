@@ -26,16 +26,17 @@
   {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>. This is
   the form to upload video to Vital. [Here we can put more text
   explaining what formats are acceptable, etc]. </p>
-<p>[Do we need to ask them to select what course they're in? If it's
-  something we can figure out from WIND affils is it still something
-  we want at this point, or would we prefer for the video to just go
-  into Vital and let Vital figure out where it should go?]</p>
 
 <form action="." method="post" enctype="multipart/form-data">
 <div id="vitaldropform">
 <p><b>Please select your video file to upload:</b><br /> 
 
 <input type="file" name="source_file" /></p>
+
+<p><b>Title:</b><br />
+<input type="text" name="title" value="Vital video uploaded by {{user.username}}"
+       size="50" />
+</p>
 
 <input type="submit" value="upload" />
 </div>
