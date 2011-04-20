@@ -19,7 +19,7 @@ class Series(TimeStampedModel):
 
     uuid = UUIDField()
 
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     def __unicode__(self):
         return self.title
@@ -54,7 +54,7 @@ class Video(TimeStampedModel):
 
     uuid = UUIDField()
 
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     def tahoe_file(self):
         r = self.file_set.filter(location_type='tahoe')
