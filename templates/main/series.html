@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load markup %}
+{% load thumbnail %}
 
 {% block js %}
 {{block.super}}
@@ -57,7 +58,7 @@ jQuery(document).ready(function()
 <h2>Recent Videos</h2>
 <table style="width: 100%" class="tablesorter"> 
 <thead>
-<tr><th>Video</th>
+<tr><th colspan="2">Video</th>
 <th>uploaded</th>
 <th>modified</th>
 </tr>
@@ -66,6 +67,18 @@ jQuery(document).ready(function()
 <tbody>
 {% for video in videos %}
 <tr class="{% cycle 'odd' 'even' %}">
+<td>
+<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     width="160" height="120" />
+{% else %}
+{% thumbnail poster.image "160x120" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}</a>
+</td>
+
 <th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
 <td>{{video.created|date:"M d, Y H:i:s"}}</td>
 <td>{{video.modified|date:"M d, Y H:i:s"}}</td>
