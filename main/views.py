@@ -773,3 +773,8 @@ def search(request):
         results['videos'] = r
 
     return dict(q=q,results=results)
+
+def tag_autocomplete(request):
+    q = request.GET.get('q','')
+    r = Tag.objects.filter(name__icontains=q)
+    return HttpResponse("\n".join([t.name for t in list(r)]))
