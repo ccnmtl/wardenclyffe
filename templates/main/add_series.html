@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% block extra_head %}
+<script src="/site_media/js/jquery.tagsinput.min.js"></script>
+<script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/site_media/css/jquery.tagsinput.css" />
+<link rel="stylesheet" type="text/css" href="/site_media/css/jquery.autocomplete.css" />
+{% endblock %}
 
 {% block content %}
 
@@ -9,5 +15,16 @@
 </table>
 <input type="submit" value="add" />
 </form>
+
+<script type="text/javascript">
+$(document).ready(function() 
+    { 
+    $('#id_tags').tagsInput({
+      autocomplete_url:'/api/tagautocomplete'}
+     );
+   }
+);
+
+</script>
 
 {% endblock %}
