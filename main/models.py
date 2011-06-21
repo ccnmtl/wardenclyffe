@@ -245,3 +245,7 @@ class Image(TimeStampedModel):
     class Meta:
         order_with_respect_to = "video"
 
+class Poster(models.Model):
+    video = models.ForeignKey(Video)
+    image = models.ForeignKey(Image)
+
