@@ -19,6 +19,7 @@ from restclient import GET,POST
 from simplejson import loads
 import hmac, hashlib, datetime
 from zencoder import Zencoder
+from django.db.models import Q
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -742,3 +743,33 @@ def list_workflows(request):
     return dict(workflows=workflows,
                 kino_base=settings.PCP_BASE_URL)
 
+@login_required
+@rendered_with("main/search.html")
+def search(request):
+    q = request.GET.get('q','')
+    results = dict(count=0)
+    if q:
+        r = Series.objects.filter(
+            Q(title__icontains=q) |
+            Q(creator__icontains=q) |
+            Q(contributor__icontains=q) |
+            Q(language__icontains=q) |
+            Q(description__icontains=q) |
+            Q(subject__icontains=q) |
+            Q(license__icontains=q)             
+            )
+        results['count'] += r.count()
+        results['series'] = r
+
+        r = Video.objects.filter(
+            Q(title__icontains=q) |
+            Q(creator__icontains=q) |
+            Q(language__icontains=q) |
+            Q(description__icontains=q) |
+            Q(subject__icontains=q) |
+            Q(license__icontains=q)             
+            )
+        results['count'] += r.count()
+        results['videos'] = r
+
+    return dict(q=q,results=results)
