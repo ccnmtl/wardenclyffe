@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile
+from models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
@@ -718,6 +718,16 @@ def video_add_file(request,id):
             pass
         return HttpResponseRedirect(video.get_absolute_url())
     return dict(video=video)
+
+@login_required
+def video_select_poster(request,id,image_id):
+    video = get_object_or_404(Video,id=id)
+    image = get_object_or_404(Image,id=image_id)
+    # clear any existing ones for the video
+    Poster.objects.filter(video=video).delete()
+    p = Poster.objects.create(video=video,image=image)
+    return HttpResponseRedirect(video.get_absolute_url())
+
 
 @login_required
 @rendered_with('main/workflows.html')

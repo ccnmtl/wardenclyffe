@@ -40,7 +40,19 @@ var removeTag = function(tagName,tagId) {
 
 <div id="basics">
 
-
+<table>
+<tr>
+<td>{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     />
+{% else %}
+{% thumbnail poster.image "480x360" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}
+</td>
+<td>
 <table>
 <tr><th>creator<br /><span class="dc">dcterms:creator</span></th><td><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
 <tr><th>description<br /><span class="dc">dcterms:description</span></th><td><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
@@ -65,7 +77,7 @@ var removeTag = function(tagName,tagId) {
 {% endif %}
 </table>
 <p><a href="edit/">edit video metadata</a></p>
-
+</td></tr></table>
 
 </div>
 
@@ -74,7 +86,8 @@ var removeTag = function(tagName,tagId) {
 {% if video.image_set.count %}
 {% for image in video.image_set.all %}
 {% thumbnail image.image "200x200" as thmb %}
-<img src="{{thmb.absolute_url}}" />
+<div style="float: left; width: 200px"><img src="{{thmb.absolute_url}}" /><br />
+<a href="select_poster/{{image.id}}/">make poster</a></div>
 {% endfor %}
 <br style="clear:both" />
 {% endif %}

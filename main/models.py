@@ -160,7 +160,14 @@ class Video(TimeStampedModel):
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="vitalsubmit").delete()
             
-
+    def poster(self):
+        class DummyPoster:
+            dummy = True
+        r = Poster.objects.filter(video=self)
+        if r.count() > 0:
+            return r[0].image
+        else:
+            return DummyPoster()
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
