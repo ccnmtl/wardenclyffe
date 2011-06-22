@@ -17,11 +17,17 @@
 </form>
 
 <script type="text/javascript">
-$(document).ready(function() 
+jQuery(document).ready(function() 
     { 
-    $('#id_tags').tagsInput({
+    jQuery('#id_tags').tagsInput({
       autocomplete_url:'/api/tagautocomplete'}
      );
+    jQuery('#id_subject').tagsInput({
+      autocomplete_url:'/api/subjectautocomplete',
+      defaultText: 'add a subject'
+      }
+     );
+
    }
 );
 

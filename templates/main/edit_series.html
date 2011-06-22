@@ -19,11 +19,17 @@
 <p><a href="{{series.get_absolute_url}}delete/">delete this series</a></p>
 
 <script type="text/javascript">
-$(document).ready(function() 
+jQuery(document).ready(function() 
     { 
-    $('#id_tags').tagsInput({
+    jQuery('#id_tags').tagsInput({
       autocomplete_url:'/api/tagautocomplete'}
      );
+    jQuery('#id_subject').tagsInput({
+      autocomplete_url:'/api/subjectautocomplete',
+      defaultText: 'add a subject'
+      }
+     );
+
    }
 );
 

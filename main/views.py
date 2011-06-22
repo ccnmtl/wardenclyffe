@@ -778,3 +778,22 @@ def tag_autocomplete(request):
     q = request.GET.get('q','')
     r = Tag.objects.filter(name__icontains=q)
     return HttpResponse("\n".join([t.name for t in list(r)]))
+
+def subject_autocomplete(request):
+    q = request.GET.get('q','')
+    q = q.lower()
+    r = Video.objects.filter(subject__icontains=q)
+    all_subjects = dict()
+    for v in r:
+        s = v.subject.lower()
+        for p in s.split(","):
+            p = p.strip()
+            all_subjects[p] = 1
+    r = Series.objects.filter(subject__icontains=q)
+    for v in r:
+        s = v.subject.lower()
+        for p in s.split(","):
+            p = p.strip()
+            all_subjects[p] = 1
+
+    return HttpResponse("\n".join(all_subjects.keys()))
