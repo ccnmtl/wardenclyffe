@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load markup %}
 {% load thumbnail %}
+{% block title %}Dashboard{% endblock %}
+{% block pagetitle %}Dashboard{% endblock %}
 {% block js %}
 
 {{block.super}}
@@ -17,80 +19,111 @@ $(document).ready(function()
 
 {% endblock %}
 
+{% block jquery %}
+<script>
+jQuery(function($){
+	$('.video_item .video_item_lead').click(function() {
+      $(this).toggleClass("video_item_lead_open");
+		$(this).next().slideToggle("fast");
+	}).next().hide();
+});
+</script>
+{% endblock %}
+
+
 {% block content %}
 
+<div class="dashboard recent_videos">
+	<div class="table-header">
+		<div class="table_title">Recent videos and operations</div><!-- class="table_title" -->
+		{% if videos %}<div class="see_more"><a href="#">see more</a></div><!--class="see_more"  -->{% endif %}
+		<div class="add_new"><a href="/upload/">add new</a></div><!-- class="add_new" -->
+	</div><!--  class="table-header -->
+	
+	{% if videos %}
+	<table>
+		<tbody>
+		{% for video in videos %}
+			<tr class="{% cycle 'odd' 'even' %}">
+				<td>
+				<div class="video_item">
+					<h3 class="video_item_lead">
+					<span class="video_title">
+					{{video.title}}
+					</span>
+					in Series
+					<span class="series_title">
+					{{video.series.title}}
+					</span>
+					created by
+					<span class="video_owner">
+					{{video.creator}}
+					</span>
+					</h3>				
+					<div class="video_item_details">
+						<div class="video_thumbnail">
+						<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
+						{% if poster.dummy %}
+						<img src="/site_media/img/vidthumb160.jpg" width="160" height="120" />
+						{% else %}
+						{% thumbnail poster.image "160x120" as thmb %}
+						<img src="{{thmb.absolute_url}}" width="160"/>
+						{% endif %}
+						{% endwith %}</a>
+						</div><!-- class="video_thumbnail" -->
+						<div class="video_url"><a href="{{video.get_absolute_url}}">Go to video</a></div><!-- class="video_url" -->
+						<div class="video_operations">
+							{% if video.operation_set.count %}
+							{% for operation in video.operation_set.all %}
+							<div class="video_operations_item">
+								<div class="operation_status {{operation.status}}"></div>
+								<div class="operation_action">{{operation.action}}</div><!--  class="operation_action" -->
+								<div class="operation_date">{{operation.modified|date:"M d, Y"}} at {{operation.modified|date:"g:i A"}}</div><!-- class="operation_date" -->
+								<div class="visualclear"></div><!-- visualclear -->
+							</div><!-- class="video_operations_item" -->
+							{% endfor %}
+							{% endif %}
+						</div><!-- class="video_operations" -->
+						<div class="visualclear"></div><!-- visualclear -->
+					</div><!-- class="video_item_details"> -->
+				</div><!--  class="video_item" -->
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+		</tfoot>
+	</table>
+	{% else %}
+	<p style="padding: 10px; font-weight: bold;"><span style="color: #f00;">You have no videos.</span> <a href="/upload/">Add a new</a> video now.</p>
+	{% endif %}
+</div><!-- class="dashboard recent_videos" -->
 
-<h2>Series [<a href="/add_series/">+</a>]</h2>
-<table style="100%">
-{% for series in series %}
-<tr class="{% cycle 'odd' 'even' %}">
-<th><a href="{{series.get_absolute_url}}">{{series.title}}</a></th>
-</tr>
-{% endfor %}
-</table>
 
 
-
-<h2>Recent Videos [<a href="/upload/">+</a>]</h2>
-<table style="width: 100%" id="recent-videos" class="tablesorter"> 
-<thead>
-  <tr>
-    <th colspan="2">video</th>
-    <th>series</th>
-    <th>uploaded</th>
-    <th>modified</th>
-  </tr>
-</thead>
-<tbody>
-{% for video in videos %}
-<tr class="{% cycle 'odd' 'even' %}">
-<td>
-<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
-{% if poster.dummy %}
-<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
-     width="160" height="120" />
-{% else %}
-{% thumbnail poster.image "160x120" as thmb %}
-<img src="{{thmb.absolute_url}}" />
-{% endif %}
-{% endwith %}</a>
-</td>
-<td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
-<td><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></td>
-<td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
-<td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-
-{% if operations %}
-<h2>Recent Operations</h2>
-
-<table style="width: 100%" class="tablesorter">
-
-<thead>
-<tr>
-  <th>action</th>
-  <th>owner</th>
-  <th>video</th>
-  <th>status</th>
-  <th>last update</th>
-</tr>
-</thead>
-
-<tbody>
-{% for operation in operations %}
-<tr class="{% cycle 'odd' 'even' %}">
-  <td>{{operation.action}}</td>
-  <td><a href="/user/{{operation.owner.username}}/">{{operation.owner.first_name}} {{operation.owner.last_name}}</a></td>
-  <td><a href="{{operation.video.series.get_absolute_url}}">{{operation.video.series.title}}</a>/<a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
-  <td class="{{operation.status}}">{{operation.status}}</td>
-  <td><nobr>{{operation.modified|date:"M d, Y H:i:s"}}</nobr></td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% endif %}
+<div class="dashboard recent_series">
+	<div class="table-header">
+		<div class="table_title">Recent series</div><!-- class="table_title" -->
+		<div class="see_more"><a href="#">see more</a></div><!--class="see_more"  -->
+		<div class="add_new"><a href="/add_series/">add new</a></div><!-- class="add_new" -->
+	</div><!--  class="table-header -->
+	<table>
+		<tbody>
+			{% for series in series %}
+			<tr class="{% cycle 'odd' 'even' %}">
+				<td><a href="{{series.get_absolute_url}}">{{series.title}}</a></td>
+			</tr>
+			{% endfor %}
+		<tfoot>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+		</tfoot>
+		</tbody>
+	</table>
+</div><!-- class="dashboard recent_series" -->
 
 {% endblock %}

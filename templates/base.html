@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>Wardenclyffe: {% block title %}{% endblock %}</title>
+		<title>{% block title %}{% endblock %} || Wardenclyffe</title>
 		<link rel="stylesheet" href="/site_media/css/main.css?site=wardenclyffe" media="screen" />
 		<link rel="stylesheet" href="/site_media/css/print.css?site=wardenclyffe" media="print" />
 		<!--[if IE 6]>
@@ -28,18 +28,30 @@
    all time in flatpages templates
 {% endcomment %}
 
-<div id="container">
+<div id="page">
 
 
 {% block masthead %}
 	<!-- ###### Site banner ###### -->
 	<div id="header">
-		<!-- Project title/logo --><h1 id="logo_project"><a href="./" title="Project Title: Project Django"><span>Project Title: Project Django </span></a></h1>	
+		<!-- Project title/logo --><h1 id="logo_project"><a href="/" title="Wardenclyffe"><span>Wardenclyffe</a></h1>	
 		{% block standardnav %}
-		<ul id="standardnav">
-		</ul>
-		{% endblock %}
+		<!-- Standard navigation --><ul id="standard_navigation">
+			{% block usernav %}
+			{% if user.username %}
+			<li>Hello <a href="/user/{{user.username}}/">{% if user.first_name %}{{user.first_name}}{% else %}{{ user.username }}{% endif %}</a>
+			{% endif %}
+			{% if user.username %}
+			(<a href="/accounts/logout/">Log Out</a>)
+			{% endif %}</li>
 
+			{% endblock %}
+			<li><a href="#">About</a></li>
+			<li><a href="#">Help</a></li>
+			<li><a href="#">Contact</a></li>
+		</ul>	
+		{% endblock %}
+		<!-- CCNMTL title/logo --><h4 id="logo_ccnmtl"><a href="#" title="Columbia Center for New Media Teaching and Learning"><span>Produced by the Columbia Center for New Media Teaching and Learning</span></a></h4>
 	</div><!-- id="header" -->
 {% endblock %}
 
@@ -48,52 +60,54 @@
 	
 
 {% block primarynav %}
-	<!-- ###### Primary navigation ###### -->
-	<div id="primarynav">
-		<div class="encase" id="{% block navalignment %}leftside{% endblock %}">
 {% comment %}
 ###### FOR ALIGNMENT OF TABS on the primary navigation--
    leftside : all tabs aligning to the left, login to the right
    rightside :  all tabs aligning to the right, login to the left
 {% endcomment %}
 
-			{% block primarynavtabs %}
-			<ul>
-				<li><a href="/">Dashboard</a></li>
-				<li><a href="/tag/">browse tags</a></li>
-				<li><a href="/add_series/">add a series</a></li>
-				<li><a href="/upload/">upload video</a></li>
-				<li><a href="/list_workflows/">list workflows</a></li>
-				<li><a href="/search/">search</a></li>
-			</ul><!-- id="primarynavtabs" -->
-			{% endblock %}
-			
-			{% block usernav %}
-			{% if user.username %}
-                        <li>logged in as <a href="/user/{{user.username}}/">{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}</a></li>
-                        {% endif %}
-                        {% if user.username %}
-                        <li><a href="/accounts/logout/">Log Out</a></li>
-                        {% endif %}
-
-			{% endblock %}
-
-		</div><!-- id="leftside/rightside" -->
-	</div><!-- id="primarynav" -->
+	<!-- ###### Site Global Navigation ###### -->
+	<div id="globalnav">
+	{% if user.username %}
+	{% block primarynavtabs %}
+	<ul class="topnav">
+		<li class="home"><a href="/">Dashboard</a></li>
+		<li>Add
+			<ul class="subnav">
+				<li><a href="/upload/">Video</a></li>
+				<li><a href="/add_series/"">Series</a></li>
+			</ul>
+		</li>
+		<li>Manage
+			<ul class="subnav">
+				<li><a href="#">Video</a></li>
+				<li><a href="#">Series</a></li>
+				<li><a href="/tag/">Tags</a></li>
+				<li><a href="#">Subjects</a></li>
+			</ul>
+		</li>
+		<li><a href="/list_workflows/">Workflow</a></li>
+		<li class="search"><a href="/search/">Search</a></li>
+	</ul>
+	{% endblock %}
+	{% endif %}
+	</div><!-- id="globalnav" -->
+	<!-- ###### End Site Global Navigation ###### -->
 {% endblock %}
 
 {% comment %} not using this now <div id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</div> {% endcomment %}
 
 
-	<!-- ###### Page: Sidebars and Content ###### -->
+	<!-- ###### Error banner for IE 7 users ###### -->
+	<!--[if lt IE 7]><div id="browserwarning"></div><![endif]-->
+
+	<!-- ###### Page Content ###### -->
 	<div id="pagebody">
-
-
-		<!-- ###### Page Content ###### -->
+	
 		<div id="content">
-			<div id="squish"><!-- Don't touch this div -->
+			<div id="squish">
 				<div class="block">
-					{% block pagetitle %}{% endblock %}
+					<h1 class="top">{% block pagetitle %}{% endblock %}</h1>
 				
 					{% block content %}{% endblock %}
 
@@ -119,6 +133,26 @@
 {% endblock %}
 
 
-</div><!-- id="container" -->
+</div><!-- id="page" -->
+<script>
+jQuery(function($){
+
+	$("ul.subnav").parent().addClass("globalnavsub");
+
+	$("ul.topnav .globalnavsub").click(function() {
+
+		//Following events are applied to the subnav itself (moving subnav up and down)
+		$(this).find("ul.subnav").slideDown('fast').show(); //Drop down the subnav on click
+
+		$(this).hover(function() {
+		}, function(){
+			$(this).find("ul.subnav").slideUp('slow'); //When the mouse hovers out of the subnav, move it back up
+		});
+
+	});
+
+});
+</script>
+{% block jquery %}{% endblock %}
 </body>
 </html>
