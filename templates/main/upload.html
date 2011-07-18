@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Add Video{% endblock %}
-{% block pagetitle %}Add Video{% endblock %}
+{% block title %}Add Video from Desktop{% endblock %}
+{% block pagetitle %}Add Video from Desktop{% endblock %}
 {% block extra_head %}
 <script src="/site_media/js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
@@ -120,26 +120,7 @@
 
 
 
-<div id="dialog_help_video_source" title="Help: Video Source">
-	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-
-<div id="dialog_help_video_subject" title="Help: Video Subjects">
-	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-
-<div id="dialog_help_video_tag" title="Help: Video Tags">
-	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-
-<div id="dialog_help_video_file" title="Help: Video File">
-	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-
-
-<div id="dialog_help_process_steps" title="Help: Process Steps">
-	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
+{% include "flatpages/help_windows.html" %}
 
 
 
