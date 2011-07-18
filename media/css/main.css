@@ -1137,8 +1137,8 @@ background-color: #8dbdd8;
 	background-color: #efefef;
 	display: block;
 	border: 1px solid #999;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	font: normal 12px arial, helvetica, verdana, sans-serif;
 	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ccc));
 	background: -moz-linear-gradient(top, #fff, #ccc);
@@ -1200,6 +1200,54 @@ background-color: #8dbdd8;
 	font-weight: bold;
 	color: #06f;
 	text-align: center;
+	cursor: pointer;
+}
+
+.regbutton
+{
+	cursor: pointer;
+	padding: 4px 17px;
+	margin-bottom: 1em;
+	margin-right: 1em;
+	color: #000;
+	font-weight: normal;
+	font-size: 14px;
+	border: 1px solid #999;
+	border-bottom: 1px solid #666;
+	border-left-color: #999;
+	border-right-color: #999;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	border-radius: 20px;
+	text-align: center;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ccc));
+	background: -moz-linear-gradient(top, #fff, #ccc);
+	font: bold 14px arial, helvetica, verdana, sans-serif !important;
+	text-transform: uppercase;
+}
+
+.regbutton:hover
+{
+	border: 1px solid #f90;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ffcc99));
+	background: -moz-linear-gradient(top, #fff, #ffcc99);
+}
+
+.regbutton:active
+{
+	border: 1px solid #f60;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ff9933));
+	background: -moz-linear-gradient(top, #fff, #ff9933);
+}
+
+.floatleft
+{
+	float: left;
+}
+
+.floatright
+{
+	float: right;
 }
 
 /* ---- Tables further def ---------- */
@@ -1539,6 +1587,23 @@ tr td.submitted
 	width: 300px;
 }
 
+.panel_middle .rightcol .section-header
+{
+	font-size: 12px;
+}
+
+.panel_middle .rightcol .process_steps
+{
+	margin-top: 10px;
+	margin-bottom: 0;
+	border-color: #f60;
+}
+
+.panel_middle .rightcol .process_steps .section-header
+{
+	color: #f60;
+}
+
 .panel_middle .leftcol
 {
 	margin: 0;
@@ -1600,6 +1665,52 @@ tr td.submitted
 	background-color: #f4f4f4;
 }
 
+.file_upload
+{
+	width: auto !important;
+	margin: 2px 0 !important;
+	padding: 3px !important;
+	border: 0 !important;
+	background-color: inherit !important;
+	font: normal 11px arial, helvetica, verdana, sans-serif !important;
+}
+
+.fieldwrapper input
+{
+	width: 550px;
+}
+
+.fieldwrapper textarea
+{
+	width: 550px;
+}
+
+.rightcol .fieldwrapper input
+{
+	width: 200px;
+}
+
+.inlinewrapper label
+{
+	margin-right: 5px;
+	float: left;
+	width: 60px;
+	line-height: 26px;
+	text-align: right;
+}
+
+.process_steps .fieldwrapper,
+.rightcol .fieldwrapper
+{
+	margin: 10px;
+	padding: 0;
+	border: 0;
+}
+
+.process_steps .fieldwrapper input
+{
+	width: 25px;
+}
 
 
 /* Autocomplete style override */
@@ -1677,4 +1788,22 @@ div.tagsinput div
 	clear: both;
 	width: 100%;
 	height: 0px;
+}
+
+.ui-widget-overlay
+{
+background: #000 !important;
+opacity: .7 !important;filter:Alpha(Opacity=70) !important;
+}
+
+.ui-dialog
+{
+	font-family: arial, helvetica, verdana, sans-serif !important;
+}
+
+.ui-dialog-titlebar
+{
+	border: 1px solid #06f !important;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#beddf5)) !important;
+	background: -moz-linear-gradient(top, #fff, #beddf5) !important;
 }

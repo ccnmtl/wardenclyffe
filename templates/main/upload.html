@@ -16,7 +16,7 @@
 		<div class="form_video_source_title">Video source:</div>
 		<div class="wc_button active_button">Desktop</div><!-- class="wc_button" -->
 		<div class="wc_button inactive_button"><a href="/scan_directory/" title="Upload files from the drop-off directory">Drop-off directory</a></div><!-- class="wc_button" -->
-		<div class="wc_help_button">?</div><!-- class="wc_help_button" -->
+		<div class="wc_help_button" id="help_video_source">?</div><!-- class="wc_help_button" -->
 	</div><!-- class="form_video_source" -->
 	<div class="form_video_series">
 		<div class="form_video_series_title">
@@ -41,34 +41,110 @@
 			</div>
 		
 			<div class="fieldwrapper">
-			<label for="id_subject">Subject(s):</label>
+			<label for="id_subject">Subject(s):<div id="help_video_subject" class="wc_help_button floatright" style="margin-right: 18px;">?</div><!-- class="wc_help_button" --></label>
 			{{ form.subject }}
 			</div>
 
 			<div class="fieldwrapper">
-			<label for="id_tags">Tag(s):</label>
+			<label for="id_tags">Tag(s):<div id="help_video_tag" class="wc_help_button floatright" style="margin-right: 18px;">?</div><!-- class="wc_help_button" --></label>
 			{{ form.tags }}
 			</div>
 
 		</div><!-- class="sectionbox" -->
 	</div><!--  class="leftcol" -->
 	<div class="rightcol">
-		<div class="sectionbox">mm</div><!-- class="sectionbox" -->
-		<div class="sectionbox">mm</div><!-- class="sectionbox" -->
+		<div class="sectionbox">
+			<div class="section-header">
+			Video file <div id="help_video_file" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
+			</div>
+			
+			<div class="fieldwrapper">
+			<label for="id_file">Select file to upload:</label>
+			<input class="file_upload" type="file" name="source_file" />
+			</div>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_creator">Creator:</label>
+			{{ form.creator }}
+			</div>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_language">Language:</label>
+			{{ form.language }}
+			</div>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_license">License:</label>
+			{{ form.license }}
+			</div>
+		
+		</div><!-- class="sectionbox" -->
+		<div class="sectionbox process_steps">
+			<div class="section-header">
+			Process steps <div id="help_process_steps" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
+			</div>
+
+			<div class="fieldwrapper">
+				<input type="checkbox" name="upload_to_tahoe" checked="checked" />Archive source file to server<br />
+			</div>
+
+			<div class="fieldwrapper">
+				<input type="checkbox" name="extract_images" checked="checked" />Extract image frames from source<br />
+			</div>
+
+			<div class="fieldwrapper">
+				<input type="checkbox" name="extract_metadata" checked="checked" />Extract metadata from source file<br />
+			</div>
+
+			<div class="fieldwrapper">
+				<input type="checkbox" name="submit_to_pcp" checked="checked" />Submit file to Podcast Producer<br />
+			</div>
+
+
+		</div><!-- class="sectionbox" -->
 	</div><!-- class="rightcol" -->
 	<div class="visualclear"></div>
 </div><!-- class="panel_middle" -->
 
 <div class="panel_bottom">
+	{% if series_id %}
+	<input type="hidden" name="series" value="{{series_id}}" />
+	{% endif %}
+	<input type="submit" value="upload" class="regbutton floatleft" style="margin-left: 515px;" />
 	<div class="visualclear"></div>
 </div><!-- class="panel_bottom" -->
 
 		
-
-
-
-
 </form>
+
+
+
+
+<div id="dialog_help_video_source" title="Help: Video Source">
+	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+<div id="dialog_help_video_subject" title="Help: Video Subjects">
+	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+<div id="dialog_help_video_tag" title="Help: Video Tags">
+	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+<div id="dialog_help_video_file" title="Help: Video File">
+	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+
+<div id="dialog_help_process_steps" title="Help: Process Steps">
+	<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+
+
+
+
 <script type="text/javascript">
 jQuery(document).ready(function() 
     { 
@@ -83,9 +159,13 @@ jQuery(document).ready(function()
       }
      );
 
+	
    }
 );
 
 </script>
+
+<script src="/site_media/js/help_windows.js" type="text/javascript" language="javascript"></script>
+
 {% endblock %}
 <!--  -->
