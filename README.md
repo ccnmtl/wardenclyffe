@@ -6,6 +6,7 @@ Requirements
 * tahoe
 * podcast producer
 * apache for production deployment
+* mplayer (for video frame and metadata extraction)
 
 Assumptions (how we tend to deploy):
 
