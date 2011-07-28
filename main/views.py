@@ -604,7 +604,6 @@ def vitaldrop(request):
             try:
                 series = Series.objects.filter(title="Vital")[0]
                 filename = request.FILES['source_file'].name
-                print "username: %s" % request.session['username']
                 user = User.objects.get(username=request.session['username'])                
                 v = Video.objects.create(series=series,
                                          title=request.POST.get('title',''),
