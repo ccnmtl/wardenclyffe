@@ -7,7 +7,7 @@ from models import Video, Operation, Series, File, Metadata, OperationLog, Opera
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread, submit_to_vital
 import tasks
 import os
 from angeldust import PCP
@@ -604,6 +604,8 @@ def vitaldrop(request):
             try:
                 series = Series.objects.filter(title="Vital")[0]
                 filename = request.FILES['source_file'].name
+                print "username: %s" % request.session['username']
+                user = User.objects.get(username=request.session['username'])                
                 v = Video.objects.create(series=series,
                                          title=request.POST.get('title',''),
                                          creator=request.session['username'],
@@ -619,7 +621,6 @@ def vitaldrop(request):
                                                   label="vital submit",
                                                   filename=request.FILES['source_file'].name,
                                                   location_type='vitalsubmit')
-                user = User.objects.get(username=request.session['username'])
                 submit_file.set_metadata("username",request.session['username'])
                 submit_file.set_metadata("set_course",request.session['set_course'])
                 submit_file.set_metadata("redirect_to",request.session['redirect_to'])
@@ -631,12 +632,12 @@ def vitaldrop(request):
                 transaction.commit()
                 
                 save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
+                extract_metadata.delay(tmpfilename,v.id,user,source_file.id)
+                make_images.delay(tmpfilename,v.id,user)
                 workflow = settings.PCP_WORKFLOW
                 if hasattr(settings,'VITAL_PCP_WORKFLOW'):
                     workflow = settings.VITAL_PCP_WORKFLOW
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,workflow,
+                submit_to_podcast_producer.delay(tmpfilename,v.id,user,workflow,
                                                  settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                 return HttpResponseRedirect(request.session['redirect_to'])
     else:

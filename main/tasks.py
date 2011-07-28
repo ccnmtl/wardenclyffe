@@ -131,10 +131,10 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
             'thumb' : video.poster_url(),
             }
         resp,content = POST(vital_base,params=params,async=False,resp=True)
-        if resp.status == 302:
+        if resp.status == 302 or resp.status == 200:
             return ("complete","")
         else:
-            return ("failed","vital rejected submission")
+            return ("failed","vital rejected submission: %s" % content)
     args = [course_id,rtsp_url,vital_secret,vital_base]
     with_operation(_do_submit_to_vital,video,
                    "submit to vital","",
@@ -215,6 +215,7 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,p
         fileobj = open(tmpfilename)
         title = "%s-%s" % (str(ouuid),video.title)
         title = title.replace(" ","_") # podcast producer not so good with spaces
+        print "submitted with title %s" % title
         pcp.upload_file(fileobj,filename,workflow,title,video.description)
         return ("submitted","")
     with_operation(_do_submit_to_podcast_producer,video,"submit to podcast producer",

@@ -153,11 +153,11 @@ class Video(TimeStampedModel):
         r = self.file_set.filter(location_type="vitalsubmit")
         if r.count() > 0:
             f = r[0]
-            return (f.get_metadata("set_course"),f.get_metadata("username"),)
+            return (f.get_metadata("set_course"),f.get_metadata("username"),f.get_metadata("notify_url"))
         else:
-            return (None,None)
+            return (None,None,None)
 
-    def clear_mediathread_submit(self):
+    def clear_vital_submit(self):
         self.file_set.filter(location_type="vitalsubmit").delete()
             
     def poster(self):
