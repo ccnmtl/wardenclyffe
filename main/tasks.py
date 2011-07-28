@@ -111,23 +111,23 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
     print "done submitting to mediathread"
 
 @task(ignore_result=True)
-def submit_to_vital(video_id,user,course_id,vital_secret,vital_base,**kwargs):
+def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**kwargs):
     print "submitting to vital"
     video = Video.objects.get(id=video_id)
 
     action = "submit to vital"
-    def _do_submit_to_vital(video,user,operation,course_id,vital_secret,vital_base,**kwargs):
+    def _do_submit_to_vital(video,user,operation,course_id,rtsp_url,vital_secret,vital_base,**kwargs):
         (width,height) = video.get_dimensions()
         if not width or not height:
             return ("failed","could not figure out dimensions")
-        if not video.tahoe_download_url():
+        if not rtsp_url:
             return ("failed","no video URL")
         params = {
             'set_course' : course_id,
             'as' : user.username,
             'secret' : vital_secret,
             'title' : video.title,
-            'url' : video.tahoe_download_url(),
+            'url' : rtsp_url,
             'thumb' : video.poster_url(),
             }
         resp,content = POST(vital_base,params=params,async=False,resp=True)
@@ -135,7 +135,7 @@ def submit_to_vital(video_id,user,course_id,vital_secret,vital_base,**kwargs):
             return ("complete","")
         else:
             return ("failed","vital rejected submission")
-    args = [course_id,vital_secret,vital_base]
+    args = [course_id,rtsp_url,vital_secret,vital_base]
     with_operation(_do_submit_to_vital,video,
                    "submit to vital","",
                    user,args,kwargs)
@@ -213,7 +213,9 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,p
         # TODO: probably don't always want it to be .mp4
         filename = str(ouuid) + ".mp4"
         fileobj = open(tmpfilename)
-        pcp.upload_file(fileobj,filename,workflow,"[%s]%s" % (str(ouuid),video.title),video.description)
+        title = "%s-%s" % (str(ouuid),video.title)
+        title = title.replace(" ","_") # podcast producer not so good with spaces
+        pcp.upload_file(fileobj,filename,workflow,title,video.description)
         return ("submitted","")
     with_operation(_do_submit_to_podcast_producer,video,"submit to podcast producer",
                    "workflow: %s" % workflow,user,
@@ -246,7 +248,8 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
         filename = str(ouuid) + ".mp4"
         print "submitted with filename %s" % filename
-        title = "[" + str(ouuid) + "]" + video.title
+        title = "%s-%s" % (str(ouuid),video.title)
+        title = title.replace(" ","_") # podcast producer not so good with spaces
         print "submitted with title %s" % title
         pcp.upload_file(t,filename,workflow, title, video.description)
         return ("submitted","submitted to PCP")

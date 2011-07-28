@@ -20,6 +20,7 @@ from simplejson import loads
 import hmac, hashlib, datetime
 from zencoder import Zencoder
 from django.db.models import Q
+import re
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -386,10 +387,14 @@ def test_upload(request):
     return HttpResponse("a response")
 
 def done(request):
+    if 'title' not in request.POST:
+        return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-    if title.startswith("[") and "]" in title:
-        (uuid,oldtitle) = title.split("]")
-        uuid = uuid[1:]
+    
+    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
+    m = pattern.match(title)
+    if m:
+        uuid = m.group()
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
@@ -407,14 +412,16 @@ def done(request):
                 operation.video.clear_mediathread_submit()
 
         if operation.video.is_vital_submit():
+            cunix_path = request.POST.get('movie_destination_path','')
+            rtsp_url = cunix_path.replace("/media/qtstreams/projects/","rtsp://qtss.cc.columbia.edu/projects/")
             (set_course,username,notify_url) = operation.video.vital_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
                 submit_to_vital.delay(operation.video.id,user,set_course,
+                                      rtsp_url,
                                       settings.VITAL_SECRET,
                                       notify_url)
                 operation.video.clear_vital_submit()
-
     return HttpResponse("ok")
 
 @login_required
@@ -619,7 +626,6 @@ def vitaldrop(request):
                 submit_file.set_metadata("notify_url",request.session['notify_url'])
             except:
                 transaction.rollback()
-                print "argh! rolled back!"
                 raise
             else:
                 transaction.commit()
