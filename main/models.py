@@ -124,6 +124,15 @@ class Video(TimeStampedModel):
         t = self.source_file()
         return (t.get_width(),t.get_height())
 
+    def vital_thumb_url(self):
+        r = self.file_set.filter(location_type="vitalsubmit")
+        if r.count() > 0:
+            f = r[0]
+            p = f.get_metadata("poster_url")
+            if p is not None:
+                return p
+        return ""
+
     def poster_url(self):
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
@@ -148,6 +157,9 @@ class Video(TimeStampedModel):
 
     def is_vital_submit(self):
         return self.file_set.filter(location_type="vitalsubmit").count() > 0
+
+    def get_vital_submit_file(self):
+        return self.file_set.filter(location_type="vitalsubmit")[0]
 
     def vital_submit(self):
         r = self.file_set.filter(location_type="vitalsubmit")

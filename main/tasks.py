@@ -128,7 +128,7 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
             'secret' : vital_secret,
             'title' : video.title,
             'url' : rtsp_url,
-            'thumb' : video.poster_url(),
+            'thumb' : video.vital_thumb_url(),
             }
         resp,content = POST(vital_base,params=params,async=False,resp=True)
         if resp.status == 302 or resp.status == 200:

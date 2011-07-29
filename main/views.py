@@ -421,8 +421,29 @@ def done(request):
                                       rtsp_url,
                                       settings.VITAL_SECRET,
                                       notify_url)
-                operation.video.clear_vital_submit()
     return HttpResponse("ok")
+
+
+def posterdone(request):
+    if 'title' not in request.POST:
+        return HttpResponse("expecting a title")
+    title = request.POST.get('title','no title')
+
+    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
+    m = pattern.match(title)
+    if m:
+        uuid = m.group()
+    r = Operation.objects.filter(uuid=uuid)
+    if r.count() == 1:
+        operation = r[0]
+        if operation.video.is_vital_submit():
+            cunix_path = request.POST.get('image_destination_path','')
+            poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/projects/vital/thumbs/",
+                                            "http://ccnmtl.columbia.edu/broadcast/projects/vital/thumbs/")
+            f = operation.video.get_vital_submit_file()
+            f.set_metadata("poster_url",poster_url)
+    return HttpResponse("ok")
+
 
 @login_required
 @rendered_with('main/video.html')
