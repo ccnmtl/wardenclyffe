@@ -421,6 +421,7 @@ def done(request):
                                       rtsp_url,
                                       settings.VITAL_SECRET,
                                       notify_url)
+                operation.video.clear_vital_submit()
     return HttpResponse("ok")
 
 
@@ -440,8 +441,11 @@ def posterdone(request):
             cunix_path = request.POST.get('image_destination_path','')
             poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/projects/vital/thumbs/",
                                             "http://ccnmtl.columbia.edu/broadcast/projects/vital/thumbs/")
-            f = operation.video.get_vital_submit_file()
-            f.set_metadata("poster_url",poster_url)
+
+            vitalthumb_file = File.objects.create(video=operation.video,
+                                                  label="vital thumbnail image",
+                                                  url=poster_url,
+                                                  location_type='vitalthumb')
     return HttpResponse("ok")
 
 

@@ -125,12 +125,10 @@ class Video(TimeStampedModel):
         return (t.get_width(),t.get_height())
 
     def vital_thumb_url(self):
-        r = self.file_set.filter(location_type="vitalsubmit")
+        r = self.file_set.filter(location_type="vitalthumb")
         if r.count() > 0:
             f = r[0]
-            p = f.get_metadata("poster_url")
-            if p is not None:
-                return p
+            return f.url
         return ""
 
     def poster_url(self):
