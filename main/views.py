@@ -20,6 +20,7 @@ from simplejson import loads
 import hmac, hashlib, datetime
 from zencoder import Zencoder
 from django.db.models import Q
+from django.core.mail import send_mail
 import re
 
 class rendered_with(object):
@@ -446,6 +447,28 @@ def posterdone(request):
                                                   label="vital thumbnail image",
                                                   url=poster_url,
                                                   location_type='vitalthumb')
+    return HttpResponse("ok")
+
+
+
+def received(request):
+    if 'title' not in request.POST:
+        return HttpResponse("expecting a title")
+    title = request.POST.get('title','no title')
+
+    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
+    m = pattern.match(title)
+    if m:
+        uuid = m.group()
+    r = Operation.objects.filter(uuid=uuid)
+    if r.count() == 1:
+        operation = r[0]
+        if operation.video.is_vital_submit():
+            send_mail('VITAL video processing', 
+                      """Your video, "%s", has been submitted for processing.""" % operation.video.title, 
+                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      ["%s@columbia.edu" % operation.video.creator.username], fail_silently=False)
+
     return HttpResponse("ok")
 
 
