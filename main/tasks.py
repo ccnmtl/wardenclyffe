@@ -132,6 +132,10 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
             }
         resp,content = POST(vital_base,params=params,async=False,resp=True)
         if resp.status == 302 or resp.status == 200:
+            send_mail('VITAL video uploaded', 
+                  """Your video, "%s", has been uploaded to VITAL.""" % video.title, 
+                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                  ["%s@columbia.edu" % user.username], fail_silently=False)
             return ("complete","")
         else:
             return ("failed","vital rejected submission: %s" % content)
