@@ -460,6 +460,11 @@ def received(request):
     m = pattern.match(title)
     if m:
         uuid = m.group()
+    else:
+        send_mail("wardenclyffe bug",
+                  "title was: %s" % title,
+                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                  ["anders@columbia.edu"],fail_silently=False)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
