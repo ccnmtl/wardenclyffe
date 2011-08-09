@@ -472,7 +472,7 @@ def received(request):
             send_mail('VITAL video processing', 
                       """Your video, "%s", has been submitted for processing.""" % operation.video.title, 
                       'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
-                      ["%s@columbia.edu" % operation.video.creator.username], fail_silently=False)
+                      ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
 
     return HttpResponse("ok")
 
