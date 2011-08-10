@@ -7,7 +7,7 @@ from models import Video, Operation, Series, File, Metadata, OperationLog, Opera
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread, submit_to_vital
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata, submit_to_mediathread
 import tasks
 import os
 from angeldust import PCP
@@ -417,57 +417,7 @@ def done(request):
                                             settings.MEDIATHREAD_BASE)
                 operation.video.clear_mediathread_submit()
 
-        if operation.video.is_vital_submit():
-            cunix_path = request.POST.get('movie_destination_path','')
-            rtsp_url = cunix_path.replace("/media/qtstreams/projects/","rtsp://qtss.cc.columbia.edu/projects/")
-            (set_course,username,notify_url) = operation.video.vital_submit()
-            if set_course is not None:
-                user = User.objects.get(username=username)
-                submit_to_vital.delay(operation.video.id,user,set_course,
-                                      rtsp_url,
-                                      settings.VITAL_SECRET,
-                                      notify_url)
-                operation.video.clear_vital_submit()
     return HttpResponse("ok")
-
-
-def posterdone(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title','no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        operation = r[0]
-        if operation.video.is_vital_submit():
-            cunix_path = request.POST.get('image_destination_path','')
-            poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/projects/vital/thumbs/",
-                                            "http://ccnmtl.columbia.edu/broadcast/projects/vital/thumbs/")
-
-            vitalthumb_file = File.objects.create(video=operation.video,
-                                                  label="vital thumbnail image",
-                                                  url=poster_url,
-                                                  location_type='vitalthumb')
-    return HttpResponse("ok")
-
-
-
-def received(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title','no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        operation = r[0]
-        if operation.video.is_vital_submit():
-            send_mail('VITAL video processing', 
-                      """Your video, "%s", has been submitted for processing.""" % operation.video.title, 
-                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
-                      ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
-
-    return HttpResponse("ok")
-
 
 @login_required
 @rendered_with('main/video.html')
