@@ -4,4 +4,5 @@ urlpatterns = patterns('vital.views',
                        (r'^done/$','done',{},'vital-done'),
                        (r'^received/$','received',{},'vital-received'),
                        (r'^posterdone/$','posterdone',{},'vital-posterdone'),
+                       (r'^drop/$','drop',{},'vital-drop'),
 )
