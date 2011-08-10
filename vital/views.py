@@ -1,24 +1,10 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
-import uuid 
-from tasks import submit_to_vital
 import tasks
-import os
-from angeldust import PCP
 from django.conf import settings
-from django.db import transaction
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from taggit.models import Tag
-from restclient import GET,POST
-from simplejson import loads
-import hmac, hashlib, datetime
-from zencoder import Zencoder
-from django.db.models import Q
 from django.core.mail import send_mail
 import re
 
@@ -48,10 +34,10 @@ def done(request):
             (set_course,username,notify_url) = operation.video.vital_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
-                submit_to_vital.delay(operation.video.id,user,set_course,
-                                      rtsp_url,
-                                      settings.VITAL_SECRET,
-                                      notify_url)
+                tasks.submit_to_vital.delay(operation.video.id,user,set_course,
+                                            rtsp_url,
+                                            settings.VITAL_SECRET,
+                                            notify_url)
                 operation.video.clear_vital_submit()
     return HttpResponse("ok")
 
