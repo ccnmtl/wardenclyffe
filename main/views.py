@@ -387,15 +387,20 @@ def youtube_done(request):
 def test_upload(request):
     return HttpResponse("a response")
 
+def uuidparse(s):
+    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
+    m = pattern.match(s)
+    if m:
+        return m.group()
+    else:
+        return ""
+
+
 def done(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-    
-    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
-    m = pattern.match(title)
-    if m:
-        uuid = m.group()
+    uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
@@ -430,11 +435,7 @@ def posterdone(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-
-    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
-    m = pattern.match(title)
-    if m:
-        uuid = m.group()
+    uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
@@ -455,16 +456,7 @@ def received(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-
-    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
-    m = pattern.match(title)
-    if m:
-        uuid = m.group()
-    else:
-        send_mail("wardenclyffe bug",
-                  "title was: %s" % title,
-                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
-                  ["anders@columbia.edu"],fail_silently=False)
+    uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
