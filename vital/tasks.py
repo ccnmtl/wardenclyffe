@@ -36,10 +36,6 @@ def with_operation(f,video,action,params,user,args,kwargs):
 
 
 @task(ignore_result=True)
-def testing(title):
-    print title
-
-@task(ignore_result=True)
 def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**kwargs):
     print "submitting to vital"
     video = Video.objects.get(id=video_id)
