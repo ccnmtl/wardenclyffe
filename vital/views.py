@@ -188,7 +188,7 @@ def received(request):
 The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
 If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
-""" % (operation.video.title,operation.owner.username)
+""" % (operation.video.title,operation.owner.username),
                       'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
 
