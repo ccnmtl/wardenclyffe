@@ -182,8 +182,13 @@ def received(request):
     if r.count() == 1:
         operation = r[0]
         if operation.video.is_vital_submit():
-            send_mail('VITAL video processing', 
-                      """Your video, "%s", has been submitted for processing.""" % operation.video.title, 
+            send_mail('Video submitted to VITAL', 
+"""This email confirms that %s has been successfully submitted to VITAL by %s.  
+
+The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+
+If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+""" % (operation.video.title,operation.owner.username)
                       'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
 
