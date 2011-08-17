@@ -58,12 +58,12 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
         resp,content = POST(vital_base,params=params,async=False,resp=True)
         if resp.status == 302 or resp.status == 200:
             send_mail('Uploaded video now available in VITAL', 
-"""
+                      """
 This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
 
 If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
 
-""" % (video.title,user.username,course_id)
+""" % (video.title,user.username,course_id),
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
             return ("complete","")
