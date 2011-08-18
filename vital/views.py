@@ -144,6 +144,10 @@ def done(request):
             (set_course,username,notify_url) = operation.video.vital_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
+                qtf = File.objects.create(video=operation.video,
+                                          label="Quicktime Streaming Video",
+                                          url=rtsp_url,
+                                          location_type='rtsp_url')
                 tasks.submit_to_vital.delay(operation.video.id,user,set_course,
                                             rtsp_url,
                                             settings.VITAL_SECRET,
