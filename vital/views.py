@@ -46,24 +46,39 @@ def submit(request,id):
             # we make a "vitalsubmit" file to store the submission
             # info and serve as a flag that it needs to be submitted
             # (when PCP comes back)
-            submit_file = File.objects.create(video=v,
-                                              label="vital submit",
-                                              filename=request.FILES['source_file'].name,
-                                              location_type='vitalsubmit')
-            submit_file.set_metadata("username",request.user.username)
-            submit_file.set_metadata("set_course",request.POST['course_id'])
-            submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+            if not request.POST.get('bypass',False):
+                submit_file = File.objects.create(video=v,
+                                                  label="vital submit",
+                                                  filename=request.FILES['source_file'].name,
+                                                  location_type='vitalsubmit')
+                submit_file.set_metadata("username",request.user.username)
+                submit_file.set_metadata("set_course",request.POST['course_id'])
+                submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
         except:
             transaction.rollback()
             raise
         else:
             transaction.commit()
-            workflow = settings.PCP_WORKFLOW
-            if hasattr(settings,'VITAL_PCP_WORKFLOW'):
-                workflow = settings.VITAL_PCP_WORKFLOW
-            maintasks.pull_from_tahoe_and_submit_to_pcp.delay(v.id,user,workflow,settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+            if request.POST.get('bypass',False):
+                vt = File.objects.filter(video=v,location_type='vitalthumb')
+                qt = File.objects.filter(video=v,location_type='rtsp_url')
+                
+                tasks.submit_to_vital.delay(v.id,request.user,
+                                            request.POST['course_id'],
+                                            qt[0].url,
+                                            settings.VITAL_SECRET,
+                                            settings.VITAL_NOTIFY_URL)
+            else:
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'VITAL_PCP_WORKFLOW'):
+                    workflow = settings.VITAL_PCP_WORKFLOW
+                maintasks.pull_from_tahoe_and_submit_to_pcp.delay(v.id,user,workflow,settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
             return HttpResponseRedirect(v.get_absolute_url())
-    return dict(video=v)
+    vt = File.objects.filter(video=v,location_type='vitalthumb')
+    qt = File.objects.filter(video=v,location_type='rtsp_url')
+    return dict(video=v,
+                bypassable=vt.count() > 0 and qt.count() > 0)
+
 
 @transaction.commit_manually
 @rendered_with('vital/drop.html')
