@@ -1,5 +1,6 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
@@ -9,7 +10,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 import re
 from django.db import transaction
-from django.shortcuts import render_to_response
 import uuid
 import hmac, hashlib, datetime
 from django.template import RequestContext
@@ -35,6 +35,35 @@ class rendered_with(object):
                 return items
 
         return rendered_func
+
+@transaction.commit_manually
+@rendered_with('vital/submit.html')
+def submit(request,id):
+    v = get_object_or_404(Video,id=id)
+    if request.method == "POST":
+        # make db entry
+        try:
+            # we make a "vitalsubmit" file to store the submission
+            # info and serve as a flag that it needs to be submitted
+            # (when PCP comes back)
+            submit_file = File.objects.create(video=v,
+                                              label="vital submit",
+                                              filename=request.FILES['source_file'].name,
+                                              location_type='vitalsubmit')
+            submit_file.set_metadata("username",request.user.username)
+            submit_file.set_metadata("set_course",request.POST['course_id'])
+            submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+        except:
+            transaction.rollback()
+            raise
+        else:
+            transaction.commit()
+            workflow = settings.PCP_WORKFLOW
+            if hasattr(settings,'VITAL_PCP_WORKFLOW'):
+                workflow = settings.VITAL_PCP_WORKFLOW
+            maintasks.pull_from_tahoe_and_submit_to_pcp.delay(v.id,user,workflow,settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+            return HttpResponseRedirect(v.get_absolute_url())
+    return dict(video=v)
 
 @transaction.commit_manually
 @rendered_with('vital/drop.html')
