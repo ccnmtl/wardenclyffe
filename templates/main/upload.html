@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Add Video from Desktop{% endblock %}
-{% block pagetitle %}Add Video from Desktop{% endblock %}
+{% block title %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+{% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+
 {% block extra_head %}
 <script src="/site_media/js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
@@ -14,8 +15,13 @@
 <div class="panel_top">
 	<div class="form_video_source">
 		<div class="form_video_source_title">Video source:</div>
+{% if scan_directory %}
+                <div class="wc_button inactive_button"><a href="/upload/" title="Upload files from your desktop">Desktop</a></div><!-- class="wc_button" -->
+                <div class="wc_button active_button">Drop-off directory</div><!-- class="wc_button" -->
+{% else %}
 		<div class="wc_button active_button">Desktop</div><!-- class="wc_button" -->
 		<div class="wc_button inactive_button"><a href="/scan_directory/" title="Upload files from the drop-off directory">Drop-off directory</a></div><!-- class="wc_button" -->
+{% endif %}
 		<div class="wc_help_button" id="help_video_source">?</div><!-- class="wc_help_button" -->
 	</div><!-- class="form_video_source" -->
 	<div class="form_video_series">
@@ -57,11 +63,27 @@
 			<div class="section-header">
 			Video file <div id="help_video_file" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
 			</div>
-			
+
+{% if scan_directory %}			
+                       <div class="fieldwrapper inlinewrapper">
+			 <label for="id_source_file">Upload:</label>
+			 {% if file_listing %}
+			 <select name="source_file" id="id_source_file"> 
+			   <option value="" selected="selected">---------</option> 
+			   {% for file in file_listing %}
+			   <option value="{{file}}">{{file}}</option> 
+			   {% endfor %}
+			 </select> 
+			 {% else %}
+			 <p>There are no files in the drop-off directory</p>
+			 {% endif %}
+		       </div>
+{% else %}
 			<div class="fieldwrapper">
-			<label for="id_file">Select file to upload:</label>
-			<input class="file_upload" type="file" name="source_file" />
+			  <label for="id_file">Select file to upload:</label>
+			  <input class="file_upload" type="file" name="source_file" />
 			</div>
+{% endif %}
 		
 			<div class="fieldwrapper inlinewrapper">
 			<label for="id_creator">Creator:</label>

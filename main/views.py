@@ -259,7 +259,7 @@ def upload(request):
 
 @transaction.commit_manually
 @login_required
-@rendered_with('main/scan_directory.html')
+@rendered_with('main/upload.html')
 def scan_directory(request):
     series_id = None
     file_listing = []
@@ -319,7 +319,7 @@ def scan_directory(request):
             form = series.add_video_form()
         file_listing = os.listdir(settings.WATCH_DIRECTORY)
             
-    return dict(form=form,series_id=series_id,file_listing=file_listing)
+    return dict(form=form,series_id=series_id,file_listing=file_listing,scan_directory=True)
 
 
 
