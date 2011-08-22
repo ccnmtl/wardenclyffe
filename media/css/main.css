@@ -1604,6 +1604,10 @@ tr td.submitted
 	color: #f60;
 }
 
+.extra_fields {
+      margin-top: 10px;
+}
+
 .panel_middle .leftcol
 {
 	margin: 0;

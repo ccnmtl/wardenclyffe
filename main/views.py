@@ -229,7 +229,14 @@ def upload(request):
                                                       label="source file",
                                                       filename=request.FILES['source_file'].name,
                                                       location_type='none')
-
+                if request.POST.get('submit_to_vital',False) and request.POST.get('course_id',False):
+                    submit_file = File.objects.create(video=v,
+                                                      label="vital submit",
+                                                      filename=request.FILES['source_file'].name,
+                                                      location_type='vitalsubmit')
+                    submit_file.set_metadata("username",request.user.username)
+                    submit_file.set_metadata("set_course",request.POST['course_id'])
+                    submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
             except:
                 transaction.rollback()
                 raise
@@ -243,8 +250,8 @@ def upload(request):
                         extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                     if request.POST.get('extract_images',False):
                         make_images.delay(tmpfilename,v.id,request.user)
-                    if request.POST.get('submit_to_pcp',False):
-                        submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW,
+                    if request.POST.get('submit_to_vital',False):
+                        submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
                                                          settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                 return HttpResponseRedirect("/")
     else:

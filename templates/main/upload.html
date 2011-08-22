@@ -119,11 +119,27 @@
 			</div>
 
 			<div class="fieldwrapper">
-				<input type="checkbox" name="submit_to_pcp" checked="checked" />Submit file to Podcast Producer<br />
+				<input type="checkbox" name="submit_to_vital" id="submit_to_vital"/>Submit file to VITAL<br />
+			</div>
+
+			<div class="fieldwrapper disabled">
+				<input type="checkbox" name="submit_to_mediathread" disabled="disabled" />Submit file to Mediathread<br />
 			</div>
 
 
 		</div><!-- class="sectionbox" -->
+
+
+		<div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box">
+		  <div class="section-header">Extra Fields</div>
+
+		  <div class="fieldwrapper inlinewrapper" id="vital_course_id">
+		    <label for="course_id">VITAL Course ID:</label>
+		    <input type="text" name="course_id" id="course_id" />
+		  </div>
+
+		</div>
+
 	</div><!-- class="rightcol" -->
 	<div class="visualclear"></div>
 </div><!-- class="panel_middle" -->
@@ -161,7 +177,10 @@ jQuery(document).ready(function()
       defaultText: 'Add a subject...'
       }
      );
-
+    jQuery('#submit_to_vital').click(function() {
+      jQuery('#extra_fields_box').toggle('blind',{},500);
+    }
+    );
 	
    }
 );
