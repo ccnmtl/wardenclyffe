@@ -202,21 +202,31 @@ def upload(request):
         if form.is_valid():
             # save it locally
             vuuid = uuid.uuid4()
-            if request.FILES.get('source_file',None):
+            source_filename = None
+            if request.POST.get('scan_directory',False):
+                source_filename = request.POST.get('source_file')
+            if request.FILES.get('source_file',False):
+                source_filename = request.FILES['source_file'].name
+            # important to note here that we allow an "upload" with no file
+            # so the user can create a placeholder for a later upload,
+            # or to associate existing files/urls with
+
+            if source_filename:
                 try: 
                     os.makedirs(settings.TMP_DIR)
                 except:
                     pass
-                extension = request.FILES['source_file'].name.split(".")[-1]
+                extension = source_filename.split(".")[-1]
                 tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-                tmpfile = open(tmpfilename, 'wb')
-                for chunk in request.FILES['source_file'].chunks():
-                    tmpfile.write(chunk)
-                tmpfile.close()
+                if request.POST.get('scan_directory',False):
+                    os.rename(settings.WATCH_DIRECTORY + request.POST.get('source_file'),tmpfilename)
+                else:
+                    tmpfile = open(tmpfilename, 'wb')
+                    for chunk in request.FILES['source_file'].chunks():
+                        tmpfile.write(chunk)
+                    tmpfile.close()
             # make db entry
             try:
-                if request.FILES.get('source_file',None):
-                    filename = request.FILES['source_file'].name
                 v = form.save(commit=False)
                 v.uuid = vuuid
                 series_id = request.GET.get('series',None)
@@ -224,28 +234,29 @@ def upload(request):
                     v.series_id = series_id
                 v.save()
                 form.save_m2m()
-                if request.FILES.get('source_file',None):
+                if source_filename:
                     source_file = File.objects.create(video=v,
                                                       label="source file",
-                                                      filename=request.FILES['source_file'].name,
+                                                      filename=source_filename,
                                                       location_type='none')
-                if request.POST.get('submit_to_vital',False) and request.POST.get('course_id',False):
-                    submit_file = File.objects.create(video=v,
-                                                      label="vital submit",
-                                                      filename=request.FILES['source_file'].name,
-                                                      location_type='vitalsubmit')
-                    submit_file.set_metadata("username",request.user.username)
-                    submit_file.set_metadata("set_course",request.POST['course_id'])
-                    submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+                    if request.POST.get('submit_to_vital',False) \
+                            and request.POST.get('course_id',False):
+                        submit_file = File.objects.create(video=v,
+                                                          label="vital submit",
+                                                          filename=source_filename,
+                                                          location_type='vitalsubmit')
+                        submit_file.set_metadata("username",request.user.username)
+                        submit_file.set_metadata("set_course",request.POST['course_id'])
+                        submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                if request.FILES.get('source_file',None):
+                if source_filename:
                     # only run these steps if there's actually a file uploaded
                     if request.POST.get('upload_to_tahoe',False):
-                        save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
+                        save_file_to_tahoe.delay(tmpfilename,v.id,source_filename,request.user,settings.TAHOE_BASE)
                     if request.POST.get('extract_metadata',False):
                         extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                     if request.POST.get('extract_images',False):
@@ -253,6 +264,14 @@ def upload(request):
                     if request.POST.get('submit_to_vital',False):
                         submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
                                                          settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                    if request.POST.get('submit_to_youtube',False):
+                        tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
+                                                      settings.YOUTUBE_EMAIL,
+                                                      settings.YOUTUBE_PASSWORD,
+                                                      settings.YOUTUBE_SOURCE,
+                                                      settings.YOUTUBE_DEVELOPER_KEY,
+                                                      settings.YOUTUBE_CLIENT_ID
+                                                      )
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
@@ -270,62 +289,12 @@ def upload(request):
 def scan_directory(request):
     series_id = None
     file_listing = []
-    if request.method == "POST":
-        form = UploadVideoForm(request.POST)
-        if form.is_valid():
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            if not request.POST['source_file']:
-                return HttpResponse("no video uploaded")
-
-            extension = request.POST.get('source_file').split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-
-            os.rename(settings.WATCH_DIRECTORY + request.POST.get('source_file'),tmpfilename)
-
-
-            # make db entry
-            try:
-                filename = request.POST['source_file']
-                v = form.save(commit=False)
-                v.uuid = vuuid
-                series_id = request.GET.get('series',None)
-                if series_id:
-                    v.series_id = series_id
-                v.save()
-                form.save_m2m()
-                source_file = File.objects.create(video=v,
-                                                  label="source file",
-                                                  filename=request.POST.get('source_file'),
-                                                  location_type='none')
-
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-                if request.POST.get('upload_to_tahoe',False):
-                    save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
-                if request.POST.get('extract_metadata',False):
-                    extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                if request.POST.get('extract_images',False):
-                    make_images.delay(tmpfilename,v.id,request.user)
-                if request.POST.get('submit_to_pcp',False):
-                    submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.PCP_WORKFLOW,
-                                                     settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
-                return HttpResponseRedirect("/")
-    else:
-        form = UploadVideoForm()
-        series_id = request.GET.get('series',None)
-        if series_id:
-            series = get_object_or_404(Series,id=series_id)
-            form = series.add_video_form()
-        file_listing = os.listdir(settings.WATCH_DIRECTORY)
-            
+    form = UploadVideoForm()
+    series_id = request.GET.get('series',None)
+    if series_id:
+        series = get_object_or_404(Series,id=series_id)
+        form = series.add_video_form()
+    file_listing = os.listdir(settings.WATCH_DIRECTORY)
     return dict(form=form,series_id=series_id,file_listing=file_listing,scan_directory=True)
 
 
