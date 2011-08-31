@@ -22,6 +22,7 @@ from zencoder import Zencoder
 from django.db.models import Q
 from django.core.mail import send_mail
 import re
+from surelink.helpers import video_options,protection,protection_string
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -685,40 +686,6 @@ def subject_autocomplete(request):
 def surelink(request):
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
 
-    def protection(filename,group):
-        s = "%s:%s:%s" % (filename,group,PROTECTION_KEY)
-        return hashlib.sha1(s).hexdigest()        
-
-    def protection_string(filename,group):
-        if group.startswith('public'):
-            return "&protection=%s" % protection(filename,'public')
-        return ""
-
-    def video_options(protection,file,width,height,poster,player=None,
-                      captions=None,authtype=None):
-        if protection == "public-mp4-download":
-            player = 'download_mp4_v3'
-        else:
-            if player is None:
-                player = 'v3'
-
-        if poster == 'default_custom_poster':
-            if 'secure' not in file:
-                # secure: parallel dir as video file in /broadcast/posters/
-                poster = "http://ccnmtl.columbia.edu/broadcast/posters/" + file.replace('.mp4','.jpg').replace('.flv','.jpg')
-            else:
-                # insecure: same dir as video file
-                poster = "http://ccnmtl.columbia.edu/broadcast/" + file.replace('.mp4','.jpg').replace('.flv','.jpg')
-        captions_string = ""
-        if captions:
-            captions_string = "&captions=%s" % captions
-
-        authtype_string = ""
-        if authtype:
-            authtype_string = "&authtype=%s" % authtype
-        return "player=%s&file=%s&width=%d&height=%d&poster=%s%s%s" % \
-            (player,file,width,height,poster,captions_string,authtype_string)
-
     if request.GET.get('file',''):
         test = ""
         if request.GET.get('player','') == "test":
@@ -732,10 +699,10 @@ def surelink(request):
                                     request.GET.get('captions',''),
                                     request.GET.get('authtype',''),
                                     )
-        public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public'),
+        public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public',PROTECTION_KEY),
                                                                             request.GET.get('file',''))
 
-        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection','')))
+        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection',''),PROTECTION_KEY))
 
         return dict(public_url=public_url,
                     src_url=src_url,
