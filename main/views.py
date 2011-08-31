@@ -735,7 +735,6 @@ def surelink(request):
         public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public'),
                                                                             request.GET.get('file',''))
 
-        drupal_url = "http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/%s" % request.GET.get('file','')
         src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection','')))
         embed_text = """<script type="text/javascript" src="%s"></script>""" % src_url
 
@@ -759,7 +758,6 @@ def surelink(request):
                                          request.GET.get('height',''),
                                          request.GET.get('protection',''))
         return dict(public_url=public_url,
-                    drupal_url=drupal_url,
                     src_url=src_url,
                     embed_text=embed_text,
                     mdpmoodle_text=mdpmoodle_text,
