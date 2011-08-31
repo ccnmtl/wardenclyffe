@@ -680,3 +680,93 @@ def subject_autocomplete(request):
             all_subjects[p] = 1
 
     return HttpResponse("\n".join(all_subjects.keys()))
+
+@rendered_with("main/surelink.html")
+def surelink(request):
+    PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+
+    def protection(filename,group):
+        s = "%s:%s:%s" % (filename,group,PROTECTION_KEY)
+        return hashlib.sha1(s).hexdigest()        
+
+    def protection_string(filename,group):
+        if group.startswith('public'):
+            return "&protection=%s" % protection(filename,'public')
+        return ""
+
+    def video_options(protection,file,width,height,poster,player=None,
+                      captions=None,authtype=None):
+        if protection == "public-mp4-download":
+            player = 'download_mp4_v3'
+        else:
+            if player is None:
+                player = 'v3'
+
+        if poster == 'default_custom_poster':
+            if 'secure' not in file:
+                # secure: parallel dir as video file in /broadcast/posters/
+                poster = "http://ccnmtl.columbia.edu/broadcast/posters/" + file.replace('.mp4','.jpg').replace('.flv','.jpg')
+            else:
+                # insecure: same dir as video file
+                poster = "http://ccnmtl.columbia.edu/broadcast/" + file.replace('.mp4','.jpg').replace('.flv','.jpg')
+        captions_string = ""
+        if captions:
+            captions_string = "&captions=%s" % captions
+
+        authtype_string = ""
+        if authtype:
+            authtype_string = "&authtype=%s" % authtype
+        return "player=%s&file=%s&width=%d&height=%d&poster=%s%s%s" % \
+            (player,file,width,height,poster,captions_string,authtype_string)
+
+    if request.GET.get('file',''):
+        test = ""
+        if request.GET.get('player','') == "test":
+            test = "new"
+        vid_options = video_options(request.GET.get('protection',''),
+                                    request.GET.get('file',''),
+                                    int(request.GET.get('width','0')),
+                                    int(request.GET.get('height','0')),
+                                    request.GET.get('poster',''),
+                                    request.GET.get('player',''),
+                                    request.GET.get('captions',''),
+                                    request.GET.get('authtype',''),
+                                    )
+        public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public'),
+                                                                            request.GET.get('file',''))
+
+        drupal_url = "http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/%s" % request.GET.get('file','')
+        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection','')))
+        embed_text = """<script type="text/javascript" src="%s"></script>""" % src_url
+        edblogs_text = """[ccnmtl_video src="%s"]""" % src_url
+
+
+        def get_moodle_text(file,public_url,width,height,protection):
+            mdpmoodle_text = public_url
+            if protection == "public-mp4-download":
+                mdpmoodle_text = "http://ccnmtl.columbia.edu/broadcast/%s" % file
+            if width:
+                mdpmoodle_text += "[w]" + width
+            if height:
+                mdpmoodle_text += "[h]" + height
+            if protection == "public-mp4-download":
+                mdpmoodle_text = "[mp4]%s[mp4]" % mdpmoodle_text
+            else:
+                mdpmoodle_text = "[flv]%s[flv]" % mdpmoodle_text
+            return mdpmoodle_text
+
+        mdpmoodle_text = get_moodle_text(request.GET.get('file',''),
+                                         public_url,
+                                         request.GET.get('width',''),
+                                         request.GET.get('height',''),
+                                         request.GET.get('protection',''))
+        return dict(public_url=public_url,
+                    drupal_url=drupal_url,
+                    src_url=src_url,
+                    embed_text=embed_text,
+                    edblogs_text=edblogs_text,
+                    mdpmoodle_text=mdpmoodle_text,
+                    protection=request.GET.get('protection',''),
+                    public=request.GET.get('protection','').startswith('public'),
+                    file=request.GET.get('file',''))
+    return dict()
