@@ -736,32 +736,13 @@ def surelink(request):
                                                                             request.GET.get('file',''))
 
         src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection','')))
-        embed_text = """<script type="text/javascript" src="%s"></script>""" % src_url
 
-        def get_moodle_text(file,public_url,width,height,protection):
-            mdpmoodle_text = public_url
-            if protection == "public-mp4-download":
-                mdpmoodle_text = "http://ccnmtl.columbia.edu/broadcast/%s" % file
-            if width:
-                mdpmoodle_text += "[w]" + width
-            if height:
-                mdpmoodle_text += "[h]" + height
-            if protection == "public-mp4-download":
-                mdpmoodle_text = "[mp4]%s[mp4]" % mdpmoodle_text
-            else:
-                mdpmoodle_text = "[flv]%s[flv]" % mdpmoodle_text
-            return mdpmoodle_text
-
-        mdpmoodle_text = get_moodle_text(request.GET.get('file',''),
-                                         public_url,
-                                         request.GET.get('width',''),
-                                         request.GET.get('height',''),
-                                         request.GET.get('protection',''))
         return dict(public_url=public_url,
                     src_url=src_url,
-                    embed_text=embed_text,
-                    mdpmoodle_text=mdpmoodle_text,
                     protection=request.GET.get('protection',''),
                     public=request.GET.get('protection','').startswith('public'),
+                    public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
+                    width = request.GET.get('width',''),
+                    height = request.GET.get('height',''),
                     file=request.GET.get('file',''))
     return dict()
