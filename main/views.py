@@ -702,14 +702,18 @@ def surelink(request):
         public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public',PROTECTION_KEY),
                                                                             request.GET.get('file',''))
 
-        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,protection_string(request.GET.get('file',''),request.GET.get('protection',''),PROTECTION_KEY))
+        ps = protection_string(request.GET.get('file',''),request.GET.get('protection',''),PROTECTION_KEY)
+        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,ps)
 
         return dict(public_url=public_url,
                     src_url=src_url,
+                    vid_options=vid_options,
                     protection=request.GET.get('protection',''),
                     public=request.GET.get('protection','').startswith('public'),
                     public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
+                    protection_string=ps,
                     width = request.GET.get('width',''),
                     height = request.GET.get('height',''),
-                    file=request.GET.get('file',''))
+                    captions = request.GET.get('captions',''),
+                    file = request.GET.get('file',''))
     return dict()
