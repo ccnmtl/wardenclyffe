@@ -3,8 +3,9 @@
 {% load thumbnail %}
 {% load oembed_tags %}
 {% block content %}
-<p>In Series: <a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a></p>
-<h1>Video: <a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></h1>
+<p><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>/<a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></p>
+<h1>File: {{file.label}}</h1>
+
 
 <table>
 <tr><th>label</th><td>{{file.label}}</td></tr>
@@ -17,6 +18,64 @@
 {% ifequal file.location_type "mediathread" %}
 <p><a href="{{file.url}}">Annotate this video in mediathread</a></p>
 {% endifequal %}
+
+{% if file.surelinkable %}
+<div id="surelink">
+<h2>SureLink</h2> 
+ 
+<form method="GET" action="surelink/"> 
+ 
+  <label for="file"><b>Media (path) and filename:</b></label><br /> 
+  <input type="text" size="200" style="width:50%" name="file" value="{{file.filename}}"/><br /> 
+  <br /> 
+  <label for="captions"><b><a href="http://flowplayer.org/plugins/flash/captions.html">Captions
+  URL</a> (optional):</b></label><br />    
+  <input type="text" name="captions" value="{{captions}}" style="width:50%" /> 
+  <br /> 
+  <label for="poster"><b>Poster:</b></label>  <br />
+  <select name="poster"> 
+    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"  >CCNMTL 480x360</option> 
+    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x272.jpg"  >CCNMTL 480x272</option> 
+    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_320x240.jpg"  >CCNMTL 320x240</option> 
+    <option value="default_custom_poster">broadcast/posters/[media path]/[filename].jpg</option> 
+  </select> 
+  <br /> 
+  <label for="width"><b>Width:</b></label> <br />
+  <input type="text" name="width" value="{{file.guess_width}}"
+  size="10" /> <br />
+  <label for="height"><b>Height (not including controls):</b></label>
+  <br />
+  <input type="text" name="height" value="{{file.guess_height}}" size="10"/> 
+  <br /> 
+  <label for="protection"><b>Link type:</b></label> <br />
+  <select name="protection"> 
+     <option value="public-mp4-download"  >public mp4/mp3 non-streaming</option> 
+     <option value="public"  >public streaming flv</option> 
+     <option value="protected"  >protected streaming flv/protected mp3 (valid-user)</option> 
+  </select> 
+  <br /> 
+  <label for="authtype"><b>Auth:</b></label>  <br />
+  <select name="authtype"> 
+    <option value="">None (Public)</option> 
+    <option value="default"  >Default to Context Auth (Courseworks, Sakai, EdBlogs, Wikispaces) [authtype=default]</option> 
+    <option value="wikispaces"  >Wikispaces (Pamacea auth-domain) [authtype=wikispaces]</option> 
+    <option value="auth"  >Standard UNI (Pamacea domain incompatible with wikispaces) [authtype=auth]</option> 
+    <option value="wind"  >WIND [authtype=wind]</option> 
+  </select> 
+  <input type="hidden" name="player" value="v4" /> 
+  <br /> 
+ 
+  <input type="submit" value="Generate Link" /> 
+ 
+<br /> 
+ 
+</form> 
+
+
+
+</div>
+{% endif %}
+
 
 {% ifequal file.location_type "tahoe" %}
 <div id="embed">

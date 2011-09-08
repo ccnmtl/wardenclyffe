@@ -225,7 +225,23 @@ class File(TimeStampedModel):
     def get_height(self):
         return int(self.metadata_set.filter(field="ID_VIDEO_HEIGHT")[0].value)
 
+    # for these, if we don't know our width/height, 
+    # we see if the video has a source file associated
+    # with it that may have the dimensions
+    def guess_width(self):
+        try:
+            return self.get_width()
+        except:
+            return self.video.get_dimensions()[0]
+            
+    def guess_height(self):
+        try:
+            return self.get_height()
+        except:
+            return self.video.get_dimensions()[1]
 
+    def surelinkable(self):
+        return self.location_type == 'cuit'
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 
