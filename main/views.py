@@ -685,9 +685,8 @@ def subject_autocomplete(request):
 @rendered_with("main/surelink.html")
 def surelink(request):
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
-
+    results = []
     if request.GET.get('files',''):
-        results = []
         for filename in request.GET.get('files','').split('\n'):
             filename = filename.strip()
             test = ""
