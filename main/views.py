@@ -686,34 +686,43 @@ def subject_autocomplete(request):
 def surelink(request):
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
 
-    if request.GET.get('file',''):
-        test = ""
-        if request.GET.get('player','') == "test":
-            test = "new"
-        vid_options = video_options(request.GET.get('protection',''),
-                                    request.GET.get('file',''),
-                                    int(request.GET.get('width','0')),
-                                    int(request.GET.get('height','0')),
-                                    request.GET.get('poster',''),
-                                    request.GET.get('player',''),
-                                    request.GET.get('captions',''),
-                                    request.GET.get('authtype',''),
-                                    )
-        public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(request.GET.get("file",""), 'public',PROTECTION_KEY),
-                                                                            request.GET.get('file',''))
+    if request.GET.get('files',''):
+        results = []
+        for filename in request.GET.get('files','').split('\n'):
+            filename = filename.strip()
+            test = ""
+            if request.GET.get('player','') == "test":
+                test = "new"
+            vid_options = video_options(request.GET.get('protection',''),
+                                        filename,
+                                        int(request.GET.get('width','0')),
+                                        int(request.GET.get('height','0')),
+                                        request.GET.get('poster',''),
+                                        request.GET.get('player',''),
+                                        request.GET.get('captions',''),
+                                        request.GET.get('authtype',''),
+                                        )
+            public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(filename, 'public',PROTECTION_KEY),filename)
+            ps = protection_string(filename,request.GET.get('protection',''),PROTECTION_KEY)
+            src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,ps)
 
-        ps = protection_string(request.GET.get('file',''),request.GET.get('protection',''),PROTECTION_KEY)
-        src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,ps)
-
-        return dict(public_url=public_url,
-                    src_url=src_url,
-                    vid_options=vid_options,
-                    protection=request.GET.get('protection',''),
-                    public=request.GET.get('protection','').startswith('public'),
-                    public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
-                    protection_string=ps,
-                    width = request.GET.get('width',''),
-                    height = request.GET.get('height',''),
-                    captions = request.GET.get('captions',''),
-                    file = request.GET.get('file',''))
-    return dict()
+            results.append(dict(public_url=public_url,
+                        src_url=src_url,
+                        vid_options=vid_options,
+                        protection=request.GET.get('protection',''),
+                        public=request.GET.get('protection','').startswith('public'),
+                        public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
+                        protection_string=ps,
+                        width = request.GET.get('width',''),
+                        height = request.GET.get('height',''),
+                        captions = request.GET.get('captions',''),
+                        file = filename))
+    return dict(protection=request.GET.get('protection',''),
+                public=request.GET.get('protection','').startswith('public'),
+                public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
+                width = request.GET.get('width',''),
+                height = request.GET.get('height',''),
+                captions = request.GET.get('captions',''),
+                results = results,
+                rows = len(results) * 3,
+                files = request.GET.get('files',''))

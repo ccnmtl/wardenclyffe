@@ -25,18 +25,22 @@
  target="_blank">SureLink documentation</a> for complete details on how to use media file types and embed script.</p> 
  
 <form method="GET"> 
- 
-  <label for="file"><b>Media (path) and filename:</b></label><br /> 
-  <code>/www/data/ccnmtl/broadcast/</code><input type="text" size="200"
-  style="width:50%" name="file" value="{{file}}"/><br /> 
-  <span style="font-size:small">i.e. public
-  media: <code>test/test_clip.mp4</code> or <code>test/test_clip.flv</code>;
-   private media: <code>secure/test/test_stream.flv</code></span><br /> 
+<table>
+<tr><td> 
+  <label for="file"><b>Media (path) and filenames (one per line):</b></label></td><td>
+  <textarea name="files" cols="60" rows="5">{{files}}</textarea>
   <br /> 
-  <label for="captions"><b><a href="http://flowplayer.org/plugins/flash/captions.html">Captions URL</a> (optional):</b></label>    
+  <span style="font-size:small">i.e. public
+  media: <code>test/test_clip.mp4</code>
+  or <code>test/test_clip.flv</code>;<br />
+   private media: <code>secure/test/test_stream.flv</code></span>
+</td></tr>
+<tr><td>  <label for="captions"><b><a href="http://flowplayer.org/plugins/flash/captions.html">Captions
+  URL</a> (optional):</b></label></td><td>
   <input type="text" name="captions" value="{{captions}}" style="width:50%" /> 
   <br /> 
-  <label for="poster"><b>Poster:</b></label>  
+</td></tr>
+<tr><td>  <label for="poster"><b>Poster:</b></label></td><td>
   <select name="poster"> 
     <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"  >CCNMTL 480x360</option> 
     <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x272.jpg"  >CCNMTL 480x272</option> 
@@ -44,20 +48,25 @@
     <option value="default_custom_poster"   >broadcast/posters/[media path]/[filename].jpg</option> 
   </select> 
   <br /> 
-  <label for="width"><b>Width:</b></label> 
-  <input type="text" name="width" value="480" size="10" /> 
-  <label for="height"><b>Height (not including controls):</b></label> 
+</td></tr>
+<tr><td>  <label for="width"><b>Width:</b></label></td><td>
+  <input type="text" name="width" value="480" size="10" /> <br />
+</td></tr>
+<tr><td>  <label for="height"><b>Height (not including controls):</b></td><td>
+  <br />
   <input type="text" name="height" value="360" size="10"/> 
     <span style="font-size:small">(272 for widescreen)</span> 
   <br /> 
-  <label for="protection"><b>Link type:</b></label> 
+</td></tr>
+<tr><td>  <label for="protection"><b>Link type:</b></label></td><td>
   <select name="protection"> 
      <option value="public-mp4-download"  >public mp4/mp3 non-streaming</option> 
      <option value="public"  >public streaming flv</option> 
      <option value="protected"  >protected streaming flv/protected mp3 (valid-user)</option> 
   </select> 
   <br /> 
-  <label for="authtype"><b>Auth:</b></label>  
+</td></tr>
+<tr><td>  <label for="authtype"><b>Auth:</b></label></td><td>
   <select name="authtype"> 
     <option value="">None (Public)</option> 
     <option value="default"  >Default to Context Auth (Courseworks, Sakai, EdBlogs, Wikispaces) [authtype=default]</option> 
@@ -65,6 +74,8 @@
     <option value="auth"  >Standard UNI (Pamacea domain incompatible with wikispaces) [authtype=auth]</option> 
     <option value="wind"  >WIND [authtype=wind]</option> 
   </select> 
+</td></tr>
+</table>
   <!--
   <br />
   <label for="player"><b>Player:</b></label>  
@@ -82,7 +93,7 @@
  
 </form> 
 
-{% if file %}
+{% if results %}
 <p/><p/>
 <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
   
@@ -94,15 +105,22 @@
 <li class="ui-state-default ui-corner-top"><a href="#tabs-4">GlobalMDP Study Embed</a></li>
 </ul>
 
-<div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="tabs-1"><textarea rows="3" cols="100">&lt;script type="text/javascript" src="{{src_url}}">&lt;/script></textarea></div>
-<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-2"><textarea rows="3" cols="100">[ccnmtl_video src="{{src_url}}"]</textarea></div>
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom"
+     id="tabs-1"><textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}&lt;script type="text/javascript" src="{{r.src_url}}">&lt;/script>
+{% endfor %}</textarea></div>
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom
+	    ui-tabs-hide" id="tabs-2">
+<textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}[ccnmtl_video src="{{r.src_url}}"]
+{% endfor %}</textarea></div>
+
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-2a">
   Use this especially in Courseworks and Sakai or any https link (so
   it will work with IE). This view does not work with Auth=default, so
   be sure to specify WIND (or the relevant option) 
-  <textarea rows="3" 
-  cols="100">&lt;iframe width="{{width}}" height="{{height|add:24}}" src="https://surelink.ccnmtl.columbia.edu/video/?{{vid_options}}{{protection_string}}" /&gt;</textarea></div>
+  <textarea rows="{{rows}}" 
+  cols="100" style="width:100%">{% for r in results %}&lt;iframe width="{{width}}" height="{{height|add:24}}" src="https://surelink.ccnmtl.columbia.edu/video/?{{r.vid_options}}{{r.protection_string}}" /&gt;
+{% endfor %}</textarea></div>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-3">
@@ -113,29 +131,42 @@ see <a href="http://wiki.ccnmtl.columbia.edu/index.php/Making_a_Drupal_Collectio
 within flowing text on the page, then use the Raw HTML Embed, but make
 sure the Auth type is the same as for the site (Wind or Pamacea) -- --
 				--but this should be a rare situation.
-<textarea rows="3" cols="100" style="width:100%%">http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/{{file}}</textarea></div>
+<textarea rows="{{rows}}" cols="100" 
+style="width:100%">{% for r in results %}http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/{{r.file}}
+{% endfor %}</textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-4">
-<textarea rows="3" cols="100">
-{% if public_mp4_download %}[mp4]http://ccnmtl.columbia.edu/broadcast/{{file}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[mp4]{% else %}[flv]{{public_url}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[flv]{% endif %}
+<textarea rows="{{rows}}" cols="100" style="width:100%">
+{% for r in results %}{% if public_mp4_download %}[mp4]http://ccnmtl.columbia.edu/broadcast/{{r.file}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[mp4]{% else %}[flv]{{r.public_url}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[flv]{% endif %}
+{% endfor %}
 </textarea>
 </div>
 </div>
 
-{% if src_url %}
-<div style="width:{{width}}"><h4>Preview</h4>
-<script type="text/javascript" src="{{src_url}}"></script>
+{% if files %}
+<table>
+<tr><th>Preview</th>{% if not public %}<th>Login Preview</th>{% endif %}</tr>
+{% for r in results %}
+<tr>
+<td>
+<div style="width:{{width}}"><script type="text/javascript" src="{{r.src_url}}"></script>
 </div>
 <br />
 <div style="display:{% ifequal protection "public-mp4-download"%}none{% else %}block{% endifequal %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
-<a href="{{public_url}}">{{public_url}}</a>
+<a href="{{r.public_url}}">{{r.public_url}}</a>
   <p>To test a slow connection, replace "OPTIONS" with "slow".</p>
 </div>
-{% if public %}
-     <div><h4>Login Preview</h4>
-       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{vid_options}}"></script>
+</td>
+{% if not public %}
+<td>
+     <div>
+       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{r.vid_options}}"></script>
      </div>
+</td>
 {% endif %}
+</tr>
+{% endfor %}
+</table>
 {% endif %}
 {% endif %}
 
