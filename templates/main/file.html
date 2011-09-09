@@ -9,10 +9,10 @@
 
 <table>
 <tr><th>label</th><td>{{file.label}}</td></tr>
-<tr><th>URL</th><td>{% if file.url %}<a href="{{file.url}}">{{file.url}}</a>{% endif %}</td></tr>
-<tr><th>Tahoe CAP</th><td>{{file.cap}}</td></tr>
-<tr><th>Filename</th><td>{{file.filename}}</td></tr>
 <tr><th>Location Type</th><td>{{file.location_type}}</td></tr>
+{% if file.url %}<tr><th>URL</th><td>{% if file.url %}<a href="{{file.url}}">{{file.url}}</a>{% endif %}</td></tr>{% endif %}
+{% if file.cap %}<tr><th>Tahoe CAP</th><td>{{file.cap}}</td></tr>{% endif %}
+{% if file.filename %}<tr><th>Filename</th><td>{{file.filename}}</td></tr>{% endif %}
 </table>
 
 {% ifequal file.location_type "mediathread" %}
