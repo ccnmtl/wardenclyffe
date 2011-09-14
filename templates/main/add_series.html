@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% block title %}Add a Series{% endblock %}
+{% block pagetitle %}Add a Series{% endblock %}
 {% block extra_head %}
 <script src="/site_media/js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
@@ -8,7 +10,6 @@
 
 {% block content %}
 
-<h1>Add a Series</h1>
 <form action="." method="post" enctype="multipart/form-data">
 <table>
 {{ form.as_table }}

@@ -1080,6 +1080,7 @@ tr.file td {background-color: #ddf;}
 
 .dc {font-size: .8em; font-style: italic; color: #666;}
 
+/*
 #vitaldropform {
   width: 500px;
   margin-left: auto;
@@ -1090,6 +1091,7 @@ tr.file td {background-color: #ddf;}
   padding: 25px;
 }
 
+*/
 /* tables */
 table.tablesorter {
 	font-family:arial;
@@ -1811,3 +1813,204 @@ opacity: .7 !important;filter:Alpha(Opacity=70) !important;
 	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#beddf5)) !important;
 	background: -moz-linear-gradient(top, #fff, #beddf5) !important;
 }
+
+/* VITAL CSS */
+
+body.vital
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font: normal 12px Arial, Helvetica, Verdana, "Lucida Grande", Lucida, sans-serif;
+	background-color: #fff;
+}
+
+body.vital a
+{
+	background-color: transparent;
+	color: #069;
+	text-decoration: underline;
+}
+
+body.vital a:hover
+{
+	text-decoration: none;
+}
+
+body.vital .visual-portal-wrapper
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body.vital .portal-top
+{
+	/* Header and personal tools wrapper, present at all time */
+	height: 71px;
+	margin: 0 5px;
+	padding: 0;
+	border: 0;
+	background: transparent url('../img/bg-portal-top.jpg') bottom repeat-x;
+}
+
+body.vital .portal-top-shadeL
+{
+	height: 71px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent url('../img/bg-header-left.jpg') top left no-repeat;
+}
+
+body.vital .portal-top-shadeR
+{
+	height: 71px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent url('../img/bg-header-right.jpg') top right no-repeat;
+}
+
+body.vital .portal-logo
+{
+	/* Logo h1 properties */
+	height: 37px;
+	margin: 0 6px 0 4px;
+	padding: 0;
+	border: 0;
+	border-bottom: 1px solid #999;
+	background: transparent url('../img/vital.gif') 4px 0 no-repeat;
+}
+
+body.vital .portal-logo a
+{
+	/* Logo h1 properties */
+	display: block;
+	width: 110px; /* width of logo */
+	height: 0px;
+	overflow: hidden;
+	border: 0;
+	margin: 0 0 0 4px;
+	padding: 0;
+	padding-top: 37px; /* height of logo */
+	cursor: pointer;
+	text-decoration: none;
+}
+
+body.vital .portal-globalnav-search
+{
+	/* The global section and search area wrapper. */
+	height: 32px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-bottom: 1px solid #999;
+	background: #e0e0e0 url('../img/bg-portaltabs.jpg') bottom repeat-x;
+}
+
+body.vital .documentContentMain
+{
+    margin: 0;
+    padding: 2em 1em 2em 1em !important;
+    border: 0;
+}
+
+body.vital .documentContentMain h1
+{
+	margin: 0 0 0.25em 0;
+	padding: 0;
+	border: 0;
+	background-color: transparent;
+	font-family: Arial, Helvetica, Verdana, "Lucida Grande", Lucida, sans-serif;
+	font-weight: bold;
+	color: #000;
+	font-size: 150%;
+}
+
+/* ADMIN */
+
+body.vital #admincontent
+{
+	width: 730px;
+	background: url('../img/grey-line.gif') top left repeat-y;	
+}
+
+body.vital #admincontent-inner
+{
+	background: url('../img/grey-line.gif') top right repeat-y;
+}
+
+body.vital #admincontent-top
+{
+	background: url('../img/grey-line.gif') top repeat-x;	
+}
+
+body.vital #admincontent-top-inner
+{
+	background: url('../img/bg-adminform-tl.gif') top left no-repeat;	
+}
+
+body.vital #admincontent-top-body
+{
+	background: url('../img/bg-adminform-tr.gif') top right no-repeat;
+	height: 10px;
+}
+
+body.vital #admincontent-bottom
+{
+	background: url('../img/grey-line.gif') bottom repeat-x;	
+}
+
+body.vital #admincontent-bottom-inner
+{
+	background: url('../img/bg-adminform-bl.gif') bottom left no-repeat;	
+}
+
+body.vital #admincontent-bottom-body
+{
+	background: url('../img/bg-adminform-br.gif') bottom right no-repeat;
+	height: 10px;
+}
+
+body.vital .adminformtable
+{
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-collapse: collapse !important;
+	font-size: 100%;
+}
+
+body.vital .adminformtable td,
+body.vital .adminformtable th,
+body.vital #adminformtable td,
+body.vital #adminformtable th
+{
+	border: 0 !important;
+	border-bottom: 1px solid #ccc !important;
+	border-collapse: collapse !important;
+}
+
+body.vital input.regButton
+{
+	margin: 0;
+	padding: 1px;
+	background-color: #e0e0e0;
+	border-top: 2px solid #fff;
+	border-left: 2px solid #fff;
+	border-right: 2px solid #666;
+	border-bottom: 2px solid #666;
+	font: normal 11px Arial, Helvetica, Verdana, "Lucida Grande", Lucida, sans-serif;
+	cursor: pointer;
+}
+
+body.vital input.regButton:active
+{
+	background-color: #ccc;
+	border-top: 2px solid #666;
+	border-left: 2px solid #666;
+	border-right: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+}
+
