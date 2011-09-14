@@ -136,6 +136,12 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
                   """Your video, "%s", has been uploaded to VITAL.""" % video.title, 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+            # annoy the video team
+            for vuser in settings.ANNOY_EMAILS:
+                send_mail('VITAL video uploaded', 
+                          """Your video, "%s", has been uploaded to VITAL.""" % video.title, 
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
             return ("complete","")
         else:
             send_mail('VITAL video upload failed', 
@@ -146,6 +152,16 @@ The error encountered:
 """ % (video.title,content), 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+            for vuser in settings.ANNOY_EMAILS:
+                send_mail('VITAL video upload failed', 
+                          """An error has occurred while attempting to upload your video, "%s", to VITAL.
+Please contact CCNMTL video staff for assistance. 
+The error encountered:
+%s
+""" % (video.title,content), 
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
+
             return ("failed","vital rejected submission: %s" % content)
     args = [course_id,rtsp_url,vital_secret,vital_base]
     with_operation(_do_submit_to_vital,video,
@@ -326,6 +342,13 @@ def upload_to_youtube(tmpfilename,video_id,user,
 It is available here: %s""" % youtube_url, 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+        for vuser in settings.ANNOY_EMAILS:
+            send_mail('Youtube video uploaded', 
+                      """Your video has been uploaded to the Columbia Youtube account. 
+It is available here: %s""" % youtube_url, 
+                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      [vuser], fail_silently=False)
+
         return ("complete","")
     with_operation(_do_upload_to_youtube,
                    video,"upload to youtube","",user,
