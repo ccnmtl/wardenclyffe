@@ -261,6 +261,21 @@ class Operation(TimeStampedModel):
     status = models.CharField(max_length=256,default="in progress")
     params = models.TextField(default="")
     uuid = UUIDField()
+
+    def as_dict(self):
+        d = dict(action=self.action,
+                 status=self.status,
+                 params=self.params,
+                 uuid=self.uuid,
+                 id=self.id,
+                 video_id=self.video.id,
+                 video_title=self.video.title,
+                 video_creator=self.video.creator,
+                 series_id=self.video.series.id,
+                 series_title=self.video.series.title,
+                 modified=str(self.modified),
+                 )
+        return d
     
 class OperationFile(models.Model):
     operation = models.ForeignKey(Operation)

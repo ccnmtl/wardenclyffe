@@ -16,7 +16,7 @@ from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from taggit.models import Tag
 from restclient import GET,POST
-from simplejson import loads
+from simplejson import loads, dumps
 import hmac, hashlib, datetime
 from zencoder import Zencoder
 from django.db.models import Q
@@ -45,6 +45,31 @@ def index(request):
         series=Series.objects.all().order_by("title"),
         videos=Video.objects.all().order_by("-modified")[:20],
                 operations=Operation.objects.all().order_by("-modified")[:20])
+
+@login_required
+@rendered_with('main/dashboard.html')
+def dashboard(request):
+    submitted = request.GET.get('submitted','') == '1'
+    status_filters = dict()
+    status_filters["failed"] = request.GET.get('status_filter_failed',not submitted)
+    status_filters["complete"] = request.GET.get('status_filter_complete',not submitted)
+    status_filters["submitted"] = request.GET.get('status_filter_submitted',not submitted)
+    status_filters["inprogress"] = request.GET.get('status_filter_inprogress',not submitted)
+    user_filter = request.GET.get('user','')
+    series_filter = int(request.GET.get('series',False) or '0')
+    d = dict(
+        all_series=Series.objects.all().order_by("title"),
+        all_users=User.objects.all(),
+        user_filter = user_filter,
+        series_filter = series_filter,
+        submitted = submitted,
+        )
+    d.update(status_filters)
+    return d
+
+@login_required
+def recent_operations(request):
+    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in Operation.objects.all().order_by("-modified")[:200]])), mimetype="application/json")
 
 @login_required
 @rendered_with('main/series.html')

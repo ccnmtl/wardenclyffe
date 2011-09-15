@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% load thumbnail %}
+{% block title %}Dashboard{% endblock %}
+{% block pagetitle %}Dashboard{% endblock %}
+
+{% blo}
+
+{% block js %}
+{{block.super}}
+
+<script src="/site_media/js/dashboard.js" type="application/javascript"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<form action="." method="get">
+<h3>Filters</h3>
+
+<p><b>Status:</b>
+<input type="hidden" name="submitted" value="1" />
+<input type="checkbox" name="status_filter_failed" 
+{% if failed %}checked="checked"{% endif %}
+/> failed
+<input type="checkbox" name="status_filter_complete" 
+{% if complete %}checked="checked"{% endif %}
+/> complete
+<input type="checkbox" name="status_filter_submitted" 
+{% if submitted %}checked="checked"{% endif %}
+/> submitted
+<input type="checkbox" name="status_filter_inprogress" 
+{% if inprogress %}checked="checked"{% endif %}
+/> in progress
+</p>
+
+<p><b>Series:</b>
+<select name="series">
+<option value="">ALL</option>
+{% for series in all_series %}
+<option value="{{series.id}}"
+{% ifequal series.id series_filter %}selected="selected"{% endifequal %}
+>{{series.title}}</option>
+{% endfor %}
+</select>
+</p>
+
+<p><b>User(s):</b>
+<select name="user">
+<option value="">ALL</option>
+{% for user in all_users %}
+<option value="{{user.username}}"
+{% ifequal user.username user_filter %}selected="selected"{% endifequal %}
+>[{{user.username}}]
+  {{user.first_name}} {{user.last_name}}</option>
+{% endfor %}
+</select>
+</p>
+<input type="submit" value="filter" />
+</form>
+
+<table id="operations">
+  <thead>
+    <tr>
+      <th></th>
+      <th>operation</th>
+      <th>video</th>
+      <th>series</th>
+      <th>date</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+  </tbody>
+</table>
+
+{% endblock %}
