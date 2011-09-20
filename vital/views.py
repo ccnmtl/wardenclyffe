@@ -240,7 +240,6 @@ If you have any questions, please contact VITAL administrators at ccmtl-vital@co
                       'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
-                print "annoying %s" % vuser
                 send_mail('Video submitted to VITAL', 
                           """This email confirms that %s has been successfully submitted to VITAL by %s.  
 
