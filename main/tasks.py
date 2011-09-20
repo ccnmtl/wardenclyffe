@@ -137,6 +137,7 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
             # annoy the video team
+            print "annoying users: %s" % str(settings.ANNOY_EMAILS)
             for vuser in settings.ANNOY_EMAILS:
                 print "annoying %s" % vuser
                 send_mail('VITAL video uploaded', 
@@ -153,6 +154,7 @@ The error encountered:
 """ % (video.title,content), 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+            print "annoying users: %s" % str(settings.ANNOY_EMAILS)
             for vuser in settings.ANNOY_EMAILS:
                 print "annoying %s" % vuser
                 send_mail('VITAL video upload failed', 

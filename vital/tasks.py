@@ -66,6 +66,17 @@ If you have any questions, please contact VITAL administrators at ccmtl-vital@co
 """ % (video.title,user.username,course_id),
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+            for vuser in settings.ANNOY_EMAILS:
+                print "annoying %s" % vuser
+                send_mail('Uploaded video now available in VITAL', 
+                          """
+This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
+
+If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+
+""" % (video.title,user.username,course_id),
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
             return ("complete","")
         else:
             send_mail('VITAL video upload failed', 
@@ -76,6 +87,17 @@ The error encountered:
 """ % (video.title,content), 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
+            for vuser in settings.ANNOY_EMAILS:
+                print "annoying %s" % vuser
+                send_mail('VITAL video upload failed', 
+                          """An error has occurred while attempting to upload your video, "%s", to VITAL.
+Please contact CCNMTL video staff for assistance. 
+The error encountered:
+%s
+""" % (video.title,content), 
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
+
             return ("failed","vital rejected submission: %s" % content)
     args = [course_id,rtsp_url,vital_secret,vital_base]
     with_operation(_do_submit_to_vital,video,
