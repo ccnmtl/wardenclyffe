@@ -67,7 +67,6 @@ If you have any questions, please contact VITAL administrators at ccmtl-vital@co
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
-                print "annoying %s" % vuser
                 send_mail('Uploaded video now available in VITAL', 
                           """
 This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
@@ -88,7 +87,6 @@ The error encountered:
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
-                print "annoying %s" % vuser
                 send_mail('VITAL video upload failed', 
                           """An error has occurred while attempting to upload your video, "%s", to VITAL.
 Please contact CCNMTL video staff for assistance. 
