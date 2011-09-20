@@ -100,7 +100,7 @@ EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "
 EMAIL_HOST = 'localhost'
 SERVER_EMAIL = "wardenclyffe@ccnmtl.columbia.edu"
 # email addresses of video team members how want to be annoyed by lots of status email
-ANNOY_EMAILS = ["agraddy@columbia.edu",]
+ANNOY_EMAILS = ["agraddy@columbia.edu","anders@columbia.edu"]
 
 # WIND settings
 
