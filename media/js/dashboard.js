@@ -23,7 +23,7 @@ var newRow = function(el) {
   // TODO link to series
   r.append("<td>" + el.series_title + "</td>");
 
-  r.append("<td>" + el.modified + "</td>");
+  r.append("<td class=\"modified\">" + el.modified + "</td>");
   r.append("<td>" + el.video_creator + "</td>");
 
   return r;
@@ -34,8 +34,19 @@ var getRow = function(operation_id) {
   return r;
 };
 
-var updateRow = function(el) {
-
+var updateRow = function(oldRow, el) {
+  // only fields likely to change are status and date
+  console.log("updating row");
+  console.log(oldRow);
+  console.log(el);
+  var row = $("#operation_" + el.id);
+  row.children(".modified").text(el.modified);
+  $(".operation_status",row)
+    .removeClass("complete")
+    .removeClass("failed")
+    .removeClass("inprogress")
+    .removeClass("submitted")
+  .addClass(el.status);
 };
 
 var orderTableByDate = function() {$("#operations").trigger("update");};
