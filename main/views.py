@@ -92,7 +92,7 @@ def recent_operations(request):
 
 @login_required
 def most_recent_operation(request):
-    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified))), mimetype="application/json")
+    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])), mimetype="application/json")
 
 @login_required
 @rendered_with('main/series.html')

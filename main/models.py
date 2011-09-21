@@ -273,7 +273,7 @@ class Operation(TimeStampedModel):
                  video_creator=self.video.creator,
                  series_id=self.video.series.id,
                  series_title=self.video.series.title,
-                 modified=str(self.modified),
+                 modified=str(self.modified)[:19],
                  )
         return d
     
