@@ -72,6 +72,10 @@ def recent_operations(request):
     return HttpResponse(dumps(dict(operations=[o.as_dict() for o in Operation.objects.all().order_by("-modified")[:200]])), mimetype="application/json")
 
 @login_required
+def most_recent_operation(request):
+    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified))), mimetype="application/json")
+
+@login_required
 @rendered_with('main/series.html')
 def series(request,id):
     series = get_object_or_404(Series,id=id)

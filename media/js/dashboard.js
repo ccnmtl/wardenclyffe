@@ -10,73 +10,112 @@ function getQueryParams()
     return vars;
 }
 
-function DumpObjectIndented(obj, indent)
-{
-  var result = "";
-  if (indent == null) indent = "";
+var newRow = function(el) {
+  var r = $("<tr></tr>");
+  r.attr("id","operation_" + el.id);
+//  r.addClass(i % 2 ? "even" : "odd");
+  r.append($("<td></td>")
+	   .append($("<div class=\"operation_status\"></div>").addClass(el.status)));
+  r.append("<td>" + el.action + "</td>");
 
-  for (var property in obj)
-  {
-    var value = obj[property];
-    if (typeof value == 'string')
-      value = "'" + value + "'";
-    else if (typeof value == 'object')
-    {
-      if (value instanceof Array)
-      {
-        // Just let JS convert the Array to a string!
-        value = "[ " + value + " ]";
-      }
-      else
-      {
-        // Recursive dump
-        // (replace "  " by "\t" or something else if you prefer)
-        var od = DumpObjectIndented(value, indent + "  ");
-        // If you like { on the same line as the key
-        //value = "{\n" + od + "\n" + indent + "}";
-        // If you prefer { and } to be aligned
-        value = "\n" + indent + "{\n" + od + "\n" + indent + "}";
-      }
-    }
-    result += indent + "'" + property + "' : " + value + ",\n";
-  }
-  return result.replace(/,\n$/, "");
+  // link to video
+  r.append("<td>" + el.video_title + "</td>");
+
+  // link to series
+  r.append("<td>" + el.series_title + "</td>");
+  r.append("<td>" + el.modified + "</td>");
+  return r;
+};
+
+var getRow = function(operation_id) {
+  var r = $("#operation_" + operation_id);
+  return r;
+};
+
+var updateRow = function(el) {
+};
+
+var orderTableByDate = function() {
+  $("#operations").trigger("update");
+};
+
+var stripeTable = function() {
+  $(".even").removeClass("even");
+  $(".odd").removeClass("odd");
+  $("#operations tbody tr:odd").addClass("odd");
+  $("#operations tbody tr:even").addClass("even");
+};
+
+var trimTable = function(maxRows) {
 }
 
+var sortInitialized = 0;
+var mostRecentOperation = "";
+
 var WCRefresh = function(e) {
-  var data = getQueryParams();
+  // first, we check if there are new operations at all
+  // by calling /num_operations/ and comparing.
+
   $.ajax({
-    url: "/recent_operations/",
-    type: 'get',
-    dataType: 'json',
-    data: data,
-    success: function(d){
-      if (d.operations.length) {
-	for (var i = d.operations.length-1; i >= 0; i--) {
-	  // TODO: compare/update
-	  var el = d.operations[i];
-	  var r = $("<tr></tr>");
-	  r.addClass(i % 2 ? "even" : "odd");
-	  r.append($("<td></td>")
-		   .append($("<div class=\"operation_status\"></div>").addClass(el.status)));
-	  r.append("<td>" + el.action + "</td>");
+	   url: "/most_recent_operation/",
+	   type: "get",
+	   dateType: 'json',
+	   success: function(d) {
+	     if (d.modified == mostRecentOperation) {
+	       console.log("nothing to update");
+	       // nothing to update
+	     } else {
+	       console.log("updating");
+	       mostRecentOperation = d.modified;
+	       var data = getQueryParams();
+	       $.ajax({
+		 url: "/recent_operations/",
+		 type: 'get',
+		 dataType: 'json',
+		 data: data,
+		 success: function(d){
+		   if (d.operations.length) {
+		     var rowsToAdd    = [];
+		     var rowsToUpdate = [];
+		     var rowsToDelete = [];
 
-	  // link to video
-	  r.append("<td>" + el.video_title + "</td>");
-
-	  // link to series
-	  r.append("<td>" + el.series_title + "</td>");
-	  r.append("<td>" + el.modified + "</td>");
-	  $("#operations tbody").prepend(r);
-        }
-	// TODO: make sure table has max 200 items
-      } else {
-	// nothing returned
-	// should notify the user
-      }
-//      setTimeout(WCRefresh, 3000);
-    }
-  });
+		     for (var i = d.operations.length-1; i >= 0; i--) {
+		       // TODO: compare/update
+		       var el = d.operations[i];
+		       var operation_id = el.id;
+		       var oldRow = getRow(operation_id);
+		       if (oldRow.length > 0) {
+			 rowsToUpdate.push([oldRow,el]);
+		       } else {
+			 rowsToAdd.push(el);
+		       }
+		     }
+		     if (rowsToUpdate.length > 0) {
+		       for(var i = 0; i < rowsToUpdate.length; i++) {
+			 updateRow(rowsToUpdate[i][0],rowsToUpdate[i][1]);
+		       }
+		     }
+		     if (rowsToAdd.length > 0) {
+		       for(var i = 0; i < rowsToAdd.length; i++) {
+			 var r = newRow(rowsToAdd[i]);
+			 $("#operations tbody").prepend(r);
+		       }
+		     }
+		     if (sortInitialized == 0) {
+		       $("#operations").tablesorter( {sortList: [[3,1]]} );
+		       sortInitialized = 1;
+		     }
+		     orderTableByDate();
+		     stripeTable();
+		     trimTable(200);
+		   }
+		 }
+	       });
+	     }
+	     // refresh every 10 seconds
+	     setTimeout(WCRefresh,10000);
+	   }
+	 })
 };
 
 
