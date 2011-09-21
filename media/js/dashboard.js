@@ -36,9 +36,6 @@ var getRow = function(operation_id) {
 
 var updateRow = function(oldRow, el) {
   // only fields likely to change are status and date
-  console.log("updating row");
-  console.log(oldRow);
-  console.log(el);
   var row = $("#operation_" + el.id);
   row.children(".modified").text(el.modified);
   $(".operation_status",row)
