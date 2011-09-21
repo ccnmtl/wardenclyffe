@@ -1480,9 +1480,13 @@ div.measure
 	background: url('../img/icon_progress.gif') 0 0 no-repeat;
 }
 
-.submitted, .complete
+.complete
 {
 	background: url('../img/icon_success.gif') 0 0 no-repeat;
+}
+
+.submitted {
+ 	background: url('../img/icon_submitted.gif') 0 0 no-repeat;
 }
 
 .failed
