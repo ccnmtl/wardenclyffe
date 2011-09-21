@@ -13,17 +13,19 @@ function getQueryParams()
 var newRow = function(el) {
   var r = $("<tr></tr>");
   r.attr("id","operation_" + el.id);
-//  r.addClass(i % 2 ? "even" : "odd");
   r.append($("<td></td>")
 	   .append($("<div class=\"operation_status\"></div>").addClass(el.status)));
   r.append("<td>" + el.action + "</td>");
 
-  // link to video
+  // TODO link to video
   r.append("<td>" + el.video_title + "</td>");
 
-  // link to series
+  // TODO link to series
   r.append("<td>" + el.series_title + "</td>");
+
   r.append("<td>" + el.modified + "</td>");
+  r.append("<td>" + el.video_creator + "</td>");
+
   return r;
 };
 
@@ -33,11 +35,10 @@ var getRow = function(operation_id) {
 };
 
 var updateRow = function(el) {
+
 };
 
-var orderTableByDate = function() {
-  $("#operations").trigger("update");
-};
+var orderTableByDate = function() {$("#operations").trigger("update");};
 
 var stripeTable = function() {
   $(".even").removeClass("even");
@@ -71,73 +72,74 @@ var WCRefresh = function(e) {
   // by calling /num_operations/ and comparing.
 
   $.ajax({
-	   url: "/most_recent_operation/",
-	   type: "get",
-	   dateType: 'json',
-	   error: requestFailed,
-	   success: function(d) {
-	     if (!d) {
-	       requestFailed();
-	       return;
-	     }
-	     if (d.modified == mostRecentOperation) {
-	       // nothing to update
-	     } else {
-	       mostRecentOperation = d.modified;
-	       var data = getQueryParams();
-	       $.ajax({
-		 url: "/recent_operations/",
-		 type: 'get',
-		 dataType: 'json',
-		 data: data,
-		 error: requestFailed,
-		 success: function(d){
-		   if (!d) {
-		     requestFailed();
-		     return;
-		   }
-		   if (d.operations.length) {
-		     var rowsToAdd    = [];
-		     var rowsToUpdate = [];
-		     var rowsToDelete = [];
+    url: "/most_recent_operation/",
+    type: "get",
+    dateType: 'json',
+    error: requestFailed,
+    success: function(d) {
+      if (!d) {
+	requestFailed();
+	return;
+      }
+      if (d.modified == mostRecentOperation) {
+	// nothing to update
+      } else {
+	mostRecentOperation = d.modified;
+	var data = getQueryParams();
+	console.log(data);
+	$.ajax({
+	  url: "/recent_operations/",
+	  type: 'get',
+	  dataType: 'json',
+	  data: data,
+	  error: requestFailed,
+	  success: function(d){
+	    if (!d) {
+	      requestFailed();
+	      return;
+	    }
+	    if (d.operations.length) {
+	      var rowsToAdd    = [];
+	      var rowsToUpdate = [];
+	      var rowsToDelete = [];
 
-		     for (var i = d.operations.length-1; i >= 0; i--) {
-		       // TODO: compare/update
-		       var el = d.operations[i];
-		       var operation_id = el.id;
-		       var oldRow = getRow(operation_id);
-		       if (oldRow.length > 0) {
-			 rowsToUpdate.push([oldRow,el]);
-		       } else {
-			 rowsToAdd.push(el);
-		       }
-		     }
-		     if (rowsToUpdate.length > 0) {
-		       for(var i = 0; i < rowsToUpdate.length; i++) {
-			 updateRow(rowsToUpdate[i][0],rowsToUpdate[i][1]);
-		       }
-		     }
-		     if (rowsToAdd.length > 0) {
-		       for(var i = 0; i < rowsToAdd.length; i++) {
-			 var r = newRow(rowsToAdd[i]);
-			 $("#operations tbody").prepend(r);
-		       }
-		     }
-		     if (sortInitialized == 0) {
-		       $("#operations").tablesorter( {sortList: [[3,1]]} );
-		       sortInitialized = 1;
-		     }
-		     orderTableByDate();
-		     stripeTable();
-		     trimTable(200);
-		   }
-		 }
-	       });
-	     }
-	     currentRefresh = defaultRefresh;
-	     setTimeout(WCRefresh,defaultRefresh);
-	   }
-	 })
+	      for (var i = d.operations.length-1; i >= 0; i--) {
+		// TODO: compare/update
+		var el = d.operations[i];
+		var operation_id = el.id;
+		var oldRow = getRow(operation_id);
+		if (oldRow.length > 0) {
+		  rowsToUpdate.push([oldRow,el]);
+		} else {
+		  rowsToAdd.push(el);
+		}
+	      }
+	      if (rowsToUpdate.length > 0) {
+		for(var i = 0; i < rowsToUpdate.length; i++) {
+		  updateRow(rowsToUpdate[i][0],rowsToUpdate[i][1]);
+		}
+	      }
+	      if (rowsToAdd.length > 0) {
+		for(var i = 0; i < rowsToAdd.length; i++) {
+		  var r = newRow(rowsToAdd[i]);
+		  $("#operations tbody").prepend(r);
+		}
+	      }
+	      if (sortInitialized == 0) {
+		$("#operations").tablesorter( {sortList: [[3,1]]} );
+		sortInitialized = 1;
+	      }
+	      orderTableByDate();
+	      stripeTable();
+	      trimTable(200);
+	    }
+	  }
+	});
+      }
+      currentRefresh = defaultRefresh;
+      setTimeout(WCRefresh,defaultRefresh);
+    }
+  })
 };
 
 

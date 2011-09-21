@@ -69,7 +69,26 @@ def dashboard(request):
 
 @login_required
 def recent_operations(request):
-    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in Operation.objects.all().order_by("-modified")[:200]])), mimetype="application/json")
+    submitted = request.GET.get('submitted','') == '1'
+    status_filters = []
+    if request.GET.get('status_filter_failed',False):
+        status_filters.append("failed")
+    if request.GET.get('status_filter_complete',False):
+        status_filters.append("complete")
+    if request.GET.get('status_filter_inprogress',False):
+        status_filters.append("inprogress")
+    if request.GET.get('status_filter_submitted',False):
+        status_filters.append("submitted")
+    user_filter = request.GET.get('user','')
+    series_filter = int(request.GET.get('series',False) or '0')
+    
+    q = Operation.objects.filter(status__in=status_filters)
+    if series_filter:
+        q = q.filter(video__series__id=series_filter)
+    if user_filter:
+        q = q.filter(video__creator=user_filter)
+    
+    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in q.order_by("-modified")[:200]])), mimetype="application/json")
 
 @login_required
 def most_recent_operation(request):
