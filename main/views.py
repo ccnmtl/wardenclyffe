@@ -71,13 +71,13 @@ def dashboard(request):
 def recent_operations(request):
     submitted = request.GET.get('submitted','') == '1'
     status_filters = []
-    if request.GET.get('status_filter_failed',False):
+    if request.GET.get('status_filter_failed',not submitted):
         status_filters.append("failed")
-    if request.GET.get('status_filter_complete',False):
+    if request.GET.get('status_filter_complete',not submitted):
         status_filters.append("complete")
-    if request.GET.get('status_filter_inprogress',False):
+    if request.GET.get('status_filter_inprogress',not submitted):
         status_filters.append("inprogress")
-    if request.GET.get('status_filter_submitted',False):
+    if request.GET.get('status_filter_submitted',not submitted):
         status_filters.append("submitted")
     user_filter = request.GET.get('user','')
     series_filter = int(request.GET.get('series',False) or '0')

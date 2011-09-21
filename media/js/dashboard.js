@@ -86,7 +86,6 @@ var WCRefresh = function(e) {
       } else {
 	mostRecentOperation = d.modified;
 	var data = getQueryParams();
-	console.log(data);
 	$.ajax({
 	  url: "/recent_operations/",
 	  type: 'get',
