@@ -52,6 +52,20 @@ var trimTable = function(maxRows) {
 var sortInitialized = 0;
 var mostRecentOperation = "";
 
+var defaultRefresh = 10000; // 10 seconds
+var maxRefresh = 1000 * 5 * 60; // 5 minutes
+var currentRefresh = defaultRefresh;
+
+var requestFailed = function() {
+  // circuit breaker pattern for failed requests
+  // to ease up on the server when it's having trouble
+  currentRefresh = 2 * currentRefresh; // double the refresh time
+  if (currentRefresh > maxRefresh) {
+    currentRefresh = maxRefresh;
+  }
+  setTimeout(WCRefresh,currentRefresh);
+};
+
 var WCRefresh = function(e) {
   // first, we check if there are new operations at all
   // by calling /num_operations/ and comparing.
@@ -60,12 +74,15 @@ var WCRefresh = function(e) {
 	   url: "/most_recent_operation/",
 	   type: "get",
 	   dateType: 'json',
+	   error: requestFailed,
 	   success: function(d) {
+	     if (!d) {
+	       requestFailed();
+	       return;
+	     }
 	     if (d.modified == mostRecentOperation) {
-	       console.log("nothing to update");
 	       // nothing to update
 	     } else {
-	       console.log("updating");
 	       mostRecentOperation = d.modified;
 	       var data = getQueryParams();
 	       $.ajax({
@@ -73,7 +90,12 @@ var WCRefresh = function(e) {
 		 type: 'get',
 		 dataType: 'json',
 		 data: data,
+		 error: requestFailed,
 		 success: function(d){
+		   if (!d) {
+		     requestFailed();
+		     return;
+		   }
 		   if (d.operations.length) {
 		     var rowsToAdd    = [];
 		     var rowsToUpdate = [];
@@ -112,8 +134,8 @@ var WCRefresh = function(e) {
 		 }
 	       });
 	     }
-	     // refresh every 10 seconds
-	     setTimeout(WCRefresh,10000);
+	     currentRefresh = defaultRefresh;
+	     setTimeout(WCRefresh,defaultRefresh);
 	   }
 	 })
 };
