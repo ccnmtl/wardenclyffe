@@ -353,23 +353,13 @@ def scan_directory(request):
 @rendered_with('main/youtube.html')
 def youtube(request):
     if request.method == "POST":
-        if request.FILES['source_file']:
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['source_file'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
+        tmpfilename = request.POST.get('tmpfilename','')
+        if tmpfilename.startswith(settings.TMP_DIR):
             # make db entry
+            filename = os.path.basename(tmpfilename)
+            vuuid = os.path.splitext(filename)[0]
             try:
                 series = Series.objects.filter(title="Youtube")[0]
-                filename = request.FILES['source_file'].name
                 v = Video.objects.create(series=series,
                                          title=request.POST.get("title","youtube video uploaded by %s" % request.user.username),
                                          creator=request.user.username,
@@ -377,7 +367,7 @@ def youtube(request):
                                          uuid = vuuid)
                 source_file = File.objects.create(video=v,
                                                   label="source file",
-                                                  filename=request.FILES['source_file'].name,
+                                                  filename=filename,
                                                   location_type='none')
 
             except:
@@ -396,6 +386,8 @@ def youtube(request):
                                               settings.YOUTUBE_CLIENT_ID
                                               )
                 return HttpResponseRedirect("/youtube/done/")
+        else:
+            return HttpResponse("no tmpfilename parameter set")
     else:
         pass
     return dict()
@@ -403,6 +395,24 @@ def youtube(request):
 @rendered_with('main/youtube_done.html')
 def youtube_done(request):
     return dict()
+
+def youtube_uploadify(request,*args,**kwargs):
+    if request.method == 'POST':
+        if request.FILES:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs(settings.TMP_DIR)
+            except:
+                pass
+            extension = request.FILES['Filedata'].name.split(".")[-1]
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['Filedata'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            return HttpResponse(tmpfilename)
+    return HttpResponse('True')
 
 
 def test_upload(request):
