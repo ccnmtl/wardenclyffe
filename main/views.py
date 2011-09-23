@@ -371,8 +371,9 @@ def youtube(request):
                 series = Series.objects.filter(title="Youtube")[0]
                 filename = request.FILES['source_file'].name
                 v = Video.objects.create(series=series,
-                                         title="youtube video uploaded by %s" % request.user.username,
+                                         title=request.POST.get("title","youtube video uploaded by %s" % request.user.username),
                                          creator=request.user.username,
+                                         description=request.POST.get("description",""),
                                          uuid = vuuid)
                 source_file = File.objects.create(video=v,
                                                   label="source file",
