@@ -73,7 +73,7 @@ class SureLink:
 
     def protection_string(self):
         if self.protection.startswith('public'):
-            return "&protection=%s" % self.get_protection()
+            return "&protection=%s" % self.get_protection(force_public=True)
         return ""
 
     def public_mp4_download(self):
