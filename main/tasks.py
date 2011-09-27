@@ -81,8 +81,8 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
             'as' : user.username,
             'secret' : mediathread_secret,
             'title' : video.title,
-            'mp4' : video.tahoe_download_url(),
-            'thumb' : video.poster_url(),
+            'mp4' : video.cuit_url() or video.tahoe_download_url(),
+            'thumb' : video.cuit_poster_url() or video.poster_url(),
             "mp4-metadata" : "w%dh%d" % (width,height),
             "metadata-creator" : video.creator,
             "metadata-description" : video.description,
@@ -275,7 +275,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         # TODO: figure out how to re-use submit_to_podcast_producer()
         print "submitting to PCP"
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
-        filename = str(ouuid) + ".mp4"
+        filename = str(ouuid) + suffix
         print "submitted with filename %s" % filename
         title = "%s-%s" % (str(ouuid),video.title)
         title = title.replace(" ","_") # podcast producer not so good with spaces

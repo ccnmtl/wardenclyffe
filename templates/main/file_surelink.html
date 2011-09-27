@@ -42,6 +42,9 @@
 </td></tr>
 <tr><td>  <label for="poster"><b>Poster:</b></label></td><td>
   <select name="poster"> 
+    {% if file.has_cuit_poster %}
+    <option value="{{file.cuit_poster_url}}"  >Automatically created poster</option> 
+    {% endif %}
     <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"  >CCNMTL 480x360</option> 
     <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x272.jpg"  >CCNMTL 480x272</option> 
     <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_320x240.jpg"  >CCNMTL 320x240</option> 

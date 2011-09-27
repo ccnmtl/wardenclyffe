@@ -131,6 +131,13 @@ class Video(TimeStampedModel):
             return f.url
         return ""
 
+    def cuit_url(self):
+        r = self.file_set.filter(location_type="cuit")
+        if r.count() > 0:
+            f = r[0]
+            return f.cuit_public_url()
+        return ""
+
     def poster_url(self):
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
@@ -138,6 +145,12 @@ class Video(TimeStampedModel):
             # return self.image_set.all()[0].image
             pass
         return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
+
+    def cuit_poster_url(self):
+        try:
+            return File.objects.filter(video=self,location_type='cuitthumb')[0].url
+        except:
+            return None
 
     def is_mediathread_submit(self):
         return self.file_set.filter(location_type="mediathreadsubmit").count() > 0
@@ -178,6 +191,8 @@ class Video(TimeStampedModel):
             return r[0].image
         else:
             return DummyPoster()
+
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
@@ -242,6 +257,16 @@ class File(TimeStampedModel):
 
     def surelinkable(self):
         return self.location_type == 'cuit'
+
+    def has_cuit_poster(self):
+        return File.objects.filter(video=self.video,location_type='cuitthumb').count() > 0
+
+    def cuit_poster_url(self):
+        return File.objects.filter(video=self.video,location_type='cuitthumb')[0].url
+
+    def cuit_public_url(self):
+        filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
+        return "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (filename,filename)
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 

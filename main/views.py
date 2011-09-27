@@ -67,6 +67,20 @@ def dashboard(request):
     d.update(status_filters)
     return d
 
+def received(request):
+    if 'title' not in request.POST:
+        return HttpResponse("expecting a title")
+    title = request.POST.get('title','no title')
+    print title
+    uuid = uuidparse(title)
+    r = Operation.objects.filter(uuid=uuid)
+    if r.count() == 1:
+        operation = r[0]
+        print "found a matching operation"
+
+    return HttpResponse("ok")
+
+
 @login_required
 def recent_operations(request):
     submitted = request.GET.get('submitted','') == '1'
@@ -439,6 +453,15 @@ def done(request):
         operation.save()
         ol = OperationLog.objects.create(operation=operation,
                                          info="PCP completed")
+
+        cunix_path = request.POST.get('movie_destination_path','')
+        if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+            f = File.objects.create(video=operation.video,
+                                    label="CUIT File",
+                                    filename=cunix_path,
+                                    location_type='cuit',
+                                    )
+
         if operation.video.is_mediathread_submit():
             (set_course,username) = operation.video.mediathread_submit()
             if set_course is not None:
@@ -449,6 +472,25 @@ def done(request):
                 operation.video.clear_mediathread_submit()
 
     return HttpResponse("ok")
+
+def posterdone(request):
+    if 'title' not in request.POST:
+        return HttpResponse("expecting a title")
+    title = request.POST.get('title','no title')
+    uuid = uuidparse(title)
+    r = Operation.objects.filter(uuid=uuid)
+    if r.count() == 1:
+        operation = r[0]
+        cunix_path = request.POST.get('image_destination_path','')
+        poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/posters/",
+                                        "http://ccnmtl.columbia.edu/broadcast/posters/")
+
+        cuit_file = File.objects.create(video=operation.video,
+                                        label="CUIT thumbnail image",
+                                        url=poster_url,
+                                        location_type='cuitthumb')
+    return HttpResponse("ok")
+
 
 @login_required
 @rendered_with('main/video.html')
