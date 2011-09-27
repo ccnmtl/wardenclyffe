@@ -22,7 +22,7 @@ from zencoder import Zencoder
 from django.db.models import Q
 from django.core.mail import send_mail
 import re
-from surelink.helpers import video_options,protection,protection_string
+from surelink.helpers import video_options,protection,protection_string,src_url,SureLink
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -526,11 +526,9 @@ def file_surelink(request,id):
                                 request.GET.get('authtype',''),
                                 )
     public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(filename, 'public',PROTECTION_KEY),filename)
-    ps = protection_string(filename,request.GET.get('protection',''),PROTECTION_KEY)
-    src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,ps)
 
     return dict(public_url=public_url,
-                src_url=src_url,
+                src_url=src_url(test,vid_options,filename,request.GET.get('protection',''),PROTECTION_KEY),
                 vid_options=vid_options,
                 protection=request.GET.get('protection',''),
                 public=request.GET.get('protection','').startswith('public'),
@@ -827,33 +825,16 @@ def surelink(request):
     if request.GET.get('files',''):
         for filename in request.GET.get('files','').split('\n'):
             filename = filename.strip()
-            test = ""
-            if request.GET.get('player','') == "test":
-                test = "new"
-            vid_options = video_options(request.GET.get('protection',''),
-                                        filename,
-                                        int(request.GET.get('width','0')),
-                                        int(request.GET.get('height','0')),
-                                        request.GET.get('poster',''),
-                                        request.GET.get('player',''),
-                                        request.GET.get('captions',''),
-                                        request.GET.get('authtype',''),
-                                        )
-            public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(filename, 'public',PROTECTION_KEY),filename)
-            ps = protection_string(filename,request.GET.get('protection',''),PROTECTION_KEY)
-            src_url = "http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" % (test,vid_options,ps)
-
-            results.append(dict(public_url=public_url,
-                        src_url=src_url,
-                        vid_options=vid_options,
-                        protection=request.GET.get('protection',''),
-                        public=request.GET.get('protection','').startswith('public'),
-                        public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
-                        protection_string=ps,
-                        width = request.GET.get('width',''),
-                        height = request.GET.get('height',''),
-                        captions = request.GET.get('captions',''),
-                        file = filename))
+            s = SureLink(filename,
+                         int(request.GET.get('width','0')),
+                         int(request.GET.get('height','0')),
+                         request.GET.get('captions',''),
+                         request.GET.get('poster',''),
+                         request.GET.get('protection',''),
+                         request.GET.get('authtype',''),
+                         request.GET.get('player',''),
+                         PROTECTION_KEY)
+            results.append(s)
     return dict(protection=request.GET.get('protection',''),
                 public=request.GET.get('protection','').startswith('public'),
                 public_mp4_download=request.GET.get('protection','')=="public-mp4-download",

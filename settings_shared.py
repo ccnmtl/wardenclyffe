@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'oembed',
     'taggit',
     'vital',
+    'surelink',
 )
 
 #CELERY_RESULT_BACKEND = "database"

@@ -106,11 +106,11 @@
 </ul>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom"
-     id="tabs-1"><textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}&lt;script type="text/javascript" src="{{r.src_url}}">&lt;/script>
+     id="tabs-1"><textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}{{r.basic_embed}}
 {% endfor %}</textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-2">
-<textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}[ccnmtl_video src="{{r.src_url}}"]
+<textarea rows="{{rows}}" cols="100" style="width:100%">{% for r in results %}{{r.edblogs_embed}}
 {% endfor %}</textarea></div>
 
 
@@ -119,7 +119,7 @@
   it will work with IE). This view does not work with Auth=default, so
   be sure to specify WIND (or the relevant option) 
   <textarea rows="{{rows}}" 
-  cols="100" style="width:100%">{% for r in results %}&lt;iframe width="{{width}}" height="{{height|add:24}}" src="https://surelink.ccnmtl.columbia.edu/video/?{{r.vid_options}}{{r.protection_string}}" /&gt;
+  cols="100" style="width:100%">{% for r in results %}{{r.iframe_embed}}
 {% endfor %}</textarea></div>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
@@ -132,12 +132,12 @@ within flowing text on the page, then use the Raw HTML Embed, but make
 sure the Auth type is the same as for the site (Wind or Pamacea) -- --
 				--but this should be a rare situation.
 <textarea rows="{{rows}}" cols="100" 
-style="width:100%">{% for r in results %}http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/{{r.file}}
+style="width:100%">{% for r in results %}{{r.drupal_embed}}
 {% endfor %}</textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-4">
 <textarea rows="{{rows}}" cols="100" style="width:100%">
-{% for r in results %}{% if public_mp4_download %}[mp4]http://ccnmtl.columbia.edu/broadcast/{{r.file}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[mp4]{% else %}[flv]{{r.public_url}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[flv]{% endif %}
+{% for r in results %}{{r.mdp_embed}}
 {% endfor %}
 </textarea>
 </div>
@@ -149,7 +149,7 @@ style="width:100%">{% for r in results %}http://ccnmtl.columbia.edu/stream/flv/x
 {% for r in results %}
 <tr>
 <td>
-<div style="width:{{width}}"><script type="text/javascript" src="{{r.src_url}}"></script>
+<div style="width:{{r.width}}"><script type="text/javascript" src="{{r.src_url}}"></script>
 </div>
 <br />
 <div style="display:{% ifequal protection "public-mp4-download"%}none{% else %}block{% endifequal %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
@@ -160,7 +160,7 @@ style="width:100%">{% for r in results %}http://ccnmtl.columbia.edu/stream/flv/x
 {% if not public %}
 <td>
      <div>
-       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{r.vid_options}}"></script>
+       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{r.video_options}}"></script>
      </div>
 </td>
 {% endif %}
