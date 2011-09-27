@@ -22,7 +22,7 @@ from zencoder import Zencoder
 from django.db.models import Q
 from django.core.mail import send_mail
 import re
-from surelink.helpers import video_options,protection,protection_string,src_url,SureLink
+from surelink.helpers import SureLink
 
 class rendered_with(object):
     def __init__(self, template_name):
@@ -513,27 +513,21 @@ def file_surelink(request,id):
     filename = f.filename
     if filename.startswith("/www/data/ccnmtl/broadcast/"):
         filename = filename[len("/www/data/ccnmtl/broadcast/"):]
-    test = ""
-    if request.GET.get('player','') == "test":
-        test = "new"
-    vid_options = video_options(request.GET.get('protection',''),
-                                filename,
-                                int(request.GET.get('width','0')),
-                                int(request.GET.get('height','0')),
-                                request.GET.get('poster',''),
-                                request.GET.get('player',''),
-                                request.GET.get('captions',''),
-                                request.GET.get('authtype',''),
-                                )
-    public_url = "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (protection(filename, 'public',PROTECTION_KEY),filename)
 
-    return dict(public_url=public_url,
-                src_url=src_url(test,vid_options,filename,request.GET.get('protection',''),PROTECTION_KEY),
-                vid_options=vid_options,
+    s = SureLink(filename,
+                 int(request.GET.get('width','0')),
+                 int(request.GET.get('height','0')),
+                 request.GET.get('captions',''),
+                 request.GET.get('poster',''),
+                 request.GET.get('protection',''),
+                 request.GET.get('authtype',''),
+                 request.GET.get('player',''),
+                 PROTECTION_KEY)
+
+    return dict(surelink=s,
                 protection=request.GET.get('protection',''),
                 public=request.GET.get('protection','').startswith('public'),
                 public_mp4_download=request.GET.get('protection','')=="public-mp4-download",
-                protection_string=ps,
                 width = request.GET.get('width',''),
                 height = request.GET.get('height',''),
                 captions = request.GET.get('captions',''),

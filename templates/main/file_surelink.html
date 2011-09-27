@@ -108,11 +108,11 @@
 </ul>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom"
-     id="tabs-1"><textarea rows="{{rows}}" cols="100" style="width:100%">&lt;script type="text/javascript" src="{{src_url}}">&lt;/script>
+     id="tabs-1"><textarea rows="{{rows}}" cols="100" style="width:100%">{{surelink.basic_embed}}
 </textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-2">
-<textarea rows="{{rows}}" cols="100" style="width:100%">[ccnmtl_video src="{{src_url}}"]
+<textarea rows="{{rows}}" cols="100" style="width:100%">{{surelink.edblogs_embed}}
 </textarea></div>
 
 
@@ -121,7 +121,7 @@
   it will work with IE). This view does not work with Auth=default, so
   be sure to specify WIND (or the relevant option) 
   <textarea rows="{{rows}}" 
-  cols="100" style="width:100%">&lt;iframe width="{{width}}" height="{{height|add:24}}" src="https://surelink.ccnmtl.columbia.edu/video/?{{vid_options}}{{protection_string}}" /&gt;
+  cols="100" style="width:100%">{{surelink.iframe_embed}}
 </textarea></div>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
@@ -134,12 +134,12 @@ within flowing text on the page, then use the Raw HTML Embed, but make
 sure the Auth type is the same as for the site (Wind or Pamacea) -- --
 				--but this should be a rare situation.
 <textarea rows="{{rows}}" cols="100" 
-style="width:100%">http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/{{filename}}
+style="width:100%">{{surelink.drupal_embed}}
 </textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
 	    ui-tabs-hide" id="tabs-4">
 <textarea rows="{{rows}}" cols="100" style="width:100%">
-{% if public_mp4_download %}[mp4]http://ccnmtl.columbia.edu/broadcast/{{filename}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[mp4]{% else %}[flv]{{public_url}}{% if width %}[w]{{width}}{% endif %}{% if height %}[h]{{height}}{% endif %}[flv]{% endif %}
+{{surelink.mdp_embed}}
 </textarea>
 </div>
 </div>
@@ -148,18 +148,18 @@ style="width:100%">http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/{{file
 <tr><th>Preview</th>{% if not public %}<th>Login Preview</th>{% endif %}</tr>
 <tr>
 <td>
-<div style="width:{{width}}"><script type="text/javascript" src="{{src_url}}"></script>
+<div style="width:{{width}}"><script type="text/javascript" src="{{surelink.src_url}}"></script>
 </div>
 <br />
 <div style="display:{% ifequal protection "public-mp4-download"%}none{% else %}block{% endifequal %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
-<a href="{{public_url}}">{{r.public_url}}</a>
+<a href="{{surelink.public_url}}">{{surelink.public_url}}</a>
   <p>To test a slow connection, replace "OPTIONS" with "slow".</p>
 </div>
 </td>
 {% if not public %}
 <td>
      <div>
-       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{vid_options}}"></script>
+       <script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?force_login=true&{{surelink.video_options}}"></script>
      </div>
 </td>
 {% endif %}
