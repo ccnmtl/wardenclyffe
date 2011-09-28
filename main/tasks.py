@@ -81,9 +81,7 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
             'as' : user.username,
             'secret' : mediathread_secret,
             'title' : video.title,
-            'mp4' : video.cuit_url() or video.tahoe_download_url(),
             'thumb' : video.cuit_poster_url() or video.poster_url(),
-            "mp4-metadata" : "w%dh%d" % (width,height),
             "metadata-creator" : video.creator,
             "metadata-description" : video.description,
             "metadata-subject" : video.subject,
@@ -92,6 +90,13 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
             "metadata-uuid" : video.uuid,
             "metadata-wardenclyffe-id" : str(video.id),
             }
+        if video.cuit_url():
+            params['flv_pseudo'] = video.cuit_url()
+            params['flv_pseudo-metadata'] = "w%dh%d" % (width,height)
+        else:
+            params['mp4'] = video.tahoe_download_url()
+            params["mp4-metadata"] = "w%dh%d" % (width,height)
+
         resp,content = POST(mediathread_base + "/save/",
                             params=params,async=False,resp=True)
         if resp.status == 302:

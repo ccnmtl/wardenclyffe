@@ -266,7 +266,7 @@ class File(TimeStampedModel):
 
     def cuit_public_url(self):
         filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
-        return "http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" % (filename,filename)
+        return "http://ccnmtl.columbia.edu/stream/flv/%s" % filename
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 
