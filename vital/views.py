@@ -99,7 +99,7 @@ def drop(request):
             tmpfile.close()
             # make db entry
             try:
-                series = Series.objects.filter(title="Vital")[0]
+                series = Series.objects.get(id=settings.VITAL_SERIES_ID)
                 filename = request.FILES['source_file'].name
                 user = User.objects.get(username=request.session['username'])                
                 v = Video.objects.create(series=series,
