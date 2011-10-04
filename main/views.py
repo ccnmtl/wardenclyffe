@@ -71,12 +71,10 @@ def received(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-    print title
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
-        print "found a matching operation"
 
     return HttpResponse("ok")
 
@@ -709,11 +707,16 @@ def video_mediathread_submit(request,id):
                                     settings.MEDIATHREAD_BASE)
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
-        courses = loads(GET(settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" 
-                            + settings.MEDIATHREAD_SECRET + "&user=" + request.user.username))['courses']
+        url = settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" + settings.MEDIATHREAD_SECRET + "&user=" + request.user.username
+        credentials = None
+        if hasattr(settings,"MEDIATHREAD_CREDENTIALS"):
+            credentials = settings.MEDIATHREAD_CREDENTIALS
+        response = GET(url,credentials=credentials)
+        courses = loads(response)['courses']
         courses = [dict(id=k,title=v['title']) for (k,v) in courses.items()]
         courses.sort(key=lambda x: x['title'].lower())
-    except:
+    except Exception, e:
+        print str(e)
         courses = []
     return dict(video=video,courses=courses,
                 mediathread_base=settings.MEDIATHREAD_BASE)
