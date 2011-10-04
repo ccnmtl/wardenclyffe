@@ -617,7 +617,7 @@ def mediathread(request):
             tmpfile.close()
             # make db entry
             try:
-                series = Series.objects.filter(title="Mediathread")[0]
+                series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
                 filename = request.FILES['source_file'].name
                 v = Video.objects.create(series=series,
                                          title="mediathread video uploaded by %s" % request.session['username'],
