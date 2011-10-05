@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
+import youtube.tasks
 import mediathread.tasks
 import tasks
 import os
@@ -327,13 +328,13 @@ def upload(request):
                         submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
                                                          settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                     if request.POST.get('submit_to_youtube',False):
-                        tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
-                                                      settings.YOUTUBE_EMAIL,
-                                                      settings.YOUTUBE_PASSWORD,
-                                                      settings.YOUTUBE_SOURCE,
-                                                      settings.YOUTUBE_DEVELOPER_KEY,
-                                                      settings.YOUTUBE_CLIENT_ID
-                                                      )
+                        youtube.tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
+                                                              settings.YOUTUBE_EMAIL,
+                                                              settings.YOUTUBE_PASSWORD,
+                                                              settings.YOUTUBE_SOURCE,
+                                                              settings.YOUTUBE_DEVELOPER_KEY,
+                                                              settings.YOUTUBE_CLIENT_ID
+                                                              )
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
@@ -358,75 +359,6 @@ def scan_directory(request):
         form = series.add_video_form()
     file_listing = os.listdir(settings.WATCH_DIRECTORY)
     return dict(form=form,series_id=series_id,file_listing=file_listing,scan_directory=True)
-
-
-
-@transaction.commit_manually
-@login_required
-@rendered_with('main/youtube.html')
-def youtube(request):
-    if request.method == "POST":
-        tmpfilename = request.POST.get('tmpfilename','')
-        if tmpfilename.startswith(settings.TMP_DIR):
-            # make db entry
-            filename = os.path.basename(tmpfilename)
-            vuuid = os.path.splitext(filename)[0]
-            try:
-                series = Series.objects.filter(title="Youtube")[0]
-                v = Video.objects.create(series=series,
-                                         title=request.POST.get("title","youtube video uploaded by %s" % request.user.username),
-                                         creator=request.user.username,
-                                         description=request.POST.get("description",""),
-                                         uuid = vuuid)
-                source_file = File.objects.create(video=v,
-                                                  label="source file",
-                                                  filename=filename,
-                                                  location_type='none')
-
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
-                tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
-                                              settings.YOUTUBE_EMAIL,
-                                              settings.YOUTUBE_PASSWORD,
-                                              settings.YOUTUBE_SOURCE,
-                                              settings.YOUTUBE_DEVELOPER_KEY,
-                                              settings.YOUTUBE_CLIENT_ID
-                                              )
-                return HttpResponseRedirect("/youtube/done/")
-        else:
-            return HttpResponse("no tmpfilename parameter set")
-    else:
-        pass
-    return dict()
-
-@rendered_with('main/youtube_done.html')
-def youtube_done(request):
-    return dict()
-
-def youtube_uploadify(request,*args,**kwargs):
-    if request.method == 'POST':
-        if request.FILES:
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['Filedata'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['Filedata'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-            return HttpResponse(tmpfilename)
-    return HttpResponse('True')
-
 
 def test_upload(request):
     return HttpResponse("a response")

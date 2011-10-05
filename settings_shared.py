@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'djcelery',
     'main',
     'mediathread',
+    'youtube',
     'sentry.client',
     'oembed',
     'taggit',
