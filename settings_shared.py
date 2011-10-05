@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'typogrify',
     'djcelery',
     'main',
+    'mediathread',
     'sentry.client',
     'oembed',
     'taggit',
