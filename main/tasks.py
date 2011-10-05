@@ -342,9 +342,15 @@ def upload_to_youtube(tmpfilename,video_id,user,
         f = File.objects.create(video=video,url=youtube_url,
                                 location_type="youtube",
                                 label="youtube")
-        send_mail('Youtube video uploaded', 
-                  """Your video has been uploaded to the Columbia Youtube account. 
-It is available here: %s""" % youtube_url, 
+        send_mail("\"%s\" was submitted to Columbia on YouTube EDU" % video.title, 
+                  """This email confirms that "%s" has been successfully submitted to Columbia's YouTube channel by %s.  
+
+Your video will now be reviewed by our staff, and published. When completed, it will be available at the following destination:
+
+YouTube URL: %s
+
+If you have any questions, please contact Columbia's YouTube administrators at ccmtl-youtube@columbia.edu.
+""" % (video.title,user.username,youtube_url), 
                   'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
         for vuser in settings.ANNOY_EMAILS:
