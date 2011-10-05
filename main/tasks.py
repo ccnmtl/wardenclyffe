@@ -228,7 +228,7 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
                 source_file.set_metadata(f,v)
             except Exception, e:
                 # just ignore any parsing issues
-                print str(e)
+                print "exception in extract_metadata: " + str(e)
         return ("complete","")
     args = [tmpfilename,source_file_id]
     with_operation(_do_extract_metadata,video,"extract metadata","",
