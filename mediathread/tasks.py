@@ -72,6 +72,32 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
                                     filename="",
                                     label="mediathread")
             of = OperationFile.objects.create(operation=operation,file=f)
+
+            send_mail('Uploaded video now available in Mediathread', 
+                      """
+This email confirms that %s, uploaded to Mediathread by %s, is now available.
+
+View/Annotate it here: %s
+
+If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
+
+""" % (video.title,user.username,url),
+                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                  ["%s@columbia.edu" % user.username], fail_silently=False)
+            for vuser in settings.ANNOY_EMAILS:
+                send_mail('Uploaded video now available in Mediathread', 
+                          """
+This email confirms that %s, uploaded to Mediathread by %s, is now available.
+
+View/Annotate it here: %s
+
+If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
+
+""" % (video.title,user.username,url),
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
+
+
             return ("complete","")
         else:
             return ("failed","mediathread rejected submission")
