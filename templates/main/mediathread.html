@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Mediathread Video Upload</title>
+	<title>Mediathread  &mdash; Video Upload</title>
 	<link rel="stylesheet" href="/site_media/css/main.css" media="screen" />
 	<link rel="stylesheet" href="/site_media/css/print.css" media="print" />
 	<!--[if IE 6]>
@@ -13,29 +13,96 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
         type="text/javascript" ></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" type="text/javascript"></script>
+<script src="/site_media/js/jquery.query.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+function validate_file_format(allowed_ext){
+    field_value=document.forms[0].source_file.value;
+    if(field_value!=""){
+        var file_ext= (field_value.substring((field_value.lastIndexOf('.')+1)).toLowerCase());
+        ext=allowed_ext.split(', ');
+        var allow=0;
+        for ( var i=0; i < ext.length; i++) {
+                if(ext[i]==file_ext){
+                    allow=1;
+                }
+        }
+        if(!allow){
+            alert('Invalid Video File format. Please upload a file with one of these suffixes: '+allowed_ext+'.');        
+            return false;
+        }
+    }
+    return false;
+} 
+</script>
 </head>
-<body class="one_column fixed">
+<body class="one_column fixed mediathread">
 <div id="container">
-<div id="mediathreadheader">
-</div>
+<!-- ###### Site banner ###### -->
+<div id="header">
+	<!-- Project title/logo --><h1 id="logo_project"></h1>	
+	<div id="mediathread_logo"><a href="#" onclick="window.location = jQuery.query.get('redirect_url').split('&')[0];"><img src="/site_media/img/logo_mediathread.png" width="172" height="42" /></a></div>
+</div><!-- id="header" -->
+
+
+
+
+<!-- ###### Don't touch this ###### -->
+<div class="visualclear"></div>
 
 <div id="content">
 <h1>Mediathread Video Upload</h1>
 
-<p>Welcome, <b>{{username}}</b>. This is
-  the form to upload video to Mediathread. [Here we can put more text
-  explaining what formats are acceptable, etc]. </p>
+<p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
+  {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
+<div id="admincontent" style="width: 600px;"> 
+	<div id="admincontent-inner"> 
+		<div id="admincontent-top"> 
+		<div id="admincontent-top-inner"> 
+			<div id="admincontent-top-body"></div> 
+		</div> 
+		</div> 
+  <div style="padding: 10px;" >Use form to upload video to Mediathread. This upload feature only supports any input files supported by Quicktime, and the file must end in one of these suffixes: <b>.mov, .mp4, or .avi</b>. Any other video format should be converted to a Quicktime-compatible format before uploading. Files must be under 2GB to be submitted to Mediathread.</div>
 
 <form action="." method="post" enctype="multipart/form-data">
-
 <div id="vitaldropform">
-<p><b>Please select your video file to upload:</b><br /> 
+<table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable" style="width: 100%;"> 
+ 
+	<tr>
+	<td align="right"><b>Select video file to upload:</b></td>
+	<td>
+	<input type="file" name="source_file" />
+	</td>
+	</tr> 
 
-<input type="file" name="source_file" /></p>
+	<tr><td colspan="2" align="center"> 
+	    <input type="submit" value="Upload" class="regButton" />
+	</td></tr> 
 
-<input type="submit" value="upload" />
+
+</table> 
+
 </div>
 </form>
+<div style="padding: 10px;">
+<!-- 
+  <p>After uploading, you should recieve an email confirming your video submission. A second email will notify you once this submission has been processed and is avaialble within your VITAL library. Video processing can take up to 24 hours.</p>
+ -->
+
+<p>If you encounter a problem converting or uploading a video, please contact <a href="mailto:ccnmtl-mediathread@columbia.edu">ccnmtl-mediathread@columbia.edu</a>.</p>
 </div>
+
+		<div id="admincontent-bottom"> 
+		<div id="admincontent-bottom-inner"> 
+			<div id="admincontent-bottom-body"></div> 
+		</div> 
+		</div> 
+	</div><!-- End id="admincontent-inner" --> 
+</div><!-- End id="admincontent" --> 
+
 </div>
+<br />
+<br />
+	<!-- ###### Footer ###### -->
+	<div id="footer_m"><div></div></div>
 </body>

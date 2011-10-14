@@ -1934,50 +1934,59 @@ body.vital .documentContentMain h1
 
 /* ADMIN */
 
-body.vital #admincontent
+body.vital #admincontent,
+body.mediathread #admincontent
 {
 	width: 730px;
 	background: url('../img/grey-line.gif') top left repeat-y;	
 }
 
-body.vital #admincontent-inner
+body.vital #admincontent-inner,
+body.mediathread #admincontent-inner
 {
 	background: url('../img/grey-line.gif') top right repeat-y;
 }
 
-body.vital #admincontent-top
+body.vital #admincontent-top,
+body.mediathread #admincontent-top
 {
 	background: url('../img/grey-line.gif') top repeat-x;	
 }
 
-body.vital #admincontent-top-inner
+body.vital #admincontent-top-inner,
+body.mediathread #admincontent-top-inner
 {
 	background: url('../img/bg-adminform-tl.gif') top left no-repeat;	
 }
 
-body.vital #admincontent-top-body
+body.vital #admincontent-top-body,
+body.mediathread #admincontent-top-body
 {
 	background: url('../img/bg-adminform-tr.gif') top right no-repeat;
 	height: 10px;
 }
 
-body.vital #admincontent-bottom
+body.vital #admincontent-bottom,
+body.mediathread #admincontent-bottom
 {
 	background: url('../img/grey-line.gif') bottom repeat-x;	
 }
 
-body.vital #admincontent-bottom-inner
+body.vital #admincontent-bottom-inner,
+body.mediathread #admincontent-bottom-inner
 {
 	background: url('../img/bg-adminform-bl.gif') bottom left no-repeat;	
 }
 
-body.vital #admincontent-bottom-body
+body.vital #admincontent-bottom-body,
+body.mediathread #admincontent-bottom-body
 {
 	background: url('../img/bg-adminform-br.gif') bottom right no-repeat;
 	height: 10px;
 }
 
-body.vital .adminformtable
+body.vital .adminformtable,
+body.mediathread .adminformtable
 {
 	margin: 0 !important;
 	padding: 0 !important;
@@ -1989,14 +1998,19 @@ body.vital .adminformtable
 body.vital .adminformtable td,
 body.vital .adminformtable th,
 body.vital #adminformtable td,
-body.vital #adminformtable th
+body.vital #adminformtable th,
+body.mediathread .adminformtable td,
+body.mediathread .adminformtable th,
+body.mediathread #adminformtable td,
+body.mediathread #adminformtable th
 {
 	border: 0 !important;
 	border-bottom: 1px solid #ccc !important;
 	border-collapse: collapse !important;
 }
 
-body.vital input.regButton
+body.vital input.regButton,
+body.mediathread input.regButton
 {
 	margin: 0;
 	padding: 1px;
@@ -2009,12 +2023,123 @@ body.vital input.regButton
 	cursor: pointer;
 }
 
-body.vital input.regButton:active
+body.vital input.regButton:active,
+body.mediathread input.regButton:active
 {
 	background-color: #ccc;
 	border-top: 2px solid #666;
 	border-left: 2px solid #666;
 	border-right: 2px solid #fff;
 	border-bottom: 2px solid #fff;
+}
+
+body.mediathread
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background-color: #fff;
+	font: normal 12px/120% 'lucida grande', arial, verdana, sans-serif;
+	color: #000;
+}
+
+body.mediathread h1
+{
+	font-family:'lucida grande', arial, verdana, sans-serif !important;
+}
+
+body.mediathread #container
+{
+	margin: 0 5px;
+	padding: 0;
+	border: 1px solid #999;
+	border-collapse: collapse;
+	background-color: #fff;
+	border-top: none;
+}
+body.mediathread #header
+{
+	display: block;
+	width: 100%;
+	height: 74px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	border: 0;
+    background: #444; /* for non-css3 browsers */
+
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#000000'); /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ccc)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #fff,  #ccc); /* for firefox 3.6+ */
+
+}
+
+body.mediathread #header #logo_project
+{
+	display: block;
+	float: left;
+	width: 280px;
+	height: 74px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body.mediathread #header #logo_project
+{
+	display: block;
+	width: 280px;
+	height: 72px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent url('../img/logo_project_meth.png') left top no-repeat;
+  position:absolute;
+  z-index:100;
+}
+
+/* ---- Standard navigation block elements ---------- */
+
+body.mediathread #mediathread_logo {
+	display: block;
+  float: right;
+  height: 43px;
+  	border-bottom: 1px solid #acacac;
+  	border-left:  1px solid #acacac;
+	background-color: #6f6f6f;
+	-moz-border-radius-bottomleft: 10px;
+-webkit-border-bottom-left-radius: 10px;
+
+}
+
+body.mediathread #content
+{
+	display: block;
+	margin: 0;
+	padding: 0 0 0 1em;
+	border: 0;
+}
+
+
+body.mediathread #footer_m
+{
+	display: block;
+		height: 33px;
+		width: 100%;
+	clear: both;
+	margin: 0;
+	padding: 3px 0;
+	border: 0;
+	background-color: #444;
+}
+
+body.mediathread #footer_m div
+{
+	float: right;
+	margin: 0 5px 0 0;
+		height: 33px;
+		width: 200px;
+	background: #444 url('../img/logo_ccnmtl_meth.gif') right center no-repeat;
 }
 
