@@ -7,6 +7,11 @@
 <script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/site_media/css/jquery.tagsinput.css" />
 <link rel="stylesheet" type="text/css" href="/site_media/css/jquery.autocomplete.css" />
+
+<script type="text/javascript" src="/site_media/js/swfobject.js"></script>
+<script src="/site_media/js/jquery.uploadify.v2.1.4.min.js"></script>
+<link rel="stylesheet" href="/site_media/css/uploadify.css"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -81,8 +86,9 @@
 		       </div>
 {% else %}
 			<div class="fieldwrapper">
-			  <label for="id_file">Select file to upload:</label>
-			  <input class="file_upload" type="file" name="source_file" />
+			  <label for="id_file" id="upload_area">Select file to upload:</label>
+			  <input class="file_upload" type="file" name="source_file" id="file_upload" />
+			  <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
 			</div>
 {% endif %}
 		
@@ -153,7 +159,13 @@
 	{% if series_id %}
 	<input type="hidden" name="series" value="{{series_id}}" />
 	{% endif %}
-	<input type="submit" value="upload" class="regbutton floatleft" style="margin-left: 515px;" />
+	<input type="submit" id="submit" value="upload" class="regbutton
+	floatleft" style="margin-left: 515px;" 
+{% if scan_directory %}
+{% else %}
+ disabled="disabled"
+{% endif %}
+/>
 	<div class="visualclear"></div>
 </div><!-- class="panel_bottom" -->
 
@@ -186,7 +198,23 @@ jQuery(document).ready(function()
       jQuery('#extra_fields_box').toggle('blind',{},500);
     }
     );
-	
+{% if scan_directory %}
+{% else %}
+    $('#file_upload').uploadify({
+    'uploader'  : '/site_media/swf/uploadify.swf',
+    'script'    : '/uploadify/',
+    'cancelImg' : '/site_media/img/cancel.png',
+    'folder'    : '/uploads',
+    'auto'      : true,
+    'removeCompleted' : false,
+    'onComplete'  : function(event, ID, fileObj, response, data) {
+      $("#tmpfilename").val(response);
+      $("#submit").removeAttr("disabled");
+      $("#file_uploadUploader").replaceWith();
+    },
+    'multi' : false
+  });
+{% endif %}
    }
 );
 

@@ -283,10 +283,11 @@ def upload(request):
             # save it locally
             vuuid = uuid.uuid4()
             source_filename = None
+            tmp_filename = ''
             if request.POST.get('scan_directory',False):
-                source_filename = request.POST.get('source_file')
-            if request.FILES.get('source_file',False):
-                source_filename = request.FILES['source_file'].name
+                source_filename = request.POST.get('source_file','')
+            if request.POST.get('tmpfilename',False):
+                tmp_filename = request.POST.get('tmpfilename','')
             # important to note here that we allow an "upload" with no file
             # so the user can create a placeholder for a later upload,
             # or to associate existing files/urls with
@@ -305,6 +306,11 @@ def upload(request):
                     for chunk in request.FILES['source_file'].chunks():
                         tmpfile.write(chunk)
                     tmpfile.close()
+            if tmp_filename.startswith(settings.TMP_DIR):
+                tmpfilename = tmp_filename
+                filename = os.path.basename(tmpfilename)
+                vuuid = os.path.splitext(filename)[0]
+                
             # make db entry
             try:
                 v = form.save(commit=False)
