@@ -113,3 +113,4 @@ def video_mediathread_submit(request,id):
         courses = []
     return dict(video=video,courses=courses,
                 mediathread_base=settings.MEDIATHREAD_BASE)
+
