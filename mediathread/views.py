@@ -23,37 +23,27 @@ from main.views import rendered_with
 @rendered_with('main/mediathread.html')
 def mediathread(request):
     if request.method == "POST":
-        if request.FILES['source_file']:
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['source_file'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
+        tmpfilename = request.POST.get('tmpfilename','')
+        if tmpfilename.startswith(settings.TMP_DIR):
+            filename = os.path.basename(tmpfilename)
+            vuuid = os.path.splitext(filename)[0]
             # make db entry
             try:
                 series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
-                filename = request.FILES['source_file'].name
                 v = Video.objects.create(series=series,
                                          title="mediathread video uploaded by %s" % request.session['username'],
                                          creator=request.session['username'],
                                          uuid = vuuid)
                 source_file = File.objects.create(video=v,
                                                   label="source file",
-                                                  filename=request.FILES['source_file'].name,
+                                                  filename=filename,
                                                   location_type='none')
                 # we make a "mediathreadsubmit" file to store the submission
                 # info and serve as a flag that it needs to be submitted
                 # (when PCP comes back)
                 submit_file = File.objects.create(video=v,
                                                   label="mediathread submit",
-                                                  filename=request.FILES['source_file'].name,
+                                                  filename=filename,
                                                   location_type='mediathreadsubmit')
                 user = User.objects.get(username=request.session['username'])
                 submit_file.set_metadata("username",request.session['username'])
