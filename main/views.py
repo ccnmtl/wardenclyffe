@@ -80,6 +80,23 @@ def received(request):
 
     return HttpResponse("ok")
 
+def uploadify(request,*args,**kwargs):
+    if request.method == 'POST':
+        if request.FILES:
+            # save it locally
+            vuuid = uuid.uuid4()
+            try: 
+                os.makedirs(settings.TMP_DIR)
+            except:
+                pass
+            extension = request.FILES['Filedata'].name.split(".")[-1]
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['Filedata'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+            return HttpResponse(tmpfilename)
+    return HttpResponse('True')
 
 @login_required
 def recent_operations(request):

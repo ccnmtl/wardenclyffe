@@ -68,22 +68,6 @@ def youtube(request):
 def youtube_done(request):
     return dict()
 
-def youtube_uploadify(request,*args,**kwargs):
-    if request.method == 'POST':
-        if request.FILES:
-            # save it locally
-            vuuid = uuid.uuid4()
-            try: 
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['Filedata'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['Filedata'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-            return HttpResponse(tmpfilename)
-    return HttpResponse('True')
+
 
 
