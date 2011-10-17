@@ -1,6 +1,7 @@
 # Create your views here.
+from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
@@ -22,22 +23,8 @@ def uuidparse(s):
     else:
         return ""
 
-class rendered_with(object):
-    def __init__(self, template_name):
-        self.template_name = template_name
-
-    def __call__(self, func):
-        def rendered_func(request, *args, **kwargs):
-            items = func(request, *args, **kwargs)
-            if type(items) == type({}):
-                return render_to_response(self.template_name, items, context_instance=RequestContext(request))
-            else:
-                return items
-
-        return rendered_func
-
 @transaction.commit_manually
-@rendered_with('vital/submit.html')
+@render_to('vital/submit.html')
 def submit(request,id):
     v = get_object_or_404(Video,id=id)
     if request.method == "POST":
@@ -81,7 +68,7 @@ def submit(request,id):
 
 
 @transaction.commit_manually
-@rendered_with('vital/drop.html')
+@render_to('vital/drop.html')
 def drop(request):
     if request.method == "POST":
         if request.FILES['source_file']:

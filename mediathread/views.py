@@ -1,4 +1,5 @@
 # Create your views here.
+from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -17,10 +18,8 @@ import hmac, hashlib, datetime
 from django.core.mail import send_mail
 import re
 
-from main.views import rendered_with
-
 @transaction.commit_manually
-@rendered_with('main/mediathread.html')
+@render_to('main/mediathread.html')
 def mediathread(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
@@ -90,7 +89,7 @@ def mediathread(request):
         return dict(username=username)
 
 @login_required
-@rendered_with('main/mediathread_submit.html')
+@render_to('main/mediathread_submit.html')
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":

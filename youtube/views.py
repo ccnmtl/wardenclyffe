@@ -1,4 +1,5 @@
 # Create your views here.
+from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -17,12 +18,9 @@ import hmac, hashlib, datetime
 from django.core.mail import send_mail
 import re
 
-from main.views import rendered_with
-
-
 @transaction.commit_manually
 @login_required
-@rendered_with('main/youtube.html')
+@render_to('main/youtube.html')
 def youtube(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
@@ -64,7 +62,7 @@ def youtube(request):
         pass
     return dict()
 
-@rendered_with('main/youtube_done.html')
+@render_to('main/youtube_done.html')
 def youtube_done(request):
     return dict()
 

@@ -1,7 +1,7 @@
 # Create your views here.
+from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
@@ -26,22 +26,8 @@ from django.core.mail import send_mail
 import re
 from surelink.helpers import SureLink
 
-class rendered_with(object):
-    def __init__(self, template_name):
-        self.template_name = template_name
-
-    def __call__(self, func):
-        def rendered_func(request, *args, **kwargs):
-            items = func(request, *args, **kwargs)
-            if type(items) == type({}):
-                return render_to_response(self.template_name, items, context_instance=RequestContext(request))
-            else:
-                return items
-
-        return rendered_func
-
 @login_required
-@rendered_with('main/index.html')
+@render_to('main/index.html')
 def index(request):
     return dict(
         series=Series.objects.all().order_by("title"),
@@ -49,7 +35,7 @@ def index(request):
                 operations=Operation.objects.all().order_by("-modified")[:20])
 
 @login_required
-@rendered_with('main/dashboard.html')
+@render_to('main/dashboard.html')
 def dashboard(request):
     submitted = request.GET.get('submitted','') == '1'
     status_filters = dict()
@@ -126,7 +112,7 @@ def most_recent_operation(request):
     return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])), mimetype="application/json")
 
 @login_required
-@rendered_with('main/series.html')
+@render_to('main/series.html')
 def series(request,id):
     series = get_object_or_404(Series,id=id)
     videos = Video.objects.filter(series=series).order_by("-modified")
@@ -134,7 +120,7 @@ def series(request,id):
                 operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
 
 @login_required
-@rendered_with('main/user.html')
+@render_to('main/user.html')
 def user(request,username):
     user = get_object_or_404(User,username=username)
     return dict(viewuser=user,
@@ -142,7 +128,7 @@ def user(request,username):
 
 
 @login_required
-@rendered_with('main/edit_series.html')
+@render_to('main/edit_series.html')
 def edit_series(request,id):
     series = get_object_or_404(Series,id=id)
     if request.method == "POST":
@@ -154,7 +140,7 @@ def edit_series(request,id):
     return dict(series=series,form=form)
 
 @login_required
-@rendered_with('main/edit_video.html')
+@render_to('main/edit_video.html')
 def edit_video(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
@@ -185,19 +171,19 @@ def remove_tag_from_series(request,id,tagname):
 
 
 @login_required
-@rendered_with('main/tag.html')
+@render_to('main/tag.html')
 def tag(request,tagname):
     return dict(tag=tagname,
                 series=Series.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
                 videos = Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
 
 @login_required
-@rendered_with('main/tags.html')
+@render_to('main/tags.html')
 def tags(request):
     return dict(tags=Tag.objects.all().order_by("name"))
 
 @login_required
-@rendered_with('main/video_index.html')
+@render_to('main/video_index.html')
 def video_index(request):
     videos = Video.objects.all()
     creators = request.GET.getlist('creator')
@@ -233,7 +219,7 @@ def video_index(request):
     return params
 
 @login_required
-@rendered_with('main/file_index.html')
+@render_to('main/file_index.html')
 def file_index(request):
     files = File.objects.all()
     params = dict()
@@ -258,7 +244,7 @@ def file_index(request):
     return params
 
 @login_required
-@rendered_with('main/add_series.html')
+@render_to('main/add_series.html')
 def add_series(request):
     if request.method == "POST":
         form = AddSeriesForm(request.POST)
@@ -274,7 +260,7 @@ def add_series(request):
 
 @transaction.commit_manually
 @login_required
-@rendered_with('main/upload.html')
+@render_to('main/upload.html')
 def upload(request):
     series_id = None
     if request.method == "POST":
@@ -371,7 +357,7 @@ def upload(request):
 
 @transaction.commit_manually
 @login_required
-@rendered_with('main/upload.html')
+@render_to('main/upload.html')
 def scan_directory(request):
     series_id = None
     file_listing = []
@@ -447,20 +433,20 @@ def posterdone(request):
 
 
 @login_required
-@rendered_with('main/video.html')
+@render_to('main/video.html')
 def video(request,id):
     v = get_object_or_404(Video,id=id)
     return dict(video=v)
 
 
 @login_required
-@rendered_with('main/file.html')
+@render_to('main/file.html')
 def file(request,id):
     f = get_object_or_404(File,id=id)
     return dict(file=f)
 
 @login_required
-@rendered_with("main/file_surelink.html")
+@render_to("main/file_surelink.html")
 def file_surelink(request,id):
     f = get_object_or_404(File,id=id)
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
@@ -489,7 +475,7 @@ def file_surelink(request,id):
                 file = f)
 
 @login_required
-@rendered_with('main/delete_confirm.html')
+@render_to('main/delete_confirm.html')
 def delete_file(request,id):
     f = get_object_or_404(File,id=id)
     if request.method == "POST":
@@ -500,7 +486,7 @@ def delete_file(request,id):
         return dict()
 
 @login_required
-@rendered_with('main/delete_confirm.html')
+@render_to('main/delete_confirm.html')
 def delete_video(request,id):
     v = get_object_or_404(Video,id=id)
     if request.method == "POST":
@@ -511,7 +497,7 @@ def delete_video(request,id):
         return dict()
 
 @login_required
-@rendered_with('main/delete_confirm.html')
+@render_to('main/delete_confirm.html')
 def delete_series(request,id):
     s = get_object_or_404(Series,id=id)
     if request.method == "POST":
@@ -521,7 +507,7 @@ def delete_series(request,id):
         return dict()
 
 @login_required
-@rendered_with('main/delete_confirm.html')
+@render_to('main/delete_confirm.html')
 def delete_operation(request,id):
     o = get_object_or_404(Operation,id=id)
     if request.method == "POST":
@@ -533,7 +519,7 @@ def delete_operation(request,id):
 
 
 @login_required
-@rendered_with('main/pcp_submit.html')
+@render_to('main/pcp_submit.html')
 def video_pcp_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
@@ -571,7 +557,7 @@ def video_zencoder_submit(request,id):
     return HttpResponse("POST only")
 
 @login_required
-@rendered_with('main/add_file.html')
+@render_to('main/add_file.html')
 def video_add_file(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
@@ -596,7 +582,7 @@ def video_select_poster(request,id,image_id):
 
 
 @login_required
-@rendered_with('main/workflows.html')
+@render_to('main/workflows.html')
 def list_workflows(request):
     try:
         p = PCP(settings.PCP_BASE_URL,
@@ -609,7 +595,7 @@ def list_workflows(request):
                 kino_base=settings.PCP_BASE_URL)
 
 @login_required
-@rendered_with("main/search.html")
+@render_to("main/search.html")
 def search(request):
     q = request.GET.get('q','')
     results = dict(count=0)
@@ -663,7 +649,7 @@ def subject_autocomplete(request):
 
     return HttpResponse("\n".join(all_subjects.keys()))
 
-@rendered_with("main/surelink.html")
+@render_to("main/surelink.html")
 def surelink(request):
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
     results = []
