@@ -81,6 +81,9 @@ INSTALLED_APPS = (
     'taggit',
     'vital',
     'surelink',
+    'south',
+    'paging',
+    'indexer',
 )
 
 #CELERY_RESULT_BACKEND = "database"

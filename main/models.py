@@ -5,6 +5,15 @@ from django.contrib.auth.models import User
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
+from south.modelsinspector import add_introspection_rules
+
+add_introspection_rules([], 
+                        ["^django_extensions\.db\.fields\.CreationDateTimeField",
+                         "django_extensions.db.fields.ModificationDateTimeField",
+                         "sorl.thumbnail.fields.ImageWithThumbnailsField",
+                         "django_extensions.db.fields.UUIDField"])
+
+
 
 TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
