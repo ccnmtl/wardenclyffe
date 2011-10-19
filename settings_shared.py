@@ -18,6 +18,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 
 if 'test' in sys.argv:
     DATABASE_ENGINE = 'sqlite3'
+SOUTH_TESTS_MIGRATE = False
 
 TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
