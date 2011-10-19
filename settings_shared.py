@@ -19,6 +19,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 if 'test' in sys.argv:
     DATABASE_ENGINE = 'sqlite3'
 SOUTH_TESTS_MIGRATE = False
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
@@ -85,6 +86,7 @@ INSTALLED_APPS = (
     'south',
     'paging',
     'indexer',
+    'django_nose',
 )
 
 #CELERY_RESULT_BACKEND = "database"
