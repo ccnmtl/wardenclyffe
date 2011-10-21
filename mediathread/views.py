@@ -30,7 +30,7 @@ def mediathread(request):
             try:
                 series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
                 v = Video.objects.create(series=series,
-                                         title="mediathread video uploaded by %s" % request.session['username'],
+                                         title=request.POST.get('title',''),
                                          creator=request.session['username'],
                                          uuid = vuuid)
                 source_file = File.objects.create(video=v,
