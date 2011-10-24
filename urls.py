@@ -56,6 +56,7 @@ urlpatterns = patterns('',
                        (r'^api/tagautocomplete/$','main.views.tag_autocomplete'),
                        (r'^api/subjectautocomplete/$','main.views.subject_autocomplete'),
                        (r'^celery/', include('djcelery.urls')),
+                       ('^munin/',include('munin.urls')),
                        (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': site_media_root}),
                        (r'^uploads/(?P<path>.*)$','django.views.static.serve',{'document_root' : settings.MEDIA_ROOT}),
 ) 
