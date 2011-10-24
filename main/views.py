@@ -25,6 +25,7 @@ from django.db.models import Q
 from django.core.mail import send_mail
 import re
 from surelink.helpers import SureLink
+from munin.helpers import muninview
 
 @login_required
 @render_to('main/index.html')
@@ -675,3 +676,19 @@ def surelink(request):
                 results = results,
                 rows = len(results) * 3,
                 files = request.GET.get('files',''))
+
+@muninview(config="""graph_title Total Videos
+graph_vlabel videos""")
+def total_videos(request):
+    return [("videos",Video.objects.all().count())]
+
+@muninview(config="""graph_title Total Files
+graph_vlabel files""")
+def total_files(request):
+    return [("files",File.objects.all().count())]
+
+@muninview(config="""graph_title Total Operations
+graph_vlabel operations""")
+def total_operations(request):
+    return [("operations",Operation.objects.all().count())]
+
