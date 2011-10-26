@@ -585,14 +585,17 @@ def video_select_poster(request,id,image_id):
 @login_required
 @render_to('main/workflows.html')
 def list_workflows(request):
+    error_message = ""
     try:
         p = PCP(settings.PCP_BASE_URL,
                 settings.PCP_USERNAME,
                 settings.PCP_PASSWORD)
         workflows = p.workflows()
-    except:
+    except Exception, e:
+        error_message = str(e)
         workflows = []
     return dict(workflows=workflows,
+                error_message=error_message,
                 kino_base=settings.PCP_BASE_URL)
 
 @login_required

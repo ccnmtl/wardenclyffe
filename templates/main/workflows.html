@@ -22,6 +22,10 @@
 
 {% else %}
 <p>Can't get a list of workflows. Is Kino up at <a href="{{kino_base}}">{{kino_base}}</a>?</p>
+
+<pre>
+{{error_message}}
+</pre>
 {% endif %}
 
 {% endblock %}
