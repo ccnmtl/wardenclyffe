@@ -19,7 +19,7 @@ from django.core.mail import send_mail
 import re
 
 @transaction.commit_manually
-@render_to('main/mediathread.html')
+@render_to('mediathread/mediathread.html')
 def mediathread(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
@@ -89,7 +89,7 @@ def mediathread(request):
         return dict(username=username)
 
 @login_required
-@render_to('main/mediathread_submit.html')
+@render_to('mediathread/mediathread_submit.html')
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
