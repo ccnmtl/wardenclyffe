@@ -29,3 +29,5 @@ requirements/src/celery-2.2.1.tar.gz
 requirements/src/zencoder-0.2.tar.gz
 requirements/src/gdata-2.0.14.tar.gz
 requirements/src/nose-1.1.2.tar.gz
+requirements/src/pycrypto-2.4.tar.gz
+requirements/src/paramiko-1.7.7.1.zip

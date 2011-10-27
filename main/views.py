@@ -27,6 +27,7 @@ import re
 from surelink.helpers import SureLink
 from munin.helpers import muninview
 
+
 @login_required
 @render_to('main/index.html')
 def index(request):

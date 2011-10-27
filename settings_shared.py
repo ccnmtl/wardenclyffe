@@ -88,6 +88,7 @@ INSTALLED_APPS = (
     'indexer',
     'django_nose',
     'munin',
+    'cuit',
 )
 
 #CELERY_RESULT_BACKEND = "database"
