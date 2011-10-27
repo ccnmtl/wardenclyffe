@@ -18,7 +18,6 @@ import paramiko
 import stat
 
 def sftp_recursive_listdir(sftp,basedir):
-    print "sftp_recursive_listdir(%s)" % basedir
     sftp.chdir(basedir)
     try:
         contents = sftp.listdir_attr()
