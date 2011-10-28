@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="." method="post">
+{% csrf_token %}
+<input type="submit" value="retry import" />
+</form>
+
+<pre>
+{% for operation in failed %}{{operation.status}} {{operation.video.title}}
+{% endfor %}
+</pre>
+{% endblock %}

@@ -42,10 +42,18 @@ def sftp_get(remote_filename,local_filename):
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey = mykey)
     sftp = paramiko.SFTPClient.from_transport(transport)
-    sftp.get(remote_filename, local_filename)
-    sftp.close()
-    transport.close()
-    print "sftp_get succeeded"
+
+    try:
+        sftp.get(remote_filename, local_filename)
+    except Exception, e:
+        print "sftp fetch failed"
+        raise
+    else:
+        print "sftp_get succeeded"
+    finally:
+        sftp.close()
+        transport.close()
+
 
 @task(ignore_result=True)
 def clear_out_tmpfile(tmpfilename):

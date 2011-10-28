@@ -92,3 +92,14 @@ def import_quicktime(request):
         for video_id in video_ids:
             tasks.import_from_cuit.delay(video_id,request.user)
         return HttpResponse("database entries created. import has begun.")
+
+@render_to("cuit/retry.html")
+def import_retry(request):
+    failed = Operation.objects.filter(action="import from CUIT",status="failed")
+    if request.method != "POST":
+        return dict(failed=failed)
+    for operation in failed:
+        # try again
+        tasks.import_from_cuit.delay(operation.video.id,request.user)
+        operation.delete()
+    return HttpResponse("retry has begun.")

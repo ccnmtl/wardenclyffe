@@ -5,4 +5,5 @@ import os.path
 urlpatterns = patterns('',
                        ('^$','cuit.views.index'),
                        ('^import_quicktime/$','cuit.views.import_quicktime'),
+                       ('^import_retry/$','cuit.views.import_retry'),
                        )
