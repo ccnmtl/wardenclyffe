@@ -36,8 +36,7 @@ def sftp_recursive_listdir(sftp,basedir):
         child_files = child_files + children
     return child_files
 
-@render_to('cuit/index.html')
-def index(request):
+def list_all_cuit_files():
     sftp_hostname = settings.SFTP_HOSTNAME 
     sftp_path = settings.SFTP_PATH 
     sftp_user = settings.SFTP_USER 
@@ -46,6 +45,48 @@ def index(request):
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey = mykey)
     sftp = paramiko.SFTPClient.from_transport(transport)
-    all_files = sftp_recursive_listdir(sftp,sftp_path)
+    return sftp_recursive_listdir(sftp,sftp_path)
 
-    return dict(dirs=all_files)
+@login_required
+@render_to('cuit/index.html')
+def index(request):
+    all_files = list_all_cuit_files()
+    return dict(dirs=[f for f in all_files if f.endswith(".mov")])
+
+@transaction.commit_manually
+@login_required
+def import_quicktime(request):
+    if request.method != "POST":
+        return HttpResponseRedirect("/cuit/")
+
+    try:
+        s = Series.objects.get(id=settings.QUICKTIME_IMPORT_SERIES_ID)
+
+        video_ids = []
+        for filename in list_all_cuit_files():
+            if not filename.endswith(".mov"):
+                continue
+            vuuid = uuid.uuid4()
+            # make db entry
+            v = Video.objects.create(series=s,
+                                     title=os.path.basename(filename),
+                                     creator=request.user.username,
+                                     uuid = vuuid)
+            cuit_file = File.objects.create(video=v,
+                                            label="cuit file",
+                                            filename=filename,
+                                            location_type='cuit')
+            source_file = File.objects.create(video=v,
+                                              label="source file",
+                                              filename="",
+                                              location_type='none')
+
+            video_ids.append(v.id)
+    except:
+        transaction.rollback()
+        raise
+    else:
+        transaction.commit()
+        for video_id in video_ids:
+            tasks.import_from_cuit.delay(video_id,request.user)
+        return HttpResponse("database entries created. import has begun.")

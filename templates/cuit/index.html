@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<form action="import_quicktime/" method="post">
+{% csrf_token %}
+<input type="submit" value="import quicktime files" />
+</form>
+
 <pre>
 {% for dir in dirs %}{{dir}}
 {% endfor %}

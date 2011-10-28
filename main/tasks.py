@@ -234,6 +234,7 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
     with_operation(_do_extract_metadata,video,"extract metadata","",
                    user,args,kwargs)
 
+
 @task(ignore_result=True)
 def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
     print "submitting to PCP"

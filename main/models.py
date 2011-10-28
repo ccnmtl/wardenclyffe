@@ -256,13 +256,19 @@ class File(TimeStampedModel):
         try:
             return self.get_width()
         except:
-            return self.video.get_dimensions()[0]
+            try:
+                return self.video.get_dimensions()[0]
+            except:
+                return None
             
     def guess_height(self):
         try:
             return self.get_height()
         except:
-            return self.video.get_dimensions()[1]
+            try:
+                return self.video.get_dimensions()[1]
+            except:
+                return None
 
     def surelinkable(self):
         return self.location_type == 'cuit'
