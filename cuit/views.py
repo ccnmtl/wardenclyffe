@@ -2,7 +2,7 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
 from django.contrib.auth.models import User
 import uuid 
 import tasks
@@ -61,6 +61,7 @@ def import_quicktime(request):
 
     try:
         s = Series.objects.get(id=settings.QUICKTIME_IMPORT_SERIES_ID)
+        server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
 
         video_ids = []
         for filename in list_all_cuit_files():
@@ -76,6 +77,7 @@ def import_quicktime(request):
                                             label="cuit file",
                                             filename=filename,
                                             location_type='cuit')
+            server_file = ServerFile.objects.create(server=server,file=cuit_file)
             source_file = File.objects.create(video=v,
                                               label="source file",
                                               filename="",

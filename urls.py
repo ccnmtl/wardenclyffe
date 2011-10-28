@@ -25,6 +25,13 @@ urlpatterns = patterns('',
                        (r'^video/(?P<id>\d+)/edit/$','main.views.edit_video'),
                        (r'^video/(?P<id>\d+)/delete/$','main.views.delete_video'),
                        (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_video'),
+
+                       (r'^server/$','main.views.servers'),
+                       (r'^server/add/$','main.views.add_server'),
+                       (r'^server/(?P<id>\d+)/$','main.views.server'),
+                       (r'^server/(?P<id>\d+)/edit/$','main.views.edit_server'),
+                       (r'^server/(?P<id>\d+)/delete/$','main.views.delete_server'),
+
                        (r'^file/$','main.views.file_index'),
                        (r'^file/(?P<id>\d+)/$','main.views.file'),
                        (r'^user/(?P<username>\w+)/','main.views.user'),

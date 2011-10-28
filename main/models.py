@@ -346,6 +346,12 @@ class Server(models.Model):
     base_url = models.CharField(max_length=256,default="")
     server_type = models.CharField(max_length=256,default="sftp")
 
+    def __unicode__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "/server/%d/" % self.id
+
 class ServerFile(TimeStampedModel):
     server = models.ForeignKey(Server)
     file = models.ForeignKey(File)

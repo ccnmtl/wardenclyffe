@@ -3,9 +3,9 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
 from django.contrib.auth.models import User
-from forms import UploadVideoForm,AddSeriesForm
+from forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
 from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
 import youtube.tasks
@@ -112,6 +112,56 @@ def recent_operations(request):
 @login_required
 def most_recent_operation(request):
     return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])), mimetype="application/json")
+
+
+@login_required
+@render_to('main/servers.html')
+def servers(request):
+    servers = Server.objects.all()
+    return dict(servers=servers)
+
+@login_required
+@render_to('main/server.html')
+def server(request,id):
+    server = get_object_or_404(Server,id=id)
+    return dict(server=server)
+
+@login_required
+@render_to('main/delete_confirm.html')
+def delete_server(request,id):
+    s = get_object_or_404(Server,id=id)
+    if request.method == "POST":
+        s.delete()
+        return HttpResponseRedirect("/server/")
+    else:
+        return dict()
+
+@login_required
+@render_to('main/edit_server.html')
+def edit_server(request,id):
+    server = get_object_or_404(Server,id=id)
+    if request.method == "POST":
+        form = server.edit_form(request.POST)
+        if form.is_valid():
+            server = form.save()
+            return HttpResponseRedirect(server.get_absolute_url())
+    form = server.edit_form()
+    return dict(server=server,form=form)
+
+
+@login_required
+@render_to('main/add_server.html')
+def add_server(request):
+    if request.method == "POST":
+        form = AddServerForm(request.POST)
+        if form.is_valid():
+            suuid = uuid.uuid4()
+            s = form.save(commit=False)
+            s.uuid = suuid
+            s.save()
+            form.save_m2m()
+            return HttpResponseRedirect(s.get_absolute_url())
+    return dict(form=AddServerForm())
 
 @login_required
 @render_to('main/series.html')
