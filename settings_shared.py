@@ -19,6 +19,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 if 'test' in sys.argv:
     DATABASE_ENGINE = 'sqlite3'
 SOUTH_TESTS_MIGRATE = False
+SOUTH_AUTO_FREEZE_APP = True
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 TIME_ZONE = 'America/New_York'
@@ -80,7 +81,6 @@ INSTALLED_APPS = (
     'main',
     'mediathread',
     'youtube',
-    'sentry.client',
     'oembed',
     'taggit',
     'vital',
@@ -100,17 +100,6 @@ BROKER_PORT = 5672
 #BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
 CELERYD_CONCURRENCY = 4
-
-import logging
-from sentry.client.handlers import SentryHandler
-logger = logging.getLogger()
-if SentryHandler not in map(lambda x: x.__class__, logger.handlers):
-    logger.addHandler(SentryHandler())
-    logger = logging.getLogger('sentry.errors')
-    logger.propagate = False
-    logger.addHandler(logging.StreamHandler())
-    SENTRY_REMOTE_URL = 'http://sentry.ccnmtl.columbia.edu/sentry/store/'
-SENTRY_SITE = 'wardenclyffe'
 
 THUMBNAIL_SUBDIR = "thumbs"
 EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "

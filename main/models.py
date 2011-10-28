@@ -337,3 +337,16 @@ class Poster(models.Model):
     video = models.ForeignKey(Video)
     image = models.ForeignKey(Image)
 
+class Server(models.Model):
+    name = models.CharField(max_length=256)
+    hostname = models.CharField(max_length=256)
+    credentials = models.CharField(max_length=256)
+    description = models.TextField(default="",blank=True)
+    base_dir = models.CharField(max_length=256,default="/")
+    base_url = models.CharField(max_length=256,default="")
+    server_type = models.CharField(max_length=256,default="sftp")
+
+class ServerFile(TimeStampedModel):
+    server = models.ForeignKey(Server)
+    file = models.ForeignKey(File)
+
