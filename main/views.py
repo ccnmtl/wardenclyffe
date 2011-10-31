@@ -593,6 +593,29 @@ def video_pcp_submit(request,id):
                 kino_base=settings.PCP_BASE_URL)
 
 @login_required
+@render_to('main/file_pcp_submit.html')
+def file_pcp_submit(request,id):
+    file = get_object_or_404(File,id=id)
+    if request.method == "POST":
+        video = file.video
+        # send to podcast producer
+        tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
+                                                     request.user,
+                                                     request.POST.get('workflow',''),
+                                                     settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+        return HttpResponseRedirect(video.get_absolute_url())        
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except:
+        workflows = []
+    return dict(file=file,workflows=workflows,
+                kino_base=settings.PCP_BASE_URL)
+
+
+@login_required
 def video_zencoder_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":

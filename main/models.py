@@ -283,6 +283,9 @@ class File(TimeStampedModel):
         filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
         return "http://ccnmtl.columbia.edu/stream/flv/%s" % filename
 
+    def is_cuit(self):
+        return self.location_type == "cuit"
+
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 
     encoding/file format kinds of stuff than dublin-core"""

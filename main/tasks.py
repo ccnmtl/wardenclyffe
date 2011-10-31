@@ -12,6 +12,8 @@ from django.conf import settings
 from restclient import POST
 import httplib
 from django.core.mail import send_mail
+import paramiko
+
 
 # TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
@@ -290,6 +292,65 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
                    "pull from tahoe and submit to pcp",
                    "workflow: %s" % workflow,
                    user,args,kwargs)
+
+
+def sftp_get(remote_filename,local_filename):
+    print "sftp_get(%s,%s)" % (remote_filename,local_filename)
+    sftp_hostname = settings.SFTP_HOSTNAME 
+    sftp_path = settings.SFTP_PATH 
+    sftp_user = settings.SFTP_USER 
+    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
+    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
+    transport = paramiko.Transport((sftp_hostname, 22))
+    transport.connect(username=sftp_user, pkey = mykey)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    try:
+        sftp.get(remote_filename, local_filename)
+    except Exception, e:
+        print "sftp fetch failed"
+        raise
+    else:
+        print "sftp_get succeeded"
+    finally:
+        sftp.close()
+        transport.close()
+
+
+@task(ignore_result=True)
+def pull_from_cuit_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+    print "pulling from tahoe"
+    video = Video.objects.get(id=video_id)
+    args = [workflow,pcp_base_url,pcp_username,pcp_password]
+    def _do_pull_from_cuit_and_submit_to_pcp(video,user,operation,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+        if workflow == "":
+            return ("failed","no workflow specified")
+
+        ouuid = operation.uuid
+        cuit_file = video.file_set.filter(video=video,location_type="cuit")[0]
+
+        filename = cuit_file.filename
+        extension = os.path.splitext(filename)[1]
+        tmpfilename = os.path.join(settings.TMP_DIR,str(ouuid) + extension)
+        sftp_get(filename,tmpfilename)
+
+        log = OperationLog.objects.create(operation=operation,
+                                          info="downloaded from cuit")
+
+        print "submitting to PCP"
+        pcp = PCP(pcp_base_url,pcp_username,pcp_password)
+        filename = str(ouuid) + extension
+        print "submitted with filename %s" % filename
+        title = "%s-%s" % (str(ouuid),video.title)
+        title = title.replace(" ","_") # podcast producer not so good with spaces
+        print "submitted with title %s" % title
+        pcp.upload_file(open(tmpfilename,"r"),filename,workflow, title, video.description)
+        return ("submitted","submitted to PCP")
+    with_operation(_do_pull_from_cuit_and_submit_to_pcp,video,
+                   "pull from cuit and submit to pcp",
+                   "workflow: %s" % workflow,
+                   user,args,kwargs)
+
     
 @task(ignore_result=True)
 def flv_encode(video_id,user,basedir,infile,outfile,ffmpeg_path):
