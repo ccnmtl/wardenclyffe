@@ -201,6 +201,11 @@ class Video(TimeStampedModel):
         else:
             return DummyPoster()
 
+    def cuit_file(self):
+        try:
+            return self.file_set.filter(location_type="cuit")[0]
+        except:
+            return None
 
 
 class File(TimeStampedModel):
@@ -286,11 +291,6 @@ class File(TimeStampedModel):
     def is_cuit(self):
         return self.location_type == "cuit"
 
-    def cuit_file(self):
-        try:
-            return self.file_set.filter(location_type="cuit")[0]
-        except:
-            return None
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 
