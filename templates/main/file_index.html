@@ -11,7 +11,12 @@ jQuery(document).ready(function()
         jQuery(".tablesorter").tablesorter({widgets: ['zebra']}); 
     } 
 ); 
-   
+var selectAll = function()   {
+   $(".file_checkbox").attr('checked','checked');
+};
+var deselectAll = function() {
+   $(".file_checkbox").attr('checked','');
+};
 
 </script>
 
@@ -44,17 +49,18 @@ jQuery(document).ready(function()
     </span>
 </div>
 
-
+<form action="/bulk_file_operation/" method="get">
 <table style="width: 100%" class="tablesorter"> 
 <thead>
   <tr>
+    <th></th>
     <th>file</th>
     <th>uploaded</th><th>modified</th></tr>
 </thead>
 <tbody>
 {% for file in files.object_list %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th align="left"><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>
+<td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td><th align="left"><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>
   / <a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a>
   / <a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
 <td><i>{{file.created|date:"M d, Y H:i:s"}}</i></td>
@@ -63,8 +69,10 @@ jQuery(document).ready(function()
 {% endfor %}
 </tbody>
 </table>
-
-
+<input type="button" value="select all" onclick="selectAll()"/>
+<input type="button" value="deselect all" onclick="deselectAll()"/>
+<input type="submit" value="submit selected files to PCP workflow" />
+</form>
 <div class="pagination">
     <span class="step-links">
         {% if files.has_previous %}

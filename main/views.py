@@ -616,6 +616,30 @@ def file_pcp_submit(request,id):
 
 
 @login_required
+@render_to('main/bulk_file_operation.html')
+def bulk_file_operation(request):
+    if request.method == "POST":
+        files = [File.objects.get(id=int(f.split("_")[1])) for f in request.POST.keys() if f.startswith("file_")]
+        for file in files:
+            video = file.video
+            # send to podcast producer
+            tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
+                                                         request.user,
+                                                         request.POST.get('workflow',''),
+                                                         settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+        return HttpResponseRedirect("/")
+    files = [File.objects.get(id=int(f.split("_")[1])) for f in request.GET.keys() if f.startswith("file_")]
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except:
+        workflows = []
+    return dict(files=files,workflows=workflows,
+                kino_base=settings.PCP_BASE_URL)
+
+@login_required
 def video_zencoder_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
