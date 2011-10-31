@@ -103,3 +103,16 @@ def import_retry(request):
         tasks.import_from_cuit.delay(operation.video.id,request.user)
         operation.delete()
     return HttpResponse("retry has begun.")
+
+@render_to("cuit/broken_quicktime.html")
+def broken_quicktime(request):
+    broken_files = []
+    s = Series.objects.get(id=settings.QUICKTIME_IMPORT_SERIES_ID)
+    for v in s.video_set.all():
+        f = v.cuit_file()
+        if not f:
+            continue
+        if f.get_metadata("ID_FORMAT_AUDIO") != "255":
+            broken_files.append(f)
+
+    return dict(broken_files=broken_files)

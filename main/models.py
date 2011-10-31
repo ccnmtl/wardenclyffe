@@ -291,7 +291,13 @@ class File(TimeStampedModel):
     def is_cuit(self):
         return self.location_type == "cuit"
 
+    def audio_format(self):
+        return self.get_metadata("ID_AUDIO_FORMAT")
 
+    def video_format(self):
+        return self.get_metadata("ID_VIDEO_FORMAT")
+
+    
 class Metadata(models.Model):
     """ metadata that we've extracted. more about 
     encoding/file format kinds of stuff than dublin-core"""
