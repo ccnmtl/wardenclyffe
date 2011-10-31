@@ -112,7 +112,7 @@ def broken_quicktime(request):
         f = v.cuit_file()
         if not f:
             continue
-        if f.get_metadata("ID_FORMAT_AUDIO") != "255":
+        if f.get_metadata("ID_AUDIO_FORMAT") != "255":
             broken_files.append(f)
 
     return dict(broken_files=broken_files)
