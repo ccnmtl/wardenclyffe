@@ -8,7 +8,7 @@
 </form>
 
 <pre>
-{% for operation in failed %}{{operation.status}} {{operation.video.title}}
+{% for operation in failed %}{{operation.video.cuit_file.filename}}, {{operation.operationlog_set.all.0.info}}
 {% endfor %}
 </pre>
 {% endblock %}
