@@ -1,5 +1,23 @@
 {% extends 'base.html' %}
 
+{% block js %}
+
+{{block.super}}
+
+<script type="text/javascript">
+
+var selectAll = function()   {
+   $(".file_checkbox").attr('checked','checked');
+};
+var deselectAll = function() {
+   $(".file_checkbox").attr('checked','');
+};
+
+</script>
+
+{% endblock %}
+
+
 {% block content %}
 
 
@@ -60,7 +78,7 @@
   <form action="/bulk_file_operation/" method="get">
     {% for file in files %}
     <tr class="{% cycle 'odd' 'even' %}">
-      <td><input type="checkbox" name="file_{{file.id}}" /></td>
+      <td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>
       <td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a> <a href="{{file.get_absolute_url}}">{{file.label}}</a></td>
       <td><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a></td>
       <td>{{file.location_type}}</td>
@@ -70,6 +88,9 @@
     {% endfor %}
 
 <tr><td colspan="6">
+    <input type="button" value="select all" onclick="selectAll()"/>
+    <input type="button" value="deselect all" onclick="deselectAll()"/>
+
   <input type="submit" value="bulk action" />
   </form>
 </td>
