@@ -35,6 +35,8 @@ urlpatterns = patterns('',
                        (r'^file/$','main.views.file_index'),
                        (r'^file/(?P<id>\d+)/$','main.views.file'),
 
+                       (r'^file/filter/$','main.views.file_filter'),
+
                        (r'^bulk_file_operation/$','main.views.bulk_file_operation'),
                        (r'^user/(?P<username>\w+)/','main.views.user'),
                        (r'^file/(?P<id>\d+)/delete/$','main.views.delete_file'),

@@ -616,6 +616,56 @@ def file_pcp_submit(request,id):
 
 
 @login_required
+@render_to('main/file_filter.html')
+def file_filter(request):
+
+    include_series = request.GET.getlist('include_series')
+    include_file_types = request.GET.getlist('include_file_types')
+    include_video_formats = request.GET.getlist('include_video_formats')
+    include_audio_formats = request.GET.getlist('include_audio_formats')
+
+    results = File.objects.filter(video__series__id__in=include_series)\
+        .filter(location_type__in=include_file_types)
+
+    all_series = []
+    for s in Series.objects.all():
+        all_series.append((s,str(s.id) in include_series))
+
+    all_file_types = []
+    for l in list(set([f.location_type for f in File.objects.all()])):
+        all_file_types.append((l,l in include_file_types))
+
+    all_video_formats = []
+    excluded_video_formats = []
+    for vf in [""] + list(set([m.value for m in Metadata.objects.filter(field="ID_VIDEO_FORMAT")])):
+        all_video_formats.append((vf,vf in include_video_formats))
+        if vf not in include_video_formats:
+            excluded_video_formats.append(vf)
+            if vf == "":
+                excluded_video_formats.append(None)
+    all_audio_formats = []
+    excluded_audio_formats = []
+    for af in [""] + list(set([m.value for m in Metadata.objects.filter(field="ID_AUDIO_FORMAT")])):
+        all_audio_formats.append((af,af in include_audio_formats))
+        if af not in include_audio_formats:
+            excluded_audio_formats.append(af)
+            if af == "":
+                excluded_audio_formats.append(None)
+
+    files = []
+    for f in results:
+        if f.video_format() not in excluded_video_formats \
+                and f.audio_format() not in excluded_audio_formats:
+            files.append(f)
+
+    return dict(all_series=all_series,
+                all_video_formats=all_video_formats,
+                all_audio_formats=all_audio_formats,
+                all_file_types=all_file_types,
+                files=files,
+                )
+
+@login_required
 @render_to('main/bulk_file_operation.html')
 def bulk_file_operation(request):
     if request.method == "POST":
