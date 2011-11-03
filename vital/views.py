@@ -171,7 +171,7 @@ def done(request):
                                          info="PCP completed")
         if operation.video.is_vital_submit():
             cunix_path = request.POST.get('movie_destination_path','')
-            rtsp_url = cunix_path.replace("/media/qtstreams/projects/","rtsp://ondemand.cc.columbia.edu/projects/")
+            rtsp_url = cunix_path.replace("/media/qtstreams/projects/","rtsp://qtss.cc.columbia.edu/projects/")
             (set_course,username,notify_url) = operation.video.vital_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
