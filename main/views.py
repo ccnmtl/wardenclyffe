@@ -193,6 +193,28 @@ def all_series_videos(request,id):
     params.update(dict(videos=videos))
     return params
 
+@login_required
+@render_to('main/all_series_operations.html')
+def all_series_operations(request,id):
+    series = get_object_or_404(Series,id=id)
+    operations = Operation.objects.filter(video__series__id=id).order_by("-modified")
+    params = dict(series=series)
+    paginator = Paginator(operations,100)
+    
+    try:
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+    try:
+        operations = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        operations = paginator.page(paginator.num_pages)
+
+    for k,v in request.GET.items():
+        params[k] = v
+    params.update(dict(operations=operations))
+    return params
+
 
 
 @login_required
