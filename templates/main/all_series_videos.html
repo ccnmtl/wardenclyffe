@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% block content %}
+
+
+<h2>Videos in series <a href="{{series.get_absolute_url}}">{{series.title}}</a></h2>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if videos.has_previous %}
+            <a href="?page={{ videos.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ videos.number }} of {{ videos.paginator.num_pages }}.
+        </span>
+
+        {% if videos.has_next %}
+            <a href="?page={{ videos.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+
+
+<table style="width: 100%"> 
+  <tr>
+    <th>video</th>
+    <th>creator</th>
+    <th>description</th>
+    <th>subject</th>
+    <th>license</th>
+    <th>uploaded</th><th>modified</th></tr>
+{% for video in videos.object_list %}
+<tr class="{% cycle 'odd' 'even' %}">
+<th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<td>{{video.creator}}</td>
+<td>{{video.description}}</td>
+<td>{{video.subject}}</td>
+<td>{{video.license}}</td>
+<td><i><nobr>{{video.created|date:"r"}}</nobr></i></td>
+<td><i><nobr>{{video.modified|date:"r"}}</nobr></i></td>
+</tr>
+{% endfor %}
+</table>
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if videos.has_previous %}
+            <a href="?page={{ videos.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ videos.number }} of {{ videos.paginator.num_pages }}.
+        </span>
+
+        {% if videos.has_next %}
+            <a href="?page={{ videos.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+
+{% endblock %}

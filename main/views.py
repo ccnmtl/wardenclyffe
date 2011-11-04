@@ -172,6 +172,30 @@ def series(request,id):
                 operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
 
 @login_required
+@render_to('main/all_series_videos.html')
+def all_series_videos(request,id):
+    series = get_object_or_404(Series,id=id)
+    videos = series.video_set.all().order_by("title")
+    params = dict(series=series)
+    paginator = Paginator(videos,100)
+    
+    try:
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+    try:
+        videos = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        videos = paginator.page(paginator.num_pages)
+
+    for k,v in request.GET.items():
+        params[k] = v
+    params.update(dict(videos=videos))
+    return params
+
+
+
+@login_required
 @render_to('main/user.html')
 def user(request,username):
     user = get_object_or_404(User,username=username)
