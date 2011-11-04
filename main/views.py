@@ -95,7 +95,7 @@ def recent_operations(request):
     if request.GET.get('status_filter_complete',not submitted):
         status_filters.append("complete")
     if request.GET.get('status_filter_inprogress',not submitted):
-        status_filters.append("inprogress")
+        status_filters.append("in progress")
     if request.GET.get('status_filter_submitted',not submitted):
         status_filters.append("submitted")
     user_filter = request.GET.get('user','')
