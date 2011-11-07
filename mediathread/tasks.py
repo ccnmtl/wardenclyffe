@@ -40,7 +40,7 @@ def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread
         (width,height) = video.get_dimensions()
         if not width or not height:
             return ("failed","could not figure out dimensions")
-        if not video.tahoe_download_url():
+        if not video.cuit_url() and not video.tahoe_download_url():
             return ("failed","no video URL")
         params = {
             'set_course' : course_id,
