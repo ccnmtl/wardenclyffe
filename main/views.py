@@ -66,6 +66,33 @@ def received(request):
     if r.count() == 1:
         operation = r[0]
 
+        if operation.video.is_mediathread_submit():
+            send_mail('Video submitted to MediaThread', 
+                      """
+This email confirms that '%s' has been successfully submitted to MediaThread by %s.  
+
+The video is now being processed.  When it is available in your MediaThread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+
+If you have any questions, please contact MediaThread administrators at ccmtl-mediathread@columbia.edu.
+
+""" % (operation.video.title,operation.owner.username),
+                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
+            for vuser in settings.ANNOY_EMAILS:
+                send_mail('Video submitted to MediaThread', 
+                          """
+This email confirms that '%s' has been successfully submitted to MediaThread by %s.  
+
+The video is now being processed.  When it is available in your MediaThread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+
+If you have any questions, please contact MediaThread administrators at ccmtl-mediathread@columbia.edu.
+
+""" % (operation.video.title,operation.owner.username),
+                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          [vuser], fail_silently=False)
+
+
+
     return HttpResponse("ok")
 
 def uploadify(request,*args,**kwargs):
