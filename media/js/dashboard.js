@@ -133,7 +133,7 @@ var WCRefresh = function(e) {
 		}
 	      }
 	      if (sortInitialized == 0) {
-		$("#operations").tablesorter( {sortList: [[3,1]]} );
+		$("#operations").tablesorter( {sortList: [[4,1]]} );
 		sortInitialized = 1;
 	      }
 	      orderTableByDate();
