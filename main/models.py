@@ -331,6 +331,9 @@ class Operation(TimeStampedModel):
                  modified=str(self.modified)[:19],
                  )
         return d
+
+    def get_absolute_url(self):
+        return "/operation/%s/" % self.uuid
     
 class OperationFile(models.Model):
     operation = models.ForeignKey(Operation)

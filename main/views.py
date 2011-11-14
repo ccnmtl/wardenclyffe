@@ -854,6 +854,21 @@ def search(request):
 
     return dict(q=q,results=results)
 
+@login_required
+@render_to("main/uuid_search.html")
+def uuid_search(request):
+    uuid = request.GET.get('uuid','')
+    results = dict()
+    if uuid:
+        for k,label in [(Series,"series"),(Video,"video"),
+                        (Operation,"operation")]:
+            r = k.objects.filter(uuid=uuid)
+            if r.count() > 0:
+                results[label] = r[0]
+                break
+    return dict(uuid=uuid,results=results)
+
+
 def tag_autocomplete(request):
     q = request.GET.get('q','')
     r = Tag.objects.filter(name__icontains=q)
