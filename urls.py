@@ -39,6 +39,7 @@ urlpatterns = patterns('',
 
                        (r'^file/filter/$','main.views.file_filter'),
                        (r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})/info/$','main.views.operation_info'),
+                       (r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})/$','main.views.operation'),
 
                        (r'^bulk_file_operation/$','main.views.bulk_file_operation'),
                        (r'^user/(?P<username>\w+)/','main.views.user'),

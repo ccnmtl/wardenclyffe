@@ -387,6 +387,13 @@ def operation_info(request,uuid):
     operation = get_object_or_404(Operation,uuid=uuid)
     return HttpResponse(dumps(operation.as_dict()),mimetype="application/json")
 
+@login_required
+@render_to('main/operation.html')
+def operation(request,uuid):
+    operation = get_object_or_404(Operation,uuid=uuid)
+    return dict(operation=operation)
+
+
 @transaction.commit_manually
 @login_required
 @render_to('main/upload.html')
