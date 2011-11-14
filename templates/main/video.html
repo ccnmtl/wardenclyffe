@@ -130,7 +130,8 @@ var removeTag = function(tagName,tagId) {
 
 {% for operation in video.operation_set.all %}
 <tr class="operation">
-  <td>{{operation.action}}</td>
+  <td>{{operation.action}}<br />
+      <nobr><tt>{{operation.uuid}}</tt></nobr></td>
   <td><a href="/user/{{operation.owner.username}}/">{{operation.owner.first_name}} {{operation.owner.last_name}}</a></td>
   <td class="{{operation.status}}">{{operation.status}}</td>
   <td>{{operation.params}}</td>

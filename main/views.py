@@ -383,6 +383,10 @@ def add_series(request):
     return dict(form=AddSeriesForm())
 
 
+def operation_info(request,uuid):
+    operation = get_object_or_404(Operation,uuid=uuid)
+    return HttpResponse(dumps(operation.as_dict()),mimetype="application/json")
+
 @transaction.commit_manually
 @login_required
 @render_to('main/upload.html')
