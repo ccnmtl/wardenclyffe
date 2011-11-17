@@ -254,7 +254,7 @@ hr
 	padding: 0;
 	border: 0;
 	border-bottom: 1px solid #999; /*--Create bevel effect--*/
-	background: transparent url('../img/bg_header.png') left top repeat-x;
+	background-color: #000;
 }
 
 #vitalheader 
@@ -275,7 +275,7 @@ hr
 	margin:  0 0 0 10px;
 	padding: 0;
 	border: 0;
-	background: transparent url('../img/logo_project.png') left center no-repeat;
+	background: transparent url('../img/logo_wardenclyffe.png') left center no-repeat;
 }
 
 #logo_ccnmtl, #logo_ccnmtl a
@@ -283,13 +283,13 @@ hr
 	display: block;
 	clear: right;
 	float: right;
-	width: 145px;
-	height: 33px;
+	width: 154px;
+	height: 26px;
 	overflow: hidden;
 	margin: 0 10px 0 0;
 	padding: 0;
 	border: 0;
-	background: transparent url('../img/logo_ccnmtl.gif') left top no-repeat;
+	background: transparent url('../img/logo_ccnmtl.png') left top no-repeat;
 }
 
 #logo_project a, #logo_ccnmtl a
@@ -326,7 +326,7 @@ hr
 	display: block;
 	float: right;
 	overflow: hidden;
-	margin: 0 10px 12px 0;
+	margin: 0 10px 32px 0;
 	padding: 0;
 	border: 0;
 	font-size: 12px;
@@ -341,11 +341,14 @@ hr
 	padding: 0 0 0 15px;
 	border: 0;
 	list-style: 0;
+	color: #fff;
+	font-size: 11px;
 }
 
 #standard_navigation a
 {
-	color: #fff;
+	color: #ccc;
+	text-decoration: none;
 }
 
 #standard_navigation a:hover
