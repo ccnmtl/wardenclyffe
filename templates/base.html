@@ -8,7 +8,7 @@
 		<!--[if IE 6]>
 		<link rel="stylesheet" href="/site_media/css/main_ie6_1col.css" media="screen" />
 		<![endif]-->
-		<link rel="shortcut icon" href="/site_media/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/site_media/img/favicon.png" type="image/x-icon" />
 		{% block css %}{% endblock %}
 		{% block js %}
 		<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /> 
@@ -42,13 +42,13 @@
 			<li>Hello <a href="/user/{{user.username}}/">{% if user.first_name %}{{user.first_name}}{% else %}{{ user.username }}{% endif %}</a>
 			{% endif %}
 			{% if user.username %}
-			(<a href="/accounts/logout/">Log Out</a>)
+			&nbsp;(<a href="/accounts/logout/">Log Out</a>)
 			{% endif %}</li>
 
 			{% endblock %}
-			<li><a href="#">About</a></li>
-			<li><a href="#">Help</a></li>
-			<li><a href="#">Contact</a></li>
+			<li><a href="/about/">About Wardenclyffe</a></li>
+			<!-- <li><a href="#">Help</a></li>
+			<li><a href="#">Contact</a></li> -->
 		</ul>	
 		{% endblock %}
 		<!-- CCNMTL title/logo --><h4 id="logo_ccnmtl"><a href="#" title="Columbia Center for New Media Teaching and Learning"><span>Produced by the Columbia Center for New Media Teaching and Learning</span></a></h4>
