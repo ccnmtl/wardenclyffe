@@ -3,7 +3,7 @@ from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
 from angeldust import PCP
 from celery.decorators import task
-from main.models import Video, File, Operation, OperationFile, OperationLog, Image
+from main.models import Video, File, Operation, OperationFile, OperationLog, Image, Poster
 import os.path
 import uuid 
 import tempfile
@@ -206,6 +206,12 @@ def make_images(tmpfilename,video_id,user,**kwargs):
         for img in imgs:
             os.system("mv %s%s %s" % (tmpdir,img,imgdir))
             i = Image.objects.create(video=video,image="images/%05d/%s" % (video.id,img))
+
+        if Poster.objects.filter(video=video).count() == 0 and len(imgs) > 0:
+            # pick a random image out of the set and assign it as the poster on the video
+            r = random.randint(0,len(imgs))
+            image = Image.objects.filter(video=video)[r]
+            p = Poster.objects.create(video=video,image=image)
 
         return ("complete","created %d images" % len(imgs))
     with_operation(_do_make_images,video,"make images","",
