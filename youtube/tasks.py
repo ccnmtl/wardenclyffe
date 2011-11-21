@@ -63,6 +63,8 @@ def upload_to_youtube(tmpfilename,video_id,user,
  
         title = video.title
         description = video.description
+        if len(description) > 4500:
+            description = description[:4500] + "..."
 
         my_media_group = gdata.media.Group(
             title=gdata.media.Title(text=title),
