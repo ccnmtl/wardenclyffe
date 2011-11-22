@@ -432,6 +432,7 @@ def upload(request):
                 tmpfilename = tmp_filename
                 filename = os.path.basename(tmpfilename)
                 vuuid = os.path.splitext(filename)[0]
+                source_filename = tmp_filename
                 
             # make db entry
             try:
