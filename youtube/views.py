@@ -7,7 +7,6 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-from main.tasks import submit_to_podcast_producer
 import tasks
 import main.tasks
 import os
