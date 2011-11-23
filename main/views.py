@@ -7,7 +7,7 @@ from main.models import Video, Operation, Series, File, Metadata, OperationLog, 
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
+from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images
 import youtube.tasks
 import mediathread.tasks
 import tasks

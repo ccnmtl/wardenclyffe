@@ -7,8 +7,9 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-from main.tasks import save_file_to_tahoe, submit_to_podcast_producer, make_images, extract_metadata
+from main.tasks import save_file_to_tahoe, submit_to_podcast_producer, make_images
 import tasks
+import main.tasks
 import os
 from django.conf import settings
 from django.db import transaction
@@ -24,6 +25,7 @@ import re
 def youtube(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
+        operations = []
         if tmpfilename.startswith(settings.TMP_DIR):
             # make db entry
             filename = os.path.basename(tmpfilename)
@@ -39,15 +41,41 @@ def youtube(request):
                                                   label="source file",
                                                   filename=filename,
                                                   location_type='none')
-
+                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="extract metadata",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user)
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
+                              tahoe_base=settings.TAHOE_BASE)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="save file to tahoe",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="make images",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,request.user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
+                for o,kwargs in operations:
+                    main.tasks.process_operation.delay(o,kwargs)
+
                 tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
                                               settings.YOUTUBE_EMAIL,
                                               settings.YOUTUBE_PASSWORD,
