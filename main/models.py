@@ -338,7 +338,7 @@ class Operation(TimeStampedModel):
 
     def get_task(self):
         mapper = {'extract metadata' : wardenclyffe.main.tasks.extract_metadata,
-                  'save file to tahoe' : wardenclyffe.main.tasks.do_save_file_to_tahoe,
+                  'save file to tahoe' : wardenclyffe.main.tasks.save_file_to_tahoe,
                   'make images' : wardenclyffe.main.tasks.make_images,
                   }
         return mapper[self.action]

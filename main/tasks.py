@@ -36,36 +36,7 @@ def with_operation(f,video,action,params,user,args,kwargs):
                                           info=str(e))
     operation.save()
 
-@task(ignore_result=True)
-def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
-    print "saving to tahoe"
-    video = Video.objects.get(id=video_id)
-
-    def _do_save_file_to_tahoe(video,user,operation,tmpfilename,
-                               filename,tahoe_base,**kwargs):
-        source_file = open(tmpfilename,"rb")
-        register_openers()
-        datagen, headers = multipart_encode((
-                ("t","upload"),
-                MultipartParam(name='file',fileobj=source_file,
-                               filename=os.path.basename(tmpfilename))))
-        request = urllib2.Request(tahoe_base, datagen, headers)
-        cap = urllib2.urlopen(request).read()
-        source_file.close()
-        f = File.objects.create(video=video,url="",cap=cap,
-                                location_type="tahoe",
-                                filename=filename,
-                                label="uploaded source file")
-        of = OperationFile.objects.create(operation=operation,file=f)
-        return ("complete","")
-
-    args = [tmpfilename,filename,tahoe_base]
-    with_operation(
-        _do_save_file_to_tahoe,video,"save file to tahoe","",
-        user,args,kwargs)
-
-def do_save_file_to_tahoe(operation,params):
-    print "do_save_file_to_tahoe"
+def save_file_to_tahoe(operation,params):
     source_file = open(params['tmpfilename'],"rb")
     register_openers()
     datagen, headers = multipart_encode((
