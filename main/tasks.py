@@ -193,50 +193,7 @@ The error encountered:
                    user,args,kwargs)
     print "done submitting to vital"
 
-@task(ignore_result=True)
-def make_images(tmpfilename,video_id,user,**kwargs):
-    video = Video.objects.get(id=video_id)
-    def _do_make_images(video,user,operation,**kwargs):
-        ouuid = operation.uuid
-        tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
-        try:
-            os.makedirs(tmpdir)
-        except:
-            pass
-        size = os.stat(tmpfilename)[6] / (1024 * 1024)
-        frames = size * 2 # 2 frames per MB at the most
-        if tmpfilename.lower().endswith("avi"):
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
-        else:
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
-        os.system(command)
-        imgs = os.listdir(tmpdir)
-        if len(imgs) == 0:
-            command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -vf framerate=250 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
-            os.system(command)
-        # TODO: parameterize
-        imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % video.id
-        try:
-            os.makedirs(imgdir)
-        except:
-            pass
-        imgs = os.listdir(tmpdir)
-        imgs.sort()
-        for img in imgs:
-            os.system("mv %s%s %s" % (tmpdir,img,imgdir))
-            i = Image.objects.create(video=video,image="images/%05d/%s" % (video.id,img))
-
-        if Poster.objects.filter(video=video).count() == 0 and len(imgs) > 0:
-            # pick a random image out of the set and assign it as the poster on the video
-            r = random.randint(0,len(imgs) - 1)
-            image = Image.objects.filter(video=video)[r]
-            p = Poster.objects.create(video=video,image=image)
-
-        return ("complete","created %d images" % len(imgs))
-    with_operation(_do_make_images,video,"make images","",
-                   user,[],kwargs)
-
-def do_make_images(operation,params):
+def make_images(operation,params):
     ouuid = operation.uuid
     tmpfilename = params['tmpfilename']
     tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"

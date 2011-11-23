@@ -78,7 +78,7 @@ def import_from_cuit(video_id,user,**kwargs):
         main.tasks.extract_metadata(operation,
                                        dict(source_file_id=f.id,
                                             tmpfilename=tmpfilename))
-        main.tasks.do_make_images(operation,
+        main.tasks.make_images(operation,
                                   dict(tmpfilename=tmpfilename))
         print "calling clear out"
         clear_out_tmpfile.apply(args=(tmpfilename,))
