@@ -7,7 +7,7 @@ from main.models import Video, Operation, Series, File, Metadata, OperationLog, 
 from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
-from tasks import submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp
+from tasks import pull_from_tahoe_and_submit_to_pcp
 import youtube.tasks
 import mediathread.tasks
 import tasks
@@ -458,6 +458,20 @@ def upload(request):
                         submit_file.set_metadata("username",request.user.username)
                         submit_file.set_metadata("set_course",request.POST['course_id'])
                         submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+                        params = dict(tmpfilename=tmpfilename,
+                                      pcp_workflow=settings.VITAL_PCP_WORKFLOW,
+                                      pcp_base_url=settings.PCP_BASE_URL,
+                                      pcp_username=settings.PCP_USERNAME,
+                                      pcp_password=settings.PCP_PASSWORD)
+                        o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                     video=v,
+                                                     action="submit to podcast producer",
+                                                     status="enqueued",
+                                                     params=params,
+                                                     owner=request.user
+                            )
+                        operations.append((o.id,params))
+
                 if request.POST.get('extract_metadata',False):
                     params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
                     o = Operation.objects.create(uuid = uuid.uuid4(),
@@ -490,22 +504,6 @@ def upload(request):
 
                         )
                     operations.append((o.id,params))
-
-                if request.POST.get('submit_to_vital',False):
-                    params = dict(tmpfilename=tmpfilename,
-                                  pcp_workflow=settings.VITAL_PCP_WORKFLOW,
-                                  pcp_base_url=settings.PCP_BASE_URL,
-                                  pcp_username=settings.PCP_USERNAME,
-                                  pcp_password=settings.PCP_PASSWORD)
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="submit to podcast producer",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=request.user
-                        )
-                    operations.append((o.id,params))
-
             except:
                 transaction.rollback()
                 raise
