@@ -251,6 +251,16 @@ def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,p
                    [tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password],
                    kwargs)
     
+def do_submit_to_pcp(operation,params):
+    ouuid = operation.uuid
+    pcp = PCP(params['pcp_base_url'],params['pcp_username'],params['pcp_password'])
+    # TODO: probably don't always want it to be .mp4
+    filename = str(ouuid) + ".mp4"
+    fileobj = open(params['tmpfilename'])
+    title = "%s-%s" % (str(ouuid),operation.video.title)
+    title = title.replace(" ","_") # podcast producer not so good with spaces
+    pcp.upload_file(fileobj,filename,params['pcp_workflow'],title,operation.video.description)
+    return ("submitted","")
 
 @task(ignore_result=True)
 def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):

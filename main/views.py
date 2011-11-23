@@ -490,6 +490,22 @@ def upload(request):
 
                         )
                     operations.append((o.id,params))
+
+                if request.POST.get('submit_to_vital',False):
+                    params = dict(tmpfilename=tmpfilename,
+                                  pcp_workflow=settings.VITAL_PCP_WORKFLOW,
+                                  pcp_base_url=settings.PCP_BASE_URL,
+                                  pcp_username=settings.PCP_USERNAME,
+                                  pcp_password=settings.PCP_PASSWORD)
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="submit to podcast producer",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+                        )
+                    operations.append((o.id,params))
+
             except:
                 transaction.rollback()
                 raise
@@ -499,9 +515,6 @@ def upload(request):
                     for o,kwargs in operations:
                         tasks.process_operation.delay(o,kwargs)
                     # only run these steps if there's actually a file uploaded
-                    if request.POST.get('submit_to_vital',False):
-                        submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
-                                                         settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                     if request.POST.get('submit_to_youtube',False):
                         youtube.tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
                                                               settings.YOUTUBE_EMAIL,
