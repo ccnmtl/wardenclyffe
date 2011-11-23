@@ -231,27 +231,7 @@ def process_operation(operation_id,params,**kwargs):
     operation = Operation.objects.get(id=operation_id)
     operation.process(params)
 
-@task(ignore_result=True)
-def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
-    print "submitting to PCP"
-    video = Video.objects.get(id=video_id)
-    def _do_submit_to_podcast_producer(video,user,operation,tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
-        ouuid = operation.uuid
-        pcp = PCP(pcp_base_url,pcp_username,pcp_password)
-        # TODO: probably don't always want it to be .mp4
-        filename = str(ouuid) + ".mp4"
-        fileobj = open(tmpfilename)
-        title = "%s-%s" % (str(ouuid),video.title)
-        title = title.replace(" ","_") # podcast producer not so good with spaces
-        print "submitted with title %s" % title
-        pcp.upload_file(fileobj,filename,workflow,title,video.description)
-        return ("submitted","")
-    with_operation(_do_submit_to_podcast_producer,video,"submit to podcast producer",
-                   "workflow: %s" % workflow,user,
-                   [tmpfilename,workflow,pcp_base_url,pcp_username,pcp_password],
-                   kwargs)
-    
-def do_submit_to_pcp(operation,params):
+def submit_to_pcp(operation,params):
     ouuid = operation.uuid
     pcp = PCP(params['pcp_base_url'],params['pcp_username'],params['pcp_password'])
     # TODO: probably don't always want it to be .mp4
@@ -282,7 +262,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         t.seek(0)
         log = OperationLog.objects.create(operation=operation,
                                           info="downloaded from tahoe")
-        # TODO: figure out how to re-use submit_to_podcast_producer()
+        # TODO: figure out how to re-use submit_to_pcp()
         print "submitting to PCP"
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
         filename = str(ouuid) + suffix

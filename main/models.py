@@ -340,7 +340,7 @@ class Operation(TimeStampedModel):
         mapper = {'extract metadata' : wardenclyffe.main.tasks.extract_metadata,
                   'save file to tahoe' : wardenclyffe.main.tasks.save_file_to_tahoe,
                   'make images' : wardenclyffe.main.tasks.make_images,
-                  'submit to podcast producer' : wardenclyffe.main.tasks.do_submit_to_pcp,
+                  'submit to podcast producer' : wardenclyffe.main.tasks.submit_to_pcp,
                   }
         return mapper[self.action]
 
