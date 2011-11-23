@@ -7,7 +7,6 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-import tasks
 import main.tasks
 import os
 from django.conf import settings
