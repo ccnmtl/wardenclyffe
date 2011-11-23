@@ -7,7 +7,8 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-from main.tasks import save_file_to_tahoe, submit_to_podcast_producer, make_images, extract_metadata
+from main.tasks import submit_to_podcast_producer
+import main.tasks
 import tasks
 import os
 from django.conf import settings
@@ -23,6 +24,7 @@ import re
 def mediathread(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
+        operations = []
         if tmpfilename.startswith(settings.TMP_DIR):
             filename = os.path.basename(tmpfilename)
             vuuid = os.path.splitext(filename)[0]
@@ -48,15 +50,42 @@ def mediathread(request):
                 submit_file.set_metadata("username",request.session['username'])
                 submit_file.set_metadata("set_course",request.session['set_course'])
                 submit_file.set_metadata("redirect_to",request.session['redirect_to'])
+                                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="extract metadata",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user)
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
+                              tahoe_base=settings.TAHOE_BASE)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="save file to tahoe",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="make images",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
+
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
+                for o,kwargs in operations:
+                    maintasks.process_operation.delay(o,kwargs)
+
                 workflow = settings.PCP_WORKFLOW
                 if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
                     workflow = settings.MEDIATHREAD_PCP_WORKFLOW
