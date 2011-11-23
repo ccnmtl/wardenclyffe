@@ -8,6 +8,7 @@ from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
 import wardenclyffe.main.tasks
 import wardenclyffe.youtube.tasks
+import wardenclyffe.mediathread.tasks
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -343,6 +344,7 @@ class Operation(TimeStampedModel):
                   'make images' : wardenclyffe.main.tasks.make_images,
                   'submit to podcast producer' : wardenclyffe.main.tasks.submit_to_pcp,
                   'upload to youtube' : wardenclyffe.youtube.tasks.upload_to_youtube,
+                  'submit to mediathread' : wardenclyffe.mediathread.tasks.submit_to_mediathread,
                   }
         return mapper[self.action]
 

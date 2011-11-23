@@ -582,10 +582,16 @@ def done(request):
             (set_course,username) = operation.video.mediathread_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
-                mediathread.tasks.submit_to_mediathread.delay(operation.video.id,user,set_course,
-                                                              settings.MEDIATHREAD_SECRET,
-                                                              settings.MEDIATHREAD_BASE)
-                operation.video.clear_mediathread_submit()
+                params = dict(set_course=set_course)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="submit to mediathread",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                tasks.process_operation.delay(o.id,params)
+                o.video.clear_mediathread_submit()
 
     return HttpResponse("ok")
 

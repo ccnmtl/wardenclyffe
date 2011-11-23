@@ -132,10 +132,17 @@ def mediathread(request):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        tasks.submit_to_mediathread.delay(video.id,request.user,
-                                          request.POST.get('course',''),
-                                          settings.MEDIATHREAD_SECRET,
-                                          settings.MEDIATHREAD_BASE)
+        user = User.objects.get(username=username)
+        params = dict(set_course=request.POST.get('course',''))
+        o = Operation.objects.create(uuid = uuid.uuid4(),
+                                     video=video,
+                                     action="submit to mediathread",
+                                     status="enqueued",
+                                     params=params,
+                                     owner=request.user,
+                                     )
+        tasks.process_operation.delay(o.id,params)
+        o.video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
         url = settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" + settings.MEDIATHREAD_SECRET + "&user=" + request.user.username
