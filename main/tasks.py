@@ -64,6 +64,25 @@ def save_file_to_tahoe(tmpfilename,video_id,filename,user,tahoe_base,**kwargs):
         _do_save_file_to_tahoe,video,"save file to tahoe","",
         user,args,kwargs)
 
+def do_save_file_to_tahoe(operation,params):
+    print "do_save_file_to_tahoe"
+    source_file = open(params['tmpfilename'],"rb")
+    register_openers()
+    datagen, headers = multipart_encode((
+            ("t","upload"),
+            MultipartParam(name='file',fileobj=source_file,
+                           filename=os.path.basename(params['tmpfilename']))))
+    request = urllib2.Request(params['tahoe_base'], datagen, headers)
+    cap = urllib2.urlopen(request).read()
+    source_file.close()
+    f = File.objects.create(video=operation.video,url="",cap=cap,
+                            location_type="tahoe",
+                            filename=params['filename'],
+                            label="uploaded source file")
+    of = OperationFile.objects.create(operation=operation,file=f)
+    return ("complete","")
+
+
 @task(ignore_result=True)
 def submit_to_mediathread(video_id,user,course_id,mediathread_secret,mediathread_base,**kwargs):
     print "submitting to mediathread"
@@ -216,6 +235,46 @@ def make_images(tmpfilename,video_id,user,**kwargs):
         return ("complete","created %d images" % len(imgs))
     with_operation(_do_make_images,video,"make images","",
                    user,[],kwargs)
+
+def do_make_images(operation,params):
+    ouuid = operation.uuid
+    tmpfilename = params['tmpfilename']
+    tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
+    try:
+        os.makedirs(tmpdir)
+    except:
+        pass
+    size = os.stat(tmpfilename)[6] / (1024 * 1024)
+    frames = size * 2 # 2 frames per MB at the most
+    if tmpfilename.lower().endswith("avi"):
+        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
+    else:
+        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
+    os.system(command)
+    imgs = os.listdir(tmpdir)
+    if len(imgs) == 0:
+        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -vf framerate=250 '%s' 2>/dev/null" % (tmpdir,frames,tmpfilename)
+        os.system(command)
+    # TODO: parameterize
+    imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % operation.video.id
+    try:
+        os.makedirs(imgdir)
+    except:
+        pass
+    imgs = os.listdir(tmpdir)
+    imgs.sort()
+    for img in imgs:
+        os.system("mv %s%s %s" % (tmpdir,img,imgdir))
+        i = Image.objects.create(video=operation.video,image="images/%05d/%s" % (operation.video.id,img))
+
+    if Poster.objects.filter(video=operation.video).count() == 0 and len(imgs) > 0:
+        # pick a random image out of the set and assign it as the poster on the video
+        r = random.randint(0,len(imgs) - 1)
+        image = Image.objects.filter(video=operation.video)[r]
+        p = Poster.objects.create(video=operation.video,image=image)
+
+    return ("complete","created %d images" % len(imgs))
+
             
 @task(ignore_results=True)
 def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
@@ -243,7 +302,7 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
                    user,args,kwargs)
 
 
-def do_extract_metadata(video,params):
+def do_extract_metadata(operation,params):
     source_file = File.objects.get(id=params['source_file_id'])
     # warning: for now we're expecting the midentify script
     # to be relatively located to this file. this ought to 

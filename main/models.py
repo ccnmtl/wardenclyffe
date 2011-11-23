@@ -337,19 +337,24 @@ class Operation(TimeStampedModel):
         return "/operation/%s/" % self.uuid
 
     def get_task(self):
-        mapper = {'extract metadata' : wardenclyffe.main.tasks.do_extract_metadata}
+        mapper = {'extract metadata' : wardenclyffe.main.tasks.do_extract_metadata,
+                  'save file to tahoe' : wardenclyffe.main.tasks.do_save_file_to_tahoe,
+                  'make images' : wardenclyffe.main.tasks.do_make_images,
+                  }
         return mapper[self.action]
 
     def process(self,args):
         self.status = "in progress"
         f = self.get_task()
         try:
-            (success,message) = f(self.video,args)
+            (success,message) = f(self,args)
             self.status = success
             if self.status == "failed" or message != "":
                 log = OperationLog.objects.create(operation=self,
                                                   info=message)
         except Exception, e:
+            print "operation failed"
+            print str(e)
             self.status = "failed"
             log = OperationLog.objects.create(operation=self,
                                               info=str(e))

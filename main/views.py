@@ -467,6 +467,29 @@ def upload(request):
                                                  params=params,
                                                  owner=request.user)
                     operations.append((o.id,params))
+                if request.POST.get('upload_to_tahoe',False):
+                    params = dict(tmpfilename=tmpfilename,filename=source_filename,
+                                  tahoe_base=settings.TAHOE_BASE)
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="save file to tahoe",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+
+                        )
+                    operations.append((o.id,params))
+                if request.POST.get('extract_images',False):
+                    params = dict(tmpfilename=tmpfilename)
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="make images",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+
+                        )
+                    operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
@@ -476,10 +499,6 @@ def upload(request):
                     for o,kwargs in operations:
                         tasks.process_operation.delay(o,kwargs)
                     # only run these steps if there's actually a file uploaded
-                    if request.POST.get('upload_to_tahoe',False):
-                        save_file_to_tahoe.delay(tmpfilename,v.id,source_filename,request.user,settings.TAHOE_BASE)
-                    if request.POST.get('extract_images',False):
-                        make_images.delay(tmpfilename,v.id,request.user)
                     if request.POST.get('submit_to_vital',False):
                         submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
                                                          settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
