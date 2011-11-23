@@ -7,7 +7,6 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-from main.tasks import submit_to_podcast_producer
 import main.tasks
 import tasks
 import os
@@ -78,19 +77,33 @@ def mediathread(request):
                                              )
                 operations.append((o.id,params))
 
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
+                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+                    params = dict(tmpfilename=tmpfilename)
+                    params = dict(tmpfilename=tmpfilename,
+                                  pcp_workflow=workflow,
+                                  pcp_base_url=settings.PCP_BASE_URL,
+                                  pcp_username=settings.PCP_USERNAME,
+                                  pcp_password=settings.PCP_PASSWORD)
+
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="submit to podcast producer",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+                                                 )
+                    operations.append((o.id,params))
+
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
+                # hand operations off to celery
                 for o,kwargs in operations:
                     maintasks.process_operation.delay(o,kwargs)
-
-                workflow = settings.PCP_WORKFLOW
-                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
-                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,workflow,
-                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
                 return HttpResponseRedirect(request.session['redirect_to'])
     else:
         # check their credentials
