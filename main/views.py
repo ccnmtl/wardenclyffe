@@ -502,12 +502,7 @@ def upload(request):
                     operations.append((o.id,params))
 
                 if request.POST.get('submit_to_youtube',False):
-                    params = dict(tmpfilename=tmpfilename,
-                                  youtube_email=settings.YOUTUBE_EMAIL,
-                                  youtube_password=settings.YOUTUBE_PASSWORD,
-                                  youtube_source=settings.YOUTUBE_SOURCE,
-                                  youtube_developer_key=settings.YOUTUBE_DEVELOPER_KEY,
-                                  youtube_client_id=settings.YOUTUBE_CLIENT_ID)
+                    params = dict(tmpfilename=tmpfilename)
 
                     o = Operation.objects.create(uuid = uuid.uuid4(),
                                                  video=v,

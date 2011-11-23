@@ -66,12 +66,7 @@ def youtube(request):
                                              owner=request.user
                                              )
                 operations.append((o.id,params))
-                params = dict(tmpfilename=tmpfilename,
-                              youtube_email=settings.YOUTUBE_EMAIL,
-                              youtube_password=settings.YOUTUBE_PASSWORD,
-                              youtube_source=settings.YOUTUBE_SOURCE,
-                              youtube_developer_key=settings.YOUTUBE_DEVELOPER_KEY,
-                              youtube_client_id=settings.YOUTUBE_CLIENT_ID)
+                params = dict(tmpfilename=tmpfilename)
 
                 o = Operation.objects.create(uuid = uuid.uuid4(),
                                              video=v,

@@ -19,11 +19,11 @@ def upload_to_youtube(operation,params):
     video = operation.video
     user = operation.owner
     tmpfilename = params['tmpfilename']
-    youtube_email = params['youtube_email']
-    youtube_password = params['youtube_password']
-    youtube_source = params['youtube_source']
-    youtube_developer_key = params['youtube_developer_key']
-    youtube_client_id = params['youtube_client_id']
+    youtube_email = settings.YOUTUBE_EMAIL
+    youtube_password = settings.YOUTUBE_PASSWORD
+    youtube_source = settings.YOUTUBE_SOURCE
+    youtube_developer_key = settings.YOUTUBE_DEVELOPER_KEY
+    youtube_client_id = settings.YOUTUBE_CLIENT_ID
 
     httplib.MAXAMOUNT = 104857600
     yt_service = gdata.youtube.service.YouTubeService()
