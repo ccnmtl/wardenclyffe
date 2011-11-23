@@ -75,7 +75,7 @@ def import_from_cuit(video_id,user,**kwargs):
         log = OperationLog.objects.create(operation=operation,
                                           info="downloaded from CUIT")
 
-        main.tasks.do_extract_metadata(operation,
+        main.tasks.extract_metadata(operation,
                                        dict(source_file_id=f.id,
                                             tmpfilename=tmpfilename))
         main.tasks.make_images.apply(args=(tmpfilename,video.id,user))

@@ -275,34 +275,7 @@ def do_make_images(operation,params):
 
     return ("complete","created %d images" % len(imgs))
 
-            
-@task(ignore_results=True)
-def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
-    video = Video.objects.get(id=video_id)
-    def _do_extract_metadata(video,user,operation,tmpfilename,source_file_id,**kwargs):
-        source_file = File.objects.get(id=source_file_id)
-        # warning: for now we're expecting the midentify script
-        # to be relatively located to this file. this ought to 
-        # be a bit more configurable
-        pwd = os.path.dirname(__file__)
-        script_dir = os.path.join(pwd,"../scripts/")
-        output = subprocess.Popen([os.path.join(script_dir,"midentify.sh"), tmpfilename], stdout=subprocess.PIPE).communicate()[0]
-        pairs = [l.strip().split("=") for l in output.split("\n")]
-        for line in output.split("\n"):
-            try:
-                line = line.strip()
-                (f,v) = line.split("=")
-                source_file.set_metadata(f,v)
-            except Exception, e:
-                # just ignore any parsing issues
-                print "exception in extract_metadata: " + str(e)
-        return ("complete","")
-    args = [tmpfilename,source_file_id]
-    with_operation(_do_extract_metadata,video,"extract metadata","",
-                   user,args,kwargs)
-
-
-def do_extract_metadata(operation,params):
+def extract_metadata(operation,params):
     source_file = File.objects.get(id=params['source_file_id'])
     # warning: for now we're expecting the midentify script
     # to be relatively located to this file. this ought to 

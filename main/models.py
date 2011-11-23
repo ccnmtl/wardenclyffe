@@ -337,7 +337,7 @@ class Operation(TimeStampedModel):
         return "/operation/%s/" % self.uuid
 
     def get_task(self):
-        mapper = {'extract metadata' : wardenclyffe.main.tasks.do_extract_metadata,
+        mapper = {'extract metadata' : wardenclyffe.main.tasks.extract_metadata,
                   'save file to tahoe' : wardenclyffe.main.tasks.do_save_file_to_tahoe,
                   'make images' : wardenclyffe.main.tasks.do_make_images,
                   }
