@@ -233,7 +233,8 @@ def process_operation(operation_id,params,**kwargs):
 
 def submit_to_pcp(operation,params):
     ouuid = operation.uuid
-    pcp = PCP(params['pcp_base_url'],params['pcp_username'],params['pcp_password'])
+    
+    pcp = PCP(settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
     # TODO: probably don't always want it to be .mp4
     filename = str(ouuid) + ".mp4"
     fileobj = open(params['tmpfilename'])

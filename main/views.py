@@ -458,10 +458,7 @@ def upload(request):
                         submit_file.set_metadata("set_course",request.POST['course_id'])
                         submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
                         params = dict(tmpfilename=tmpfilename,
-                                      pcp_workflow=settings.VITAL_PCP_WORKFLOW,
-                                      pcp_base_url=settings.PCP_BASE_URL,
-                                      pcp_username=settings.PCP_USERNAME,
-                                      pcp_password=settings.PCP_PASSWORD)
+                                      pcp_workflow=settings.VITAL_PCP_WORKFLOW)
                         o = Operation.objects.create(uuid = uuid.uuid4(),
                                                      video=v,
                                                      action="submit to podcast producer",
