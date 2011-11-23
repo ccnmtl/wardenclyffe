@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
 from tasks import pull_from_tahoe_and_submit_to_pcp
-import youtube.tasks
 import mediathread.tasks
 import tasks
 import os
@@ -504,6 +503,23 @@ def upload(request):
 
                         )
                     operations.append((o.id,params))
+
+                if request.POST.get('submit_to_youtube',False):
+                    params = dict(tmpfilename=tmpfilename,
+                                  youtube_email=settings.YOUTUBE_EMAIL,
+                                  youtube_password=settings.YOUTUBE_PASSWORD,
+                                  youtube_source=settings.YOUTUBE_SOURCE,
+                                  youtube_developer_key=settings.YOUTUBE_DEVELOPER_KEY,
+                                  youtube_client_id=settings.YOUTUBE_CLIENT_ID)
+
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="upload to youtube",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+                        )
+                    operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
@@ -512,15 +528,6 @@ def upload(request):
                 if source_filename:
                     for o,kwargs in operations:
                         tasks.process_operation.delay(o,kwargs)
-                    # only run these steps if there's actually a file uploaded
-                    if request.POST.get('submit_to_youtube',False):
-                        youtube.tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
-                                                              settings.YOUTUBE_EMAIL,
-                                                              settings.YOUTUBE_PASSWORD,
-                                                              settings.YOUTUBE_SOURCE,
-                                                              settings.YOUTUBE_DEVELOPER_KEY,
-                                                              settings.YOUTUBE_CLIENT_ID
-                                                              )
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()

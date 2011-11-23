@@ -67,6 +67,21 @@ def youtube(request):
                                              owner=request.user
                                              )
                 operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename,
+                              youtube_email=settings.YOUTUBE_EMAIL,
+                              youtube_password=settings.YOUTUBE_PASSWORD,
+                              youtube_source=settings.YOUTUBE_SOURCE,
+                              youtube_developer_key=settings.YOUTUBE_DEVELOPER_KEY,
+                              youtube_client_id=settings.YOUTUBE_CLIENT_ID)
+
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="upload to youtube",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                    )
+                operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
@@ -74,14 +89,6 @@ def youtube(request):
                 transaction.commit()
                 for o,kwargs in operations:
                     main.tasks.process_operation.delay(o,kwargs)
-
-                tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
-                                              settings.YOUTUBE_EMAIL,
-                                              settings.YOUTUBE_PASSWORD,
-                                              settings.YOUTUBE_SOURCE,
-                                              settings.YOUTUBE_DEVELOPER_KEY,
-                                              settings.YOUTUBE_CLIENT_ID
-                                              )
                 return HttpResponseRedirect("/youtube/done/")
         else:
             return HttpResponse("no tmpfilename parameter set")

@@ -7,6 +7,7 @@ from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
 import wardenclyffe.main.tasks
+import wardenclyffe.youtube.tasks
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -341,6 +342,7 @@ class Operation(TimeStampedModel):
                   'save file to tahoe' : wardenclyffe.main.tasks.save_file_to_tahoe,
                   'make images' : wardenclyffe.main.tasks.make_images,
                   'submit to podcast producer' : wardenclyffe.main.tasks.submit_to_pcp,
+                  'upload to youtube' : wardenclyffe.youtube.tasks.upload_to_youtube,
                   }
         return mapper[self.action]
 
