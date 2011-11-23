@@ -6,6 +6,7 @@ from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
+import wardenclyffe.main.tasks
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -334,6 +335,26 @@ class Operation(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/operation/%s/" % self.uuid
+
+    def get_task(self):
+        mapper = {'extract metadata' : wardenclyffe.main.tasks.do_extract_metadata}
+        return mapper[self.action]
+
+    def process(self,args):
+        self.status = "in progress"
+        f = self.get_task()
+        try:
+            (success,message) = f(self.video,args)
+            self.status = success
+            if self.status == "failed" or message != "":
+                log = OperationLog.objects.create(operation=self,
+                                                  info=message)
+        except Exception, e:
+            self.status = "failed"
+            log = OperationLog.objects.create(operation=self,
+                                              info=str(e))
+        self.save()
+        
     
 class OperationFile(models.Model):
     operation = models.ForeignKey(Operation)

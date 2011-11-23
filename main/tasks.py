@@ -3,7 +3,7 @@ from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
 from angeldust import PCP
 from celery.decorators import task
-from main.models import Video, File, Operation, OperationFile, OperationLog, Image, Poster
+from wardenclyffe.main.models import Video, File, Operation, OperationFile, OperationLog, Image, Poster
 import os.path
 import uuid 
 import tempfile
@@ -242,6 +242,34 @@ def extract_metadata(tmpfilename,video_id,user,source_file_id,**kwargs):
     with_operation(_do_extract_metadata,video,"extract metadata","",
                    user,args,kwargs)
 
+
+def do_extract_metadata(video,params):
+    source_file = File.objects.get(id=params['source_file_id'])
+    # warning: for now we're expecting the midentify script
+    # to be relatively located to this file. this ought to 
+    # be a bit more configurable
+    pwd = os.path.dirname(__file__)
+    script_dir = os.path.join(pwd,"../scripts/")
+    output = subprocess.Popen([os.path.join(script_dir,"midentify.sh"), params['tmpfilename']], stdout=subprocess.PIPE).communicate()[0]
+    pairs = [l.strip().split("=") for l in output.split("\n")]
+    for line in output.split("\n"):
+        try:
+            line = line.strip()
+            if "=" not in line:
+                continue
+            (f,v) = line.split("=")
+            source_file.set_metadata(f,v)
+        except Exception, e:
+            # just ignore any parsing issues
+            print "exception in extract_metadata: " + str(e)
+            print line
+    return ("complete","")
+
+@task(ignore_results=True)
+def process_operation(operation_id,params,**kwargs):
+    print "process_operation(%s,%s)" % (operation_id,str(params))
+    operation = Operation.objects.get(id=operation_id)
+    operation.process(params)
 
 @task(ignore_result=True)
 def submit_to_podcast_producer(tmpfilename,video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):

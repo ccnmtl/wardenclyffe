@@ -401,6 +401,7 @@ def upload(request):
     series_id = None
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
+        operations = []
         if form.is_valid():
             # save it locally
             vuuid = uuid.uuid4()
@@ -457,17 +458,26 @@ def upload(request):
                         submit_file.set_metadata("username",request.user.username)
                         submit_file.set_metadata("set_course",request.POST['course_id'])
                         submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+                if request.POST.get('extract_metadata',False):
+                    params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="extract metadata",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user)
+                    operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
                 if source_filename:
+                    for o,kwargs in operations:
+                        tasks.process_operation.delay(o,kwargs)
                     # only run these steps if there's actually a file uploaded
                     if request.POST.get('upload_to_tahoe',False):
                         save_file_to_tahoe.delay(tmpfilename,v.id,source_filename,request.user,settings.TAHOE_BASE)
-                    if request.POST.get('extract_metadata',False):
-                        extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
                     if request.POST.get('extract_images',False):
                         make_images.delay(tmpfilename,v.id,request.user)
                     if request.POST.get('submit_to_vital',False):
