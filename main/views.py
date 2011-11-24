@@ -456,7 +456,6 @@ def upload(request):
                     params['source_file_id']=source_file.id
                     params['filename']=source_filename
                     params['pcp_workflow']=settings.VITAL_PCP_WORKFLOW
-                    params['tahoe_base']=settings.TAHOE_BASE
 
                     if request.POST.get('submit_to_vital',False) \
                             and request.POST.get('course_id',False):

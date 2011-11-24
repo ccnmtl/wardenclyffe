@@ -43,7 +43,8 @@ def save_file_to_tahoe(operation,params):
             ("t","upload"),
             MultipartParam(name='file',fileobj=source_file,
                            filename=os.path.basename(params['tmpfilename']))))
-    request = urllib2.Request(params['tahoe_base'], datagen, headers)
+    tahoe_base = settings.TAHOE_BASE
+    request = urllib2.Request(tahoe_base, datagen, headers)
     cap = urllib2.urlopen(request).read()
     source_file.close()
     f = File.objects.create(video=operation.video,url="",cap=cap,
