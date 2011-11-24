@@ -404,6 +404,7 @@ def upload(request):
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
         operations = []
+        params = dict()
         if form.is_valid():
             # save it locally
             vuuid = uuid.uuid4()
@@ -451,6 +452,12 @@ def upload(request):
                                                       label="source file",
                                                       filename=source_filename,
                                                       location_type='none')
+                    params['tmpfilename']=tmpfilename
+                    params['source_file_id']=source_file.id
+                    params['filename']=source_filename
+                    params['pcp_workflow']=settings.VITAL_PCP_WORKFLOW
+                    params['tahoe_base']=settings.TAHOE_BASE
+
                     if request.POST.get('submit_to_vital',False) \
                             and request.POST.get('course_id',False):
                         submit_file = File.objects.create(video=v,
@@ -460,69 +467,29 @@ def upload(request):
                         submit_file.set_metadata("username",request.user.username)
                         submit_file.set_metadata("set_course",request.POST['course_id'])
                         submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
-                        params = dict(tmpfilename=tmpfilename,
-                                      pcp_workflow=settings.VITAL_PCP_WORKFLOW)
-                        o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                     video=v,
-                                                     action="submit to podcast producer",
-                                                     status="enqueued",
-                                                     params=params,
-                                                     owner=request.user
-                            )
-                        operations.append((o.id,params))
+                    for p,action in [("submit_to_vital","submit to podcast producer"),
+                                     ("extract_metadata","extract metadata"),
+                                     ("upload_to_tahoe","save file to tahoe"),
+                                     ("extract_images","make images"),
+                                     ("submit_to_youtube","upload to youtube")
+                                     ]:
+                        if request.POST.get(p,False):
+                            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                                         video=v,
+                                                         action=action,
+                                                         status="enqueued",
+                                                         params=params,
+                                                         owner=request.user)
+                            operations.append(o.id)
 
-                if request.POST.get('extract_metadata',False):
-                    params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="extract metadata",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=request.user)
-                    operations.append((o.id,params))
-                if request.POST.get('upload_to_tahoe',False):
-                    params = dict(tmpfilename=tmpfilename,filename=source_filename,
-                                  tahoe_base=settings.TAHOE_BASE)
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="save file to tahoe",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=request.user
-
-                        )
-                    operations.append((o.id,params))
-                if request.POST.get('extract_images',False):
-                    params = dict(tmpfilename=tmpfilename)
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="make images",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=request.user
-
-                        )
-                    operations.append((o.id,params))
-
-                if request.POST.get('submit_to_youtube',False):
-                    params = dict(tmpfilename=tmpfilename)
-
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="upload to youtube",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=request.user
-                        )
-                    operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
                 if source_filename:
-                    for o,kwargs in operations:
-                        tasks.process_operation.delay(o,kwargs)
+                    for o in operations:
+                        tasks.process_operation.delay(o,params)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
