@@ -44,6 +44,7 @@ def dashboard(request):
     status_filters["complete"] = request.GET.get('status_filter_complete',not submitted)
     status_filters["submitted"] = request.GET.get('status_filter_submitted',not submitted)
     status_filters["inprogress"] = request.GET.get('status_filter_inprogress',not submitted)
+    status_filters["enqueued"] = request.GET.get('status_filter_enqueued',not submitted)
     user_filter = request.GET.get('user','')
     series_filter = int(request.GET.get('series',False) or '0')
     d = dict(
@@ -118,6 +119,8 @@ def recent_operations(request):
     status_filters = []
     if request.GET.get('status_filter_failed',not submitted):
         status_filters.append("failed")
+    if request.GET.get('status_filter_enqueued',not submitted):
+        status_filters.append("enqueued")
     if request.GET.get('status_filter_complete',not submitted):
         status_filters.append("complete")
     if request.GET.get('status_filter_inprogress',not submitted):

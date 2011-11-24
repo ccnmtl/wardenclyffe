@@ -350,6 +350,7 @@ class Operation(TimeStampedModel):
 
     def process(self,args):
         self.status = "in progress"
+        self.save()
         f = self.get_task()
         try:
             (success,message) = f(self,args)
