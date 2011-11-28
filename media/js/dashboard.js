@@ -10,11 +10,15 @@ function getQueryParams()
     return vars;
 }
 
+var cleanStatus = function(s) {
+  return s.replace(" ","");
+};
+
 var newRow = function(el) {
   var r = $("<tr></tr>");
   r.attr("id","operation_" + el.id);
   r.append($("<td></td>")
-	   .append($("<div class=\"operation_status\"></div>").addClass(el.status)));
+	   .append($("<div class=\"operation_status\"></div>").addClass(cleanStatus(el.status))));
   r.append("<td>" + el.action + "</td>");
 
   // TODO link to video
@@ -43,7 +47,7 @@ var updateRow = function(oldRow, el) {
     .removeClass("failed")
     .removeClass("inprogress")
     .removeClass("submitted")
-  .addClass(el.status);
+  .addClass(cleanStatus(el.status));
 };
 
 var orderTableByDate = function() {$("#operations").trigger("update");};
