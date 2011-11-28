@@ -1,9 +1,9 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.conf import settings
-#from wardenclyffe.main.feeds import SeriesFeed
+from wardenclyffe.main.feeds import SeriesFeed
 import os.path
-#admin.autodiscover()
+admin.autodiscover()
 
 site_media_root = os.path.join(os.path.dirname(__file__),"media")
 
@@ -14,7 +14,7 @@ urlpatterns = patterns('',
                        ('^most_recent_operation/','main.views.most_recent_operation'),
                        ('^accounts/',include('djangowind.urls')),
                        ('^cuit/',include('cuit.urls')),
-#                       (r'^admin/(.*)', admin.site.root),
+                       (r'^admin/(.*)', admin.site.root),
                        (r'^capture/file_upload','main.views.test_upload'),
                        (r'^add_series/$','main.views.add_series'),
                        (r'^series/(?P<id>\d+)/$','main.views.series'),
@@ -23,7 +23,7 @@ urlpatterns = patterns('',
                        (r'^series/(?P<id>\d+)/edit/$','main.views.edit_series'),
                        (r'^series/(?P<id>\d+)/delete/$','main.views.delete_series'),
                        (r'^series/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_series'),
-#                       (r'^series/(?P<id>\d+)/rss/$', SeriesFeed()),
+                       (r'^series/(?P<id>\d+)/rss/$', SeriesFeed()),
                        (r'^video/(?P<id>\d+)/edit/$','main.views.edit_video'),
                        (r'^video/(?P<id>\d+)/delete/$','main.views.delete_video'),
                        (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_video'),
