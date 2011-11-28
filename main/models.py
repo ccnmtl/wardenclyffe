@@ -6,9 +6,6 @@ from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
-import wardenclyffe.main.tasks
-import wardenclyffe.youtube.tasks
-import wardenclyffe.mediathread.tasks
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -339,6 +336,10 @@ class Operation(TimeStampedModel):
         return "/operation/%s/" % self.uuid
 
     def get_task(self):
+        import wardenclyffe.main.tasks
+        import wardenclyffe.youtube.tasks
+        import wardenclyffe.mediathread.tasks
+
         mapper = {'extract metadata' : wardenclyffe.main.tasks.extract_metadata,
                   'save file to tahoe' : wardenclyffe.main.tasks.save_file_to_tahoe,
                   'make images' : wardenclyffe.main.tasks.make_images,
