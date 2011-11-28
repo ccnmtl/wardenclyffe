@@ -3,10 +3,10 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
-import tasks
-import main.tasks as maintasks
+import wardenclyffe.vital.tasks as tasks
+import wardenclyffe.main.tasks as maintasks
 from django.conf import settings
 from django.core.mail import send_mail
 import re

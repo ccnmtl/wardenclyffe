@@ -7,8 +7,8 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-import main.tasks
-import tasks
+import wardenclyffe.main.tasks as maintasks
+import wardenclyffe.vital.tasks
 import os
 from django.conf import settings
 from django.db import transaction
@@ -141,7 +141,7 @@ def video_mediathread_submit(request,id):
                                      params=params,
                                      owner=request.user,
                                      )
-        tasks.process_operation.delay(o.id,params)
+        wardenclyffe.vital.tasks.process_operation.delay(o.id,params)
         o.video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
