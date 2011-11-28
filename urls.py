@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.conf import settings
-from main.feeds import SeriesFeed
+from wardenclyffe.main.feeds import SeriesFeed
 import os.path
 admin.autodiscover()
 

@@ -3,7 +3,7 @@ from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
 from angeldust import PCP
 from celery.decorators import task
-from main.models import Video, File, Operation, OperationFile, OperationLog, Image
+from wardenclyffe.main.models import Video, File, Operation, OperationFile, OperationLog, Image
 import os.path
 import uuid 
 import tempfile

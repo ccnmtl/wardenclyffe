@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from main.models import *
+from wardenclyffe.main.models import *
 import random
 
 class Command(BaseCommand):

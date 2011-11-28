@@ -5,10 +5,10 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
 from django.contrib.auth.models import User
-from forms import UploadVideoForm,AddSeriesForm,AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
 from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
-import mediathread.tasks
+import wardenclyffe.mediathread.tasks
 import wardenclyffe.main.tasks as tasks
 import os
 from angeldust import PCP

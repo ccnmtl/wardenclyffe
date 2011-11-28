@@ -1,4 +1,4 @@
-from models import Video, Series, Server
+from wardenclyffe.main.models import Video, Series, Server
 from django import forms
 
 class AddSeriesForm(forms.ModelForm):
