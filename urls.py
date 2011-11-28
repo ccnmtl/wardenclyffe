@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.conf import settings
 #from wardenclyffe.main.feeds import SeriesFeed
 import os.path
-admin.autodiscover()
+#admin.autodiscover()
 
 site_media_root = os.path.join(os.path.dirname(__file__),"media")
 
@@ -14,7 +14,7 @@ urlpatterns = patterns('',
                        ('^most_recent_operation/','main.views.most_recent_operation'),
                        ('^accounts/',include('djangowind.urls')),
                        ('^cuit/',include('cuit.urls')),
-                       (r'^admin/(.*)', admin.site.root),
+#                       (r'^admin/(.*)', admin.site.root),
                        (r'^capture/file_upload','main.views.test_upload'),
                        (r'^add_series/$','main.views.add_series'),
                        (r'^series/(?P<id>\d+)/$','main.views.series'),
