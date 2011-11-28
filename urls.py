@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.conf import settings
-from wardenclyffe.main.feeds import SeriesFeed
+#from wardenclyffe.main.feeds import SeriesFeed
 import os.path
 admin.autodiscover()
 
@@ -23,7 +23,7 @@ urlpatterns = patterns('',
                        (r'^series/(?P<id>\d+)/edit/$','main.views.edit_series'),
                        (r'^series/(?P<id>\d+)/delete/$','main.views.delete_series'),
                        (r'^series/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_series'),
-                       (r'^series/(?P<id>\d+)/rss/$', SeriesFeed()),
+#                       (r'^series/(?P<id>\d+)/rss/$', SeriesFeed()),
                        (r'^video/(?P<id>\d+)/edit/$','main.views.edit_video'),
                        (r'^video/(?P<id>\d+)/delete/$','main.views.delete_video'),
                        (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_video'),
