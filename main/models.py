@@ -360,8 +360,6 @@ class Operation(TimeStampedModel):
                 log = OperationLog.objects.create(operation=self,
                                                   info=message)
         except Exception, e:
-            print "operation failed"
-            print str(e)
             self.status = "failed"
             log = OperationLog.objects.create(operation=self,
                                               info=str(e))

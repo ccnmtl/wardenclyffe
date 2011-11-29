@@ -154,7 +154,6 @@ def video_mediathread_submit(request,id):
         courses = [dict(id=k,title=v['title']) for (k,v) in courses.items()]
         courses.sort(key=lambda x: x['title'].lower())
     except Exception, e:
-        print str(e)
         courses = []
     return dict(video=video,courses=courses,
                 mediathread_base=settings.MEDIATHREAD_BASE)
