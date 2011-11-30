@@ -98,7 +98,7 @@ class Video(TimeStampedModel):
         return self.tahoe_download_url()
 
     def filename(self):
-        r = self.file_set.filter().exclude(filename="")
+        r = self.file_set.filter().exclude(filename="").exclude(filename=None)
         if r.count():
             return r[0].filename
         else:
