@@ -141,12 +141,8 @@ def drop(request):
                 workflow = settings.PCP_WORKFLOW
                 if hasattr(settings,'VITAL_PCP_WORKFLOW'):
                     workflow = settings.VITAL_PCP_WORKFLOW
-                    params = dict(tmpfilename=tmpfilename)
                     params = dict(tmpfilename=tmpfilename,
-                                  pcp_workflow=workflow,
-                                  pcp_base_url=settings.PCP_BASE_URL,
-                                  pcp_username=settings.PCP_USERNAME,
-                                  pcp_password=settings.PCP_PASSWORD)
+                                  pcp_workflow=workflow)
 
                     o = Operation.objects.create(uuid = uuid.uuid4(),
                                                  video=v,
