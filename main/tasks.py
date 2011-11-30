@@ -200,6 +200,8 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
     def _do_pull_from_tahoe_and_submit_to_pcp(video,user,operation,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
         ouuid = operation.uuid
         url = video.tahoe_download_url()
+        log = OperationLog.objects.create(operation=operation,
+                                          info="tahoe url: %s" % url)
         if url == "":
             return ("failed","does not have a tahoe stored file")
         if workflow == "":
