@@ -13,7 +13,7 @@ def submit_to_mediathread(operation,params):
     user = operation.owner
     course_id = params['set_course']
     mediathread_secret = settings.MEDIATHREAD_SECRET
-    mediathread_base = settings.MEDIATHREAD_SECRET
+    mediathread_base = settings.MEDIATHREAD_BASE
 
     (width,height) = video.get_dimensions()
     if not width or not height:
