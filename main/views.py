@@ -534,8 +534,8 @@ def done(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
+    ouuid = uuidparse(title)
+    r = Operation.objects.filter(uuid=ouuid)
     if r.count() == 1:
         operation = r[0]
         operation.status = "complete"
