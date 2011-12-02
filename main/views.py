@@ -27,6 +27,10 @@ from surelink.helpers import SureLink
 from munin.helpers import muninview
 
 
+def breakme(request):
+    print 1 / 0
+    return HttpResponse("broked")
+
 @login_required
 @render_to('main/index.html')
 def index(request):

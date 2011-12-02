@@ -28,6 +28,8 @@ urlpatterns = patterns('',
                        (r'^video/(?P<id>\d+)/delete/$','main.views.delete_video'),
                        (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_video'),
 
+                       (r'^breakme/$','main.views.breakme'),
+
                        (r'^server/$','main.views.servers'),
                        (r'^server/add/$','main.views.add_server'),
                        (r'^server/(?P<id>\d+)/$','main.views.server'),

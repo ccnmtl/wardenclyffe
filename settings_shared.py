@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     'django_nose',
     'munin',
     'wardenclyffe.cuit',
+    'raven.contrib.django',
 )
 
 #CELERY_RESULT_BACKEND = "database"
