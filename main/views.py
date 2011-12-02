@@ -557,11 +557,11 @@ def done(request):
                 user = User.objects.get(username=username)
                 params = dict(set_course=set_course)
                 o = Operation.objects.create(uuid = uuid.uuid4(),
-                                             video=v,
+                                             video=operation.video,
                                              action="submit to mediathread",
                                              status="enqueued",
                                              params=params,
-                                             owner=request.user
+                                             owner=user
                                              )
                 tasks.process_operation.delay(o.id,params)
                 o.video.clear_mediathread_submit()
