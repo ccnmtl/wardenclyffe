@@ -84,8 +84,6 @@ INSTALLED_APPS = (
     'wardenclyffe.vital',
     'surelink',
     'south',
-    'paging',
-    'indexer',
     'django_nose',
     'munin',
     'wardenclyffe.cuit',
