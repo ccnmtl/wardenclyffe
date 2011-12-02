@@ -49,7 +49,7 @@ def mediathread(request):
                 submit_file.set_metadata("username",request.session['username'])
                 submit_file.set_metadata("set_course",request.session['set_course'])
                 submit_file.set_metadata("redirect_to",request.session['redirect_to'])
-                                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
                 o = Operation.objects.create(uuid = uuid.uuid4(),
                                              video=v,
                                              action="extract metadata",
