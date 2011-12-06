@@ -3,14 +3,13 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
+from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
 from django.contrib.auth.models import User
-from forms import UploadVideoForm,AddSeriesForm,AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm,AddSeriesForm,AddServerForm
 import uuid 
-from tasks import save_file_to_tahoe, submit_to_podcast_producer, pull_from_tahoe_and_submit_to_pcp, make_images, extract_metadata
-import youtube.tasks
-import mediathread.tasks
-import tasks
+from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
+import wardenclyffe.mediathread.tasks
+import wardenclyffe.main.tasks as tasks
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -27,6 +26,10 @@ import re
 from surelink.helpers import SureLink
 from munin.helpers import muninview
 
+
+def breakme(request):
+    print 1 / 0
+    return HttpResponse("broked")
 
 @login_required
 @render_to('main/index.html')
@@ -45,6 +48,7 @@ def dashboard(request):
     status_filters["complete"] = request.GET.get('status_filter_complete',not submitted)
     status_filters["submitted"] = request.GET.get('status_filter_submitted',not submitted)
     status_filters["inprogress"] = request.GET.get('status_filter_inprogress',not submitted)
+    status_filters["enqueued"] = request.GET.get('status_filter_enqueued',not submitted)
     user_filter = request.GET.get('user','')
     series_filter = int(request.GET.get('series',False) or '0')
     d = dict(
@@ -119,6 +123,8 @@ def recent_operations(request):
     status_filters = []
     if request.GET.get('status_filter_failed',not submitted):
         status_filters.append("failed")
+    if request.GET.get('status_filter_enqueued',not submitted):
+        status_filters.append("enqueued")
     if request.GET.get('status_filter_complete',not submitted):
         status_filters.append("complete")
     if request.GET.get('status_filter_inprogress',not submitted):
@@ -401,6 +407,8 @@ def upload(request):
     series_id = None
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
+        operations = []
+        params = dict()
         if form.is_valid():
             # save it locally
             vuuid = uuid.uuid4()
@@ -432,6 +440,7 @@ def upload(request):
                 tmpfilename = tmp_filename
                 filename = os.path.basename(tmpfilename)
                 vuuid = os.path.splitext(filename)[0]
+                source_filename = tmp_filename
                 
             # make db entry
             try:
@@ -447,6 +456,11 @@ def upload(request):
                                                       label="source file",
                                                       filename=source_filename,
                                                       location_type='none')
+                    params['tmpfilename']=tmpfilename
+                    params['source_file_id']=source_file.id
+                    params['filename']=source_filename
+                    params['pcp_workflow']=settings.VITAL_PCP_WORKFLOW
+
                     if request.POST.get('submit_to_vital',False) \
                             and request.POST.get('course_id',False):
                         submit_file = File.objects.create(video=v,
@@ -456,30 +470,29 @@ def upload(request):
                         submit_file.set_metadata("username",request.user.username)
                         submit_file.set_metadata("set_course",request.POST['course_id'])
                         submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
+                    for p,action in [("submit_to_vital","submit to podcast producer"),
+                                     ("extract_metadata","extract metadata"),
+                                     ("upload_to_tahoe","save file to tahoe"),
+                                     ("extract_images","make images"),
+                                     ("submit_to_youtube","upload to youtube")
+                                     ]:
+                        if request.POST.get(p,False):
+                            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                                         video=v,
+                                                         action=action,
+                                                         status="enqueued",
+                                                         params=params,
+                                                         owner=request.user)
+                            operations.append(o.id)
+
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
                 if source_filename:
-                    # only run these steps if there's actually a file uploaded
-                    if request.POST.get('upload_to_tahoe',False):
-                        save_file_to_tahoe.delay(tmpfilename,v.id,source_filename,request.user,settings.TAHOE_BASE)
-                    if request.POST.get('extract_metadata',False):
-                        extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                    if request.POST.get('extract_images',False):
-                        make_images.delay(tmpfilename,v.id,request.user)
-                    if request.POST.get('submit_to_vital',False):
-                        submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,settings.VITAL_PCP_WORKFLOW,
-                                                         settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
-                    if request.POST.get('submit_to_youtube',False):
-                        youtube.tasks.upload_to_youtube.delay(tmpfilename,v.id,request.user,
-                                                              settings.YOUTUBE_EMAIL,
-                                                              settings.YOUTUBE_PASSWORD,
-                                                              settings.YOUTUBE_SOURCE,
-                                                              settings.YOUTUBE_DEVELOPER_KEY,
-                                                              settings.YOUTUBE_CLIENT_ID
-                                                              )
+                    for o in operations:
+                        tasks.process_operation.delay(o,params)
                 return HttpResponseRedirect("/")
     else:
         form = UploadVideoForm()
@@ -521,8 +534,8 @@ def done(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
     title = request.POST.get('title','no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
+    ouuid = uuidparse(title)
+    r = Operation.objects.filter(uuid=ouuid)
     if r.count() == 1:
         operation = r[0]
         operation.status = "complete"
@@ -542,10 +555,16 @@ def done(request):
             (set_course,username) = operation.video.mediathread_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
-                mediathread.tasks.submit_to_mediathread.delay(operation.video.id,user,set_course,
-                                                              settings.MEDIATHREAD_SECRET,
-                                                              settings.MEDIATHREAD_BASE)
-                operation.video.clear_mediathread_submit()
+                params = dict(set_course=set_course)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=operation.video,
+                                             action="submit to mediathread",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=user
+                                             )
+                tasks.process_operation.delay(o.id,params)
+                o.video.clear_mediathread_submit()
 
     return HttpResponse("ok")
 

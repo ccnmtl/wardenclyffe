@@ -98,7 +98,7 @@ class Video(TimeStampedModel):
         return self.tahoe_download_url()
 
     def filename(self):
-        r = self.file_set.filter().exclude(filename="")
+        r = self.file_set.filter().exclude(filename="").exclude(filename=None)
         if r.count():
             return r[0].filename
         else:
@@ -334,6 +334,37 @@ class Operation(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/operation/%s/" % self.uuid
+
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        import wardenclyffe.youtube.tasks
+        import wardenclyffe.mediathread.tasks
+
+        mapper = {'extract metadata' : wardenclyffe.main.tasks.extract_metadata,
+                  'save file to tahoe' : wardenclyffe.main.tasks.save_file_to_tahoe,
+                  'make images' : wardenclyffe.main.tasks.make_images,
+                  'submit to podcast producer' : wardenclyffe.main.tasks.submit_to_pcp,
+                  'upload to youtube' : wardenclyffe.youtube.tasks.upload_to_youtube,
+                  'submit to mediathread' : wardenclyffe.mediathread.tasks.submit_to_mediathread,
+                  }
+        return mapper[self.action]
+
+    def process(self,args):
+        self.status = "in progress"
+        self.save()
+        f = self.get_task()
+        try:
+            (success,message) = f(self,args)
+            self.status = success
+            if self.status == "failed" or message != "":
+                log = OperationLog.objects.create(operation=self,
+                                                  info=message)
+        except Exception, e:
+            self.status = "failed"
+            log = OperationLog.objects.create(operation=self,
+                                              info=str(e))
+        self.save()
+        
     
 class OperationFile(models.Model):
     operation = models.ForeignKey(Operation)

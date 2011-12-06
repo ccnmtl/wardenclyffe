@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
-from main.tasks import save_file_to_tahoe, submit_to_podcast_producer, make_images, extract_metadata
-import tasks
+import wardenclyffe.main.tasks as maintasks
+import wardenclyffe.vital.tasks
 import os
 from django.conf import settings
 from django.db import transaction
@@ -23,6 +23,7 @@ import re
 def mediathread(request):
     if request.method == "POST":
         tmpfilename = request.POST.get('tmpfilename','')
+        operations = []
         if tmpfilename.startswith(settings.TMP_DIR):
             filename = os.path.basename(tmpfilename)
             vuuid = os.path.splitext(filename)[0]
@@ -48,20 +49,58 @@ def mediathread(request):
                 submit_file.set_metadata("username",request.session['username'])
                 submit_file.set_metadata("set_course",request.session['set_course'])
                 submit_file.set_metadata("redirect_to",request.session['redirect_to'])
+                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="extract metadata",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user)
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
+                              tahoe_base=settings.TAHOE_BASE)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="save file to tahoe",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="make images",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=request.user
+                                             )
+                operations.append((o.id,params))
+
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
+                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+                    params = dict(tmpfilename=tmpfilename)
+                    params = dict(tmpfilename=tmpfilename,
+                                  pcp_workflow=workflow)
+
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="submit to podcast producer",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=request.user
+                                                 )
+                    operations.append((o.id,params))
+
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                
-                save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
-                extract_metadata.delay(tmpfilename,v.id,request.user,source_file.id)
-                make_images.delay(tmpfilename,v.id,request.user)
-                workflow = settings.PCP_WORKFLOW
-                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
-                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
-                submit_to_podcast_producer.delay(tmpfilename,v.id,request.user,workflow,
-                                                 settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                # hand operations off to celery
+                for o,kwargs in operations:
+                    maintasks.process_operation.delay(o,kwargs)
                 return HttpResponseRedirect(request.session['redirect_to'])
     else:
         # check their credentials
@@ -93,10 +132,17 @@ def mediathread(request):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        tasks.submit_to_mediathread.delay(video.id,request.user,
-                                          request.POST.get('course',''),
-                                          settings.MEDIATHREAD_SECRET,
-                                          settings.MEDIATHREAD_BASE)
+        user = User.objects.get(username=username)
+        params = dict(set_course=request.POST.get('course',''))
+        o = Operation.objects.create(uuid = uuid.uuid4(),
+                                     video=video,
+                                     action="submit to mediathread",
+                                     status="enqueued",
+                                     params=params,
+                                     owner=request.user,
+                                     )
+        wardenclyffe.vital.tasks.process_operation.delay(o.id,params)
+        o.video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())        
     try:
         url = settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" + settings.MEDIATHREAD_SECRET + "&user=" + request.user.username
@@ -108,7 +154,6 @@ def video_mediathread_submit(request,id):
         courses = [dict(id=k,title=v['title']) for (k,v) in courses.items()]
         courses.sort(key=lambda x: x['title'].lower())
     except Exception, e:
-        print str(e)
         courses = []
     return dict(video=video,courses=courses,
                 mediathread_base=settings.MEDIATHREAD_BASE)

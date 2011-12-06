@@ -1,6 +1,6 @@
 from celery.decorators import task
-from main.models import Video, File, Operation, OperationFile, OperationLog, Image
-import main.tasks
+from wardenclyffe.main.models import Video, File, Operation, OperationFile, OperationLog, Image
+import wardenclyffe.main.tasks
 import os.path
 import os
 import uuid 
@@ -75,8 +75,11 @@ def import_from_cuit(video_id,user,**kwargs):
         log = OperationLog.objects.create(operation=operation,
                                           info="downloaded from CUIT")
 
-        main.tasks.extract_metadata.apply(args=(tmpfilename,video.id,user,f.id))
-        main.tasks.make_images.apply(args=(tmpfilename,video.id,user))
+        wardenclyffe.main.tasks.extract_metadata(operation,
+                                       dict(source_file_id=f.id,
+                                            tmpfilename=tmpfilename))
+        wardenclyffe.main.tasks.make_images(operation,
+                                  dict(tmpfilename=tmpfilename))
         print "calling clear out"
         clear_out_tmpfile.apply(args=(tmpfilename,))
         print "done clearing out"

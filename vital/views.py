@@ -3,10 +3,10 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
-import tasks
-import main.tasks as maintasks
+import wardenclyffe.vital.tasks as tasks
+import wardenclyffe.main.tasks as maintasks
 from django.conf import settings
 from django.core.mail import send_mail
 import re
@@ -71,6 +71,7 @@ def submit(request,id):
 @render_to('vital/drop.html')
 def drop(request):
     if request.method == "POST":
+        operations = []
         if request.FILES['source_file']:
             # save it locally
             vuuid = uuid.uuid4()
@@ -108,20 +109,57 @@ def drop(request):
                 submit_file.set_metadata("set_course",request.session['set_course'])
                 submit_file.set_metadata("redirect_to",request.session['redirect_to'])
                 submit_file.set_metadata("notify_url",request.session['notify_url'])
+
+                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="extract metadata",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=user)
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
+                              tahoe_base=settings.TAHOE_BASE)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="save file to tahoe",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=user
+                                             )
+                operations.append((o.id,params))
+                params = dict(tmpfilename=tmpfilename)
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="make images",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=user
+                                             )
+                operations.append((o.id,params))
+                
+                workflow = settings.PCP_WORKFLOW
+                if hasattr(settings,'VITAL_PCP_WORKFLOW'):
+                    workflow = settings.VITAL_PCP_WORKFLOW
+                    params = dict(tmpfilename=tmpfilename,
+                                  pcp_workflow=workflow)
+
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=v,
+                                                 action="submit to podcast producer",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=user
+                                                 )
+                    operations.append((o.id,params))
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                
-                maintasks.save_file_to_tahoe.delay(tmpfilename,v.id,filename,user,settings.TAHOE_BASE)
-                maintasks.extract_metadata.delay(tmpfilename,v.id,user,source_file.id)
-                maintasks.make_images.delay(tmpfilename,v.id,user)
-                workflow = settings.PCP_WORKFLOW
-                if hasattr(settings,'VITAL_PCP_WORKFLOW'):
-                    workflow = settings.VITAL_PCP_WORKFLOW
-                maintasks.submit_to_podcast_producer.delay(tmpfilename,v.id,user,workflow,
-                                                           settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+
+                for o,kwargs in operations:
+                    maintasks.process_operation.delay(o,kwargs)
                 return HttpResponseRedirect(request.session['redirect_to'])
     else:
         # check their credentials
