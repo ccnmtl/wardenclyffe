@@ -36,7 +36,6 @@ def submit(request,id):
             if not request.POST.get('bypass',False):
                 submit_file = File.objects.create(video=v,
                                                   label="vital submit",
-                                                  filename=request.FILES['source_file'].name,
                                                   location_type='vitalsubmit')
                 submit_file.set_metadata("username",request.user.username)
                 submit_file.set_metadata("set_course",request.POST['course_id'])
