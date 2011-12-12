@@ -2154,3 +2154,7 @@ body.mediathread #footer_m div
 	background: #444 url('../img/logo_ccnmtl_meth.gif') right center no-repeat;
 }
 
+.uploadifyQueueItem
+{
+	width: 250px !important;
+}
