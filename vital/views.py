@@ -58,7 +58,7 @@ def submit(request,id):
                 workflow = settings.PCP_WORKFLOW
                 if hasattr(settings,'VITAL_PCP_WORKFLOW'):
                     workflow = settings.VITAL_PCP_WORKFLOW
-                maintasks.pull_from_tahoe_and_submit_to_pcp.delay(v.id,user,workflow,settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+                maintasks.pull_from_tahoe_and_submit_to_pcp.delay(v.id,request.user,workflow,settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
             return HttpResponseRedirect(v.get_absolute_url())
     vt = File.objects.filter(video=v,location_type='vitalthumb')
     qt = File.objects.filter(video=v,location_type='rtsp_url')
