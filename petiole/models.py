@@ -17,7 +17,7 @@ class JobSet(TimeStampedModel):
         kicks things off """
         self.status = "running"
         for job in self.job_set.all():
-            if job.ready_for_queue():
+            if job.is_ready_for_queue():
                 job.enqueue()
         self.save()
 
@@ -28,7 +28,7 @@ class JobSet(TimeStampedModel):
             # other jobs were waiting on it,
             # so we can potentially enqueue them now
             for jd in r:
-                if jd.post.ready_for_queue():
+                if jd.post.is_ready_for_queue():
                     petiole.tasks.run_job.delay(jd.post.id)
         else:
             # nothing queued
@@ -79,7 +79,7 @@ class Job(TimeStampedModel):
         endlog = JobLog.objects.create(job=self,info="completed")
         self.jobset.job_completed(self)
 
-    def ready_for_queue(self):
+    def is_ready_for_queue(self):
         if self.status not in ["waiting","blocked"]:
             # it's only ready to run if it's "waiting"
             return False
@@ -94,8 +94,8 @@ class Job(TimeStampedModel):
             self.status = "waiting"
             self.save()
             # check job specific preconditions
-            if hasattr(self.job(),'ready_for_queue'):
-                return self.job().ready_for_queue()
+            if hasattr(self.job(),'is_ready_for_queue'):
+                return self.job().is_ready_for_queue()
             else:
                 return True
 
