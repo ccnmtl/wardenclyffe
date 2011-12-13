@@ -55,7 +55,7 @@ def mediathread(request):
                                              action="extract metadata",
                                              status="enqueued",
                                              params=params,
-                                             owner=request.user)
+                                             owner=user)
                 operations.append((o.id,params))
                 params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
                               tahoe_base=settings.TAHOE_BASE)
@@ -64,7 +64,7 @@ def mediathread(request):
                                              action="save file to tahoe",
                                              status="enqueued",
                                              params=params,
-                                             owner=request.user
+                                             owner=user
                                              )
                 operations.append((o.id,params))
                 params = dict(tmpfilename=tmpfilename)
@@ -73,7 +73,7 @@ def mediathread(request):
                                              action="make images",
                                              status="enqueued",
                                              params=params,
-                                             owner=request.user
+                                             owner=user
                                              )
                 operations.append((o.id,params))
 
@@ -89,7 +89,7 @@ def mediathread(request):
                                                  action="submit to podcast producer",
                                                  status="enqueued",
                                                  params=params,
-                                                 owner=request.user
+                                                 owner=user
                                                  )
                     operations.append((o.id,params))
 
