@@ -33,6 +33,7 @@ def submit_to_mediathread(operation,params):
         "metadata-language" : video.language,
         "metadata-uuid" : video.uuid,
         "metadata-wardenclyffe-id" : str(video.id),
+        "metadata-tag" : "upload",
         }
     if video.cuit_url():
         params['flv_pseudo'] = video.cuit_url()
