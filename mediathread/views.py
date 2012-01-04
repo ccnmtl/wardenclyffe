@@ -132,7 +132,6 @@ def mediathread(request):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        user = User.objects.get(username=username)
         params = dict(set_course=request.POST.get('course',''))
         o = Operation.objects.create(uuid = uuid.uuid4(),
                                      video=video,
