@@ -125,7 +125,7 @@ def mediathread(request):
         request.session['nonce'] = nonce
         request.session['redirect_to'] = redirect_to
         request.session['hmac'] = hmc
-        return dict(username=username)
+        return dict(username=username,user=user)
 
 @login_required
 @render_to('mediathread/mediathread_submit.html')
