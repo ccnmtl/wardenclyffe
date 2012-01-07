@@ -153,7 +153,7 @@ class Video(TimeStampedModel):
             # and use that
             # return self.image_set.all()[0].image
             pass
-        return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
+        return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
 
     def cuit_poster_url(self):
         try:
