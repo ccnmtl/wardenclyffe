@@ -71,25 +71,25 @@ def received(request):
         operation = r[0]
 
         if operation.video.is_mediathread_submit():
-            send_mail('Video submitted to MediaThread', 
+            send_mail('Video submitted to Mediathread', 
                       """
-This email confirms that '%s' has been successfully submitted to MediaThread by %s.  
+This email confirms that '%s' has been successfully submitted to Mediathread by %s.  
 
-The video is now being processed.  When it is available in your MediaThread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact MediaThread administrators at ccmtl-mediathread@columbia.edu.
+If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (operation.video.title,operation.owner.username),
                       'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
-                send_mail('Video submitted to MediaThread', 
+                send_mail('Video submitted to Mediathread', 
                           """
-This email confirms that '%s' has been successfully submitted to MediaThread by %s.  
+This email confirms that '%s' has been successfully submitted to Mediathread by %s.  
 
-The video is now being processed.  When it is available in your MediaThread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact MediaThread administrators at ccmtl-mediathread@columbia.edu.
+If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (operation.video.title,operation.owner.username),
                           'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
