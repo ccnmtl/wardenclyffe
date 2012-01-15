@@ -120,6 +120,8 @@ def mediathread(request):
             user = User.objects.get(username=username)
         except:
             user = User.objects.create(username=username)
+            transaction.commit()
+            
         request.session['username'] = username
         request.session['set_course'] = set_course
         request.session['nonce'] = nonce
