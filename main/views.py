@@ -504,7 +504,6 @@ def upload(request):
     return dict(form=form,series_id=series_id)
 
 
-@transaction.commit_manually
 @login_required
 @render_to('main/upload.html')
 def scan_directory(request):
@@ -530,6 +529,7 @@ def uuidparse(s):
         return ""
 
 
+@transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
@@ -537,34 +537,45 @@ def done(request):
     ouuid = uuidparse(title)
     r = Operation.objects.filter(uuid=ouuid)
     if r.count() == 1:
-        operation = r[0]
-        operation.status = "complete"
-        operation.save()
-        ol = OperationLog.objects.create(operation=operation,
-                                         info="PCP completed")
+        operations = []
+        params = dict()
+        try:
+            operation = r[0]
+            operation.status = "complete"
+            operation.save()
+            ol = OperationLog.objects.create(operation=operation,
+                                             info="PCP completed")
 
-        cunix_path = request.POST.get('movie_destination_path','')
-        if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
-            f = File.objects.create(video=operation.video,
-                                    label="CUIT File",
-                                    filename=cunix_path,
-                                    location_type='cuit',
-                                    )
+            cunix_path = request.POST.get('movie_destination_path','')
+            if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+                f = File.objects.create(video=operation.video,
+                                        label="CUIT File",
+                                        filename=cunix_path,
+                                        location_type='cuit',
+                                        )
 
-        if operation.video.is_mediathread_submit():
-            (set_course,username) = operation.video.mediathread_submit()
-            if set_course is not None:
-                user = User.objects.get(username=username)
-                params = dict(set_course=set_course)
-                o = Operation.objects.create(uuid = uuid.uuid4(),
-                                             video=operation.video,
-                                             action="submit to mediathread",
-                                             status="enqueued",
-                                             params=params,
-                                             owner=user
-                                             )
-                tasks.process_operation.delay(o.id,params)
-                o.video.clear_mediathread_submit()
+            if operation.video.is_mediathread_submit():
+                (set_course,username) = operation.video.mediathread_submit()
+                if set_course is not None:
+                    user = User.objects.get(username=username)
+                    params['set_course'] = set_course
+                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                                                 video=operation.video,
+                                                 action="submit to mediathread",
+                                                 status="enqueued",
+                                                 params=params,
+                                                 owner=user
+                                                 )
+                    operations.append(o.id)
+                    o.video.clear_mediathread_submit()
+        except:
+            transaction.rollback()
+            raise
+        finally:
+            transaction.commit()
+            tasks.process_operation.delay()
+                for o in operations:
+                    tasks.process_operation.delay(o,params)
 
     return HttpResponse("ok")
 

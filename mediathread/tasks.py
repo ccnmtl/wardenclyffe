@@ -18,7 +18,7 @@ def submit_to_mediathread(operation,params):
     (width,height) = video.get_dimensions()
     if not width or not height:
         return ("failed","could not figure out dimensions")
-    if not video.cuit_url() and not video.tahoe_download_url():
+    if not video.mediathread_url() and not video.tahoe_download_url():
         return ("failed","no video URL")
     params = {
         'set_course' : course_id,
@@ -35,8 +35,8 @@ def submit_to_mediathread(operation,params):
         "metadata-wardenclyffe-id" : str(video.id),
         "metadata-tag" : "upload",
         }
-    if video.cuit_url():
-        params['flv_pseudo'] = video.cuit_url()
+    if video.mediathread_url():
+        params['flv_pseudo'] = video.mediathread_url()
         params['flv_pseudo-metadata'] = "w%dh%d" % (width,height)
     else:
         params['mp4'] = video.tahoe_download_url()

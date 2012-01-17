@@ -6,6 +6,7 @@ from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
+from surelink.helpers import SureLink
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -147,6 +148,14 @@ class Video(TimeStampedModel):
             return f.cuit_public_url()
         return ""
 
+    def mediathread_url(self):
+        r = self.file_set.filter(location_type="cuit")
+        if r.count() > 0:
+            f = r[0]
+            return f.mediathread_public_url()
+        return ""
+
+
     def poster_url(self):
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
@@ -287,6 +296,15 @@ class File(TimeStampedModel):
     def cuit_public_url(self):
         filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
         return "http://ccnmtl.columbia.edu/stream/flv/%s" % filename
+
+    def mediathread_public_url(self):
+        PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+        filename = self.filename
+        if filename.startswith("/www/data/ccnmtl/broadcast/"):
+            filename = filename[len("/www/data/ccnmtl/broadcast/"):]
+
+        s = SureLink(filename,0,0,'',"public",'','v4',PROTECTION_KEY)
+        return s.public_url()
 
     def is_cuit(self):
         return self.location_type == "cuit"
