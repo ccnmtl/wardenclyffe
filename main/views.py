@@ -574,8 +574,8 @@ def done(request):
         finally:
             transaction.commit()
             tasks.process_operation.delay()
-                for o in operations:
-                    tasks.process_operation.delay(o,params)
+            for o in operations:
+                tasks.process_operation.delay(o,params)
 
     return HttpResponse("ok")
 
