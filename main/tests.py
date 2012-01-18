@@ -43,4 +43,9 @@ class CUITFileTest(TestCase):
     def test_filename(self):
         assert self.video.filename() == self.file.filename
 
+    def test_cuit_url(self):
+        assert self.file.cuit_public_url() == "http://ccnmtl.columbia.edu/stream/flv/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv"
+        assert self.video.cuit_url() == self.file.cuit_public_url()
+
+
 
