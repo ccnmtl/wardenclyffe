@@ -64,7 +64,7 @@ This email confirms that %s, uploaded to VITAL by %s, is now available in the %s
 If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
 
 """ % (video.title,user.username,course_id),
-                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      'ccnmtl-vital@columbia.edu',
                   ["%s@columbia.edu" % user.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Uploaded video now available in VITAL', 
@@ -74,7 +74,7 @@ This email confirms that %s, uploaded to VITAL by %s, is now available in the %s
 If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
 
 """ % (video.title,user.username,course_id),
-                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
             return ("complete","")
         else:
@@ -84,8 +84,8 @@ Please contact CCNMTL video staff for assistance.
 The error encountered:
 %s
 """ % (video.title,content), 
-                  'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
-                  ["%s@columbia.edu" % user.username], fail_silently=False)
+                      'ccnmtl-vital@columbia.edu',
+                      ["%s@columbia.edu" % user.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('VITAL video upload failed', 
                           """An error has occurred while attempting to upload your video, "%s", to VITAL.
@@ -93,7 +93,7 @@ Please contact CCNMTL video staff for assistance.
 The error encountered:
 %s
 """ % (video.title,content), 
-                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                          'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
 
             return ("failed","vital rejected submission: %s" % content)
