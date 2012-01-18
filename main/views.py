@@ -80,7 +80,7 @@ The video is now being processed.  When it is available in your Mediathread cour
 If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (operation.video.title,operation.owner.username),
-                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      'ccnmtl-mediathread@columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Video submitted to Mediathread', 
@@ -92,7 +92,7 @@ The video is now being processed.  When it is available in your Mediathread cour
 If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (operation.video.title,operation.owner.username),
-                          'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      'ccnmtl-mediathread@columbia.edu',
                           [vuser], fail_silently=False)
 
 

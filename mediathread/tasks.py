@@ -61,7 +61,7 @@ View/Annotate it here: %s
 If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (video.title,user.username,url),
-              'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                  'ccmtl-mediathread@columbia.edu',
               ["%s@columbia.edu" % user.username], fail_silently=False)
         for vuser in settings.ANNOY_EMAILS:
             send_mail('Uploaded video now available in Mediathread', 
@@ -73,7 +73,7 @@ View/Annotate it here: %s
 If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
 
 """ % (video.title,user.username,url),
-                      'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+                      'ccmtl-mediathread@columbia.edu',
                       [vuser], fail_silently=False)
 
 
