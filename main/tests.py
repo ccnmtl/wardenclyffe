@@ -30,6 +30,7 @@ class CUITFileTest(TestCase):
 
     def test_tahoe_download_url(self):
         assert self.video.tahoe_file() is None
+        assert self.video.cap() is None
         assert self.file.tahoe_download_url() is None
 
     def test_mediathread_url(self):
