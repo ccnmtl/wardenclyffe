@@ -48,4 +48,16 @@ class CUITFileTest(TestCase):
         assert self.video.cuit_url() == self.file.cuit_public_url()
 
 
+class SeriesTest(TestCase):
+    def setUp(self):
+        self.series = Series.objects.create(title = "test series",
+                                            uuid = uuid.uuid4())
+
+    def test_forms(self):
+        add_form = self.series.add_video_form()
+        assert "id_title" in str(add_form)
+        assert 'title' in add_form.fields
+        edit_form = self.series.edit_form()
+        assert 'title' in edit_form.fields
+        assert self.series.title in str(edit_form)
 
