@@ -6,6 +6,27 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from wardenclyffe.main.models import Series, Video, File
+import uuid
+
+class MediathreadLinkTest(TestCase):
+    def setUp(self):
+        self.series = Series.objects.create(title = "test series",
+                                            uuid = uuid.uuid4())
+        self.video = Video.objects.create(series = self.series,
+                                          title = "test video",
+                                          uuid = uuid.uuid4())
+        self.file = File.objects.create(video=self.video,
+                                        label = "CUIT File",
+                                        location_type = "cuit",
+                                        filename = "/www/data/ccnmtl/broadcast/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv",
+                                        )
+
+    def test_mediathread_url(self):
+        assert self.video.mediathread_url() == "http://ccnmtl.columbia.edu/stream/flv/b16c80a7e6b21e3671f8f7fa4ec468777f7e1e8b/OPTIONS/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv"
+
+    def test_poster_url(self):
+        assert self.video.cuit_poster_url() is None
 
 class SimpleTest(TestCase):
     def test_basic_addition(self):

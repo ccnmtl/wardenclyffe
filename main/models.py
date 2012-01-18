@@ -7,6 +7,7 @@ from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
 from surelink.helpers import SureLink
+from django.conf import settings
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -303,7 +304,9 @@ class File(TimeStampedModel):
         if filename.startswith("/www/data/ccnmtl/broadcast/"):
             filename = filename[len("/www/data/ccnmtl/broadcast/"):]
 
-        s = SureLink(filename,0,0,'',"public",'','v4',PROTECTION_KEY)
+        s = SureLink(filename=filename,width=0,height=0,
+                     captions='',poster='',protection="public",
+                     authtype='',player='v4',protection_key=PROTECTION_KEY)
         return s.public_url()
 
     def is_cuit(self):
