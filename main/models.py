@@ -133,6 +133,8 @@ class Video(TimeStampedModel):
 
     def get_dimensions(self):
         t = self.source_file()
+        if t is None:
+            return (0,0)
         return (t.get_width(),t.get_height())
 
     def vital_thumb_url(self):
@@ -187,9 +189,6 @@ class Video(TimeStampedModel):
 
     def is_vital_submit(self):
         return self.file_set.filter(location_type="vitalsubmit").count() > 0
-
-    def get_vital_submit_file(self):
-        return self.file_set.filter(location_type="vitalsubmit")[0]
 
     def vital_submit(self):
         r = self.file_set.filter(location_type="vitalsubmit")

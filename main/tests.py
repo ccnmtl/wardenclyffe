@@ -61,3 +61,71 @@ class SeriesTest(TestCase):
         assert 'title' in edit_form.fields
         assert self.series.title in str(edit_form)
 
+class EmptyVideoTest(TestCase):
+    """ test the behavior for a video that doesn't have any files associated
+    with it """
+    def setUp(self):
+        self.series = Series.objects.create(title = "test series",
+                                            uuid = uuid.uuid4())
+        self.video = Video.objects.create(series = self.series,
+                                          title = "test video",
+                                          uuid = uuid.uuid4())
+    def test_tahoe_file(self):
+        assert self.video.tahoe_file() is None
+
+    def test_source_file(self):
+        assert self.video.source_file() is None
+
+    def test_cap(self):
+        assert self.video.cap() is None
+
+    def test_tahoe_download_url(self):
+        assert self.video.tahoe_download_url() == ""
+
+    def test_enclosure_url(self): 
+        assert self.video.enclosure_url() == ""       
+
+    def test_filename(self):
+        assert self.video.filename() == "none"
+
+    def test_add_file_form(self):
+        add_form = self.video.add_file_form()
+
+    def test_edit_form(self):
+        edit_form = self.video.edit_form()
+
+    def test_get_dimensions(self):
+        assert self.video.get_dimensions() == (0,0)
+
+    def test_vital_thumb_url(self):
+        assert self.video.vital_thumb_url() == ""
+
+    def test_cuit_url(self):
+        assert self.video.cuit_url() == ""
+
+    def test_mediathread_url(self):
+        assert self.video.mediathread_url() == ""
+
+    def test_poster_url(self):
+        assert self.video.poster_url() == "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+
+    def test_cuit_poster_url(self):
+        assert self.video.cuit_poster_url() == None
+
+    def test_is_mediathread_submit(self):
+        assert not self.video.is_mediathread_submit()
+
+    def test_mediathread_submit(self):
+        assert self.video.mediathread_submit() == (None,None)
+
+    def test_is_vital_submit(self):
+        assert not self.video.is_vital_submit()
+
+    def test_vital_submit(self):
+        assert self.video.vital_submit() == (None,None,None)
+
+    def test_poster(self):
+        assert self.video.poster().dummy
+
+    def test_cuit_file(self):
+        assert self.video.cuit_file() == None
