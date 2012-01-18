@@ -234,9 +234,6 @@ class File(TimeStampedModel):
         else:
             return None
 
-    def pcp_filename(self):
-        return self.uuid + ".mp4"
-
     def set_metadata(self,field,value):
         r = Metadata.objects.filter(file=self,field=field)
         if r.count():
