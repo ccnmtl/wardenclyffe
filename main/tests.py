@@ -40,4 +40,7 @@ class CUITFileTest(TestCase):
         assert self.file.has_cuit_poster() == False
         assert self.video.cuit_poster_url() is None
 
+    def test_filename(self):
+        assert self.video.filename() == self.file.filename
+
 
