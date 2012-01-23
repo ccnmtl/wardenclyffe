@@ -54,6 +54,7 @@ def save_file_to_tahoe(operation,params):
     of = OperationFile.objects.create(operation=operation,file=f)
     return ("complete","")
 
+
 def make_images(operation,params):
     ouuid = operation.uuid
     tmpfilename = params['tmpfilename']
