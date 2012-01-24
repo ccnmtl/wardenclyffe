@@ -254,7 +254,7 @@ def received(request):
     if r.count() == 1:
         operation = r[0]
         send_mail("video submission debug %s" % str(operation.video.is_vital_submit()),
-                  str(operation),
+                  str(operation.as_dict()),
                   'ccnmtl-vital@columbia.edu',
                   ['anders@columbia.edu'],
                   fail_silently=False,
