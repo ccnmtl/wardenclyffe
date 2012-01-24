@@ -22,6 +22,9 @@ class CUITFileTest(TestCase):
                                         filename = "/www/data/ccnmtl/broadcast/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv",
                                         )
 
+    def test_extension(self):
+        assert self.video.extension() == ".flv"
+        
     def test_is_cuit(self):
         assert self.file.is_cuit()
 
@@ -70,6 +73,11 @@ class EmptyVideoTest(TestCase):
         self.video = Video.objects.create(series = self.series,
                                           title = "test video",
                                           uuid = uuid.uuid4())
+
+
+    def test_extension(self):
+        assert self.video.extension() == ""
+
     def test_tahoe_file(self):
         assert self.video.tahoe_file() is None
 
@@ -189,6 +197,10 @@ ID_VIDEO_WIDTH,704"""
             location_type="mediathread",
             url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
             )
+
+
+    def test_extension(self):
+        assert self.video.extension() == ".mov"
 
     def test_tahoe_file(self):
         assert self.video.tahoe_file() == self.tahoe_file
@@ -317,6 +329,9 @@ ID_VIDEO_WIDTH,704"""
             url="rtsp://qtss.cc.columbia.edu/projects/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-Vital_video_uploaded_by_anp8.mov",
             )
         
+    def test_extension(self):
+        assert self.video.extension() == ".mov"
+
     def test_tahoe_file(self):
         assert self.video.tahoe_file() == self.tahoe_file
 

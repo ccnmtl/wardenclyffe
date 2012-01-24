@@ -127,7 +127,7 @@ def submit_to_pcp(operation,params):
     
     pcp = PCP(settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
     # TODO: probably don't always want it to be .mp4
-    filename = str(ouuid) + ".mp4"
+    filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
     title = "%s-%s" % (str(ouuid),operation.video.title)
     title = title.replace(" ","_") # podcast producer not so good with spaces
@@ -147,7 +147,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         if workflow == "":
             return ("failed","no workflow specified")
         filename = video.filename()
-        suffix = os.path.splitext(filename)[1]
+        suffix = video.extension()
         t = tempfile.NamedTemporaryFile(suffix=suffix)
         r = urllib2.urlopen(url)
         t.write(r.read())

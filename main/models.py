@@ -8,6 +8,7 @@ from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
 from surelink.helpers import SureLink
 from django.conf import settings
+import os.path
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -105,6 +106,21 @@ class Video(TimeStampedModel):
             return r[0].filename
         else:
             return "none"
+
+    def extension(self):
+        """ guess at the extension of the video. 
+        prefer the source file, but fallback to the tahoe copy if we have one
+        otherwise, we'll take *anything* with a filename """
+        f = self.source_file()
+        if f is not None:
+            return os.path.splitext(f.filename)[1]
+        f = self.tahoe_file()
+        if f is not None:
+            return os.path.splitext(f.filename)[1]
+        r = self.file_set.filter().exclude(filename="").exclude(filename=None)
+        if r.count():
+            return os.path.splitext(r[0].filename)[1]
+        return ""
 
     def get_absolute_url(self):
         return "/video/%d/" % self.id
