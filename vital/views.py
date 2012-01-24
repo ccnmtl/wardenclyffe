@@ -253,6 +253,13 @@ def received(request):
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
+        send_mail("video submission debug %s" % str(operation.video.is_vital_submit()),
+                  str(operation),
+                  'ccnmtl-vital@columbia.edu',
+                  ['anders@columbia.edu'],
+                  fail_silently=False,
+                  )
+
         if operation.video.is_vital_submit():
             send_mail('Video submitted to VITAL', 
 """This email confirms that %s has been successfully submitted to VITAL by %s.  
