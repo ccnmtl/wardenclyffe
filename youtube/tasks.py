@@ -71,7 +71,7 @@ Your video will now be reviewed by our staff, and published. When completed, it 
 
 YouTube URL: %s
 
-If you have any questions, please contact Columbia's YouTube administrators at ccmtl-youtube@columbia.edu.
+If you have any questions, please contact Columbia's YouTube administrators at ccnmtl-youtube@columbia.edu.
 """ % (video.title,user.username,youtube_url), 
               'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
               ["%s@columbia.edu" % user.username], fail_silently=False)

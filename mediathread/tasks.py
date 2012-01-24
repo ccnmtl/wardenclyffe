@@ -58,10 +58,10 @@ This email confirms that %s, uploaded to Mediathread by %s, is now available.
 
 View/Annotate it here: %s
 
-If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
+If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
 
 """ % (video.title,user.username,url),
-                  'ccmtl-mediathread@columbia.edu',
+                  'ccnmtl-mediathread@columbia.edu',
               ["%s@columbia.edu" % user.username], fail_silently=False)
         for vuser in settings.ANNOY_EMAILS:
             send_mail('Uploaded video now available in Mediathread', 
@@ -70,10 +70,10 @@ This email confirms that %s, uploaded to Mediathread by %s, is now available.
 
 View/Annotate it here: %s
 
-If you have any questions, please contact Mediathread administrators at ccmtl-mediathread@columbia.edu.
+If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
 
 """ % (video.title,user.username,url),
-                      'ccmtl-mediathread@columbia.edu',
+                      'ccnmtl-mediathread@columbia.edu',
                       [vuser], fail_silently=False)
 
 

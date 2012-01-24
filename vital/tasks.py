@@ -61,7 +61,7 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
                       """
 This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
 
-If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
 
 """ % (video.title,user.username,course_id),
                       'ccnmtl-vital@columbia.edu',
@@ -71,7 +71,7 @@ If you have any questions, please contact VITAL administrators at ccmtl-vital@co
                           """
 This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
 
-If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
 
 """ % (video.title,user.username,course_id),
                       'ccnmtl-vital@columbia.edu',

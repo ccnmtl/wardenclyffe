@@ -253,22 +253,15 @@ def received(request):
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
         operation = r[0]
-        send_mail("video submission debug %s" % str(operation.video.is_vital_submit()),
-                  str(operation.as_dict()),
-                  'ccnmtl-vital@columbia.edu',
-                  ['anders@columbia.edu'],
-                  fail_silently=False,
-                  )
-
         if operation.video.is_vital_submit():
             send_mail('Video submitted to VITAL', 
 """This email confirms that %s has been successfully submitted to VITAL by %s.  
 
 The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
 """ % (operation.video.title,operation.owner.username),
-                      'ccmtl-vital@columbia.edu',
+                      'ccnmtl-vital@columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Video submitted to VITAL', 
@@ -276,9 +269,9 @@ If you have any questions, please contact VITAL administrators at ccmtl-vital@co
 
 The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact VITAL administrators at ccmtl-vital@columbia.edu.
+If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
 """ % (operation.video.title,operation.owner.username),
-                          'ccmtl-vital@columbia.edu',
+                          'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
 
     return HttpResponse("ok")
