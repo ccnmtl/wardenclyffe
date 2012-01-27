@@ -101,7 +101,7 @@ def extract_metadata(operation,params):
     # be a bit more configurable
     pwd = os.path.dirname(__file__)
     script_dir = os.path.join(pwd,"../scripts/")
-    output = subprocess.Popen([os.path.join(script_dir,"midentify.sh"), params['tmpfilename']], stdout=subprocess.PIPE).communicate()[0]
+    output = unicode(subprocess.Popen([os.path.join(script_dir,"midentify.sh"), params['tmpfilename']], stdout=subprocess.PIPE).communicate()[0],errors='replace')
     pairs = [l.strip().split("=") for l in output.split("\n")]
     for line in output.split("\n"):
         try:
