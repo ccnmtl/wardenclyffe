@@ -9,6 +9,7 @@ from south.modelsinspector import add_introspection_rules
 from surelink.helpers import SureLink
 from django.conf import settings
 import os.path
+from django.core.mail import send_mail
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -394,16 +395,37 @@ class Operation(TimeStampedModel):
         self.status = "in progress"
         self.save()
         f = self.get_task()
+        error_message = ""
         try:
             (success,message) = f(self,args)
             self.status = success
             if self.status == "failed" or message != "":
                 log = OperationLog.objects.create(operation=self,
                                                   info=message)
+                error_message = message
         except Exception, e:
             self.status = "failed"
             log = OperationLog.objects.create(operation=self,
                                               info=str(e))
+            error_message = str(e)
+
+        if self.status == "failed":
+            for vuser in settings.ANNOY_EMAILS:
+                send_mail('Video upload failed', 
+                          """An error has occurred while processing the video:
+   "%s"
+
+at:
+
+   http://wardenclyffe.ccnmtl.columbia.edu%s
+
+During the %s step. The error encountered was:
+
+%s
+""" % (self.video.title,self.video.get_absolute_url(),error_message), 
+                          'ccnmtl-vital@columbia.edu',
+                          [vuser], fail_silently=False)
+            
         self.save()
         
     
