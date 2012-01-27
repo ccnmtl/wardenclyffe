@@ -391,3 +391,68 @@ ID_VIDEO_WIDTH,704"""
 
     def test_cuit_file(self):
         assert self.video.cuit_file() == self.cuit_file
+
+
+class MissingDimensionsTest(TestCase):
+    """ test the behavior for a video that has a source file, but 
+    that we couldn't parse the dimensions out of for some reason
+    """
+    def setUp(self):
+        self.series = Series.objects.create(title = "Mediathread Spring 2012",
+                                            uuid = uuid.uuid4())
+        self.video = Video.objects.create(series = self.series,
+                                          title = "test video",
+                                          creator = "anp8",
+                                          uuid = uuid.uuid4())
+
+        self.source_file = File.objects.create(
+            video=self.video,
+            label="source file",
+            location_type = "none",
+            filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
+            )
+        metadata = """ID_AUDIO_BITRATE,128000
+ID_AUDIO_CODEC,faad
+ID_AUDIO_FORMAT,255
+ID_AUDIO_ID,0
+ID_AUDIO_NCH,2
+ID_AUDIO_RATE,48000
+ID_CHAPTERS,0
+ID_DEMUXER,lavfpref
+ID_EXIT,EOF
+ID_FILENAME,/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov
+ID_LENGTH,31.26
+ID_SEEKABLE,1
+ID_VIDEO_ASPECT,1.3333
+ID_VIDEO_BITRATE,0
+ID_VIDEO_CODEC,ffh264
+ID_VIDEO_FORMAT,avc1
+ID_VIDEO_FPS,29.970
+ID_VIDEO_ID,1"""
+        for line in metadata.split("\n"):
+            line = line.strip()
+            (k,v) = line.split(",")
+            self.source_file.set_metadata(k,v)
+        self.cuit_file = File.objects.create(
+            video=self.video,
+            label = "CUIT File",
+            location_type = "cuit",
+            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            )
+        self.tahoe_file = File.objects.create(
+            video=self.video,
+            label="uploaded source file",
+            location_type="tahoe",
+            cap="URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186",
+            filename="/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
+            )
+        self.mediathread_file = File.objects.create(
+            video=self.video,
+            label="mediathread",
+            location_type="mediathread",
+            url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
+            )
+
+
+    def test_get_dimensions(self):
+        assert self.video.get_dimensions() == (0,0)

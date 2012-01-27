@@ -271,10 +271,18 @@ class File(TimeStampedModel):
         return "/file/%d/" % self.id
 
     def get_width(self):
-        return int(self.metadata_set.filter(field="ID_VIDEO_WIDTH")[0].value)
+        r = self.metadata_set.filter(field="ID_VIDEO_WIDTH")
+        if r.count() > 0:
+            return int(r[0].value)
+        else:
+            return 0
 
     def get_height(self):
-        return int(self.metadata_set.filter(field="ID_VIDEO_HEIGHT")[0].value)
+        r = self.metadata_set.filter(field="ID_VIDEO_HEIGHT")
+        if r.count() > 0:
+            return int(r[0].value)
+        else:
+            return 0
 
     # for these, if we don't know our width/height, 
     # we see if the video has a source file associated
