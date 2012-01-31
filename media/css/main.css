@@ -1951,8 +1951,9 @@ body.vital .documentContentMain h1
 .loginbox
 {
 	display: block;
-	width: 400px;
-	margin: 20px 0 0 0;
+	float: right;
+	width: 300px;
+	margin: 0 0 0 20px;
 	padding: 0;
 	border: 1px solid #999;
 	background-color: #fff;

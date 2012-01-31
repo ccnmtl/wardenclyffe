@@ -5,9 +5,6 @@
 {% if form.has_errors %}
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
-{% include "flatpages/login_about.html" %}
-
-
 <div class="loginbox">
 	<h2>Choose a login option...</h2>
 	<div class="content">
@@ -44,5 +41,8 @@
 	<p class="smalltxt"><a href="accounthelp">Need a new account?</a> | <a href="accounthelp">Can't access your account?</a></p>
 	</div><!-- content -->
 </div><!-- loginbox -->
+{% include "flatpages/login_about.html" %}
+
+
 
 {% endblock %}
