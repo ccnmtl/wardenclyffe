@@ -183,6 +183,10 @@ hr
 	border: 0;
 }
 
+.smalltxt
+{
+	font-size: 11px;
+}
 
 /* ########## Globally useful definitions ########## */
 
@@ -1940,6 +1944,88 @@ body.vital .documentContentMain h1
 	font-weight: bold;
 	color: #000;
 	font-size: 150%;
+}
+
+/* REGISTRATION - LOGIN */
+
+.loginbox
+{
+	display: block;
+	width: 400px;
+	margin: 20px 0 0 0;
+	padding: 0;
+	border: 1px solid #999;
+	background-color: #fff;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+
+.loginbox h2
+{
+	margin: 0;
+	padding: 5px 10px;
+	-moz-border-radius: 10px 10px 0 0;
+	-webkit-border-radius: 10px 10px 0 0;
+	background: #e0e0e0;
+	font-weight: bold;
+	font-size: 16px;
+	line-height: 26px;
+	height: 26px;
+}
+
+.loginbox .content
+{
+	margin: 0;
+	padding: 5px 10px;
+	border: 0;
+}
+
+.loginbox .seperator
+{
+	margin: 5px 0;
+	padding: 0;
+	border: 0;
+	border-top: 1px dotted #999;
+}
+
+.loginbox .fieldwrapper
+{
+	margin: 0 0 10px 10px;
+}
+
+.loginbox .fieldwrapper input
+{
+	width: 200px;
+}
+
+.loginbox .fieldwrapper label
+{
+	font-size: 12px;
+}
+
+.loginbox .regbutton
+{
+	margin: 0 0 10px 10px;
+}
+
+
+/* WIREFRAME NOTES */
+.wireframe_notes
+{
+	display: block;
+	margin: 0;
+	padding: 0 0 0 23px;
+	border: 0;
+	background: url('../img/icon_wireframe.png') left center no-repeat;
+	font-size: 11px;
+	font-style: italic;
+	color: #999;
+}
+
+.wireframe_notes a
+{
+	color: #f90 !important;
+	text-decoration: none;
 }
 
 /* ADMIN */
