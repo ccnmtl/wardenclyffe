@@ -58,7 +58,9 @@ This email confirms that %s, uploaded to Mediathread by %s, is now available.
 
 View/Annotate it here: %s
 
-If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
+If you have any questions, please visit 
+
+    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (video.title,user.username,url),
                   'ccnmtl-mediathread@columbia.edu',
@@ -70,7 +72,9 @@ This email confirms that %s, uploaded to Mediathread by %s, is now available.
 
 View/Annotate it here: %s
 
-If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
+If you have any questions, please visit 
+
+    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (video.title,user.username,url),
                       'ccnmtl-mediathread@columbia.edu',

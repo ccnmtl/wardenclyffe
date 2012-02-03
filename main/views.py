@@ -77,7 +77,9 @@ This email confirms that '%s' has been successfully submitted to Mediathread by 
 
 The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
+If you have any questions, please visit 
+
+    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (operation.video.title,operation.owner.username),
                       'ccnmtl-mediathread@columbia.edu',
@@ -89,7 +91,9 @@ This email confirms that '%s' has been successfully submitted to Mediathread by 
 
 The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
-If you have any questions, please contact Mediathread administrators at ccnmtl-mediathread@columbia.edu.
+If you have any questions, please visit 
+
+    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (operation.video.title,operation.owner.username),
                       'ccnmtl-mediathread@columbia.edu',
