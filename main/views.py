@@ -976,3 +976,7 @@ graph_vlabel operations""")
 def total_operations(request):
     return [("operations",Operation.objects.all().count())]
 
+@muninview(config="""graph_title Total Minutes of video Uploaded
+graph_vlabel minutes""")
+def total_minutes(request):
+    return [("minutes",sum([float(str(m.value)) for m in Metadata.objects.filter(field='ID_LENGTH',file__location_type='none')]) / 60.0)]
