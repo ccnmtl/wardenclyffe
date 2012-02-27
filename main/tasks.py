@@ -131,6 +131,7 @@ def submit_to_pcp(operation,params):
     fileobj = open(params['tmpfilename'])
     title = "%s-%s" % (str(ouuid),operation.video.title)
     title = title.replace(" ","_") # podcast producer not so good with spaces
+    title = title.replace("(","_").replace(")","_") # or parens on some jobs
     pcp.upload_file(fileobj,filename,params['pcp_workflow'],title,operation.video.description)
     return ("submitted","")
 
@@ -161,6 +162,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         print "submitted with filename %s" % filename
         title = "%s-%s" % (str(ouuid),video.title)
         title = title.replace(" ","_") # podcast producer not so good with spaces
+        title = title.replace("(","_").replace(")","_") # or parens on some jobs
         print "submitted with title %s" % title
         pcp.upload_file(t,filename,workflow, title, video.description)
         return ("submitted","submitted to PCP")
@@ -219,6 +221,7 @@ def pull_from_cuit_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_use
         print "submitted with filename %s" % filename
         title = "%s-%s" % (str(ouuid),video.title)
         title = title.replace(" ","_") # podcast producer not so good with spaces
+        title = title.replace("(","_").replace(")","_") # or parens on some jobs
         print "submitted with title %s" % title
         pcp.upload_file(open(tmpfilename,"r"),filename,workflow, title, video.description)
         return ("submitted","submitted to PCP")
