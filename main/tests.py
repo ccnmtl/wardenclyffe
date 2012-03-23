@@ -8,6 +8,7 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from wardenclyffe.main.models import Series, Video, File
 import uuid
+from wardenclyffe.main.tasks import strip_special_characters
 
 class CUITFileTest(TestCase):
     def setUp(self):
@@ -453,6 +454,13 @@ ID_VIDEO_ID,1"""
             url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
             )
 
-
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (0,0)
+
+class SpecialCharacterTests(TestCase):
+    
+    def test_strip_characters(self):
+        self.assertEquals(strip_special_characters("video file") , "video_file")
+        self.assertEquals(strip_special_characters("video \"foo\" file") , "video_foo_file")
+        self.assertEquals(strip_special_characters("a.b.c") , "a_b_c")
+        self.assertEquals(strip_special_characters("(foo)") , "_foo_")
