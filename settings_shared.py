@@ -43,6 +43,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     )
 
 MIDDLEWARE_CLASSES = (
+    'django_statsd.middleware.GraphiteRequestTimingMiddleware',
+    'django_statsd.middleware.GraphiteMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -89,7 +91,14 @@ INSTALLED_APPS = (
     'munin',
     'wardenclyffe.cuit',
     'raven.contrib.django',
+    'django_statsd',
 )
+
+STATSD_CLIENT = 'statsd.client'
+STATSD_PREFIX = 'wardenclyffe'
+STATSD_HOST = 'localhost'
+STATSD_PORT = 8125
+STATSD_PATCHES = ['django_statsd.patches.db', ]
 
 #CELERY_RESULT_BACKEND = "database"
 BROKER_HOST = "localhost"
