@@ -14,6 +14,7 @@ import httplib
 from django.core.mail import send_mail
 import paramiko
 import random
+import re
 
 # TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
@@ -129,9 +130,7 @@ def submit_to_pcp(operation,params):
     # TODO: probably don't always want it to be .mp4
     filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
-    title = "%s-%s" % (str(ouuid),operation.video.title)
-    title = title.replace(" ","_") # podcast producer not so good with spaces
-    title = title.replace("(","_").replace(")","_") # or parens on some jobs
+    title = "%s-%s" % (str(ouuid),strip_special_characters(operation.video.title))
     pcp.upload_file(fileobj,filename,params['pcp_workflow'],title,operation.video.description)
     return ("submitted","")
 
@@ -160,9 +159,8 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
         filename = str(ouuid) + suffix
         print "submitted with filename %s" % filename
-        title = "%s-%s" % (str(ouuid),video.title)
-        title = title.replace(" ","_") # podcast producer not so good with spaces
-        title = title.replace("(","_").replace(")","_") # or parens on some jobs
+        
+        title = "%s-%s" % (str(ouuid),strip_special_characters(video.title))
         print "submitted with title %s" % title
         pcp.upload_file(t,filename,workflow, title, video.description)
         return ("submitted","submitted to PCP")
@@ -219,9 +217,8 @@ def pull_from_cuit_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_use
         pcp = PCP(pcp_base_url,pcp_username,pcp_password)
         filename = str(ouuid) + extension
         print "submitted with filename %s" % filename
-        title = "%s-%s" % (str(ouuid),video.title)
-        title = title.replace(" ","_") # podcast producer not so good with spaces
-        title = title.replace("(","_").replace(")","_") # or parens on some jobs
+        
+        title = "%s-%s" % (str(ouuid),strip_special_characters(video.title))
         print "submitted with title %s" % title
         pcp.upload_file(open(tmpfilename,"r"),filename,workflow, title, video.description)
         return ("submitted","submitted to PCP")
@@ -242,3 +239,7 @@ def flv_encode(video_id,user,basedir,infile,outfile,ffmpeg_path):
 
     with_operation(_flv_encode,video,"flv encode",
                    "workflow: %s" % workflow,user,args,kwargs)
+    
+def strip_special_characters(title):
+    return re.sub('[\W_]+', '_', title) 
+        
