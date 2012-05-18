@@ -19,121 +19,123 @@ from django.core.mail import send_mail
 import re
 from django_statsd.clients import statsd
 
-@transaction.commit_manually
 @render_to('mediathread/mediathread.html')
 def mediathread(request):
-    if request.method == "POST":
-        tmpfilename = request.POST.get('tmpfilename','')
-        operations = []
-        if tmpfilename.startswith(settings.TMP_DIR):
-            statsd.incr("mediathread.mediathread")
-            filename = os.path.basename(tmpfilename)
-            vuuid = os.path.splitext(filename)[0]
-            # make db entry
-            try:
-                series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
-                v = Video.objects.create(series=series,
-                                         title=request.POST.get('title',''),
-                                         creator=request.session['username'],
-                                         uuid = vuuid)
-                source_file = File.objects.create(video=v,
-                                                  label="source file",
-                                                  filename=filename,
-                                                  location_type='none')
-                # we make a "mediathreadsubmit" file to store the submission
-                # info and serve as a flag that it needs to be submitted
-                # (when PCP comes back)
-                submit_file = File.objects.create(video=v,
-                                                  label="mediathread submit",
-                                                  filename=filename,
-                                                  location_type='mediathreadsubmit')
-                user = User.objects.get(username=request.session['username'])
-                submit_file.set_metadata("username",request.session['username'])
-                submit_file.set_metadata("set_course",request.session['set_course'])
-                submit_file.set_metadata("redirect_to",request.session['redirect_to'])
-                params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
-                o = Operation.objects.create(uuid = uuid.uuid4(),
-                                             video=v,
-                                             action="extract metadata",
-                                             status="enqueued",
-                                             params=params,
-                                             owner=user)
-                operations.append((o.id,params))
-                params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
-                              tahoe_base=settings.TAHOE_BASE)
-                o = Operation.objects.create(uuid = uuid.uuid4(),
-                                             video=v,
-                                             action="save file to tahoe",
-                                             status="enqueued",
-                                             params=params,
-                                             owner=user
-                                             )
-                operations.append((o.id,params))
-                params = dict(tmpfilename=tmpfilename)
-                o = Operation.objects.create(uuid = uuid.uuid4(),
-                                             video=v,
-                                             action="make images",
-                                             status="enqueued",
-                                             params=params,
-                                             owner=user
-                                             )
-                operations.append((o.id,params))
+    # check their credentials
+    nonce = request.GET.get('nonce','')
+    hmc = request.GET.get('hmac','')
+    set_course = request.GET.get('set_course','')
+    username = request.GET.get('as')
+    redirect_to = request.GET.get('redirect_url','')
+    verify = hmac.new(settings.MEDIATHREAD_SECRET,
+                      '%s:%s:%s' % (username,redirect_to,nonce),
+                      hashlib.sha1
+                      ).hexdigest()
+    if verify != hmc:
+        statsd.incr("mediathread.auth_failure")
+        return HttpResponse("invalid authentication token")
 
-                workflow = settings.PCP_WORKFLOW
-                if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
-                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
-                    params = dict(tmpfilename=tmpfilename)
-                    params = dict(tmpfilename=tmpfilename,
-                                  pcp_workflow=workflow)
+    try:
+        user = User.objects.get(username=username)
+    except:
+        user = User.objects.create(username=username)
+        statsd.incr("mediathread.user_created")
 
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
-                                                 video=v,
-                                                 action="submit to podcast producer",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=user
-                                                 )
-                    operations.append((o.id,params))
+    request.session['username'] = username
+    request.session['set_course'] = set_course
+    request.session['nonce'] = nonce
+    request.session['redirect_to'] = redirect_to
+    request.session['hmac'] = hmc
+    return dict(username=username,user=user)
 
-            except:
-                statsd.incr("mediathread.mediathread.failure")
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-                # hand operations off to celery
-                for o,kwargs in operations:
-                    maintasks.process_operation.delay(o,kwargs)
-                return HttpResponseRedirect(request.session['redirect_to'])
-    else:
-        # check their credentials
-        nonce = request.GET.get('nonce','')
-        hmc = request.GET.get('hmac','')
-        set_course = request.GET.get('set_course','')
-        username = request.GET.get('as')
-        redirect_to = request.GET.get('redirect_url','')
-        verify = hmac.new(settings.MEDIATHREAD_SECRET,
-                          '%s:%s:%s' % (username,redirect_to,nonce),
-                          hashlib.sha1
-                          ).hexdigest()
-        if verify != hmc:
-            statsd.incr("mediathread.auth_failure")
-            transaction.commit()
-            return HttpResponse("invalid authentication token")
-
-        try:
-            user = User.objects.get(username=username)
-        except:
-            user = User.objects.create(username=username)
-            statsd.incr("mediathread.user_created")
-            
-        request.session['username'] = username
-        request.session['set_course'] = set_course
-        request.session['nonce'] = nonce
-        request.session['redirect_to'] = redirect_to
-        request.session['hmac'] = hmc
+@transaction.commit_manually
+def mediathread_post(request):
+    if request.method != "POST":
         transaction.commit()
-        return dict(username=username,user=user)
+        return HttpResponse("post only")
+
+    tmpfilename = request.POST.get('tmpfilename','')
+    operations = []
+    if tmpfilename.startswith(settings.TMP_DIR):
+        statsd.incr("mediathread.mediathread")
+        filename = os.path.basename(tmpfilename)
+        vuuid = os.path.splitext(filename)[0]
+        # make db entry
+        try:
+            series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
+            v = Video.objects.create(series=series,
+                                     title=request.POST.get('title',''),
+                                     creator=request.session['username'],
+                                     uuid = vuuid)
+            source_file = File.objects.create(video=v,
+                                              label="source file",
+                                              filename=filename,
+                                              location_type='none')
+            # we make a "mediathreadsubmit" file to store the submission
+            # info and serve as a flag that it needs to be submitted
+            # (when PCP comes back)
+            submit_file = File.objects.create(video=v,
+                                              label="mediathread submit",
+                                              filename=filename,
+                                              location_type='mediathreadsubmit')
+            user = User.objects.get(username=request.session['username'])
+            submit_file.set_metadata("username",request.session['username'])
+            submit_file.set_metadata("set_course",request.session['set_course'])
+            submit_file.set_metadata("redirect_to",request.session['redirect_to'])
+            params = dict(tmpfilename=tmpfilename,source_file_id=source_file.id)
+            o = Operation.objects.create(uuid = uuid.uuid4(),
+                                         video=v,
+                                         action="extract metadata",
+                                         status="enqueued",
+                                         params=params,
+                                         owner=user)
+            operations.append((o.id,params))
+            params = dict(tmpfilename=tmpfilename,filename=tmpfilename,
+                          tahoe_base=settings.TAHOE_BASE)
+            o = Operation.objects.create(uuid = uuid.uuid4(),
+                                         video=v,
+                                         action="save file to tahoe",
+                                         status="enqueued",
+                                         params=params,
+                                         owner=user
+                                         )
+            operations.append((o.id,params))
+            params = dict(tmpfilename=tmpfilename)
+            o = Operation.objects.create(uuid = uuid.uuid4(),
+                                         video=v,
+                                         action="make images",
+                                         status="enqueued",
+                                         params=params,
+                                         owner=user
+                                         )
+            operations.append((o.id,params))
+
+            workflow = settings.PCP_WORKFLOW
+            if hasattr(settings,'MEDIATHREAD_PCP_WORKFLOW'):
+                workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+                params = dict(tmpfilename=tmpfilename)
+                params = dict(tmpfilename=tmpfilename,
+                              pcp_workflow=workflow)
+
+                o = Operation.objects.create(uuid = uuid.uuid4(),
+                                             video=v,
+                                             action="submit to podcast producer",
+                                             status="enqueued",
+                                             params=params,
+                                             owner=user
+                                             )
+                operations.append((o.id,params))
+
+        except:
+            statsd.incr("mediathread.mediathread.failure")
+            transaction.rollback()
+            raise
+        else:
+            transaction.commit()
+            # hand operations off to celery
+            for o,kwargs in operations:
+                maintasks.process_operation.delay(o,kwargs)
+            return HttpResponseRedirect(request.session['redirect_to'])
 
 @login_required
 @render_to('mediathread/mediathread_submit.html')
