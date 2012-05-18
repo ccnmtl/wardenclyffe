@@ -118,6 +118,7 @@ def mediathread(request):
                           ).hexdigest()
         if verify != hmc:
             statsd.incr("mediathread.auth_failure")
+            transaction.commit()
             return HttpResponse("invalid authentication token")
 
         try:
@@ -125,7 +126,6 @@ def mediathread(request):
         except:
             user = User.objects.create(username=username)
             statsd.incr("mediathread.user_created")
-
             
         request.session['username'] = username
         request.session['set_course'] = set_course
