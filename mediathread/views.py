@@ -125,13 +125,14 @@ def mediathread(request):
         except:
             user = User.objects.create(username=username)
             statsd.incr("mediathread.user_created")
-            transaction.commit()
+
             
         request.session['username'] = username
         request.session['set_course'] = set_course
         request.session['nonce'] = nonce
         request.session['redirect_to'] = redirect_to
         request.session['hmac'] = hmc
+        transaction.commit()
         return dict(username=username,user=user)
 
 @login_required

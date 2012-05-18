@@ -90,7 +90,7 @@ def youtube(request):
         else:
             return HttpResponse("no tmpfilename parameter set")
     else:
-        pass
+        transaction.commit()
     return dict()
 
 @render_to('main/youtube_done.html')
