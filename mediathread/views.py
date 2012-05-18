@@ -17,6 +17,7 @@ from simplejson import loads, dumps
 import hmac, hashlib, datetime
 from django.core.mail import send_mail
 import re
+from django_statsd.clients import statsd
 
 @transaction.commit_manually
 @render_to('mediathread/mediathread.html')
@@ -25,6 +26,7 @@ def mediathread(request):
         tmpfilename = request.POST.get('tmpfilename','')
         operations = []
         if tmpfilename.startswith(settings.TMP_DIR):
+            statsd.incr("mediathread.mediathread")
             filename = os.path.basename(tmpfilename)
             vuuid = os.path.splitext(filename)[0]
             # make db entry
@@ -94,6 +96,7 @@ def mediathread(request):
                     operations.append((o.id,params))
 
             except:
+                statsd.incr("mediathread.mediathread.failure")
                 transaction.rollback()
                 raise
             else:
@@ -114,12 +117,14 @@ def mediathread(request):
                           hashlib.sha1
                           ).hexdigest()
         if verify != hmc:
+            statsd.incr("mediathread.auth_failure")
             return HttpResponse("invalid authentication token")
 
         try:
             user = User.objects.get(username=username)
         except:
             user = User.objects.create(username=username)
+            statsd.incr("mediathread.user_created")
             transaction.commit()
             
         request.session['username'] = username
@@ -134,6 +139,7 @@ def mediathread(request):
 def video_mediathread_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
+        statsd.incr("mediathread.submit")
         params = dict(set_course=request.POST.get('course',''))
         o = Operation.objects.create(uuid = uuid.uuid4(),
                                      video=video,

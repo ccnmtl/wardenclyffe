@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 import paramiko
 import random
 import re
+from django_statsd.clients import statsd
 
 # TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
@@ -38,6 +39,7 @@ def with_operation(f,video,action,params,user,args,kwargs):
     operation.save()
 
 def save_file_to_tahoe(operation,params):
+    statsd.incr("save_file_to_tahoe")
     source_file = open(params['tmpfilename'],"rb")
     register_openers()
     datagen, headers = multipart_encode((
@@ -57,6 +59,7 @@ def save_file_to_tahoe(operation,params):
 
 
 def make_images(operation,params):
+    statsd.incr("make_images")
     ouuid = operation.uuid
     tmpfilename = params['tmpfilename']
     tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
@@ -86,7 +89,7 @@ def make_images(operation,params):
     for img in imgs:
         os.system("mv %s%s %s" % (tmpdir,img,imgdir))
         i = Image.objects.create(video=operation.video,image="images/%05d/%s" % (operation.video.id,img))
-
+        statsd.incr("image_created")
     if Poster.objects.filter(video=operation.video).count() == 0 and len(imgs) > 0:
         # pick a random image out of the set and assign it as the poster on the video
         r = random.randint(0,len(imgs) - 1)
@@ -96,6 +99,7 @@ def make_images(operation,params):
     return ("complete","created %d images" % len(imgs))
 
 def extract_metadata(operation,params):
+    statsd.incr("extract_metadata")
     source_file = File.objects.get(id=params['source_file_id'])
     # warning: for now we're expecting the midentify script
     # to be relatively located to this file. this ought to 
@@ -124,6 +128,7 @@ def process_operation(operation_id,params,**kwargs):
     operation.process(params)
 
 def submit_to_pcp(operation,params):
+    statsd.incr("submit_to_pcp")
     ouuid = operation.uuid
     
     pcp = PCP(settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
@@ -136,6 +141,7 @@ def submit_to_pcp(operation,params):
 
 @task(ignore_result=True)
 def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+    statsd.incr("pull_from_tahoe_and_submit_to_pcp")
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
     args = [workflow,pcp_base_url,pcp_username,pcp_password]
@@ -171,6 +177,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_us
 
 
 def sftp_get(remote_filename,local_filename):
+    statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename,local_filename)
     sftp_hostname = settings.SFTP_HOSTNAME 
     sftp_path = settings.SFTP_PATH 
@@ -195,6 +202,7 @@ def sftp_get(remote_filename,local_filename):
 
 @task(ignore_result=True)
 def pull_from_cuit_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_username,pcp_password,**kwargs):
+    statsd.incr("pull_from_cuit_and_submit_to_pcp")
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
     args = [workflow,pcp_base_url,pcp_username,pcp_password]
@@ -230,6 +238,7 @@ def pull_from_cuit_and_submit_to_pcp(video_id,user,workflow,pcp_base_url,pcp_use
     
 @task(ignore_result=True)
 def flv_encode(video_id,user,basedir,infile,outfile,ffmpeg_path):
+    statsd.incr("flv_encode")
     print "flv_encode"
     args = [basedir,infile,outfile,ffmpeg_path]
     def _do_flv_encode(video,user,operation,basedir,infile,outfile,ffmpeg_path):

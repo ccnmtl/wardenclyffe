@@ -14,6 +14,7 @@ from django.db import transaction
 import uuid
 import hmac, hashlib, datetime
 from django.template import RequestContext
+from django_statsd.clients import statsd
 
 def uuidparse(s):
     pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
@@ -28,6 +29,7 @@ def uuidparse(s):
 def submit(request,id):
     v = get_object_or_404(Video,id=id)
     if request.method == "POST":
+        statsd.incr("vital.submit")
         # make db entry
         try:
             # we make a "vitalsubmit" file to store the submission
@@ -41,6 +43,7 @@ def submit(request,id):
                 submit_file.set_metadata("set_course",request.POST['course_id'])
                 submit_file.set_metadata("notify_url",settings.VITAL_NOTIFY_URL)
         except:
+            statsd.incr("vital.submit.failure")
             transaction.rollback()
             raise
         else:
@@ -72,6 +75,7 @@ def drop(request):
     if request.method == "POST":
         operations = []
         if request.FILES['source_file']:
+            statsd.incr("vital.drop")
             # save it locally
             vuuid = uuid.uuid4()
             try: 
@@ -152,6 +156,7 @@ def drop(request):
                                                  )
                     operations.append((o.id,params))
             except:
+                statsd.incr("vital.drop.failure")
                 transaction.rollback()
                 raise
             else:
@@ -173,12 +178,14 @@ def drop(request):
                           hashlib.sha1
                           ).hexdigest()
         if verify != hmc:
+            statsd.incr("vital.auth_failure")
             return HttpResponse("invalid authentication token")
         try:
             r = User.objects.filter(username=username)
             if r.count():
                 user = User.objects.get(username=username)
             else:
+                statsd.incr("vital.create_user")
                 user = User.objects.create(username=username)
             request.session['username'] = username
             request.session['set_course'] = set_course
@@ -187,6 +194,7 @@ def drop(request):
             request.session['hmac'] = hmc
             request.session['notify_url'] = notify_url
         except:
+            statsd.incr("vital.drop.failure_on_get")
             transaction.rollback()
             raise
         else:
@@ -201,6 +209,7 @@ def done(request):
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
+        statsd.incr("vital.done")
         operation = r[0]
         operation.status = "complete"
         operation.save()
@@ -231,6 +240,7 @@ def posterdone(request):
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
+        statsd.incr("vital.posterdone")
         operation = r[0]
         if operation.video.is_vital_submit():
             cunix_path = request.POST.get('image_destination_path','')
@@ -252,6 +262,7 @@ def received(request):
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
+        statsd.incr("vital.received")
         operation = r[0]
         if operation.video.is_vital_submit():
             send_mail('Video submitted to VITAL', 
@@ -263,6 +274,7 @@ If you have any questions, please contact VITAL administrators at ccnmtl-vital@c
 """ % (operation.video.title,operation.owner.username),
                       'ccnmtl-vital@columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
+            statsd.incr("event.mail_sent")
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Video submitted to VITAL', 
                           """This email confirms that %s has been successfully submitted to VITAL by %s.  
@@ -273,5 +285,6 @@ If you have any questions, please contact VITAL administrators at ccnmtl-vital@c
 """ % (operation.video.title,operation.owner.username),
                           'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
+                statsd.incr("event.mail_sent")
 
     return HttpResponse("ok")

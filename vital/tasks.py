@@ -12,6 +12,7 @@ from django.conf import settings
 from restclient import POST
 import httplib
 from django.core.mail import send_mail
+from django_statsd.clients import statsd
 
 # TODO: convert to decorator
 def with_operation(f,video,action,params,user,args,kwargs):
@@ -37,6 +38,7 @@ def with_operation(f,video,action,params,user,args,kwargs):
 
 @task(ignore_result=True)
 def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**kwargs):
+    statsd.incr("vital.submit_to_vital")
     print "submitting to vital"
     video = Video.objects.get(id=video_id)
 
@@ -78,6 +80,7 @@ If you have any questions, please contact VITAL administrators at ccnmtl-vital@c
                           [vuser], fail_silently=False)
             return ("complete","")
         else:
+            statsd.incr("vital.submit_to_vital.failure")
             send_mail('VITAL video upload failed', 
                   """An error has occurred while attempting to upload your video, "%s", to VITAL.
 Please contact CCNMTL video staff for assistance. 
@@ -86,6 +89,7 @@ The error encountered:
 """ % (video.title,content), 
                       'ccnmtl-vital@columbia.edu',
                       ["%s@columbia.edu" % user.username], fail_silently=False)
+            statsd.incr("event.mail_sent")
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('VITAL video upload failed', 
                           """An error has occurred while attempting to upload your video, "%s", to VITAL.
@@ -95,6 +99,7 @@ The error encountered:
 """ % (video.title,content), 
                           'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
+                statsd.incr("event.mail_sent")
 
             return ("failed","vital rejected submission: %s" % content)
     args = [course_id,rtsp_url,vital_secret,vital_base]

@@ -6,9 +6,10 @@ from django.conf import settings
 from restclient import POST
 import httplib
 from django.core.mail import send_mail
-
+from django_statsd.clients import statsd
 
 def submit_to_mediathread(operation,params):
+    statsd.incr("mediathread.tasks.submit_to_mediathread")
     video = operation.video
     user = operation.owner
     course_id = params['set_course']
@@ -17,8 +18,10 @@ def submit_to_mediathread(operation,params):
 
     (width,height) = video.get_dimensions()
     if not width or not height:
+        statsd.incr("mediathread.tasks.submit_to_mediathread.failure.dimensions")
         return ("failed","could not figure out dimensions")
     if not video.mediathread_url() and not video.tahoe_download_url():
+        statsd.incr("mediathread.tasks.submit_to_mediathread.failure.video_url")
         return ("failed","no video URL")
     params = {
         'set_course' : course_id,
@@ -65,6 +68,7 @@ If you have any questions, please visit
 """ % (video.title,user.username,url),
                   'ccnmtl-mediathread@columbia.edu',
               ["%s@columbia.edu" % user.username], fail_silently=False)
+        statsd.incr("event.mail_sent")
         for vuser in settings.ANNOY_EMAILS:
             send_mail('Uploaded video now available in Mediathread', 
                       """
@@ -79,8 +83,9 @@ If you have any questions, please visit
 """ % (video.title,user.username,url),
                       'ccnmtl-mediathread@columbia.edu',
                       [vuser], fail_silently=False)
-
+            statsd.incr("event.mail_sent")
 
         return ("complete","")
     else:
+        statsd.incr("mediathread.tasks.submit_to_mediathread.failure")
         return ("failed","mediathread rejected submission")

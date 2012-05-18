@@ -10,6 +10,7 @@ from surelink.helpers import SureLink
 from django.conf import settings
 import os.path
 from django.core.mail import send_mail
+from django_statsd.clients import statsd
 
 add_introspection_rules([], 
                         ["^django_extensions\.db\.fields\.CreationDateTimeField",
@@ -392,6 +393,7 @@ class Operation(TimeStampedModel):
         return mapper[self.action]
 
     def process(self,args):
+        statsd.incr("main.process_task")
         self.status = "in progress"
         self.save()
         f = self.get_task()
@@ -410,6 +412,7 @@ class Operation(TimeStampedModel):
             error_message = str(e)
 
         if self.status == "failed":
+            statsd.incr("main.process_task.failure")
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Video upload failed', 
                           """An error has occurred while processing the video:
@@ -425,6 +428,8 @@ During the %s step. The error encountered was:
 """ % (self.video.title,self.video.get_absolute_url(),error_message), 
                           'ccnmtl-vital@columbia.edu',
                           [vuser], fail_silently=False)
+                statsd.incr("event.mail_sent")
+
             
         self.save()
         

@@ -16,12 +16,14 @@ from simplejson import loads, dumps
 import hmac, hashlib, datetime
 from django.core.mail import send_mail
 import re
+from django_statsd.clients import statsd
 
 @transaction.commit_manually
 @login_required
 @render_to('main/youtube.html')
 def youtube(request):
     if request.method == "POST":
+        statsd.incr("youtube.youtube")
         tmpfilename = request.POST.get('tmpfilename','')
         operations = []
         if tmpfilename.startswith(settings.TMP_DIR):
@@ -77,6 +79,7 @@ def youtube(request):
                     )
                 operations.append((o.id,params))
             except:
+                statsd.incr("youtube.youtube.failure")
                 transaction.rollback()
                 raise
             else:

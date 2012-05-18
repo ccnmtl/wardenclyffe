@@ -25,7 +25,7 @@ from django.core.mail import send_mail
 import re
 from surelink.helpers import SureLink
 from munin.helpers import muninview
-
+from django_statsd.clients import statsd
 
 def breakme(request):
     print 1 / 0
@@ -64,6 +64,7 @@ def dashboard(request):
 def received(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
+    statsd.incr('main.received')
     title = request.POST.get('title','no title')
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
@@ -84,6 +85,7 @@ If you have any questions, please visit
 """ % (operation.video.title,operation.owner.username),
                       'ccnmtl-mediathread@columbia.edu',
                       ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
+            statsd.incr('event.mail_sent')
             for vuser in settings.ANNOY_EMAILS:
                 send_mail('Video submitted to Mediathread', 
                           """
@@ -98,13 +100,15 @@ If you have any questions, please visit
 """ % (operation.video.title,operation.owner.username),
                       'ccnmtl-mediathread@columbia.edu',
                           [vuser], fail_silently=False)
-
-
+                statsd.incr('event.mail_sent')
+    else:
+        statsd.incr('main.received_failure')
 
     return HttpResponse("ok")
 
 def uploadify(request,*args,**kwargs):
     if request.method == 'POST':
+        statsd.incr('main.uploadify_post')
         if request.FILES:
             # save it locally
             vuuid = uuid.uuid4()
@@ -119,6 +123,8 @@ def uploadify(request,*args,**kwargs):
                 tmpfile.write(chunk)
             tmpfile.close()
             return HttpResponse(tmpfilename)
+        else:
+            statsd.incr('main.uploadify_post_no_file')
     return HttpResponse('True')
 
 @login_required
@@ -414,12 +420,14 @@ def upload(request):
         operations = []
         params = dict()
         if form.is_valid():
+            statsd.incr('main.upload')
             # save it locally
             vuuid = uuid.uuid4()
             source_filename = None
             tmp_filename = ''
             if request.POST.get('scan_directory',False):
                 source_filename = request.POST.get('source_file','')
+                statsd.incr('main.upload.scan_directory')
             if request.POST.get('tmpfilename',False):
                 tmp_filename = request.POST.get('tmpfilename','')
             # important to note here that we allow an "upload" with no file
@@ -490,6 +498,7 @@ def upload(request):
                             operations.append(o.id)
 
             except:
+                statsd.incr('main.upload.failure')
                 transaction.rollback()
                 raise
             else:
@@ -541,6 +550,7 @@ def done(request):
     ouuid = uuidparse(title)
     r = Operation.objects.filter(uuid=ouuid)
     if r.count() == 1:
+        statsd.incr('main.done')
         operations = []
         params = dict()
         try:
@@ -559,6 +569,7 @@ def done(request):
                                         )
 
             if operation.video.is_mediathread_submit():
+                statsd.incr('main.upload.mediathread')
                 (set_course,username) = operation.video.mediathread_submit()
                 if set_course is not None:
                     user = User.objects.get(username=username)
@@ -573,6 +584,7 @@ def done(request):
                     operations.append(o.id)
                     o.video.clear_mediathread_submit()
         except:
+            statsd.incr('main.upload.failure')            
             transaction.rollback()
             raise
         finally:
@@ -590,6 +602,7 @@ def posterdone(request):
     uuid = uuidparse(title)
     r = Operation.objects.filter(uuid=uuid)
     if r.count() == 1:
+        statsd.incr('main.posterdone')
         operation = r[0]
         cunix_path = request.POST.get('image_destination_path','')
         poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/posters/",
@@ -693,6 +706,7 @@ def delete_operation(request,id):
 def video_pcp_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
+        statsd.incr('main.video_pcp_submit')
         filename = video.filename()
         # send to podcast producer
         pull_from_tahoe_and_submit_to_pcp.delay(video.id,
@@ -715,6 +729,7 @@ def video_pcp_submit(request,id):
 def file_pcp_submit(request,id):
     file = get_object_or_404(File,id=id)
     if request.method == "POST":
+        statsd.incr('main.file_pcp_submit')
         video = file.video
         # send to podcast producer
         tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
@@ -795,6 +810,7 @@ def bulk_file_operation(request):
                                                          request.user,
                                                          request.POST.get('workflow',''),
                                                          settings.PCP_BASE_URL,settings.PCP_USERNAME,settings.PCP_PASSWORD)
+            statsd.incr('main.bulk_file_operation')
         return HttpResponseRedirect("/")
     files = [File.objects.get(id=int(f.split("_")[1])) for f in request.GET.keys() if f.startswith("file_")]
     try:
@@ -811,6 +827,7 @@ def bulk_file_operation(request):
 def video_zencoder_submit(request,id):
     video = get_object_or_404(Video,id=id)
     if request.method == "POST":
+        statsd.incr('main.zencoder_submit')
         tahoe_url = video.tahoe_download_url()
         if not tahoe_url:
             return HttpResponse("not stored in tahoe")
