@@ -7,22 +7,15 @@ from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, O
 from django.contrib.auth.models import User
 import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
+from wardenclyffe.util import uuidparse
 from django.conf import settings
 from django.core.mail import send_mail
-import re
 from django.db import transaction
 import uuid
 import hmac, hashlib, datetime
 from django.template import RequestContext
 from django_statsd.clients import statsd
 
-def uuidparse(s):
-    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
-    m = pattern.match(s)
-    if m:
-        return m.group()
-    else:
-        return ""
 
 @transaction.commit_manually
 @render_to('vital/submit.html')

@@ -10,6 +10,7 @@ import uuid
 from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
 import wardenclyffe.mediathread.tasks
 import wardenclyffe.main.tasks as tasks
+from wardenclyffe.util import uuidparse
 import os
 from angeldust import PCP
 from django.conf import settings
@@ -532,15 +533,6 @@ def scan_directory(request):
 
 def test_upload(request):
     return HttpResponse("a response")
-
-def uuidparse(s):
-    pattern = re.compile(r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})")
-    m = pattern.match(s)
-    if m:
-        return m.group()
-    else:
-        return ""
-
 
 @transaction.commit_manually
 def done(request):
