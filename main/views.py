@@ -412,7 +412,6 @@ def operation(request,uuid):
 
 @transaction.commit_manually
 @login_required
-@render_to('main/upload.html')
 def upload(request):
     series_id = None
     if request.method == "POST":
@@ -507,15 +506,16 @@ def upload(request):
                     for o in operations:
                         tasks.process_operation.delay(o,params)
                 return HttpResponseRedirect("/")
-    else:
-        form = UploadVideoForm()
-        series_id = request.GET.get('series',None)
-        if series_id:
-            series = get_object_or_404(Series,id=series_id)
-            form = series.add_video_form()
-            
-    return dict(form=form,series_id=series_id)
 
+@render_to('main/upload.html')
+@login_required
+def upload_form(request):
+    form = UploadVideoForm()
+    series_id = request.GET.get('series',None)
+    if series_id:
+        series = get_object_or_404(Series,id=series_id)
+        form = series.add_video_form()
+    return dict(form=form,series_id=series_id)
 
 @login_required
 @render_to('main/upload.html')
