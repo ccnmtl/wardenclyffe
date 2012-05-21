@@ -22,7 +22,6 @@ from simplejson import loads, dumps
 import hmac, hashlib, datetime
 from zencoder import Zencoder
 from django.db.models import Q
-from django.core.mail import send_mail
 import re
 from surelink.helpers import SureLink
 from munin.helpers import muninview
@@ -73,35 +72,8 @@ def received(request):
         operation = r[0]
 
         if operation.video.is_mediathread_submit():
-            send_mail('Video submitted to Mediathread', 
-                      """
-This email confirms that '%s' has been successfully submitted to Mediathread by %s.  
-
-The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
-
-If you have any questions, please visit 
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (operation.video.title,operation.owner.username),
-                      'ccnmtl-mediathread@columbia.edu',
-                      ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
-            statsd.incr('event.mail_sent')
-            for vuser in settings.ANNOY_EMAILS:
-                send_mail('Video submitted to Mediathread', 
-                          """
-This email confirms that '%s' has been successfully submitted to Mediathread by %s.  
-
-The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
-
-If you have any questions, please visit 
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (operation.video.title,operation.owner.username),
-                      'ccnmtl-mediathread@columbia.edu',
-                          [vuser], fail_silently=False)
-                statsd.incr('event.mail_sent')
+            send_mediathread_received_mail(operation.video.title,
+                                           operation.owner.username)
     else:
         statsd.incr('main.received_failure')
 
