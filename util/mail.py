@@ -43,7 +43,7 @@ If you have any questions, please visit
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 def send_vital_received_mail(video_title,uni):
-    subject = 'Video submitted to VITAL', 
+    subject = 'Video submitted to VITAL'
     body = """This email confirms that %s has been successfully submitted to VITAL by %s.  
 
 The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
