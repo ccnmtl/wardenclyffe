@@ -165,42 +165,41 @@ def drop(request):
                 for o,kwargs in operations:
                     maintasks.process_operation.delay(o,kwargs)
                 return HttpResponseRedirect(request.session['redirect_to'])
-    else:
-        # check their credentials
-        nonce = request.GET.get('nonce','')
-        hmc = request.GET.get('hmac','')
-        set_course = request.GET.get('set_course','')
-        username = request.GET.get('as')
-        redirect_to = request.GET.get('redirect_url','')
-        notify_url = request.GET.get('notify_url','')
-        verify = hmac.new(settings.VITAL_SECRET,
-                          '%s:%s:%s:%s' % (username,redirect_to,notify_url,nonce),
-                          hashlib.sha1
-                          ).hexdigest()
-        if verify != hmc:
-            statsd.incr("vital.auth_failure")
-            return HttpResponse("invalid authentication token")
-        try:
-            r = User.objects.filter(username=username)
-            if r.count():
-                user = User.objects.get(username=username)
-            else:
-                statsd.incr("vital.create_user")
-                user = User.objects.create(username=username)
-            request.session['username'] = username
-            request.session['set_course'] = set_course
-            request.session['nonce'] = nonce
-            request.session['redirect_to'] = redirect_to
-            request.session['hmac'] = hmc
-            request.session['notify_url'] = notify_url
-        except:
-            statsd.incr("vital.drop.failure_on_get")
-            transaction.rollback()
-            raise
-        else:
-            transaction.commit()
 
-        return dict(user=user)
+@render_to('vital/drop.html')
+def drop_form(request):
+    # check their credentials
+    nonce = request.GET.get('nonce','')
+    hmc = request.GET.get('hmac','')
+    set_course = request.GET.get('set_course','')
+    username = request.GET.get('as')
+    redirect_to = request.GET.get('redirect_url','')
+    notify_url = request.GET.get('notify_url','')
+    verify = hmac.new(settings.VITAL_SECRET,
+                      '%s:%s:%s:%s' % (username,redirect_to,notify_url,nonce),
+                      hashlib.sha1
+                      ).hexdigest()
+    if verify != hmc:
+        statsd.incr("vital.auth_failure")
+        return HttpResponse("invalid authentication token")
+    try:
+        r = User.objects.filter(username=username)
+        if r.count():
+            user = User.objects.get(username=username)
+        else:
+            statsd.incr("vital.create_user")
+            user = User.objects.create(username=username)
+        request.session['username'] = username
+        request.session['set_course'] = set_course
+        request.session['nonce'] = nonce
+        request.session['redirect_to'] = redirect_to
+        request.session['hmac'] = hmc
+        request.session['notify_url'] = notify_url
+    except:
+        statsd.incr("vital.drop.failure_on_get")
+        raise
+
+    return dict(user=user)
 
 def done(request):
     if 'title' not in request.POST:
