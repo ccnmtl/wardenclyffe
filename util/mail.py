@@ -4,10 +4,10 @@ from django.conf import settings
 
 def send_to_everyone(subject,body,toaddress,fromaddress):
     """ send email to the user as well as everyone in settings.ANNOY_EMAILS """
-    send_mail(subject, body, fromaddress, [toaddress], fail_silently)
+    send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
     statsd.incr('event.mail_sent')
     for vuser in settings.ANNOY_EMAILS:
-        send_mail(subject, body, fromaddress, [vuser], fail_silently)
+        send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
         statsd.incr('event.mail_sent')
 
 def send_mediathread_received_mail(video_title,uni):
