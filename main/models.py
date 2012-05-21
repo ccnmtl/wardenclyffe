@@ -20,8 +20,6 @@ add_introspection_rules([],
 
 
 
-TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
-
 class Series(TimeStampedModel):
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256,default="",blank=True)
@@ -247,7 +245,7 @@ class File(TimeStampedModel):
 
     def tahoe_download_url(self):
         if self.location_type == "tahoe":
-            return TAHOE_BASE + "file/" + self.cap + "/@@named=" + self.filename
+            return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.cap + "/@@named=" + self.filename
         else:
             return None
 
