@@ -77,7 +77,7 @@ The error encountered:
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
 
-def send_youtube_submitted_video(video_title, uni, url):
+def send_youtube_submitted_mail(video_title, uni, url):
     subject = "\"%s\" was submitted to Columbia on YouTube EDU" % video.title
     body = """This email confirms that "%s" has been successfully submitted to Columbia's YouTube channel by %s.  
 
