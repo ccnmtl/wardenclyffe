@@ -3,7 +3,7 @@
 {% load thumbnail %}
 {% load oembed_tags %}
 {% block content %}
-<p><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>/<a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></p>
+<p><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>/<a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></p>
 <h1>File: {{file.label}}</h1>
 
 

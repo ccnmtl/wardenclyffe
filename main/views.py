@@ -3,9 +3,9 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
+from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
 from django.contrib.auth.models import User
-from wardenclyffe.main.forms import UploadVideoForm,AddSeriesForm,AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm,AddCollectionForm,AddServerForm
 import uuid 
 from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
 import wardenclyffe.mediathread.tasks
@@ -36,7 +36,7 @@ def breakme(request):
 @render_to('main/index.html')
 def index(request):
     return dict(
-        series=Series.objects.all().order_by("title"),
+        collection=Collection.objects.all().order_by("title"),
         videos=Video.objects.all().order_by("-modified")[:20],
                 operations=Operation.objects.all().order_by("-modified")[:20])
 
@@ -51,12 +51,12 @@ def dashboard(request):
     status_filters["inprogress"] = request.GET.get('status_filter_inprogress',not submitted)
     status_filters["enqueued"] = request.GET.get('status_filter_enqueued',not submitted)
     user_filter = request.GET.get('user','')
-    series_filter = int(request.GET.get('series',False) or '0')
+    collection_filter = int(request.GET.get('collection',False) or '0')
     d = dict(
-        all_series=Series.objects.all().order_by("title"),
+        all_collection=Collection.objects.all().order_by("title"),
         all_users=User.objects.all(),
         user_filter = user_filter,
-        series_filter = series_filter,
+        collection_filter = collection_filter,
         submitted = submitted,
         )
     d.update(status_filters)
@@ -116,11 +116,11 @@ def recent_operations(request):
     if request.GET.get('status_filter_submitted',not submitted):
         status_filters.append("submitted")
     user_filter = request.GET.get('user','')
-    series_filter = int(request.GET.get('series',False) or '0')
+    collection_filter = int(request.GET.get('collection',False) or '0')
     
     q = Operation.objects.filter(status__in=status_filters)
-    if series_filter:
-        q = q.filter(video__series__id=series_filter)
+    if collection_filter:
+        q = q.filter(video__collection__id=collection_filter)
     if user_filter:
         q = q.filter(video__creator=user_filter)
     
@@ -181,19 +181,19 @@ def add_server(request):
     return dict(form=AddServerForm())
 
 @login_required
-@render_to('main/series.html')
-def series(request,id):
-    series = get_object_or_404(Series,id=id)
-    videos = Video.objects.filter(series=series).order_by("-modified")
-    return dict(series=series,videos=videos[:20],
-                operations=Operation.objects.filter(video__series__id=id).order_by("-modified")[:20])
+@render_to('main/collection.html')
+def collection(request,id):
+    collection = get_object_or_404(Collection,id=id)
+    videos = Video.objects.filter(collection=collection).order_by("-modified")
+    return dict(collection=collection,videos=videos[:20],
+                operations=Operation.objects.filter(video__collection__id=id).order_by("-modified")[:20])
 
 @login_required
-@render_to('main/all_series_videos.html')
-def all_series_videos(request,id):
-    series = get_object_or_404(Series,id=id)
-    videos = series.video_set.all().order_by("title")
-    params = dict(series=series)
+@render_to('main/all_collection_videos.html')
+def all_collection_videos(request,id):
+    collection = get_object_or_404(Collection,id=id)
+    videos = collection.video_set.all().order_by("title")
+    params = dict(collection=collection)
     paginator = Paginator(videos,100)
     
     try:
@@ -211,11 +211,11 @@ def all_series_videos(request,id):
     return params
 
 @login_required
-@render_to('main/all_series_operations.html')
-def all_series_operations(request,id):
-    series = get_object_or_404(Series,id=id)
-    operations = Operation.objects.filter(video__series__id=id).order_by("-modified")
-    params = dict(series=series)
+@render_to('main/all_collection_operations.html')
+def all_collection_operations(request,id):
+    collection = get_object_or_404(Collection,id=id)
+    operations = Operation.objects.filter(video__collection__id=id).order_by("-modified")
+    params = dict(collection=collection)
     paginator = Paginator(operations,100)
     
     try:
@@ -243,16 +243,16 @@ def user(request,username):
 
 
 @login_required
-@render_to('main/edit_series.html')
-def edit_series(request,id):
-    series = get_object_or_404(Series,id=id)
+@render_to('main/edit_collection.html')
+def edit_collection(request,id):
+    collection = get_object_or_404(Collection,id=id)
     if request.method == "POST":
-        form = series.edit_form(request.POST)
+        form = collection.edit_form(request.POST)
         if form.is_valid():
-            series = form.save()
-            return HttpResponseRedirect(series.get_absolute_url())
-    form = series.edit_form()
-    return dict(series=series,form=form)
+            collection = form.save()
+            return HttpResponseRedirect(collection.get_absolute_url())
+    form = collection.edit_form()
+    return dict(collection=collection,form=form)
 
 @login_required
 @render_to('main/edit_video.html')
@@ -276,12 +276,12 @@ def remove_tag_from_video(request,id,tagname):
     return HttpResponse("ok")
 
 @login_required
-def remove_tag_from_series(request,id,tagname):
-    series = get_object_or_404(Series,id=id)
+def remove_tag_from_collection(request,id,tagname):
+    collection = get_object_or_404(Collection,id=id)
     if 'ajax' in request.GET:
         # we're not being strict about requiring POST,
         # but let's at least require ajax
-        series.tags.remove(tagname)
+        collection.tags.remove(tagname)
     return HttpResponse("ok")
 
 
@@ -289,7 +289,7 @@ def remove_tag_from_series(request,id,tagname):
 @render_to('main/tag.html')
 def tag(request,tagname):
     return dict(tag=tagname,
-                series=Series.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
+                collection=Collection.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
                 videos = Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
 
 @login_required
@@ -359,10 +359,10 @@ def file_index(request):
     return params
 
 @login_required
-@render_to('main/add_series.html')
-def add_series(request):
+@render_to('main/add_collection.html')
+def add_collection(request):
     if request.method == "POST":
-        form = AddSeriesForm(request.POST)
+        form = AddCollectionForm(request.POST)
         if form.is_valid():
             suuid = uuid.uuid4()
             s = form.save(commit=False)
@@ -370,7 +370,7 @@ def add_series(request):
             s.save()
             form.save_m2m()
             return HttpResponseRedirect(s.get_absolute_url())
-    return dict(form=AddSeriesForm())
+    return dict(form=AddCollectionForm())
 
 
 def operation_info(request,uuid):
@@ -387,7 +387,7 @@ def operation(request,uuid):
 @transaction.commit_manually
 @login_required
 def upload(request):
-    series_id = None
+    collection_id = None
     if request.method == "POST":
         form = UploadVideoForm(request.POST,request.FILES)
         operations = []
@@ -431,9 +431,9 @@ def upload(request):
             try:
                 v = form.save(commit=False)
                 v.uuid = vuuid
-                series_id = request.GET.get('series',None)
-                if series_id:
-                    v.series_id = series_id
+                collection_id = request.GET.get('collection',None)
+                if collection_id:
+                    v.collection_id = collection_id
                 v.save()
                 form.save_m2m()
                 if source_filename:
@@ -485,24 +485,24 @@ def upload(request):
 @login_required
 def upload_form(request):
     form = UploadVideoForm()
-    series_id = request.GET.get('series',None)
-    if series_id:
-        series = get_object_or_404(Series,id=series_id)
-        form = series.add_video_form()
-    return dict(form=form,series_id=series_id)
+    collection_id = request.GET.get('collection',None)
+    if collection_id:
+        collection = get_object_or_404(Collection,id=collection_id)
+        form = collection.add_video_form()
+    return dict(form=form,collection_id=collection_id)
 
 @login_required
 @render_to('main/upload.html')
 def scan_directory(request):
-    series_id = None
+    collection_id = None
     file_listing = []
     form = UploadVideoForm()
-    series_id = request.GET.get('series',None)
-    if series_id:
-        series = get_object_or_404(Series,id=series_id)
-        form = series.add_video_form()
+    collection_id = request.GET.get('collection',None)
+    if collection_id:
+        collection = get_object_or_404(Collection,id=collection_id)
+        form = collection.add_video_form()
     file_listing = os.listdir(settings.WATCH_DIRECTORY)
-    return dict(form=form,series_id=series_id,file_listing=file_listing,scan_directory=True)
+    return dict(form=form,collection_id=collection_id,file_listing=file_listing,scan_directory=True)
 
 def test_upload(request):
     return HttpResponse("a response")
@@ -638,16 +638,16 @@ def delete_file(request,id):
 def delete_video(request,id):
     v = get_object_or_404(Video,id=id)
     if request.method == "POST":
-        series = v.series
+        collection = v.collection
         v.delete()
-        return HttpResponseRedirect(series.get_absolute_url())
+        return HttpResponseRedirect(collection.get_absolute_url())
     else:
         return dict()
 
 @login_required
 @render_to('main/delete_confirm.html')
-def delete_series(request,id):
-    s = get_object_or_404(Series,id=id)
+def delete_collection(request,id):
+    s = get_object_or_404(Collection,id=id)
     if request.method == "POST":
         s.delete()
         return HttpResponseRedirect("/")
@@ -717,17 +717,17 @@ def file_pcp_submit(request,id):
 @render_to('main/file_filter.html')
 def file_filter(request):
 
-    include_series = request.GET.getlist('include_series')
+    include_collection = request.GET.getlist('include_collection')
     include_file_types = request.GET.getlist('include_file_types')
     include_video_formats = request.GET.getlist('include_video_formats')
     include_audio_formats = request.GET.getlist('include_audio_formats')
 
-    results = File.objects.filter(video__series__id__in=include_series)\
+    results = File.objects.filter(video__collection__id__in=include_collection)\
         .filter(location_type__in=include_file_types)
 
-    all_series = []
-    for s in Series.objects.all():
-        all_series.append((s,str(s.id) in include_series))
+    all_collection = []
+    for s in Collection.objects.all():
+        all_collection.append((s,str(s.id) in include_collection))
 
     all_file_types = []
     for l in list(set([f.location_type for f in File.objects.all()])):
@@ -756,7 +756,7 @@ def file_filter(request):
                 and f.audio_format() not in excluded_audio_formats:
             files.append(f)
 
-    return dict(all_series=all_series,
+    return dict(all_collection=all_collection,
                 all_video_formats=all_video_formats,
                 all_audio_formats=all_audio_formats,
                 all_file_types=all_file_types,
@@ -852,7 +852,7 @@ def search(request):
     q = request.GET.get('q','')
     results = dict(count=0)
     if q:
-        r = Series.objects.filter(
+        r = Collection.objects.filter(
             Q(title__icontains=q) |
             Q(creator__icontains=q) |
             Q(contributor__icontains=q) |
@@ -862,7 +862,7 @@ def search(request):
             Q(license__icontains=q)             
             )
         results['count'] += r.count()
-        results['series'] = r
+        results['collection'] = r
 
         r = Video.objects.filter(
             Q(title__icontains=q) |
@@ -883,7 +883,7 @@ def uuid_search(request):
     uuid = request.GET.get('uuid','')
     results = dict()
     if uuid:
-        for k,label in [(Series,"series"),(Video,"video"),
+        for k,label in [(Collection,"collection"),(Video,"video"),
                         (Operation,"operation")]:
             r = k.objects.filter(uuid=uuid)
             if r.count() > 0:
@@ -907,7 +907,7 @@ def subject_autocomplete(request):
         for p in s.split(","):
             p = p.strip()
             all_subjects[p] = 1
-    r = Series.objects.filter(subject__icontains=q)
+    r = Collection.objects.filter(subject__icontains=q)
     for v in r:
         s = v.subject.lower()
         for p in s.split(","):

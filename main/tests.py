@@ -6,15 +6,15 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from wardenclyffe.main.models import Series, Video, File
+from wardenclyffe.main.models import Collection, Video, File
 import uuid
 from wardenclyffe.main.tasks import strip_special_characters
 
 class CUITFileTest(TestCase):
     def setUp(self):
-        self.series = Series.objects.create(title = "test series",
+        self.collection = Collection.objects.create(title = "test collection",
                                             uuid = uuid.uuid4())
-        self.video = Video.objects.create(series = self.series,
+        self.video = Video.objects.create(collection = self.collection,
                                           title = "test video",
                                           uuid = uuid.uuid4())
         self.file = File.objects.create(video=self.video,
@@ -52,26 +52,26 @@ class CUITFileTest(TestCase):
         assert self.video.cuit_url() == self.file.cuit_public_url()
 
 
-class SeriesTest(TestCase):
+class CollectionTest(TestCase):
     def setUp(self):
-        self.series = Series.objects.create(title = "test series",
+        self.collection = Collection.objects.create(title = "test collection",
                                             uuid = uuid.uuid4())
 
     def test_forms(self):
-        add_form = self.series.add_video_form()
+        add_form = self.collection.add_video_form()
         assert "id_title" in str(add_form)
         assert 'title' in add_form.fields
-        edit_form = self.series.edit_form()
+        edit_form = self.collection.edit_form()
         assert 'title' in edit_form.fields
-        assert self.series.title in str(edit_form)
+        assert self.collection.title in str(edit_form)
 
 class EmptyVideoTest(TestCase):
     """ test the behavior for a video that doesn't have any files associated
     with it """
     def setUp(self):
-        self.series = Series.objects.create(title = "test series",
+        self.collection = Collection.objects.create(title = "test collection",
                                             uuid = uuid.uuid4())
-        self.video = Video.objects.create(series = self.series,
+        self.video = Video.objects.create(collection = self.collection,
                                           title = "test video",
                                           uuid = uuid.uuid4())
 
@@ -142,9 +142,9 @@ class EmptyVideoTest(TestCase):
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def setUp(self):
-        self.series = Series.objects.create(title = "Mediathread Spring 2012",
+        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
                                             uuid = uuid.uuid4())
-        self.video = Video.objects.create(series = self.series,
+        self.video = Video.objects.create(collection = self.collection,
                                           title = "test video",
                                           creator = "anp8",
                                           uuid = uuid.uuid4())
@@ -267,9 +267,9 @@ ID_VIDEO_WIDTH,704"""
 class VitalVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Vital """
     def setUp(self):
-        self.series = Series.objects.create(title = "Vital Spring 2012",
+        self.collection = Collection.objects.create(title = "Vital Spring 2012",
                                             uuid = uuid.uuid4())
-        self.video = Video.objects.create(series = self.series,
+        self.video = Video.objects.create(collection = self.collection,
                                           title = "Vital video uploaded by anp8",
                                           creator = "anp8",
                                           uuid = uuid.uuid4())
@@ -399,9 +399,9 @@ class MissingDimensionsTest(TestCase):
     that we couldn't parse the dimensions out of for some reason
     """
     def setUp(self):
-        self.series = Series.objects.create(title = "Mediathread Spring 2012",
+        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
                                             uuid = uuid.uuid4())
-        self.video = Video.objects.create(series = self.series,
+        self.video = Video.objects.create(collection = self.collection,
                                           title = "test video",
                                           creator = "anp8",
                                           uuid = uuid.uuid4())

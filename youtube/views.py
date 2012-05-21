@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
 import wardenclyffe.main.tasks
@@ -30,8 +30,8 @@ def youtube(request):
             filename = os.path.basename(tmpfilename)
             vuuid = os.path.splitext(filename)[0]
             try:
-                series = Series.objects.filter(title="Youtube")[0]
-                v = Video.objects.create(series=series,
+                collection = Collection.objects.filter(title="Youtube")[0]
+                v = Video.objects.create(collection=collection,
                                          title=request.POST.get("title","youtube video uploaded by %s" % request.user.username),
                                          creator=request.user.username,
                                          description=request.POST.get("description",""),

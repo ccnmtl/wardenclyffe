@@ -38,13 +38,13 @@
 
 </p>
 
-<p><b>Series:</b>
-<select name="series">
+<p><b>Collection:</b>
+<select name="collection">
 <option value="">ALL</option>
-{% for series in all_series %}
-<option value="{{series.id}}"
-{% ifequal series.id series_filter %}selected="selected"{% endifequal %}
->{{series.title}}</option>
+{% for collection in all_collection %}
+<option value="{{collection.id}}"
+{% ifequal collection.id collection_filter %}selected="selected"{% endifequal %}
+>{{collection.title}}</option>
 {% endfor %}
 </select>
 </p>
@@ -69,7 +69,7 @@
       <th></th>
       <th>operation</th>
       <th>video</th>
-      <th>series</th>
+      <th>collection</th>
       <th>date</th>
       <th>user</th>
     </tr>

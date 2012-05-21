@@ -59,7 +59,7 @@ def import_quicktime(request):
         return HttpResponseRedirect("/cuit/")
 
     try:
-        s = Series.objects.get(id=settings.QUICKTIME_IMPORT_SERIES_ID)
+        s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
         server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
 
         video_ids = []
@@ -68,7 +68,7 @@ def import_quicktime(request):
                 continue
             vuuid = uuid.uuid4()
             # make db entry
-            v = Video.objects.create(series=s,
+            v = Video.objects.create(collection=s,
                                      title=os.path.basename(filename),
                                      creator=request.user.username,
                                      uuid = vuuid)
@@ -106,7 +106,7 @@ def import_retry(request):
 @render_to("cuit/broken_quicktime.html")
 def broken_quicktime(request):
     broken_files = []
-    s = Series.objects.get(id=settings.QUICKTIME_IMPORT_SERIES_ID)
+    s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
     for v in s.video_set.all():
         f = v.cuit_file()
         if not f:

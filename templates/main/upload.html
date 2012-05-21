@@ -29,12 +29,12 @@
 {% endif %}
 		<div class="wc_help_button" id="help_video_source">?</div><!-- class="wc_help_button" -->
 	</div><!-- class="form_video_source" -->
-	<div class="form_video_series">
-		<div class="form_video_series_title">
-		 <label for="id_series">Series:</label>
+	<div class="form_video_collection">
+		<div class="form_video_collection_title">
+		 <label for="id_collection">Collection:</label>
 		</div>
-		{{ form.series }}
-	</div><!-- class="form_video_series" -->
+		{{ form.collection }}
+	</div><!-- class="form_video_collection" -->
 	<div class="visualclear"></div>
 </div><!-- class="panel_top" -->
 
@@ -156,8 +156,8 @@
 </div><!-- class="panel_middle" -->
 
 <div class="panel_bottom">
-	{% if series_id %}
-	<input type="hidden" name="series" value="{{series_id}}" />
+	{% if collection_id %}
+	<input type="hidden" name="collection" value="{{collection_id}}" />
 	{% endif %}
 	<input type="submit" id="submit" value="upload" class="regbutton
 	floatleft" style="margin-left: 515px;" 

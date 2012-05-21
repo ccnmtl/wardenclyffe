@@ -24,8 +24,8 @@ var newRow = function(el) {
   // TODO link to video
   r.append("<td>" + el.video_title + "</td>");
 
-  // TODO link to series
-  r.append("<td>" + el.series_title + "</td>");
+  // TODO link to collection
+  r.append("<td>" + el.collection_title + "</td>");
 
   r.append("<td class=\"modified\">" + el.modified + "</td>");
   r.append("<td>" + el.video_creator + "</td>");

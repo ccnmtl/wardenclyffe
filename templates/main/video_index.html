@@ -33,7 +33,7 @@
     <th>uploaded</th><th>modified</th></tr>
 {% for video in videos.object_list %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th align="left"><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a>/<a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<th align="left"><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a>/<a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
 <td>{{video.creator}}</td>
 <td>{{video.description}}</td>
 <td>{{video.subject}}</td>

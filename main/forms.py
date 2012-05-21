@@ -1,9 +1,9 @@
-from wardenclyffe.main.models import Video, Series, Server
+from wardenclyffe.main.models import Video, Collection, Server
 from django import forms
 
-class AddSeriesForm(forms.ModelForm):
+class AddCollectionForm(forms.ModelForm):
     class Meta:
-        model = Series
+        model = Collection
 
 class UploadVideoForm(forms.ModelForm):
     class Meta:

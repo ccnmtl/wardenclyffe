@@ -13,7 +13,7 @@
 <input type="submit" value="search" />
 </form>
 
-{% if results.series %}<p>Series: <a href="{{results.series.get_absolute_url}}">{{results.series.title}}</a></p>{% endif %}
+{% if results.collection %}<p>Collection: <a href="{{results.collection.get_absolute_url}}">{{results.collection.title}}</a></p>{% endif %}
 {% if results.video %}<p>Video: <a href="{{results.video.get_absolute_url}}">{{results.video.title}}</a></p>{% endif %}
 {% if results.operation %}<p>Operation: <a href="{{results.operation.get_absolute_url}}">{{results.operation.action}}</a></p>{% endif %}
 {% endblock %}

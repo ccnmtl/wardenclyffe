@@ -4,12 +4,12 @@
 
 <h1><a href="/tag/">Tag</a>: {{tag}}</h1>
 
-{% if series %}
-<h2>Series</h2>
+{% if collection %}
+<h2>Collection</h2>
 <table style="100%">
-{% for series in series %}
+{% for collection in collection %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th><a href="{{series.get_absolute_url}}">{{series.title}}</a></th>
+<th><a href="{{collection.get_absolute_url}}">{{collection.title}}</a></th>
 </tr>
 {% endfor %}
 </table>

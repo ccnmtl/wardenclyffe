@@ -20,7 +20,7 @@ add_introspection_rules([],
 
 
 
-class Series(TimeStampedModel):
+class Collection(TimeStampedModel):
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256,default="",blank=True)
     contributor = models.CharField(max_length=256,default="",blank=True)
@@ -37,26 +37,26 @@ class Series(TimeStampedModel):
         return self.title
 
     def get_absolute_url(self):
-        return "/series/%d/" % self.id
+        return "/collection/%d/" % self.id
 
     def add_video_form(self):
         class AddVideoForm(forms.ModelForm):
             class Meta:
                 model = Video
-                exclude = ('series')
+                exclude = ('collection')
         return AddVideoForm()
 
     def edit_form(self,data=None):
         class EditForm(forms.ModelForm):
             class Meta:
-                model = Series
+                model = Collection
         if data:
             return EditForm(data,instance=self)
         else:
             return EditForm(instance=self)
 
 class Video(TimeStampedModel):
-    series = models.ForeignKey(Series)
+    collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256,default="",blank=True)
     description = models.TextField(default="",blank=True,null=True)
@@ -367,8 +367,8 @@ class Operation(TimeStampedModel):
                  video_id=self.video.id,
                  video_title=self.video.title,
                  video_creator=self.video.creator,
-                 series_id=self.video.series.id,
-                 series_title=self.video.series.title,
+                 collection_id=self.video.collection.id,
+                 collection_title=self.video.collection.title,
                  modified=str(self.modified)[:19],
                  )
         return d

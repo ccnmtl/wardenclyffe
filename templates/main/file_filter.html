@@ -29,7 +29,7 @@ var deselectAll = function() {
   <tr>
     <th></th>
     <th>File</th>
-    <th>Series</th>
+    <th>Collection</th>
     <th>File Type</th>
     <th>Video Format</th>
     <th>Audio Format</th>
@@ -41,9 +41,9 @@ var deselectAll = function() {
     <th></th>
     <td><input type="submit" value="filter" /></td>
     <td>
-      <select multiple="multiple" name="include_series" size="5">
-      {% for series,included in all_series %}
-      <option value="{{series.id}}" {% if included %}selected="selected"{% endif %}/>{{series.title}}</option>
+      <select multiple="multiple" name="include_collection" size="5">
+      {% for collection,included in all_collection %}
+      <option value="{{collection.id}}" {% if included %}selected="selected"{% endif %}/>{{collection.title}}</option>
       {% endfor %}
       </select>
     </td>
@@ -80,7 +80,7 @@ var deselectAll = function() {
     <tr class="{% cycle 'odd' 'even' %}">
       <td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>
       <td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a> <a href="{{file.get_absolute_url}}">{{file.label}}</a></td>
-      <td><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a></td>
+      <td><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a></td>
       <td>{{file.location_type}}</td>
       <td>{{file.video_format}}</td>
       <td>{{file.audio_format}}</td>

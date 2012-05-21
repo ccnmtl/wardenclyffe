@@ -1282,7 +1282,7 @@ background-color: #8dbdd8;
 	float: left;
 }
 
-.recent_series
+.recent_collection
 {
 	margin: 0 0 0 20px;
 	padding: 0;
@@ -1336,7 +1336,7 @@ background-color: #8dbdd8;
 	width: 465px;
 }
 
-.recent_series .table-header .table_title
+.recent_collection .table-header .table_title
 {
 	width: 150px;
 }
@@ -1405,7 +1405,7 @@ div.measure
 	color: #06f;
 }
 
-.series_title
+.collection_title
 {
 	font-weight: bold;
 	color: #666;
@@ -1550,7 +1550,7 @@ tr td.submitted
 	margin: 0 0 20px 0;
 }
 
-.form_video_source, .form_video_series
+.form_video_source, .form_video_collection
 {
 	float: left;
 	width: 200px;
@@ -1562,7 +1562,7 @@ tr td.submitted
 }
 
 .form_video_source_title,
-.form_video_series_title
+.form_video_collection_title
 {
 	margin: 0 5px 0 0;
 	padding: 0;

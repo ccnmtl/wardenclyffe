@@ -1,5 +1,5 @@
 from django.contrib.syndication.views import Feed
-from wardenclyffe.main.models import Series
+from wardenclyffe.main.models import Collection
 from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Rss201rev2Feed,rfc3339_date
 
@@ -9,7 +9,7 @@ class CCNMTLRssFeed(Rss201rev2Feed):
 
     Also to be added:
 
-    Per Series (Channel):
+    Per Collection (Channel):
 
     itunes:author -- should inherit from dc:creator
     itunes:explicit -- should always be "Do Not Mark"
@@ -64,14 +64,14 @@ class CCNMTLRssFeed(Rss201rev2Feed):
         handler.addQuickElement('dc:description',item['description'])
         handler.addQuickElement('dc:date',rfc3339_date(item['item'].created))        
 
-class SeriesFeed(Feed):
+class CollectionFeed(Feed):
     feed_type = CCNMTLRssFeed
 
     def get_object(self, request, id):
-        return get_object_or_404(Series, pk=id)
+        return get_object_or_404(Collection, pk=id)
 
     def title(self, obj):
-        return "Wardenclyffe: videos for series %s" % obj.title
+        return "Wardenclyffe: videos for collection %s" % obj.title
 
     def link(self, obj):
         return obj.get_absolute_url()

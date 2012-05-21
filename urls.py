@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.conf import settings
-from wardenclyffe.main.feeds import SeriesFeed
+from wardenclyffe.main.feeds import CollectionFeed
 import os.path
 admin.autodiscover()
 
@@ -16,14 +16,14 @@ urlpatterns = patterns('',
                        ('^cuit/',include('cuit.urls')),
                        (r'^admin/', include(admin.site.urls)),
                        (r'^capture/file_upload','main.views.test_upload'),
-                       (r'^add_series/$','main.views.add_series'),
-                       (r'^series/(?P<id>\d+)/$','main.views.series'),
-                       (r'^series/(?P<id>\d+)/videos/$','main.views.all_series_videos'),
-                       (r'^series/(?P<id>\d+)/operations/$','main.views.all_series_operations'),
-                       (r'^series/(?P<id>\d+)/edit/$','main.views.edit_series'),
-                       (r'^series/(?P<id>\d+)/delete/$','main.views.delete_series'),
-                       (r'^series/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_series'),
-                       (r'^series/(?P<id>\d+)/rss/$', SeriesFeed()),
+                       (r'^add_collection/$','main.views.add_collection'),
+                       (r'^collection/(?P<id>\d+)/$','main.views.collection'),
+                       (r'^collection/(?P<id>\d+)/videos/$','main.views.all_collection_videos'),
+                       (r'^collection/(?P<id>\d+)/operations/$','main.views.all_collection_operations'),
+                       (r'^collection/(?P<id>\d+)/edit/$','main.views.edit_collection'),
+                       (r'^collection/(?P<id>\d+)/delete/$','main.views.delete_collection'),
+                       (r'^collection/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_collection'),
+                       (r'^collection/(?P<id>\d+)/rss/$', CollectionFeed()),
                        (r'^video/(?P<id>\d+)/edit/$','main.views.edit_video'),
                        (r'^video/(?P<id>\d+)/delete/$','main.views.delete_video'),
                        (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$','main.views.remove_tag_from_video'),

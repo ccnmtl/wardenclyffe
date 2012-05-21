@@ -51,9 +51,9 @@ jQuery(function($){
 					<span class="video_title">
 					{{video.title}}
 					</span>
-					in Series
-					<span class="series_title">
-					{{video.series.title}}
+					in Collection
+					<span class="collection_title">
+					{{video.collection.title}}
 					</span>
 					created by
 					<span class="video_owner">
@@ -104,17 +104,17 @@ jQuery(function($){
 
 
 
-<div class="dashboard recent_series">
+<div class="dashboard recent_collection">
 	<div class="table-header">
-		<div class="table_title">Recent series</div><!-- class="table_title" -->
+		<div class="table_title">Recent collection</div><!-- class="table_title" -->
 		<div class="see_more"><a href="#">see more</a></div><!--class="see_more"  -->
-		<div class="add_new"><a href="/add_series/">add new</a></div><!-- class="add_new" -->
+		<div class="add_new"><a href="/add_collection/">add new</a></div><!-- class="add_new" -->
 	</div><!--  class="table-header -->
 	<table>
 		<tbody>
-			{% for series in series %}
+			{% for collection in collection %}
 			<tr class="{% cycle 'odd' 'even' %}">
-				<td><a href="{{series.get_absolute_url}}">{{series.title}}</a></td>
+				<td><a href="{{collection.get_absolute_url}}">{{collection.title}}</a></td>
 			</tr>
 			{% endfor %}
 		<tfoot>
@@ -124,6 +124,6 @@ jQuery(function($){
 		</tfoot>
 		</tbody>
 	</table>
-</div><!-- class="dashboard recent_series" -->
+</div><!-- class="dashboard recent_collection" -->
 
 {% endblock %}

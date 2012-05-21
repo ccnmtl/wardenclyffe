@@ -60,7 +60,7 @@ var deselectAll = function() {
 <tbody>
 {% for file in files.object_list %}
 <tr class="{% cycle 'odd' 'even' %}">
-<td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td><th align="left"><a href="{{file.video.series.get_absolute_url}}">{{file.video.series.title}}</a>
+<td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td><th align="left"><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>
   / <a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a>
   / <a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
 <td><i>{{file.created|date:"M d, Y H:i:s"}}</i></td>

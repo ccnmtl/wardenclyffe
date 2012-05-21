@@ -27,19 +27,19 @@ jQuery(document).ready(function()
 
 {% block content %}
 
-<h1>Series: {{series.title}}</h1>
+<h1>Collection: {{collection.title}}</h1>
 
 <table>
-<tr><th>creator<br /><span class="dc">dcterms:creator</span></th></th><td>{{series.creator}}</td></tr>
-<tr><th>contributor<br /><span class="dc">dcterms:contributor</span></th></th><td>{{series.contributor}}</td></tr>
-<tr><th>language<br /><span class="dc">dcterms:language</span></th></th><td>{{series.language}}</td></tr>
-<tr><th>description<br /><span class="dc">dcterms:description</span></th></th><td>{{series.description}}</td></tr>
-<tr><th>subject<br /><span class="dc">dcterms:subject</span></th></th><td>{{series.subject}}</td></tr>
-<tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{series.license}}</td></tr>
+<tr><th>creator<br /><span class="dc">dcterms:creator</span></th></th><td>{{collection.creator}}</td></tr>
+<tr><th>contributor<br /><span class="dc">dcterms:contributor</span></th></th><td>{{collection.contributor}}</td></tr>
+<tr><th>language<br /><span class="dc">dcterms:language</span></th></th><td>{{collection.language}}</td></tr>
+<tr><th>description<br /><span class="dc">dcterms:description</span></th></th><td>{{collection.description}}</td></tr>
+<tr><th>subject<br /><span class="dc">dcterms:subject</span></th></th><td>{{collection.subject}}</td></tr>
+<tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{collection.license}}</td></tr>
 <tr><th>tags</th>
 <td>
     <ul>
-      {% for tag in series.tags.all %}
+      {% for tag in collection.tags.all %}
       <li id="tag-{{tag.id}}">
 	<a href="/tag/{{tag}}/">{{tag}}</a>
 	[<a href="remove_tag/{{tag}}/"
@@ -49,14 +49,14 @@ jQuery(document).ready(function()
 
 </td></tr>
 </table>
-<p><a href="edit/">edit series metadata</a></p>
+<p><a href="edit/">edit collection metadata</a></p>
 
-<p><a href="/upload/?series={{series.id}}">add a video</a></p>
+<p><a href="/upload/?collection={{collection.id}}">add a video</a></p>
 <p><a href="rss/"><img src="http://pmt.ccnmtl.columbia.edu/images/rss.png"
 			/> RSS Feed</a></p>
 {% if videos %}
 <h2>Recent Videos</h2>
-<p>You can also browse <a href="videos/">all videos in the series</a></p>
+<p>You can also browse <a href="videos/">all videos in the collection</a></p>
 <table style="width: 100%" class="tablesorter"> 
 <thead>
 <tr><th colspan="2">Video</th>
@@ -91,7 +91,7 @@ jQuery(document).ready(function()
 
 {% if operations %}
 <h2>Recent Operations</h2>
-<p>You can also browse <a href="operations/">all operations in the series</a></p>
+<p>You can also browse <a href="operations/">all operations in the collection</a></p>
 <table style="width: 100%" class="tablesorter">
 <thead>
 <tr>

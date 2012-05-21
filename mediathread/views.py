@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import uuid 
 import wardenclyffe.main.tasks as maintasks
@@ -61,8 +61,8 @@ def mediathread_post(request):
         vuuid = os.path.splitext(filename)[0]
         # make db entry
         try:
-            series = Series.objects.get(id=settings.MEDIATHREAD_SERIES_ID)
-            v = Video.objects.create(series=series,
+            collection = Collection.objects.get(id=settings.MEDIATHREAD_COLLECTION_ID)
+            v = Video.objects.create(collection=collection,
                                      title=request.POST.get('title',''),
                                      creator=request.session['username'],
                                      uuid = vuuid)

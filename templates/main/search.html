@@ -18,12 +18,12 @@
 
 {% if results.count %}
 
-{% if results.series %}
-<h2>Series</h2>
+{% if results.collection %}
+<h2>Collection</h2>
 <table>
-{% for series in results.series %}
+{% for collection in results.collection %}
 <tr class="{% cycle 'odd' 'even' %}">
-<th><a href="{{series.get_absolute_url}}">{{series.title}}</a></th>
+<th><a href="{{collection.get_absolute_url}}">{{collection.title}}</a></th>
 </tr>
 {% endfor %}
 
@@ -36,7 +36,7 @@
 <thead>
   <tr>
     <th colspan="2">video</th>
-    <th>series</th>
+    <th>collection</th>
     <th>uploaded</th>
     <th>modified</th>
   </tr>
@@ -56,7 +56,7 @@
 {% endwith %}</a>
 </td>
 <td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
-<td><a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></td>
+<td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
 <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
 <td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
 </tr>

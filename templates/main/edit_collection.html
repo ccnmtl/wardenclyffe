@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<h2>Edit Series {{series.title}}</h2>
+<h2>Edit Collection {{collection.title}}</h2>
 <form action="." method="post">
 <table>
 {{form.as_table}}
@@ -16,7 +16,7 @@
 <input type="submit" value="save"/>
 </form>
 
-<p><a href="{{series.get_absolute_url}}delete/">delete this series</a></p>
+<p><a href="{{collection.get_absolute_url}}delete/">delete this collection</a></p>
 
 <script type="text/javascript">
 jQuery(document).ready(function() 

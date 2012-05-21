@@ -24,7 +24,7 @@ var removeTag = function(tagName,tagId) {
 {% endblock %}
 
 {% block content %}
-<p>In Series: <a href="{{video.series.get_absolute_url}}">{{video.series.title}}</a></p>
+<p>In Collection: <a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></p>
 <h1>{{video.title}}</h1>
 
 

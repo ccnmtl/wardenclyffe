@@ -3,7 +3,7 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from wardenclyffe.main.models import Video, Operation, Series, File, Metadata, OperationLog, OperationFile, Image, Poster
+from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster
 from django.contrib.auth.models import User
 import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
@@ -82,10 +82,10 @@ def drop(request):
             tmpfile.close()
             # make db entry
             try:
-                series = Series.objects.get(id=settings.VITAL_SERIES_ID)
+                collection = Collection.objects.get(id=settings.VITAL_COLLECTION_ID)
                 filename = request.FILES['source_file'].name
                 user = User.objects.get(username=request.session['username'])                
-                v = Video.objects.create(series=series,
+                v = Video.objects.create(collection=collection,
                                          title=request.POST.get('title',''),
                                          creator=request.session['username'],
                                          uuid = vuuid)
