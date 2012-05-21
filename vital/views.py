@@ -9,7 +9,6 @@ import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
 from wardenclyffe.util import uuidparse
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import transaction
 import uuid
 import hmac, hashlib, datetime
@@ -224,7 +223,6 @@ def done(request):
                 operation.video.clear_vital_submit()
     return HttpResponse("ok")
 
-
 def posterdone(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
@@ -245,8 +243,6 @@ def posterdone(request):
                                                   location_type='vitalthumb')
     return HttpResponse("ok")
 
-
-
 def received(request):
     if 'title' not in request.POST:
         return HttpResponse("expecting a title")
@@ -257,26 +253,7 @@ def received(request):
         statsd.incr("vital.received")
         operation = r[0]
         if operation.video.is_vital_submit():
-            send_mail('Video submitted to VITAL', 
-"""This email confirms that %s has been successfully submitted to VITAL by %s.  
-
-The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-""" % (operation.video.title,operation.owner.username),
-                      'ccnmtl-vital@columbia.edu',
-                      ["%s@columbia.edu" % operation.owner.username], fail_silently=False)
-            statsd.incr("event.mail_sent")
-            for vuser in settings.ANNOY_EMAILS:
-                send_mail('Video submitted to VITAL', 
-                          """This email confirms that %s has been successfully submitted to VITAL by %s.  
-
-The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-""" % (operation.video.title,operation.owner.username),
-                          'ccnmtl-vital@columbia.edu',
-                          [vuser], fail_silently=False)
-                statsd.incr("event.mail_sent")
+            send_vital_received_mail(operation.video.title, 
+                                     operation.owner.username)
 
     return HttpResponse("ok")
