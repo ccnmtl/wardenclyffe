@@ -11,7 +11,6 @@ import subprocess
 from django.conf import settings
 from restclient import POST
 import httplib
-from django.core.mail import send_mail
 import paramiko
 import random
 import re

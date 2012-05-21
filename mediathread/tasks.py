@@ -5,7 +5,7 @@ import uuid
 from django.conf import settings
 from restclient import POST
 import httplib
-from django.core.mail import send_mail
+from wardenclyffe.util.mail import *
 from django_statsd.clients import statsd
 
 def submit_to_mediathread(operation,params):
@@ -55,35 +55,7 @@ def submit_to_mediathread(operation,params):
                                                          label="mediathread")
         of = wardenclyffe.main.models.OperationFile.objects.create(operation=operation,file=f)
 
-        send_mail('Uploaded video now available in Mediathread', 
-                  """
-This email confirms that %s, uploaded to Mediathread by %s, is now available.
-
-View/Annotate it here: %s
-
-If you have any questions, please visit 
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (video.title,user.username,url),
-                  'ccnmtl-mediathread@columbia.edu',
-              ["%s@columbia.edu" % user.username], fail_silently=False)
-        statsd.incr("event.mail_sent")
-        for vuser in settings.ANNOY_EMAILS:
-            send_mail('Uploaded video now available in Mediathread', 
-                      """
-This email confirms that %s, uploaded to Mediathread by %s, is now available.
-
-View/Annotate it here: %s
-
-If you have any questions, please visit 
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (video.title,user.username,url),
-                      'ccnmtl-mediathread@columbia.edu',
-                      [vuser], fail_silently=False)
-            statsd.incr("event.mail_sent")
+        send_mediathread_uploaded_mail(video.title, user.username, url)
 
         return ("complete","")
     else:

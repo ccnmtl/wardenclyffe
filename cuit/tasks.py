@@ -7,7 +7,6 @@ import uuid
 import tempfile
 import subprocess
 from django.conf import settings
-from django.core.mail import send_mail
 import paramiko
 
 # TODO: convert to decorator

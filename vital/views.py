@@ -14,7 +14,7 @@ import uuid
 import hmac, hashlib, datetime
 from django.template import RequestContext
 from django_statsd.clients import statsd
-
+from wardenclyffe.util.mail import send_vital_received_mail
 
 @transaction.commit_manually
 @render_to('vital/submit.html')

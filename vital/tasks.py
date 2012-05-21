@@ -11,7 +11,7 @@ import subprocess
 from django.conf import settings
 from restclient import POST
 import httplib
-from django.core.mail import send_mail
+from wardenclyffe.util.mail import *
 from django_statsd.clients import statsd
 
 # TODO: convert to decorator
@@ -59,48 +59,11 @@ def submit_to_vital(video_id,user,course_id,rtsp_url,vital_secret,vital_base,**k
             }
         resp,content = POST(vital_base,params=params,async=False,resp=True)
         if resp.status == 302 or resp.status == 200:
-            send_mail('Uploaded video now available in VITAL', 
-                      """
-This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-
-""" % (video.title,user.username,course_id),
-                      'ccnmtl-vital@columbia.edu',
-                  ["%s@columbia.edu" % user.username], fail_silently=False)
-            for vuser in settings.ANNOY_EMAILS:
-                send_mail('Uploaded video now available in VITAL', 
-                          """
-This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-
-""" % (video.title,user.username,course_id),
-                      'ccnmtl-vital@columbia.edu',
-                          [vuser], fail_silently=False)
+            send_vital_uploaded_mail(video.title, user.username, course_id)
             return ("complete","")
         else:
             statsd.incr("vital.submit_to_vital.failure")
-            send_mail('VITAL video upload failed', 
-                  """An error has occurred while attempting to upload your video, "%s", to VITAL.
-Please contact CCNMTL video staff for assistance. 
-The error encountered:
-%s
-""" % (video.title,content), 
-                      'ccnmtl-vital@columbia.edu',
-                      ["%s@columbia.edu" % user.username], fail_silently=False)
-            statsd.incr("event.mail_sent")
-            for vuser in settings.ANNOY_EMAILS:
-                send_mail('VITAL video upload failed', 
-                          """An error has occurred while attempting to upload your video, "%s", to VITAL.
-Please contact CCNMTL video staff for assistance. 
-The error encountered:
-%s
-""" % (video.title,content), 
-                          'ccnmtl-vital@columbia.edu',
-                          [vuser], fail_silently=False)
-                statsd.incr("event.mail_sent")
-
+            send_vital_failed_mail(video.title, user.username, content)
             return ("failed","vital rejected submission: %s" % content)
     args = [course_id,rtsp_url,vital_secret,vital_base]
     with_operation(_do_submit_to_vital,video,

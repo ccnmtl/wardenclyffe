@@ -14,7 +14,6 @@ from django.db import transaction
 from restclient import GET
 from simplejson import loads, dumps
 import hmac, hashlib, datetime
-from django.core.mail import send_mail
 import re
 from django_statsd.clients import statsd
 

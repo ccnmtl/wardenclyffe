@@ -12,7 +12,6 @@ from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from simplejson import loads, dumps
 from django.db.models import Q
-from django.core.mail import send_mail
 import re
 import paramiko
 import stat

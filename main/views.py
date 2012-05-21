@@ -11,6 +11,7 @@ from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
 import wardenclyffe.mediathread.tasks
 import wardenclyffe.main.tasks as tasks
 from wardenclyffe.util import uuidparse
+from wardenclyffe.util.mail import send_mediathread_received_mail
 import os
 from angeldust import PCP
 from django.conf import settings
