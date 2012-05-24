@@ -1,7 +1,7 @@
 # Django settings for wardenclyffe project.
 import os.path
 import sys
-
+ 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
