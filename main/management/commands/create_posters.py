@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from wardenclyffe.main.models import *
+from wardenclyffe.main.models import Poster, Video
 import random
 
 
@@ -15,4 +15,3 @@ class Command(BaseCommand):
                 continue
             image = video.image_set.all()[random.randint(0, video.image_set.all().count() - 1)]
             p = Poster.objects.create(video=video, image=image)
-

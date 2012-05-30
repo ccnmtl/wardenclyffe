@@ -144,17 +144,17 @@ class EmptyVideoTest(TestCase):
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -183,9 +183,9 @@ ID_VIDEO_WIDTH,704"""
             self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -200,7 +200,6 @@ ID_VIDEO_WIDTH,704"""
             location_type="mediathread",
             url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
             )
-
 
     def test_extension(self):
         assert self.video.extension() == ".mov"
@@ -269,17 +268,17 @@ ID_VIDEO_WIDTH,704"""
 class VitalVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Vital """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Vital Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "Vital video uploaded by anp8",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Vital Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="Vital video uploaded by anp8",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="wctest.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -308,9 +307,9 @@ ID_VIDEO_WIDTH,704"""
             self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -401,17 +400,17 @@ class MissingDimensionsTest(TestCase):
     that we couldn't parse the dimensions out of for some reason
     """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -438,9 +437,9 @@ ID_VIDEO_ID,1"""
             self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -464,6 +463,7 @@ class SpecialCharacterTests(TestCase):
 
     def test_strip_characters(self):
         self.assertEquals(strip_special_characters("video file"), "video_file")
-        self.assertEquals(strip_special_characters("video \"foo\" file"), "video_foo_file")
+        self.assertEquals(strip_special_characters("video \"foo\" file"),
+                          "video_foo_file")
         self.assertEquals(strip_special_characters("a.b.c"), "a_b_c")
         self.assertEquals(strip_special_characters("(foo)"), "_foo_")

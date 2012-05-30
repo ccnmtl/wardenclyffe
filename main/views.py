@@ -2,13 +2,15 @@
 from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster, Server, ServerFile
+from django.http import HttpResponseRedirect, HttpResponse
+from wardenclyffe.main.models import Video, Operation, Collection, File
+from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
+from wardenclyffe.main.models import Server
 from django.contrib.auth.models import User
-from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm, AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
+from wardenclyffe.main.forms import AddServerForm
 import uuid
 from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
-import wardenclyffe.mediathread.tasks
 import wardenclyffe.main.tasks as tasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
@@ -18,12 +20,9 @@ from django.conf import settings
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from taggit.models import Tag
-from restclient import GET, POST
-from simplejson import loads, dumps
-import hmac, hashlib, datetime
+from simplejson import dumps
 from zencoder import Zencoder
 from django.db.models import Q
-import re
 from surelink.helpers import SureLink
 from munin.helpers import muninview
 from django_statsd.clients import statsd
@@ -48,19 +47,24 @@ def index(request):
 def dashboard(request):
     submitted = request.GET.get('submitted', '') == '1'
     status_filters = dict()
-    status_filters["failed"] = request.GET.get('status_filter_failed', not submitted)
-    status_filters["complete"] = request.GET.get('status_filter_complete', not submitted)
-    status_filters["submitted"] = request.GET.get('status_filter_submitted', not submitted)
-    status_filters["inprogress"] = request.GET.get('status_filter_inprogress', not submitted)
-    status_filters["enqueued"] = request.GET.get('status_filter_enqueued', not submitted)
+    status_filters["failed"] = request.GET.get('status_filter_failed',
+                                               not submitted)
+    status_filters["complete"] = request.GET.get('status_filter_complete',
+                                                 not submitted)
+    status_filters["submitted"] = request.GET.get('status_filter_submitted',
+                                                  not submitted)
+    status_filters["inprogress"] = request.GET.get('status_filter_inprogress',
+                                                   not submitted)
+    status_filters["enqueued"] = request.GET.get('status_filter_enqueued',
+                                                 not submitted)
     user_filter = request.GET.get('user', '')
     collection_filter = int(request.GET.get('collection', False) or '0')
     d = dict(
         all_collection=Collection.objects.all().order_by("title"),
         all_users=User.objects.all(),
-        user_filter = user_filter,
-        collection_filter = collection_filter,
-        submitted = submitted,
+        user_filter=user_filter,
+        collection_filter=collection_filter,
+        submitted=submitted,
         )
     d.update(status_filters)
     return d
@@ -71,8 +75,8 @@ def received(request):
         return HttpResponse("expecting a title")
     statsd.incr('main.received')
     title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
+    ruuid = uuidparse(title)
+    r = Operation.objects.filter(uuid=ruuid)
     if r.count() == 1:
         operation = r[0]
 
@@ -96,7 +100,8 @@ def uploadify(request, *args, **kwargs):
             except:
                 pass
             extension = request.FILES['Filedata'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
+                + extension.lower()
             tmpfile = open(tmpfilename, 'wb')
             for chunk in request.FILES['Filedata'].chunks():
                 tmpfile.write(chunk)
@@ -130,12 +135,14 @@ def recent_operations(request):
     if user_filter:
         q = q.filter(video__creator=user_filter)
 
-    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in q.order_by("-modified")[:200]])), mimetype="application/json")
+    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in q.order_by("-modified")[:200]])),
+                        mimetype="application/json")
 
 
 @login_required
 def most_recent_operation(request):
-    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])), mimetype="application/json")
+    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])),
+                        mimetype="application/json")
 
 
 @login_required
@@ -305,7 +312,7 @@ def remove_tag_from_collection(request, id, tagname):
 def tag(request, tagname):
     return dict(tag=tagname,
                 collection=Collection.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
-                videos = Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
+                videos=Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
 
 
 @login_required
@@ -394,7 +401,8 @@ def add_collection(request):
 
 def operation_info(request, uuid):
     operation = get_object_or_404(Operation, uuid=uuid)
-    return HttpResponse(dumps(operation.as_dict()), mimetype="application/json")
+    return HttpResponse(dumps(operation.as_dict()),
+                        mimetype="application/json")
 
 
 @login_required
@@ -433,9 +441,12 @@ def upload(request):
                 except:
                     pass
                 extension = source_filename.split(".")[-1]
-                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "." + extension.lower()
+                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
+                    + extension.lower()
                 if request.POST.get('scan_directory', False):
-                    os.rename(settings.WATCH_DIRECTORY + request.POST.get('source_file'), tmpfilename)
+                    os.rename(settings.WATCH_DIRECTORY\
+                                  + request.POST.get('source_file'),
+                              tmpfilename)
                 else:
                     tmpfile = open(tmpfilename, 'wb')
                     for chunk in request.FILES['source_file'].chunks():
@@ -472,9 +483,12 @@ def upload(request):
                                                           label="vital submit",
                                                           filename=source_filename,
                                                           location_type='vitalsubmit')
-                        submit_file.set_metadata("username", request.user.username)
-                        submit_file.set_metadata("set_course", request.POST['course_id'])
-                        submit_file.set_metadata("notify_url", settings.VITAL_NOTIFY_URL)
+                        submit_file.set_metadata("username",
+                                                 request.user.username)
+                        submit_file.set_metadata("set_course",
+                                                 request.POST['course_id'])
+                        submit_file.set_metadata("notify_url",
+                                                 settings.VITAL_NOTIFY_URL)
                     for p, action in [("submit_to_vital", "submit to podcast producer"),
                                      ("extract_metadata", "extract metadata"),
                                      ("upload_to_tahoe", "save file to tahoe"),
@@ -524,7 +538,8 @@ def scan_directory(request):
         collection = get_object_or_404(Collection, id=collection_id)
         form = collection.add_video_form()
     file_listing = os.listdir(settings.WATCH_DIRECTORY)
-    return dict(form=form, collection_id=collection_id, file_listing=file_listing, scan_directory=True)
+    return dict(form=form, collection_id=collection_id,
+                file_listing=file_listing, scan_directory=True)
 
 
 def test_upload(request):
@@ -563,7 +578,7 @@ def done(request):
                 if set_course is not None:
                     user = User.objects.get(username=username)
                     params['set_course'] = set_course
-                    o = Operation.objects.create(uuid = uuid.uuid4(),
+                    o = Operation.objects.create(uuid=uuid.uuid4(),
                                                  video=operation.video,
                                                  action="submit to mediathread",
                                                  status="enqueued",
@@ -641,12 +656,13 @@ def file_surelink(request, id):
     return dict(surelink=s,
                 protection=request.GET.get('protection', ''),
                 public=request.GET.get('protection', '').startswith('public'),
-                public_mp4_download=request.GET.get('protection', '') == "public-mp4-download",
-                width = request.GET.get('width', ''),
-                height = request.GET.get('height', ''),
-                captions = request.GET.get('captions', ''),
+                public_mp4_download=request.GET.get('protection',
+                                                    '') == "public-mp4-download",
+                width=request.GET.get('width', ''),
+                height=request.GET.get('height', ''),
+                captions=request.GET.get('captions', ''),
                 filename=filename,
-                file = f)
+                file=f)
 
 
 @login_required
@@ -706,8 +722,11 @@ def video_pcp_submit(request, id):
         # send to podcast producer
         pull_from_tahoe_and_submit_to_pcp.delay(video.id,
                                                 request.user,
-                                                request.POST.get('workflow', ''),
-                                                settings.PCP_BASE_URL, settings.PCP_USERNAME, settings.PCP_PASSWORD)
+                                                request.POST.get('workflow',
+                                                                 ''),
+                                                settings.PCP_BASE_URL,
+                                                settings.PCP_USERNAME,
+                                                settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
@@ -730,8 +749,11 @@ def file_pcp_submit(request, id):
         # send to podcast producer
         tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
                                                      request.user,
-                                                     request.POST.get('workflow', ''),
-                                                     settings.PCP_BASE_URL, settings.PCP_USERNAME, settings.PCP_PASSWORD)
+                                                     request.POST.get('workflow',
+                                                                      ''),
+                                                     settings.PCP_BASE_URL,
+                                                     settings.PCP_USERNAME,
+                                                     settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
@@ -799,17 +821,22 @@ def file_filter(request):
 @render_to('main/bulk_file_operation.html')
 def bulk_file_operation(request):
     if request.method == "POST":
-        files = [File.objects.get(id=int(f.split("_")[1])) for f in request.POST.keys() if f.startswith("file_")]
+        files = [File.objects.get(id=int(f.split("_")[1]))\
+                     for f in request.POST.keys() if f.startswith("file_")]
         for file in files:
             video = file.video
             # send to podcast producer
             tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
                                                          request.user,
-                                                         request.POST.get('workflow', ''),
-                                                         settings.PCP_BASE_URL, settings.PCP_USERNAME, settings.PCP_PASSWORD)
+                                                         request.POST.get('workflow',
+                                                                          ''),
+                                                         settings.PCP_BASE_URL,
+                                                         settings.PCP_USERNAME,
+                                                         settings.PCP_PASSWORD)
             statsd.incr('main.bulk_file_operation')
         return HttpResponseRedirect("/")
-    files = [File.objects.get(id=int(f.split("_")[1])) for f in request.GET.keys() if f.startswith("file_")]
+    files = [File.objects.get(id=int(f.split("_")[1]))\
+                 for f in request.GET.keys() if f.startswith("file_")]
     try:
         p = PCP(settings.PCP_BASE_URL,
                 settings.PCP_USERNAME,
@@ -974,13 +1001,14 @@ def surelink(request):
             results.append(s)
     return dict(protection=request.GET.get('protection', ''),
                 public=request.GET.get('protection', '').startswith('public'),
-                public_mp4_download=request.GET.get('protection', '') == "public-mp4-download",
-                width = request.GET.get('width', ''),
-                height = request.GET.get('height', ''),
-                captions = request.GET.get('captions', ''),
-                results = results,
-                rows = len(results) * 3,
-                files = request.GET.get('files', ''))
+                public_mp4_download=request.GET.get('protection',
+                                                    '') == "public-mp4-download",
+                width=request.GET.get('width', ''),
+                height=request.GET.get('height', ''),
+                captions=request.GET.get('captions', ''),
+                results=results,
+                rows=len(results) * 3,
+                files=request.GET.get('files', ''))
 
 
 @muninview(config="""graph_title Total Videos
@@ -1004,4 +1032,7 @@ def total_operations(request):
 @muninview(config="""graph_title Total Minutes of video Uploaded
 graph_vlabel minutes""")
 def total_minutes(request):
-    return [("minutes", sum([float(str(m.value)) for m in Metadata.objects.filter(field='ID_LENGTH', file__location_type='none')]) / 60.0)]
+    return [("minutes",
+             sum([float(str(m.value))\
+                      for m in Metadata.objects.filter(field='ID_LENGTH',
+                                                       file__location_type='none')]) / 60.0)]

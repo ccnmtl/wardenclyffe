@@ -3,14 +3,13 @@ from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
 from angeldust import PCP
 from celery.decorators import task
-from wardenclyffe.main.models import Video, File, Operation, OperationFile, OperationLog, Image, Poster
+from wardenclyffe.main.models import Video, File, Operation, OperationFile
+from wardenclyffe.main.models import OperationLog, Image, Poster
 import os.path
 import uuid
 import tempfile
 import subprocess
 from django.conf import settings
-from restclient import POST
-import httplib
 import paramiko
 import random
 import re
@@ -89,9 +88,11 @@ def make_images(operation, params):
     imgs.sort()
     for img in imgs:
         os.system("mv %s%s %s" % (tmpdir, img, imgdir))
-        i = Image.objects.create(video=operation.video, image="images/%05d/%s" % (operation.video.id, img))
+        i = Image.objects.create(video=operation.video,
+                                 image="images/%05d/%s" % (operation.video.id, img))
         statsd.incr("image_created")
-    if Poster.objects.filter(video=operation.video).count() == 0 and len(imgs) > 0:
+    if Poster.objects.filter(video=operation.video).count() == 0\
+            and len(imgs) > 0:
         # pick a random image out of the set and assign it as the poster on the video
         r = random.randint(0, len(imgs) - 1)
         image = Image.objects.filter(video=operation.video)[r]
@@ -108,7 +109,11 @@ def extract_metadata(operation, params):
     # be a bit more configurable
     pwd = os.path.dirname(__file__)
     script_dir = os.path.join(pwd, "../scripts/")
-    output = unicode(subprocess.Popen([os.path.join(script_dir, "midentify.sh"), params['tmpfilename']], stdout=subprocess.PIPE).communicate()[0], errors='replace')
+    output = unicode(subprocess.Popen([os.path.join(script_dir,
+                                                    "midentify.sh"),
+                                       params['tmpfilename']],
+                                      stdout=subprocess.PIPE).communicate()[0],
+                     errors='replace')
     pairs = [l.strip().split("=") for l in output.split("\n")]
     for line in output.split("\n"):
         try:
@@ -135,23 +140,30 @@ def submit_to_pcp(operation, params):
     statsd.incr("submit_to_pcp")
     ouuid = operation.uuid
 
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME, settings.PCP_PASSWORD)
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
     # TODO: probably don't always want it to be .mp4
     filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
-    title = "%s-%s" % (str(ouuid), strip_special_characters(operation.video.title))
-    pcp.upload_file(fileobj, filename, params['pcp_workflow'], title, operation.video.description)
+    title = "%s-%s" % (str(ouuid),
+                       strip_special_characters(operation.video.title))
+    pcp.upload_file(fileobj, filename, params['pcp_workflow'], title,
+                    operation.video.description)
     return ("submitted", "")
 
 
 @task(ignore_result=True)
-def pull_from_tahoe_and_submit_to_pcp(video_id, user, workflow, pcp_base_url, pcp_username, pcp_password, **kwargs):
+def pull_from_tahoe_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
+                                      pcp_username, pcp_password, **kwargs):
     statsd.incr("pull_from_tahoe_and_submit_to_pcp")
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
     args = [workflow, pcp_base_url, pcp_username, pcp_password]
 
-    def _do_pull_from_tahoe_and_submit_to_pcp(video, user, operation, workflow, pcp_base_url, pcp_username, pcp_password, **kwargs):
+    def _do_pull_from_tahoe_and_submit_to_pcp(video, user, operation,
+                                              workflow, pcp_base_url,
+                                              pcp_username, pcp_password,
+                                              **kwargs):
         ouuid = operation.uuid
         url = video.tahoe_download_url()
         if url == "":
@@ -207,13 +219,16 @@ def sftp_get(remote_filename, local_filename):
 
 
 @task(ignore_result=True)
-def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url, pcp_username, pcp_password, **kwargs):
+def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
+                                     pcp_username, pcp_password, **kwargs):
     statsd.incr("pull_from_cuit_and_submit_to_pcp")
     print "pulling from tahoe"
     video = Video.objects.get(id=video_id)
     args = [workflow, pcp_base_url, pcp_username, pcp_password]
 
-    def _do_pull_from_cuit_and_submit_to_pcp(video, user, operation, workflow, pcp_base_url, pcp_username, pcp_password, **kwargs):
+    def _do_pull_from_cuit_and_submit_to_pcp(video, user, operation, workflow,
+                                             pcp_base_url, pcp_username,
+                                             pcp_password, **kwargs):
         if workflow == "":
             return ("failed", "no workflow specified")
 
@@ -235,7 +250,8 @@ def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url, pcp
 
         title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
         print "submitted with title %s" % title
-        pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title, video.description)
+        pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title,
+                        video.description)
         return ("submitted", "submitted to PCP")
     with_operation(_do_pull_from_cuit_and_submit_to_pcp, video,
                    "pull from cuit and submit to pcp",
@@ -249,13 +265,14 @@ def flv_encode(video_id, user, basedir, infile, outfile, ffmpeg_path):
     print "flv_encode"
     args = [basedir, infile, outfile, ffmpeg_path]
 
-    def _do_flv_encode(video, user, operation, basedir, infile, outfile, ffmpeg_path):
+    def _do_flv_encode(video, user, operation, basedir, infile, outfile,
+                       ffmpeg_path):
         command = """%s -i "%s/%s" -y -f flv -vcodec flv -qmin 1 -b 800k -s '480x360' -me_method epzs -r 29.97 -g 100 -qcomp 0.6 -qmax 15 -qdiff 4 -i_qfactor 0.71428572 -b_qfactor 0.76923078 -subq 6 -acodec libmp3lame -ab 128k -ar 22050 -ac 2 -benchmark "%s/%s" """ % (ffmpeg_path, basedir, infile, basedir, outfile)
         os.system(command)
         return ("complete", "flv encoded")
 
-    with_operation(_flv_encode, video, "flv encode",
-                   "workflow: %s" % workflow, user, args, kwargs)
+    with_operation(_do_flv_encode, None, "flv encode",
+                   "", user, args, {})
 
 
 def strip_special_characters(title):

@@ -19,7 +19,6 @@ add_introspection_rules([],
                          "django_extensions.db.fields.UUIDField"])
 
 
-
 class Collection(TimeStampedModel):
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256, default="", blank=True)
@@ -82,7 +81,6 @@ class Video(TimeStampedModel):
             return r[0]
         else:
             return None
-
 
     def cap(self):
         t = self.tahoe_file()
@@ -175,7 +173,6 @@ class Video(TimeStampedModel):
             return f.mediathread_public_url()
         return ""
 
-
     def poster_url(self):
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
@@ -186,7 +183,8 @@ class Video(TimeStampedModel):
 
     def cuit_poster_url(self):
         try:
-            return File.objects.filter(video=self, location_type='cuitthumb')[0].url
+            return File.objects.filter(video=self,
+                                       location_type='cuitthumb')[0].url
         except:
             return None
 
@@ -211,7 +209,8 @@ class Video(TimeStampedModel):
         r = self.file_set.filter(location_type="vitalsubmit")
         if r.count() > 0:
             f = r[0]
-            return (f.get_metadata("set_course"), f.get_metadata("username"), f.get_metadata("notify_url"))
+            return (f.get_metadata("set_course"), f.get_metadata("username"),
+                    f.get_metadata("notify_url"))
         else:
             return (None, None, None)
 
@@ -241,12 +240,16 @@ class File(TimeStampedModel):
     cap = models.CharField(max_length=256, default="", blank=True, null=True)
     filename = models.CharField(max_length=256, blank=True, null=True)
     location_type = models.CharField(max_length=256, default="tahoe",
-                                     choices=(('tahoe', 'tahoe'), ('pcp', 'pcp'), ('cuit', 'cuit'),
-                                              ('youtube', 'youtube'), ('none', 'none')))
+                                     choices=(('tahoe', 'tahoe'),
+                                              ('pcp', 'pcp'),
+                                              ('cuit', 'cuit'),
+                                              ('youtube', 'youtube'),
+                                              ('none', 'none')))
 
     def tahoe_download_url(self):
         if self.location_type == "tahoe":
-            return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.cap + "/@@named=" + self.filename
+            return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.cap\
+                + "/@@named=" + self.filename
         else:
             return None
 
@@ -310,10 +313,12 @@ class File(TimeStampedModel):
         return self.location_type == 'cuit'
 
     def has_cuit_poster(self):
-        return File.objects.filter(video=self.video, location_type='cuitthumb').count() > 0
+        return File.objects.filter(video=self.video,
+                                   location_type='cuitthumb').count() > 0
 
     def cuit_poster_url(self):
-        return File.objects.filter(video=self.video, location_type='cuitthumb')[0].url
+        return File.objects.filter(video=self.video,
+                                   location_type='cuitthumb')[0].url
 
     def cuit_public_url(self):
         filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
@@ -445,7 +450,8 @@ class OperationLog(TimeStampedModel):
 class Image(TimeStampedModel):
     video = models.ForeignKey(Video)
 
-    image = ImageWithThumbnailsField(upload_to="images", thumbnail={'size': (100, 100)})
+    image = ImageWithThumbnailsField(upload_to="images",
+                                     thumbnail={'size': (100, 100)})
 
     class Meta:
         order_with_respect_to = "video"
@@ -475,4 +481,3 @@ class Server(models.Model):
 class ServerFile(TimeStampedModel):
     server = models.ForeignKey(Server)
     file = models.ForeignKey(File)
-
