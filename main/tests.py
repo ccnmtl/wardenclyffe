@@ -10,22 +10,23 @@ from wardenclyffe.main.models import Collection, Video, File
 import uuid
 from wardenclyffe.main.tasks import strip_special_characters
 
+
 class CUITFileTest(TestCase):
     def setUp(self):
-        self.collection = Collection.objects.create(title = "test collection",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="test collection",
+                                            uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          uuid=uuid.uuid4())
         self.file = File.objects.create(video=self.video,
-                                        label = "CUIT File",
-                                        location_type = "cuit",
-                                        filename = "/www/data/ccnmtl/broadcast/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv",
+                                        label="CUIT File",
+                                        location_type="cuit",
+                                        filename="/www/data/ccnmtl/broadcast/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv",
                                         )
 
     def test_extension(self):
         assert self.video.extension() == ".flv"
-        
+
     def test_is_cuit(self):
         assert self.file.is_cuit()
 
@@ -54,8 +55,8 @@ class CUITFileTest(TestCase):
 
 class CollectionTest(TestCase):
     def setUp(self):
-        self.collection = Collection.objects.create(title = "test collection",
-                                            uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="test collection",
+                                            uuid=uuid.uuid4())
 
     def test_forms(self):
         add_form = self.collection.add_video_form()
@@ -65,16 +66,16 @@ class CollectionTest(TestCase):
         assert 'title' in edit_form.fields
         assert self.collection.title in str(edit_form)
 
+
 class EmptyVideoTest(TestCase):
     """ test the behavior for a video that doesn't have any files associated
     with it """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "test collection",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          uuid = uuid.uuid4())
-
+        self.collection = Collection.objects.create(title="test collection",
+                                            uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          uuid=uuid.uuid4())
 
     def test_extension(self):
         assert self.video.extension() == ""
@@ -91,8 +92,8 @@ class EmptyVideoTest(TestCase):
     def test_tahoe_download_url(self):
         assert self.video.tahoe_download_url() == ""
 
-    def test_enclosure_url(self): 
-        assert self.video.enclosure_url() == ""       
+    def test_enclosure_url(self):
+        assert self.video.enclosure_url() == ""
 
     def test_filename(self):
         assert self.video.filename() == "none"
@@ -104,7 +105,7 @@ class EmptyVideoTest(TestCase):
         edit_form = self.video.edit_form()
 
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (0,0)
+        assert self.video.get_dimensions() == (0, 0)
 
     def test_vital_thumb_url(self):
         assert self.video.vital_thumb_url() == ""
@@ -125,13 +126,13 @@ class EmptyVideoTest(TestCase):
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None,None)
+        assert self.video.mediathread_submit() == (None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
 
     def test_vital_submit(self):
-        assert self.video.vital_submit() == (None,None,None)
+        assert self.video.vital_submit() == (None, None, None)
 
     def test_poster(self):
         assert self.video.poster().dummy
@@ -139,20 +140,21 @@ class EmptyVideoTest(TestCase):
     def test_cuit_file(self):
         assert self.video.cuit_file() == None
 
+
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -177,13 +179,13 @@ ID_VIDEO_ID,1
 ID_VIDEO_WIDTH,704"""
         for line in metadata.split("\n"):
             line = line.strip()
-            (k,v) = line.split(",")
-            self.source_file.set_metadata(k,v)
+            (k, v) = line.split(",")
+            self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -198,7 +200,6 @@ ID_VIDEO_WIDTH,704"""
             location_type="mediathread",
             url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
             )
-
 
     def test_extension(self):
         assert self.video.extension() == ".mov"
@@ -215,7 +216,7 @@ ID_VIDEO_WIDTH,704"""
     def test_tahoe_download_url(self):
         assert self.video.tahoe_download_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
 
-    def test_enclosure_url(self): 
+    def test_enclosure_url(self):
         assert self.video.enclosure_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
 
     def test_filename(self):
@@ -228,7 +229,7 @@ ID_VIDEO_WIDTH,704"""
         edit_form = self.video.edit_form()
 
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (704,480)
+        assert self.video.get_dimensions() == (704, 480)
 
     def test_vital_thumb_url(self):
         assert self.video.vital_thumb_url() == ""
@@ -249,13 +250,13 @@ ID_VIDEO_WIDTH,704"""
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None,None)
+        assert self.video.mediathread_submit() == (None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
 
     def test_vital_submit(self):
-        assert self.video.vital_submit() == (None,None,None)
+        assert self.video.vital_submit() == (None, None, None)
 
     def test_poster(self):
         assert self.video.poster().dummy
@@ -267,17 +268,17 @@ ID_VIDEO_WIDTH,704"""
 class VitalVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Vital """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Vital Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "Vital video uploaded by anp8",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Vital Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="Vital video uploaded by anp8",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="wctest.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -302,13 +303,13 @@ ID_VIDEO_ID,1
 ID_VIDEO_WIDTH,704"""
         for line in metadata.split("\n"):
             line = line.strip()
-            (k,v) = line.split(",")
-            self.source_file.set_metadata(k,v)
+            (k, v) = line.split(",")
+            self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -329,7 +330,7 @@ ID_VIDEO_WIDTH,704"""
             location_type="rtsp_url",
             url="rtsp://qtss.cc.columbia.edu/projects/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-Vital_video_uploaded_by_anp8.mov",
             )
-        
+
     def test_extension(self):
         assert self.video.extension() == ".mov"
 
@@ -345,7 +346,7 @@ ID_VIDEO_WIDTH,704"""
     def test_tahoe_download_url(self):
         assert self.video.tahoe_download_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"
 
-    def test_enclosure_url(self): 
+    def test_enclosure_url(self):
         assert self.video.enclosure_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"
 
     def test_filename(self):
@@ -358,7 +359,7 @@ ID_VIDEO_WIDTH,704"""
         edit_form = self.video.edit_form()
 
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (704,480)
+        assert self.video.get_dimensions() == (704, 480)
 
     def test_vital_thumb_url(self):
         assert self.video.vital_thumb_url() == self.vital_thumbnail.url
@@ -379,13 +380,13 @@ ID_VIDEO_WIDTH,704"""
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None,None)
+        assert self.video.mediathread_submit() == (None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
 
     def test_vital_submit(self):
-        assert self.video.vital_submit() == (None,None,None)
+        assert self.video.vital_submit() == (None, None, None)
 
     def test_poster(self):
         assert self.video.poster().dummy
@@ -395,21 +396,21 @@ ID_VIDEO_WIDTH,704"""
 
 
 class MissingDimensionsTest(TestCase):
-    """ test the behavior for a video that has a source file, but 
+    """ test the behavior for a video that has a source file, but
     that we couldn't parse the dimensions out of for some reason
     """
     def setUp(self):
-        self.collection = Collection.objects.create(title = "Mediathread Spring 2012",
-                                            uuid = uuid.uuid4())
-        self.video = Video.objects.create(collection = self.collection,
-                                          title = "test video",
-                                          creator = "anp8",
-                                          uuid = uuid.uuid4())
+        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
+                                                    uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          creator="anp8",
+                                          uuid=uuid.uuid4())
 
         self.source_file = File.objects.create(
             video=self.video,
             label="source file",
-            location_type = "none",
+            location_type="none",
             filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
             )
         metadata = """ID_AUDIO_BITRATE,128000
@@ -432,13 +433,13 @@ ID_VIDEO_FPS,29.970
 ID_VIDEO_ID,1"""
         for line in metadata.split("\n"):
             line = line.strip()
-            (k,v) = line.split(",")
-            self.source_file.set_metadata(k,v)
+            (k, v) = line.split(",")
+            self.source_file.set_metadata(k, v)
         self.cuit_file = File.objects.create(
             video=self.video,
-            label = "CUIT File",
-            location_type = "cuit",
-            filename = "/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            label="CUIT File",
+            location_type="cuit",
+            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
@@ -455,12 +456,14 @@ ID_VIDEO_ID,1"""
             )
 
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (0,0)
+        assert self.video.get_dimensions() == (0, 0)
+
 
 class SpecialCharacterTests(TestCase):
-    
+
     def test_strip_characters(self):
-        self.assertEquals(strip_special_characters("video file") , "video_file")
-        self.assertEquals(strip_special_characters("video \"foo\" file") , "video_foo_file")
-        self.assertEquals(strip_special_characters("a.b.c") , "a_b_c")
-        self.assertEquals(strip_special_characters("(foo)") , "_foo_")
+        self.assertEquals(strip_special_characters("video file"), "video_file")
+        self.assertEquals(strip_special_characters("video \"foo\" file"),
+                          "video_foo_file")
+        self.assertEquals(strip_special_characters("a.b.c"), "a_b_c")
+        self.assertEquals(strip_special_characters("(foo)"), "_foo_")
