@@ -1,21 +1,12 @@
-import urllib2
-from poster.encode import multipart_encode, MultipartParam
-from poster.streaminghttp import register_openers
-from angeldust import PCP
-from celery.decorators import task
 import wardenclyffe.main.models
-import os.path
-import uuid 
-import tempfile
-import subprocess
 from django.conf import settings
-from restclient import POST
 import httplib
 import gdata.youtube
 import gdata.youtube.service
 from wardenclyffe.util.mail import send_youtube_submitted_mail
 
-def upload_to_youtube(operation,params):
+
+def upload_to_youtube(operation, params):
     video = operation.video
     user = operation.owner
     tmpfilename = params['tmpfilename']
@@ -43,27 +34,30 @@ def upload_to_youtube(operation,params):
 
     my_media_group = gdata.media.Group(
         title=gdata.media.Title(text=title),
-        description=gdata.media.Description(description_type='plain', text=description),
+        description=gdata.media.Description(description_type='plain',
+                                            text=description),
         keywords=gdata.media.Keywords(text='education, columbia'),
-        category=gdata.media.Category(text='Education',
-                                      scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
-                                      label='Education'),
-
+        category=gdata.media.Category(
+            text='Education',
+            scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
+            label='Education'),
         player=None,
         private=gdata.media.Private()
         )
     video_entry = gdata.youtube.YouTubeVideoEntry(media=my_media_group)
     video_file_location = tmpfilename
 
-    new_entry = yt_service.InsertVideoEntry(video_entry, video_file_location, content_type="video/quicktime")
+    new_entry = yt_service.InsertVideoEntry(video_entry,
+                                            video_file_location,
+                                            content_type="video/quicktime")
 
     feed_url = new_entry.id.text
-    youtube_key = feed_url[feed_url.rfind('/')+1:]
+    youtube_key = feed_url[feed_url.rfind('/') + 1:]
     youtube_url = "http://www.youtube.com/watch?v=%s" % youtube_key
 
-    f = wardenclyffe.main.models.File.objects.create(video=video,url=youtube_url,
-                                                     location_type="youtube",
-                                                     label="youtube")
-    send_youtube_submitted_mail(video.title,user.username,youtube_url)
+    wardenclyffe.main.models.File.objects.create(video=video, url=youtube_url,
+                                                 location_type="youtube",
+                                                 label="youtube")
+    send_youtube_submitted_mail(video.title, user.username, youtube_url)
 
-    return ("complete","")
+    return ("complete", "")
