@@ -3,16 +3,16 @@ from django_extensions.db.models import TimeStampedModel
 from picklefield.fields import PickledObjectField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.db.models import get_model
 import petiole.tasks
-from datetime import datetime 
+from datetime import datetime
+
 
 class JobSet(TimeStampedModel):
-    label = models.CharField(max_length=256,default="",blank=True)
-    status = models.CharField(max_length=256,default="waiting")
+    label = models.CharField(max_length=256, default="", blank=True)
+    status = models.CharField(max_length=256, default="waiting")
 
     def run(self):
-        """ call this once all the Jobs are created and defined and 
+        """ call this once all the Jobs are created and defined and
         probably ready to go. this puts them on the queue and
         kicks things off """
         self.status = "running"
@@ -21,7 +21,7 @@ class JobSet(TimeStampedModel):
                 job.enqueue()
         self.save()
 
-    def job_completed(self,job):
+    def job_completed(self, job):
         """ one of our jobs has completed """
         r = JobDependency.objects.filter(pre=job)
         if r.count() > 0:
@@ -38,11 +38,11 @@ class JobSet(TimeStampedModel):
                 self.save()
         # open question:
         # what to do if the finished job failed
-            
+
 
 class Job(TimeStampedModel):
-    label = models.CharField(max_length=256,default="",blank=True)
-    status = models.CharField(max_length=256,default="waiting")
+    label = models.CharField(max_length=256, default="", blank=True)
+    status = models.CharField(max_length=256, default="waiting")
     params = PickledObjectField(null=True, default=None)
     jobset = models.ForeignKey(JobSet)
 
@@ -63,24 +63,24 @@ class Job(TimeStampedModel):
         self.status = "running"
         self.started = datetime.now()
 
-        startlog = JobLog.objects.create(job=self,info="starting")
+        JobLog.objects.create(job=self, info="starting")
         try:
-            (success,message) = self.job().run()
+            (success, message) = self.job().run()
             self.status = success
             if message:
-                log = JobLog.objects.create(job=self,info=message)
+                JobLog.objects.create(job=self, info=message)
         except Exception, e:
             # todo: handle retries
             self.status = "failed"
-            errorlog = JobLog.objects.create(job=self,
-                                             info=str(e))
+            JobLog.objects.create(job=self,
+                                  info=str(e))
         self.ended = datetime.now()
         self.save()
-        endlog = JobLog.objects.create(job=self,info="completed")
+        JobLog.objects.create(job=self, info="completed")
         self.jobset.job_completed(self)
 
     def is_ready_for_queue(self):
-        if self.status not in ["waiting","blocked"]:
+        if self.status not in ["waiting", "blocked"]:
             # it's only ready to run if it's "waiting"
             return False
         # we can only run once all the dependencies are complete
@@ -94,7 +94,7 @@ class Job(TimeStampedModel):
             self.status = "waiting"
             self.save()
             # check job specific preconditions
-            if hasattr(self.job(),'is_ready_for_queue'):
+            if hasattr(self.job(), 'is_ready_for_queue'):
                 return self.job().is_ready_for_queue()
             else:
                 return True
@@ -102,28 +102,28 @@ class Job(TimeStampedModel):
     def enqueue(self):
         self.status = "enqueued"
         self.save()
-        nqlog = JobLog.objects.create(job=self,info="enqueued")
+        JobLog.objects.create(job=self, info="enqueued")
         petiole.tasks.run_job.delay(self.id)
 
-    def depends_on(self,job):
+    def depends_on(self, job):
         """ this job depends on another one """
-        jd = JobDependency.objects.create(pre=job,post=self)
+        JobDependency.objects.create(pre=job, post=self)
 
 
 class JobDependency(models.Model):
     """ basically, it means that the 'pre'
     job *must* complete before the 'post' job
     will be put on the queue"""
-    pre = models.ForeignKey(Job,related_name="pre")
-    post = models.ForeignKey(Job,related_name="post")
+    pre = models.ForeignKey(Job, related_name="pre")
+    post = models.ForeignKey(Job, related_name="post")
+
 
 class JobLog(TimeStampedModel):
     job = models.ForeignKey(Job)
-    info = models.TextField(default="",blank=True)
+    info = models.TextField(default="", blank=True)
+
 
 class JobBase(object):
     """ just provide a couple utility methods for the Jobs """
     def job(self):
         return self.jobs.all()[0]
-
-    
