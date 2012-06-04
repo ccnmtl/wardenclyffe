@@ -1,11 +1,7 @@
-import urllib2
 import wardenclyffe.main.models
-import os.path
-import uuid 
 from django.conf import settings
 from restclient import POST
-import httplib
-from wardenclyffe.util.mail import *
+from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
 
 def submit_to_mediathread(operation,params):
@@ -53,7 +49,7 @@ def submit_to_mediathread(operation,params):
                                                          location_type="mediathread",
                                                          filename="",
                                                          label="mediathread")
-        of = wardenclyffe.main.models.OperationFile.objects.create(operation=operation,file=f)
+        wardenclyffe.main.models.OperationFile.objects.create(operation=operation,file=f)
 
         send_mediathread_uploaded_mail(video.title, user.username, url)
 
