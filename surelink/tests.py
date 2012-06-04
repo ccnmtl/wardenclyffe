@@ -1,17 +1,20 @@
 from helpers import SureLink
 from django.conf import settings
 import unittest
+THUMB_URL = "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+
 
 class PublicFLVTestCase(unittest.TestCase):
     def setUp(self):
         self.surelink = SureLink("test/test_stream.flv",
-                                 480,360,"",
-                                 "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
-                                 "public","","v4",
+                                 480, 360, "",
+                                 THUMB_URL,
+                                 "public", "", "v4",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
-        self.assertEquals(self.surelink.get_protection(),"74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
+        self.assertEquals(self.surelink.get_protection(),
+                          "74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
 
     def testBasicEmbed(self):
         self.assertEquals(self.surelink.basic_embed(),
@@ -24,7 +27,7 @@ class PublicFLVTestCase(unittest.TestCase):
     def testEdblogsEmbed(self):
         self.assertEquals(self.surelink.edblogs_embed(),
                           """[ccnmtl_video src="http://ccnmtl.columbia.edu/stream/jsembed?player=v4&file=test/test_stream.flv&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&protection=74464d1a6c82afe0f73ab5c59a2c5e25ab470857"]""")
-        
+
     def testDrupalEmbed(self):
         self.assertEquals(self.surelink.drupal_embed(),
                           """http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/test/test_stream.flv""")
@@ -37,13 +40,14 @@ class PublicFLVTestCase(unittest.TestCase):
 class PublicFLVDefaultPosterTestCase(unittest.TestCase):
     def setUp(self):
         self.surelink = SureLink("test/test_stream.flv",
-                                 480,360,"",
+                                 480, 360, "",
                                  "default_custom_poster",
-                                 "public","","v4",
+                                 "public", "", "v4",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
-        self.assertEquals(self.surelink.get_protection(),"74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
+        self.assertEquals(self.surelink.get_protection(),
+                          "74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
 
     def testBasicEmbed(self):
         self.assertEquals(self.surelink.basic_embed(),
@@ -56,7 +60,7 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
     def testEdblogsEmbed(self):
         self.assertEquals(self.surelink.edblogs_embed(),
                           """[ccnmtl_video src="http://ccnmtl.columbia.edu/stream/jsembed?player=v4&file=test/test_stream.flv&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/test/test_stream.jpg&protection=74464d1a6c82afe0f73ab5c59a2c5e25ab470857"]""")
-        
+
     def testDrupalEmbed(self):
         self.assertEquals(self.surelink.drupal_embed(),
                           """http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/test/test_stream.flv""")
@@ -66,17 +70,17 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
                           """[flv]http://ccnmtl.columbia.edu/stream/flv/74464d1a6c82afe0f73ab5c59a2c5e25ab470857/OPTIONS/test/test_stream.flv[w]480[h]360[flv]""")
 
 
-
 class PublicMP4TestCase(unittest.TestCase):
     def setUp(self):
         self.surelink = SureLink("test/test_clip.mp4",
-                                 480,360,"",
-                                 "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
-                                 "public-mp4-download","","v4",
+                                 480, 360, "",
+                                 THUMB_URL,
+                                 "public-mp4-download", "", "v4",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
-        self.assertEquals(self.surelink.get_protection(),"d81e0d43fbccf40dbcb6d695268069dd14c21536")
+        self.assertEquals(self.surelink.get_protection(),
+                          "d81e0d43fbccf40dbcb6d695268069dd14c21536")
 
     def testBasicEmbed(self):
         self.assertEquals(self.surelink.basic_embed(),
@@ -89,7 +93,7 @@ class PublicMP4TestCase(unittest.TestCase):
     def testEdblogsEmbed(self):
         self.assertEquals(self.surelink.edblogs_embed(),
                           """[ccnmtl_video src="http://ccnmtl.columbia.edu/stream/jsembed?player=download_mp4_v3&file=test/test_clip.mp4&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&protection=5916f0fe8ab583c47adf39fbe3a80086b7122994"]""")
-        
+
     def testDrupalEmbed(self):
         self.assertEquals(self.surelink.drupal_embed(),
                           """http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/test/test_clip.mp4""")
@@ -102,13 +106,14 @@ class PublicMP4TestCase(unittest.TestCase):
 class WindMP4TestCase(unittest.TestCase):
     def setUp(self):
         self.surelink = SureLink("test/test_clip.mp4",
-                                 480,360,"",
-                                 "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg",
-                                 "protected","wind","v4",
+                                 480, 360, "",
+                                 THUMB_URL,
+                                 "protected", "wind", "v4",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
-        self.assertEquals(self.surelink.get_protection(),"18e74f6f8998963c72154f969f11d8f3ad91345d")
+        self.assertEquals(self.surelink.get_protection(),
+                          "18e74f6f8998963c72154f969f11d8f3ad91345d")
 
     def testBasicEmbed(self):
         self.assertEquals(self.surelink.basic_embed(),
@@ -121,7 +126,7 @@ class WindMP4TestCase(unittest.TestCase):
     def testEdblogsEmbed(self):
         self.assertEquals(self.surelink.edblogs_embed(),
                           """[ccnmtl_video src="http://ccnmtl.columbia.edu/stream/jsembed?player=v4&file=test/test_clip.mp4&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&authtype=wind"]""")
-        
+
     def testDrupalEmbed(self):
         self.assertEquals(self.surelink.drupal_embed(),
                           """http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/test/test_clip.mp4""")
