@@ -1,10 +1,9 @@
 # Create your views here.
 from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
-from wardenclyffe.main.models import Video, Operation, Collection, File, Metadata, OperationLog, OperationFile, Image, Poster
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect, HttpResponse
+from wardenclyffe.main.models import Video, Operation, Collection, File
 from django.contrib.auth.models import User
 import uuid 
 import wardenclyffe.main.tasks as maintasks
@@ -13,9 +12,8 @@ import os
 from django.conf import settings
 from django.db import transaction
 from restclient import GET
-from simplejson import loads, dumps
-import hmac, hashlib, datetime
-import re
+from simplejson import loads
+import hmac, hashlib
 from django_statsd.clients import statsd
 
 @render_to('mediathread/mediathread.html')
