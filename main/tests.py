@@ -18,11 +18,14 @@ class CUITFileTest(TestCase):
         self.video = Video.objects.create(collection=self.collection,
                                           title="test video",
                                           uuid=uuid.uuid4())
-        self.file = File.objects.create(video=self.video,
-                                        label="CUIT File",
-                                        location_type="cuit",
-                                        filename="/www/data/ccnmtl/broadcast/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv",
-                                        )
+        self.file = File.objects.create(
+            video=self.video,
+            label="CUIT File",
+            location_type="cuit",
+            filename=("/www/data/ccnmtl/broadcast/secure/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.flv"),
+            )
 
     def test_extension(self):
         assert self.video.extension() == ".flv"
@@ -39,7 +42,13 @@ class CUITFileTest(TestCase):
         assert self.file.tahoe_download_url() is None
 
     def test_mediathread_url(self):
-        assert self.video.mediathread_url() == "http://ccnmtl.columbia.edu/stream/flv/b16c80a7e6b21e3671f8f7fa4ec468777f7e1e8b/OPTIONS/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv"
+        self.assertEqual(
+            self.video.mediathread_url(),
+            ("http://ccnmtl.columbia.edu/stream/flv/"
+             "b16c80a7e6b21e3671f8f7fa4ec468777f7e1e8b"
+             "/OPTIONS/secure/courses/"
+             "56d27944-4131-11e1-8164-0017f20ea192-"
+             "Mediathread_video_uploaded_by_mlp55.flv"))
 
     def test_poster_url(self):
         assert self.file.has_cuit_poster() == False
@@ -49,7 +58,10 @@ class CUITFileTest(TestCase):
         assert self.video.filename() == self.file.filename
 
     def test_cuit_url(self):
-        assert self.file.cuit_public_url() == "http://ccnmtl.columbia.edu/stream/flv/secure/courses/56d27944-4131-11e1-8164-0017f20ea192-Mediathread_video_uploaded_by_mlp55.flv"
+        assert self.file.cuit_public_url() == (
+            "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
+            "56d27944-4131-11e1-8164-0017f20ea192-"
+            "Mediathread_video_uploaded_by_mlp55.flv")
         assert self.video.cuit_url() == self.file.cuit_public_url()
 
 
@@ -99,10 +111,10 @@ class EmptyVideoTest(TestCase):
         assert self.video.filename() == "none"
 
     def test_add_file_form(self):
-        add_form = self.video.add_file_form()
+        self.video.add_file_form()
 
     def test_edit_form(self):
-        edit_form = self.video.edit_form()
+        self.video.edit_form()
 
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (0, 0)
@@ -117,7 +129,9 @@ class EmptyVideoTest(TestCase):
         assert self.video.mediathread_url() == ""
 
     def test_poster_url(self):
-        assert self.video.poster_url() == "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+        assert self.video.poster_url() == (
+            "http://ccnmtl.columbia.edu/broadcast/posters/"
+            "vidthumb_480x360.jpg")
 
     def test_cuit_poster_url(self):
         assert self.video.cuit_poster_url() == None
@@ -144,8 +158,9 @@ class EmptyVideoTest(TestCase):
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def setUp(self):
-        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
-                                                    uuid=uuid.uuid4())
+        self.collection = Collection.objects.create(
+            title="Mediathread Spring 2012",
+            uuid=uuid.uuid4())
         self.video = Video.objects.create(collection=self.collection,
                                           title="test video",
                                           creator="anp8",
@@ -185,14 +200,19 @@ ID_VIDEO_WIDTH,704"""
             video=self.video,
             label="CUIT File",
             location_type="cuit",
-            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
+                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+                      "Mediathread_video_uploaded_by_anp8.flv"),
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
             label="uploaded source file",
             location_type="tahoe",
-            cap="URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186",
-            filename="/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
+            cap=("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+                 "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
+                 "3:10:4783186"),
+            filename=("/var/www/wardenclyffe/tmp//6a0dac24-7982-"
+                      "4df3-a1cb-86d52bf4df94.mov")
             )
         self.mediathread_file = File.objects.create(
             video=self.video,
@@ -214,19 +234,29 @@ ID_VIDEO_WIDTH,704"""
         assert self.video.cap() == self.tahoe_file.cap
 
     def test_tahoe_download_url(self):
-        assert self.video.tahoe_download_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
+        assert self.video.tahoe_download_url() == (
+            "http://tahoe.ccnmtl.columbia.edu/file/"
+            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
+            ":3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
+            "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
 
     def test_enclosure_url(self):
-        assert self.video.enclosure_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
+        assert self.video.enclosure_url() == (
+            "http://tahoe.ccnmtl.columbia.edu/file/"
+            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
+            ":3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
+            "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
 
     def test_filename(self):
         assert self.video.filename() == self.source_file.filename
 
     def test_add_file_form(self):
-        add_form = self.video.add_file_form()
+        self.video.add_file_form()
 
     def test_edit_form(self):
-        edit_form = self.video.edit_form()
+        self.video.edit_form()
 
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (704, 480)
@@ -235,13 +265,23 @@ ID_VIDEO_WIDTH,704"""
         assert self.video.vital_thumb_url() == ""
 
     def test_cuit_url(self):
-        assert self.video.cuit_url() == "http://ccnmtl.columbia.edu/stream/flv/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv"
+        assert self.video.cuit_url() == (
+            "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
+            "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+            "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_mediathread_url(self):
-        assert self.video.mediathread_url() == "http://ccnmtl.columbia.edu/stream/flv/e0c41066bd2c496c76fd178083d159386518be11/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv"
+        assert self.video.mediathread_url() == (
+            "http://ccnmtl.columbia.edu/stream/flv/"
+            "e0c41066bd2c496c76fd178083d159386518be11"
+            "/OPTIONS/secure/courses/"
+            "40e67868-41f1-11e1-aaa7-0017f20ea192"
+            "-Mediathread_video_uploaded_by_anp8.flv")
 
     def test_poster_url(self):
-        assert self.video.poster_url() == "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+        assert self.video.poster_url() == (
+            "http://ccnmtl.columbia.edu/broadcast/posters/"
+            "vidthumb_480x360.jpg")
 
     def test_cuit_poster_url(self):
         assert self.video.cuit_poster_url() == None
@@ -309,26 +349,35 @@ ID_VIDEO_WIDTH,704"""
             video=self.video,
             label="CUIT File",
             location_type="cuit",
-            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
+                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+                      "Mediathread_video_uploaded_by_anp8.flv"),
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
             label="uploaded source file",
             location_type="tahoe",
-            cap="URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186",
-            filename="/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov",
+            cap=("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+                 "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
+                 "3:10:4783186"),
+            filename=("/var/www/wardenclyffe/tmp//"
+                      "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"),
             )
         self.vital_thumbnail = File.objects.create(
             video=self.video,
             label="vital thumbnail image",
             location_type="vitalthumb",
-            url="http://ccnmtl.columbia.edu/broadcast/projects/vital/thumbs/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-Vital_video_uploaded_by_anp8_thumb.png",
+            url=("http://ccnmtl.columbia.edu/broadcast/projects/vital/"
+                 "thumbs/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-"
+                 "Vital_video_uploaded_by_anp8_thumb.png"),
             )
         self.qtsp_file = File.objects.create(
             video=self.video,
             label="Quicktime Streaming Video",
             location_type="rtsp_url",
-            url="rtsp://qtss.cc.columbia.edu/projects/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-Vital_video_uploaded_by_anp8.mov",
+            url=("rtsp://qtss.cc.columbia.edu/projects/vital/"
+                 "25b0e81e-42b2-11e1-a13d-0017f20ea192-"
+                 "Vital_video_uploaded_by_anp8.mov"),
             )
 
     def test_extension(self):
@@ -344,19 +393,29 @@ ID_VIDEO_WIDTH,704"""
         assert self.video.cap() == self.tahoe_file.cap
 
     def test_tahoe_download_url(self):
-        assert self.video.tahoe_download_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"
+        assert self.video.tahoe_download_url() == (
+            "http://tahoe.ccnmtl.columbia.edu/file/"
+            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
+            "3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
+            "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov")
 
     def test_enclosure_url(self):
-        assert self.video.enclosure_url() == "http://tahoe.ccnmtl.columbia.edu/file/URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186/@@named=/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"
+        assert self.video.enclosure_url() == (
+            "http://tahoe.ccnmtl.columbia.edu/file/"
+            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
+            "3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
+            "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov")
 
     def test_filename(self):
         assert self.video.filename() == self.source_file.filename
 
     def test_add_file_form(self):
-        add_form = self.video.add_file_form()
+        self.video.add_file_form()
 
     def test_edit_form(self):
-        edit_form = self.video.edit_form()
+        self.video.edit_form()
 
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (704, 480)
@@ -365,13 +424,22 @@ ID_VIDEO_WIDTH,704"""
         assert self.video.vital_thumb_url() == self.vital_thumbnail.url
 
     def test_cuit_url(self):
-        assert self.video.cuit_url() == "http://ccnmtl.columbia.edu/stream/flv/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv"
+        assert self.video.cuit_url() == (
+            "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
+            "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+            "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_mediathread_url(self):
-        assert self.video.mediathread_url() == "http://ccnmtl.columbia.edu/stream/flv/e0c41066bd2c496c76fd178083d159386518be11/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv"
+        assert self.video.mediathread_url() == (
+            "http://ccnmtl.columbia.edu/stream/flv/"
+            "e0c41066bd2c496c76fd178083d159386518be11"
+            "/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-"
+            "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_poster_url(self):
-        assert self.video.poster_url() == "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+        assert self.video.poster_url() == (
+            "http://ccnmtl.columbia.edu/broadcast/posters/"
+            "vidthumb_480x360.jpg")
 
     def test_cuit_poster_url(self):
         assert self.video.cuit_poster_url() == None
@@ -400,8 +468,9 @@ class MissingDimensionsTest(TestCase):
     that we couldn't parse the dimensions out of for some reason
     """
     def setUp(self):
-        self.collection = Collection.objects.create(title="Mediathread Spring 2012",
-                                                    uuid=uuid.uuid4())
+        self.collection = Collection.objects.create(
+            title="Mediathread Spring 2012",
+            uuid=uuid.uuid4())
         self.video = Video.objects.create(collection=self.collection,
                                           title="test video",
                                           creator="anp8",
@@ -439,14 +508,22 @@ ID_VIDEO_ID,1"""
             video=self.video,
             label="CUIT File",
             location_type="cuit",
-            filename="/www/data/ccnmtl/broadcast/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-Mediathread_video_uploaded_by_anp8.flv",
+            filename=(
+                "/www/data/ccnmtl/broadcast/secure/courses/"
+                "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+                "Mediathread_video_uploaded_by_anp8.flv"),
             )
         self.tahoe_file = File.objects.create(
             video=self.video,
             label="uploaded source file",
             location_type="tahoe",
-            cap="URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:3:10:4783186",
-            filename="/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
+            cap=(
+                "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+                "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
+                "3:10:4783186"),
+            filename=(
+                "/var/www/wardenclyffe/tmp//"
+                "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
             )
         self.mediathread_file = File.objects.create(
             video=self.video,

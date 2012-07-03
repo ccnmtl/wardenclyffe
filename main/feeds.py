@@ -42,12 +42,16 @@ class CCNMTLRssFeed(Rss201rev2Feed):
         return super(CCNMTLRssFeed, self).item_attributes(item)
 
     def add_item_elements(self, handler, item):
+        """Example: """
         """<itunes:duration>00:48:26</itunes:duration>
         <itunes:author>CCNMTL</itunes:author>
         <itunes:explicit>no</itunes:explicit>
         <itunes:keywords />
-        <dc:title>Kenneth Jackson discusses the Colored Orphan Asylum</dc:title>
-        <dc:description>Columbia University History Professor Kenneth Jackson describes the infamous Draft Riots and the burning of the Colored Orphan Asylum.</dc:description>
+        <dc:title>Kenneth Jackson discusses the Colored
+        Orphan Asylum</dc:title>
+        <dc:description>Columbia University History Professor
+        Kenneth Jackson describes the infamous Draft Riots and the
+        burning of the Colored Orphan Asylum.</dc:description>
         <dc:creator>CCNMTL</dc:creator>
         <dc:contributor>Kenneth Jackson</dc:contributor>
         <dc:relation>http://maap.columbia.edu/welcome</dc:relation>
