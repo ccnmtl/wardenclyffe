@@ -29,12 +29,10 @@ def with_operation(f, video, action, params, user, args, kwargs):
         (success, message) = f(video, user, operation, *args, **kwargs)
         operation.status = success
         if operation.status == "failed" or message != "":
-            log = OperationLog.objects.create(operation=operation,
-                                              info=message)
+            OperationLog.objects.create(operation=operation, info=message)
     except Exception, e:
         operation.status = "failed"
-        log = OperationLog.objects.create(operation=operation,
-                                          info=str(e))
+        OperationLog.objects.create(operation=operation, info=str(e))
     operation.save()
 
 
@@ -54,7 +52,7 @@ def save_file_to_tahoe(operation, params):
                             location_type="tahoe",
                             filename=params['filename'],
                             label="uploaded source file")
-    of = OperationFile.objects.create(operation=operation, file=f)
+    OperationFile.objects.create(operation=operation, file=f)
     return ("complete", "")
 
 
@@ -70,13 +68,24 @@ def make_images(operation, params):
     size = os.stat(tmpfilename)[6] / (1024 * 1024)
     frames = size * 2  # 2 frames per MB at the most
     if tmpfilename.lower().endswith("avi"):
-        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 -correct-pts '%s' 2>/dev/null" % (tmpdir, frames, tmpfilename)
+        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound"
+                   " -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d"
+                   " -sstep 10 -correct-pts '%s' 2>/dev/null"
+                   % (tmpdir, frames, tmpfilename))
     else:
-        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -sstep 10 '%s' 2>/dev/null" % (tmpdir, frames, tmpfilename)
+        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
+                   "-nosound -vo jpeg:outdir=%s "
+                   "-endpos 03:00:00 -frames %d "
+                   "-sstep 10 '%s' 2>/dev/null"
+                   % (tmpdir, frames, tmpfilename))
     os.system(command)
     imgs = os.listdir(tmpdir)
     if len(imgs) == 0:
-        command = "/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d -vf framerate=250 '%s' 2>/dev/null" % (tmpdir, frames, tmpfilename)
+        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
+                   "-nosound -vo jpeg:outdir=%s "
+                   "-endpos 03:00:00 -frames %d "
+                   "-vf framerate=250 '%s' 2>/dev/null"
+                   % (tmpdir, frames, tmpfilename))
         os.system(command)
     # TODO: parameterize
     imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % operation.video.id
@@ -88,15 +97,17 @@ def make_images(operation, params):
     imgs.sort()
     for img in imgs:
         os.system("mv %s%s %s" % (tmpdir, img, imgdir))
-        i = Image.objects.create(video=operation.video,
-                                 image="images/%05d/%s" % (operation.video.id, img))
+        Image.objects.create(
+            video=operation.video,
+            image="images/%05d/%s" % (operation.video.id, img))
         statsd.incr("image_created")
     if Poster.objects.filter(video=operation.video).count() == 0\
             and len(imgs) > 0:
-        # pick a random image out of the set and assign it as the poster on the video
+        # pick a random image out of the set and assign
+        # it as the poster on the video
         r = random.randint(0, len(imgs) - 1)
         image = Image.objects.filter(video=operation.video)[r]
-        p = Poster.objects.create(video=operation.video, image=image)
+        Poster.objects.create(video=operation.video, image=image)
 
     return ("complete", "created %d images" % len(imgs))
 
@@ -114,7 +125,6 @@ def extract_metadata(operation, params):
                                        params['tmpfilename']],
                                       stdout=subprocess.PIPE).communicate()[0],
                      errors='replace')
-    pairs = [l.strip().split("=") for l in output.split("\n")]
     for line in output.split("\n"):
         try:
             line = line.strip()
@@ -176,8 +186,8 @@ def pull_from_tahoe_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
         r = urllib2.urlopen(url)
         t.write(r.read())
         t.seek(0)
-        log = OperationLog.objects.create(operation=operation,
-                                          info="downloaded from tahoe")
+        OperationLog.objects.create(operation=operation,
+                                    info="downloaded from tahoe")
         # TODO: figure out how to re-use submit_to_pcp()
         print "submitting to PCP"
         pcp = PCP(pcp_base_url, pcp_username, pcp_password)
@@ -198,7 +208,6 @@ def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)
     sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_path = settings.SFTP_PATH
     sftp_user = settings.SFTP_USER
     sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
     mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
@@ -210,6 +219,7 @@ def sftp_get(remote_filename, local_filename):
         sftp.get(remote_filename, local_filename)
     except Exception, e:
         print "sftp fetch failed"
+        print str(e)
         raise
     else:
         print "sftp_get succeeded"
@@ -240,8 +250,8 @@ def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
         tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
         sftp_get(filename, tmpfilename)
 
-        log = OperationLog.objects.create(operation=operation,
-                                          info="downloaded from cuit")
+        OperationLog.objects.create(operation=operation,
+                                    info="downloaded from cuit")
 
         print "submitting to PCP"
         pcp = PCP(pcp_base_url, pcp_username, pcp_password)
@@ -267,7 +277,13 @@ def flv_encode(video_id, user, basedir, infile, outfile, ffmpeg_path):
 
     def _do_flv_encode(video, user, operation, basedir, infile, outfile,
                        ffmpeg_path):
-        command = """%s -i "%s/%s" -y -f flv -vcodec flv -qmin 1 -b 800k -s '480x360' -me_method epzs -r 29.97 -g 100 -qcomp 0.6 -qmax 15 -qdiff 4 -i_qfactor 0.71428572 -b_qfactor 0.76923078 -subq 6 -acodec libmp3lame -ab 128k -ar 22050 -ac 2 -benchmark "%s/%s" """ % (ffmpeg_path, basedir, infile, basedir, outfile)
+        command = ("""%s -i "%s/%s" -y -f flv -vcodec flv -qmin 1 -b """
+                   """800k -s '480x360' -me_method epzs -r 29.97 -g 100 """
+                   """-qcomp 0.6 -qmax 15 -qdiff 4 -i_qfactor """
+                   """0.71428572 -b_qfactor 0.76923078 -subq 6 """
+                   """-acodec libmp3lame -ab 128k -ar 22050 """
+                   """-ac 2 -benchmark "%s/%s" """
+                   % (ffmpeg_path, basedir, infile, basedir, outfile))
         os.system(command)
         return ("complete", "flv encoded")
 

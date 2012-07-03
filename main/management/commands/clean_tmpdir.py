@@ -16,7 +16,8 @@ class Command(BaseCommand):
         for f in os.listdir(BASE):
             if f in ["imgs", "watch_dir"]:
                 continue
-            mtime = datetime.fromtimestamp(int(os.path.getmtime(os.path.join(BASE, f))))
+            mtime = datetime.fromtimestamp(
+                int(os.path.getmtime(os.path.join(BASE, f))))
             if mtime > ARCHIVE_CUTOFF:
                 continue
             else:

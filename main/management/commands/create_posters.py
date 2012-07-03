@@ -13,5 +13,6 @@ class Command(BaseCommand):
                 continue
             if video.image_set.all().count() == 0:
                 continue
-            image = video.image_set.all()[random.randint(0, video.image_set.all().count() - 1)]
-            p = Poster.objects.create(video=video, image=image)
+            image = video.image_set.all()[
+                random.randint(0, video.image_set.all().count() - 1)]
+            Poster.objects.create(video=video, image=image)

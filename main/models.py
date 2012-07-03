@@ -12,11 +12,12 @@ import os.path
 from django.core.mail import send_mail
 from django_statsd.clients import statsd
 
-add_introspection_rules([],
-                        ["^django_extensions\.db\.fields\.CreationDateTimeField",
-                         "django_extensions.db.fields.ModificationDateTimeField",
-                         "sorl.thumbnail.fields.ImageWithThumbnailsField",
-                         "django_extensions.db.fields.UUIDField"])
+add_introspection_rules(
+    [],
+    ["^django_extensions\.db\.fields\.CreationDateTimeField",
+     "django_extensions.db.fields.ModificationDateTimeField",
+     "sorl.thumbnail.fields.ImageWithThumbnailsField",
+     "django_extensions.db.fields.UUIDField"])
 
 
 class Collection(TimeStampedModel):
@@ -179,7 +180,9 @@ class Video(TimeStampedModel):
             # and use that
             # return self.image_set.all()[0].image
             pass
-        return "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+        poster_base = "http://ccnmtl.columbia.edu/"
+        poster_path = "broadcast/posters/vidthumb_480x360.jpg"
+        return poster_base + poster_path
 
     def cuit_poster_url(self):
         try:
@@ -189,7 +192,8 @@ class Video(TimeStampedModel):
             return None
 
     def is_mediathread_submit(self):
-        return self.file_set.filter(location_type="mediathreadsubmit").count() > 0
+        return self.file_set.filter(
+            location_type="mediathreadsubmit").count() > 0
 
     def mediathread_submit(self):
         r = self.file_set.filter(location_type="mediathreadsubmit")
@@ -387,13 +391,16 @@ class Operation(TimeStampedModel):
         import wardenclyffe.youtube.tasks
         import wardenclyffe.mediathread.tasks
 
-        mapper = {'extract metadata': wardenclyffe.main.tasks.extract_metadata,
-                  'save file to tahoe': wardenclyffe.main.tasks.save_file_to_tahoe,
-                  'make images': wardenclyffe.main.tasks.make_images,
-                  'submit to podcast producer': wardenclyffe.main.tasks.submit_to_pcp,
-                  'upload to youtube': wardenclyffe.youtube.tasks.upload_to_youtube,
-                  'submit to mediathread': wardenclyffe.mediathread.tasks.submit_to_mediathread,
-                  }
+        mapper = {
+            'extract metadata': wardenclyffe.main.tasks.extract_metadata,
+            'save file to tahoe': wardenclyffe.main.tasks.save_file_to_tahoe,
+            'make images': wardenclyffe.main.tasks.make_images,
+            'submit to podcast producer':
+                wardenclyffe.main.tasks.submit_to_pcp,
+            'upload to youtube': wardenclyffe.youtube.tasks.upload_to_youtube,
+            'submit to mediathread':
+                wardenclyffe.mediathread.tasks.submit_to_mediathread,
+            }
         return mapper[self.action]
 
     def process(self, args):
@@ -406,13 +413,11 @@ class Operation(TimeStampedModel):
             (success, message) = f(self, args)
             self.status = success
             if self.status == "failed" or message != "":
-                log = OperationLog.objects.create(operation=self,
-                                                  info=message)
+                OperationLog.objects.create(operation=self, info=message)
                 error_message = message
         except Exception, e:
             self.status = "failed"
-            log = OperationLog.objects.create(operation=self,
-                                              info=str(e))
+            OperationLog.objects.create(operation=self, info=str(e))
             error_message = str(e)
 
         if self.status == "failed":

@@ -135,14 +135,18 @@ def recent_operations(request):
     if user_filter:
         q = q.filter(video__creator=user_filter)
 
-    return HttpResponse(dumps(dict(operations=[o.as_dict() for o in q.order_by("-modified")[:200]])),
-                        mimetype="application/json")
+    return HttpResponse(
+        dumps(dict(operations=[o.as_dict() for o
+                               in q.order_by("-modified")[:200]])),
+        mimetype="application/json")
 
 
 @login_required
 def most_recent_operation(request):
-    return HttpResponse(dumps(dict(modified=str(Operation.objects.all().order_by("-modified")[0].modified)[:19])),
-                        mimetype="application/json")
+    return HttpResponse(
+        dumps(dict(modified=str(Operation.objects.all().order_by(
+                        "-modified")[0].modified)[:19])),
+        mimetype="application/json")
 
 
 @login_required
@@ -204,7 +208,8 @@ def collection(request, id):
     collection = get_object_or_404(Collection, id=id)
     videos = Video.objects.filter(collection=collection).order_by("-modified")
     return dict(collection=collection, videos=videos[:20],
-                operations=Operation.objects.filter(video__collection__id=id).order_by("-modified")[:20])
+                operations=Operation.objects.filter(
+            video__collection__id=id).order_by("-modified")[:20])
 
 
 @login_required
@@ -234,7 +239,8 @@ def all_collection_videos(request, id):
 @render_to('main/all_collection_operations.html')
 def all_collection_operations(request, id):
     collection = get_object_or_404(Collection, id=id)
-    operations = Operation.objects.filter(video__collection__id=id).order_by("-modified")
+    operations = Operation.objects.filter(
+        video__collection__id=id).order_by("-modified")
     params = dict(collection=collection)
     paginator = Paginator(operations, 100)
 
@@ -258,7 +264,8 @@ def all_collection_operations(request, id):
 def user(request, username):
     user = get_object_or_404(User, username=username)
     return dict(viewuser=user,
-                operations=Operation.objects.filter(owner__id=user.id).order_by("-modified")[:20])
+                operations=Operation.objects.filter(
+            owner__id=user.id).order_by("-modified")[:20])
 
 
 @login_required
@@ -311,8 +318,10 @@ def remove_tag_from_collection(request, id, tagname):
 @render_to('main/tag.html')
 def tag(request, tagname):
     return dict(tag=tagname,
-                collection=Collection.objects.filter(tags__name__in=[tagname]).order_by("-modified"),
-                videos=Video.objects.filter(tags__name__in=[tagname]).order_by("-modified"))
+                collection=Collection.objects.filter(
+            tags__name__in=[tagname]).order_by("-modified"),
+                videos=Video.objects.filter(
+            tags__name__in=[tagname]).order_by("-modified"))
 
 
 @login_required
@@ -479,22 +488,24 @@ def upload(request):
 
                     if request.POST.get('submit_to_vital', False) \
                             and request.POST.get('course_id', False):
-                        submit_file = File.objects.create(video=v,
-                                                          label="vital submit",
-                                                          filename=source_filename,
-                                                          location_type='vitalsubmit')
+                        submit_file = File.objects.create(
+                            video=v,
+                            label="vital submit",
+                            filename=source_filename,
+                            location_type='vitalsubmit')
                         submit_file.set_metadata("username",
                                                  request.user.username)
                         submit_file.set_metadata("set_course",
                                                  request.POST['course_id'])
                         submit_file.set_metadata("notify_url",
                                                  settings.VITAL_NOTIFY_URL)
-                    for p, action in [("submit_to_vital", "submit to podcast producer"),
-                                     ("extract_metadata", "extract metadata"),
-                                     ("upload_to_tahoe", "save file to tahoe"),
-                                     ("extract_images", "make images"),
-                                     ("submit_to_youtube", "upload to youtube")
-                                     ]:
+                    for p, action in [
+                        ("submit_to_vital", "submit to podcast producer"),
+                        ("extract_metadata", "extract metadata"),
+                        ("upload_to_tahoe", "save file to tahoe"),
+                        ("extract_images", "make images"),
+                        ("submit_to_youtube", "upload to youtube")
+                        ]:
                         if request.POST.get(p, False):
                             o = Operation.objects.create(uuid=uuid.uuid4(),
                                                          video=v,
@@ -561,16 +572,16 @@ def done(request):
             operation = r[0]
             operation.status = "complete"
             operation.save()
-            ol = OperationLog.objects.create(operation=operation,
-                                             info="PCP completed")
+            OperationLog.objects.create(operation=operation,
+                                        info="PCP completed")
 
             cunix_path = request.POST.get('movie_destination_path', '')
             if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
-                f = File.objects.create(video=operation.video,
-                                        label="CUIT File",
-                                        filename=cunix_path,
-                                        location_type='cuit',
-                                        )
+                File.objects.create(video=operation.video,
+                                    label="CUIT File",
+                                    filename=cunix_path,
+                                    location_type='cuit',
+                                    )
 
             if operation.video.is_mediathread_submit():
                 statsd.incr('main.upload.mediathread')
@@ -578,13 +589,14 @@ def done(request):
                 if set_course is not None:
                     user = User.objects.get(username=username)
                     params['set_course'] = set_course
-                    o = Operation.objects.create(uuid=uuid.uuid4(),
-                                                 video=operation.video,
-                                                 action="submit to mediathread",
-                                                 status="enqueued",
-                                                 params=params,
-                                                 owner=user
-                                                 )
+                    o = Operation.objects.create(
+                        uuid=uuid.uuid4(),
+                        video=operation.video,
+                        action="submit to mediathread",
+                        status="enqueued",
+                        params=params,
+                        owner=user
+                        )
                     operations.append(o.id)
                     o.video.clear_mediathread_submit()
         except:
@@ -610,13 +622,14 @@ def posterdone(request):
         statsd.incr('main.posterdone')
         operation = r[0]
         cunix_path = request.POST.get('image_destination_path', '')
-        poster_url = cunix_path.replace("/www/data/ccnmtl/broadcast/posters/",
-                                        "http://ccnmtl.columbia.edu/broadcast/posters/")
+        poster_url = cunix_path.replace(
+            "/www/data/ccnmtl/broadcast/posters/",
+            "http://ccnmtl.columbia.edu/broadcast/posters/")
 
-        cuit_file = File.objects.create(video=operation.video,
-                                        label="CUIT thumbnail image",
-                                        url=poster_url,
-                                        location_type='cuitthumb')
+        File.objects.create(video=operation.video,
+                            label="CUIT thumbnail image",
+                            url=poster_url,
+                            location_type='cuitthumb')
     return HttpResponse("ok")
 
 
@@ -653,16 +666,18 @@ def file_surelink(request, id):
                  request.GET.get('player', ''),
                  PROTECTION_KEY)
 
-    return dict(surelink=s,
-                protection=request.GET.get('protection', ''),
-                public=request.GET.get('protection', '').startswith('public'),
-                public_mp4_download=request.GET.get('protection',
-                                                    '') == "public-mp4-download",
-                width=request.GET.get('width', ''),
-                height=request.GET.get('height', ''),
-                captions=request.GET.get('captions', ''),
-                filename=filename,
-                file=f)
+    return dict(
+        surelink=s,
+        protection=request.GET.get('protection', ''),
+        public=request.GET.get('protection', '').startswith('public'),
+        public_mp4_download=request.GET.get(
+            'protection',
+            '') == "public-mp4-download",
+        width=request.GET.get('width', ''),
+        height=request.GET.get('height', ''),
+        captions=request.GET.get('captions', ''),
+        filename=filename,
+        file=f)
 
 
 @login_required
@@ -718,7 +733,6 @@ def video_pcp_submit(request, id):
     video = get_object_or_404(Video, id=id)
     if request.method == "POST":
         statsd.incr('main.video_pcp_submit')
-        filename = video.filename()
         # send to podcast producer
         pull_from_tahoe_and_submit_to_pcp.delay(video.id,
                                                 request.user,
@@ -747,13 +761,14 @@ def file_pcp_submit(request, id):
         statsd.incr('main.file_pcp_submit')
         video = file.video
         # send to podcast producer
-        tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
-                                                     request.user,
-                                                     request.POST.get('workflow',
-                                                                      ''),
-                                                     settings.PCP_BASE_URL,
-                                                     settings.PCP_USERNAME,
-                                                     settings.PCP_PASSWORD)
+        tasks.pull_from_cuit_and_submit_to_pcp.delay(
+            video.id,
+            request.user,
+            request.POST.get('workflow',
+                             ''),
+            settings.PCP_BASE_URL,
+            settings.PCP_USERNAME,
+            settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
@@ -775,8 +790,9 @@ def file_filter(request):
     include_video_formats = request.GET.getlist('include_video_formats')
     include_audio_formats = request.GET.getlist('include_audio_formats')
 
-    results = File.objects.filter(video__collection__id__in=include_collection)\
-        .filter(location_type__in=include_file_types)
+    results = File.objects.filter(
+        video__collection__id__in=include_collection
+        ).filter(location_type__in=include_file_types)
 
     all_collection = []
     for s in Collection.objects.all():
@@ -788,7 +804,9 @@ def file_filter(request):
 
     all_video_formats = []
     excluded_video_formats = []
-    for vf in [""] + list(set([m.value for m in Metadata.objects.filter(field="ID_VIDEO_FORMAT")])):
+    for vf in [""] + list(set([m.value for m
+                               in Metadata.objects.filter(
+                    field="ID_VIDEO_FORMAT")])):
         all_video_formats.append((vf, vf in include_video_formats))
         if vf not in include_video_formats:
             excluded_video_formats.append(vf)
@@ -796,7 +814,9 @@ def file_filter(request):
                 excluded_video_formats.append(None)
     all_audio_formats = []
     excluded_audio_formats = []
-    for af in [""] + list(set([m.value for m in Metadata.objects.filter(field="ID_AUDIO_FORMAT")])):
+    for af in [""] + list(set([m.value for m
+                               in Metadata.objects.filter(
+                    field="ID_AUDIO_FORMAT")])):
         all_audio_formats.append((af, af in include_audio_formats))
         if af not in include_audio_formats:
             excluded_audio_formats.append(af)
@@ -826,13 +846,14 @@ def bulk_file_operation(request):
         for file in files:
             video = file.video
             # send to podcast producer
-            tasks.pull_from_cuit_and_submit_to_pcp.delay(video.id,
-                                                         request.user,
-                                                         request.POST.get('workflow',
-                                                                          ''),
-                                                         settings.PCP_BASE_URL,
-                                                         settings.PCP_USERNAME,
-                                                         settings.PCP_PASSWORD)
+            tasks.pull_from_cuit_and_submit_to_pcp.delay(
+                video.id,
+                request.user,
+                request.POST.get('workflow',
+                                 ''),
+                settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
             statsd.incr('main.bulk_file_operation')
         return HttpResponseRedirect("/")
     files = [File.objects.get(id=int(f.split("_")[1]))\
@@ -858,10 +879,10 @@ def video_zencoder_submit(request, id):
             return HttpResponse("not stored in tahoe")
         zen = Zencoder(settings.ZENCODER_API_KEY)
         job = zen.job.create(tahoe_url)
-        f = File.objects.create(video=video,
-                                label="zencoder file",
-                                url=job.body['outputs'][0]['url'],
-                                location_type='zencoder')
+        File.objects.create(video=video,
+                            label="zencoder file",
+                            url=job.body['outputs'][0]['url'],
+                            location_type='zencoder')
         return HttpResponseRedirect(video.get_absolute_url())
     return HttpResponse("POST only")
 
@@ -888,7 +909,7 @@ def video_select_poster(request, id, image_id):
     image = get_object_or_404(Image, id=image_id)
     # clear any existing ones for the video
     Poster.objects.filter(video=video).delete()
-    p = Poster.objects.create(video=video, image=image)
+    Poster.objects.create(video=video, image=image)
     return HttpResponseRedirect(video.get_absolute_url())
 
 
@@ -999,16 +1020,17 @@ def surelink(request):
                          request.GET.get('player', ''),
                          PROTECTION_KEY)
             results.append(s)
-    return dict(protection=request.GET.get('protection', ''),
-                public=request.GET.get('protection', '').startswith('public'),
-                public_mp4_download=request.GET.get('protection',
-                                                    '') == "public-mp4-download",
-                width=request.GET.get('width', ''),
-                height=request.GET.get('height', ''),
-                captions=request.GET.get('captions', ''),
-                results=results,
-                rows=len(results) * 3,
-                files=request.GET.get('files', ''))
+    return dict(
+        protection=request.GET.get('protection', ''),
+        public=request.GET.get('protection', '').startswith('public'),
+        public_mp4_download=request.GET.get('protection',
+                                            '') == "public-mp4-download",
+        width=request.GET.get('width', ''),
+        height=request.GET.get('height', ''),
+        captions=request.GET.get('captions', ''),
+        results=results,
+        rows=len(results) * 3,
+        files=request.GET.get('files', ''))
 
 
 @muninview(config="""graph_title Total Videos
@@ -1033,6 +1055,6 @@ def total_operations(request):
 graph_vlabel minutes""")
 def total_minutes(request):
     return [("minutes",
-             sum([float(str(m.value))\
-                      for m in Metadata.objects.filter(field='ID_LENGTH',
-                                                       file__location_type='none')]) / 60.0)]
+             sum([float(str(m.value)) for m in Metadata.objects.filter(
+                        field='ID_LENGTH',
+                        file__location_type='none')]) / 60.0)]
