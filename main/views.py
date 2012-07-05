@@ -534,7 +534,7 @@ def upload(request):
 
         if source_filename:
             prep_vital_submit(request, v, source_filename)
-            operations = create_operations(request, v, params, request.user)
+            operations = create_operations(request, v, params)
     except:
         statsd.incr('main.upload.failure')
         transaction.rollback()
