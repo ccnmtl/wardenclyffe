@@ -90,10 +90,7 @@ def uploadify(request, *args, **kwargs):
         if request.FILES:
             # save it locally
             vuuid = uuid.uuid4()
-            try:
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
+            safe_makedirs(settings.TMP_DIR)
             extension = request.FILES['Filedata'].name.split(".")[-1]
             tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
                 + extension.lower()
