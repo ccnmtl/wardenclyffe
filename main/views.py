@@ -576,54 +576,58 @@ def test_upload(request):
 @transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
+        transaction.commit()
         return HttpResponse("expecting a title")
     title = request.POST.get('title', 'no title')
     ouuid = uuidparse(title)
     r = Operation.objects.filter(uuid=ouuid)
-    if r.count() == 1:
-        statsd.incr('main.done')
-        operations = []
-        params = dict()
-        try:
-            operation = r[0]
-            operation.status = "complete"
-            operation.save()
-            OperationLog.objects.create(operation=operation,
-                                        info="PCP completed")
+    if r.count() != 1:
+        transaction.commit()
+        return HttpResponse("could not find an operation with that UUID")
 
-            cunix_path = request.POST.get('movie_destination_path', '')
-            if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
-                File.objects.create(video=operation.video,
-                                    label="CUIT File",
-                                    filename=cunix_path,
-                                    location_type='cuit',
-                                    )
+    statsd.incr('main.done')
+    operations = []
+    params = dict()
+    try:
+        operation = r[0]
+        operation.status = "complete"
+        operation.save()
+        OperationLog.objects.create(operation=operation,
+                                    info="PCP completed")
 
-            if operation.video.is_mediathread_submit():
-                statsd.incr('main.upload.mediathread')
-                (set_course, username) = operation.video.mediathread_submit()
-                if set_course is not None:
-                    user = User.objects.get(username=username)
-                    params['set_course'] = set_course
-                    o = Operation.objects.create(
-                        uuid=uuid.uuid4(),
-                        video=operation.video,
-                        action="submit to mediathread",
-                        status="enqueued",
-                        params=params,
-                        owner=user
-                        )
-                    operations.append(o.id)
-                    o.video.clear_mediathread_submit()
-        except:
-            statsd.incr('main.upload.failure')
-            transaction.rollback()
-            raise
-        finally:
-            transaction.commit()
-            tasks.process_operation.delay()
-            for o in operations:
-                tasks.process_operation.delay(o, params)
+        cunix_path = request.POST.get('movie_destination_path', '')
+        if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+            File.objects.create(video=operation.video,
+                                label="CUIT File",
+                                filename=cunix_path,
+                                location_type='cuit',
+                                )
+
+        if operation.video.is_mediathread_submit():
+            statsd.incr('main.upload.mediathread')
+            (set_course, username) = operation.video.mediathread_submit()
+            if set_course is not None:
+                user = User.objects.get(username=username)
+                params['set_course'] = set_course
+                o = Operation.objects.create(
+                    uuid=uuid.uuid4(),
+                    video=operation.video,
+                    action="submit to mediathread",
+                    status="enqueued",
+                    params=params,
+                    owner=user
+                    )
+                operations.append(o.id)
+                o.video.clear_mediathread_submit()
+    except:
+        statsd.incr('main.upload.failure')
+        transaction.rollback()
+        raise
+    finally:
+        transaction.commit()
+        tasks.process_operation.delay()
+        for o in operations:
+            tasks.process_operation.delay(o, params)
 
     return HttpResponse("ok")
 
