@@ -28,11 +28,6 @@ from munin.helpers import muninview
 from django_statsd.clients import statsd
 
 
-def breakme(request):
-    print 1 / 0
-    return HttpResponse("broked")
-
-
 @login_required
 @render_to('main/index.html')
 def index(request):
@@ -421,110 +416,134 @@ def operation(request, uuid):
     return dict(operation=operation)
 
 
+def safe_makedirs(d):
+    try:
+        os.makedirs(d)
+    except:
+        pass
+
+
+def save_file_locally(request):
+    vuuid = uuid.uuid4()
+    source_filename = None
+    tmp_filename = ''
+    tmpfilename = ''
+    if request.POST.get('scan_directory', False):
+        source_filename = request.POST.get('source_file', '')
+        statsd.incr('main.upload.scan_directory')
+    if request.POST.get('tmpfilename', False):
+        tmp_filename = request.POST.get('tmpfilename', '')
+    if source_filename:
+        safe_makedirs(settings.TMP_DIR)
+        extension = source_filename.split(".")[-1]
+        tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
+            + extension.lower()
+        if request.POST.get('scan_directory', False):
+            os.rename(settings.WATCH_DIRECTORY\
+                          + request.POST.get('source_file'),
+                      tmpfilename)
+        else:
+            tmpfile = open(tmpfilename, 'wb')
+            for chunk in request.FILES['source_file'].chunks():
+                tmpfile.write(chunk)
+            tmpfile.close()
+    if tmp_filename.startswith(settings.TMP_DIR):
+        tmpfilename = tmp_filename
+        filename = os.path.basename(tmpfilename)
+        vuuid = os.path.splitext(filename)[0]
+        source_filename = tmp_filename
+
+    return (source_filename, tmpfilename, vuuid)
+
+
+def create_operations(request, v, params):
+    operations = []
+    for p, action in [
+        ("submit_to_vital", "submit to podcast producer"),
+        ("extract_metadata", "extract metadata"),
+        ("upload_to_tahoe", "save file to tahoe"),
+        ("extract_images", "make images"),
+        ("submit_to_youtube", "upload to youtube")
+        ]:
+        if request.POST.get(p, False):
+            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                         video=v,
+                                         action=action,
+                                         status="enqueued",
+                                         params=params,
+                                         owner=request.user)
+            operations.append(o.id)
+    return operations
+
+
+def prep_vital_submit(request, v, source_filename):
+    if request.POST.get('submit_to_vital', False) \
+            and request.POST.get('course_id', False):
+        submit_file = File.objects.create(
+            video=v,
+            label="vital submit",
+            filename=source_filename,
+            location_type='vitalsubmit')
+        submit_file.set_metadata("username",
+                                 request.user.username)
+        submit_file.set_metadata("set_course",
+                                 request.POST['course_id'])
+        submit_file.set_metadata("notify_url",
+                                 settings.VITAL_NOTIFY_URL)
+
+
 @transaction.commit_manually
 @login_required
 def upload(request):
+    if request.method != "POST":
+        return HttpResponseRedirect("/upload/")
+
+    form = UploadVideoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        # TODO: give the user proper feedback here
+        return HttpResponseRedirect("/upload/")
+
     collection_id = None
-    if request.method == "POST":
-        form = UploadVideoForm(request.POST, request.FILES)
-        operations = []
-        params = dict()
-        if form.is_valid():
-            statsd.incr('main.upload')
-            # save it locally
-            vuuid = uuid.uuid4()
-            source_filename = None
-            tmp_filename = ''
-            if request.POST.get('scan_directory', False):
-                source_filename = request.POST.get('source_file', '')
-                statsd.incr('main.upload.scan_directory')
-            if request.POST.get('tmpfilename', False):
-                tmp_filename = request.POST.get('tmpfilename', '')
-            # important to note here that we allow an "upload" with no file
-            # so the user can create a placeholder for a later upload,
-            # or to associate existing files/urls with
+    operations = []
+    params = dict()
+    statsd.incr('main.upload')
 
-            if source_filename:
-                try:
-                    os.makedirs(settings.TMP_DIR)
-                except:
-                    pass
-                extension = source_filename.split(".")[-1]
-                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
-                    + extension.lower()
-                if request.POST.get('scan_directory', False):
-                    os.rename(settings.WATCH_DIRECTORY\
-                                  + request.POST.get('source_file'),
-                              tmpfilename)
-                else:
-                    tmpfile = open(tmpfilename, 'wb')
-                    for chunk in request.FILES['source_file'].chunks():
-                        tmpfile.write(chunk)
-                    tmpfile.close()
-            if tmp_filename.startswith(settings.TMP_DIR):
-                tmpfilename = tmp_filename
-                filename = os.path.basename(tmpfilename)
-                vuuid = os.path.splitext(filename)[0]
-                source_filename = tmp_filename
+    # save it locally
+    (source_filename, tmpfilename, vuuid) = save_file_locally(request)
+    # important to note here that we allow an "upload" with no file
+    # so the user can create a placeholder for a later upload,
+    # or to associate existing files/urls with
 
-            # make db entry
-            try:
-                v = form.save(commit=False)
-                v.uuid = vuuid
-                collection_id = request.GET.get('collection', None)
-                if collection_id:
-                    v.collection_id = collection_id
-                v.save()
-                form.save_m2m()
-                if source_filename:
-                    source_file = File.objects.create(video=v,
-                                                      label="source file",
-                                                      filename=source_filename,
-                                                      location_type='none')
-                    params['tmpfilename'] = tmpfilename
-                    params['source_file_id'] = source_file.id
-                    params['filename'] = source_filename
-                    params['pcp_workflow'] = settings.VITAL_PCP_WORKFLOW
+    # make db entry
+    try:
+        v = form.save(commit=False)
+        v.uuid = vuuid
+        collection_id = request.GET.get('collection', None)
+        if collection_id:
+            v.collection_id = collection_id
+        v.save()
+        form.save_m2m()
+        source_file = File.objects.create(video=v,
+                                          label="source file",
+                                          filename=source_filename,
+                                          location_type='none')
+        params['tmpfilename'] = tmpfilename
+        params['source_file_id'] = source_file.id
+        params['filename'] = source_filename
+        params['pcp_workflow'] = settings.VITAL_PCP_WORKFLOW
 
-                    if request.POST.get('submit_to_vital', False) \
-                            and request.POST.get('course_id', False):
-                        submit_file = File.objects.create(
-                            video=v,
-                            label="vital submit",
-                            filename=source_filename,
-                            location_type='vitalsubmit')
-                        submit_file.set_metadata("username",
-                                                 request.user.username)
-                        submit_file.set_metadata("set_course",
-                                                 request.POST['course_id'])
-                        submit_file.set_metadata("notify_url",
-                                                 settings.VITAL_NOTIFY_URL)
-                    for p, action in [
-                        ("submit_to_vital", "submit to podcast producer"),
-                        ("extract_metadata", "extract metadata"),
-                        ("upload_to_tahoe", "save file to tahoe"),
-                        ("extract_images", "make images"),
-                        ("submit_to_youtube", "upload to youtube")
-                        ]:
-                        if request.POST.get(p, False):
-                            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                                         video=v,
-                                                         action=action,
-                                                         status="enqueued",
-                                                         params=params,
-                                                         owner=request.user)
-                            operations.append(o.id)
-
-            except:
-                statsd.incr('main.upload.failure')
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-                if source_filename:
-                    for o in operations:
-                        tasks.process_operation.delay(o, params)
-                return HttpResponseRedirect("/")
+        if source_filename:
+            prep_vital_submit(request, v, source_filename)
+            operations = create_operations(request, v, params, request.user)
+    except:
+        statsd.incr('main.upload.failure')
+        transaction.rollback()
+        raise
+    else:
+        transaction.commit()
+        for o in operations:
+            tasks.process_operation.delay(o, params)
+    return HttpResponseRedirect("/")
 
 
 @render_to('main/upload.html')
@@ -794,13 +813,12 @@ def file_filter(request):
         video__collection__id__in=include_collection
         ).filter(location_type__in=include_file_types)
 
-    all_collection = []
-    for s in Collection.objects.all():
-        all_collection.append((s, str(s.id) in include_collection))
+    all_collection = [(s, str(s.id) in include_collection)
+                      for s in Collection.objects.all()]
 
-    all_file_types = []
-    for l in list(set([f.location_type for f in File.objects.all()])):
-        all_file_types.append((l, l in include_file_types))
+    all_file_types = [(l, l in include_file_types)
+                      for l in list(set([f.location_type
+                                         for f in File.objects.all()]))]
 
     all_video_formats = []
     excluded_video_formats = []
@@ -823,11 +841,9 @@ def file_filter(request):
             if af == "":
                 excluded_audio_formats.append(None)
 
-    files = []
-    for f in results:
-        if f.video_format() not in excluded_video_formats \
-                and f.audio_format() not in excluded_audio_formats:
-            files.append(f)
+    files = [f for f in results
+             if f.video_format() not in excluded_video_formats
+             and f.audio_format() not in excluded_audio_formats]
 
     return dict(all_collection=all_collection,
                 all_video_formats=all_video_formats,
