@@ -1,31 +1,31 @@
-# Create your views here.
+# stdlib imports
+import os
+import uuid
+import wardenclyffe.main.tasks as tasks
+
+from angeldust import PCP
 from annoying.decorators import render_to
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
+from django_statsd.clients import statsd
+from munin.helpers import muninview
+from simplejson import dumps
+from taggit.models import Tag
+from wardenclyffe.main.forms import AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
 from wardenclyffe.main.models import Server
-from django.contrib.auth.models import User
-from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
-from wardenclyffe.main.forms import AddServerForm
-import uuid
-from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
-import wardenclyffe.main.tasks as tasks
+from wardenclyffe.surelink.helpers import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
-import os
-from angeldust import PCP
-from django.conf import settings
-from django.db import transaction
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from taggit.models import Tag
-from simplejson import dumps
 from zencoder import Zencoder
-from django.db.models import Q
-from surelink.helpers import SureLink
-from munin.helpers import muninview
-from django_statsd.clients import statsd
 
 
 @login_required
@@ -576,54 +576,58 @@ def test_upload(request):
 @transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
+        transaction.commit()
         return HttpResponse("expecting a title")
     title = request.POST.get('title', 'no title')
     ouuid = uuidparse(title)
     r = Operation.objects.filter(uuid=ouuid)
-    if r.count() == 1:
-        statsd.incr('main.done')
-        operations = []
-        params = dict()
-        try:
-            operation = r[0]
-            operation.status = "complete"
-            operation.save()
-            OperationLog.objects.create(operation=operation,
-                                        info="PCP completed")
+    if r.count() != 1:
+        transaction.commit()
+        return HttpResponse("could not find an operation with that UUID")
 
-            cunix_path = request.POST.get('movie_destination_path', '')
-            if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
-                File.objects.create(video=operation.video,
-                                    label="CUIT File",
-                                    filename=cunix_path,
-                                    location_type='cuit',
-                                    )
+    statsd.incr('main.done')
+    operations = []
+    params = dict()
+    try:
+        operation = r[0]
+        operation.status = "complete"
+        operation.save()
+        OperationLog.objects.create(operation=operation,
+                                    info="PCP completed")
 
-            if operation.video.is_mediathread_submit():
-                statsd.incr('main.upload.mediathread')
-                (set_course, username) = operation.video.mediathread_submit()
-                if set_course is not None:
-                    user = User.objects.get(username=username)
-                    params['set_course'] = set_course
-                    o = Operation.objects.create(
-                        uuid=uuid.uuid4(),
-                        video=operation.video,
-                        action="submit to mediathread",
-                        status="enqueued",
-                        params=params,
-                        owner=user
-                        )
-                    operations.append(o.id)
-                    o.video.clear_mediathread_submit()
-        except:
-            statsd.incr('main.upload.failure')
-            transaction.rollback()
-            raise
-        finally:
-            transaction.commit()
-            tasks.process_operation.delay()
-            for o in operations:
-                tasks.process_operation.delay(o, params)
+        cunix_path = request.POST.get('movie_destination_path', '')
+        if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+            File.objects.create(video=operation.video,
+                                label="CUIT File",
+                                filename=cunix_path,
+                                location_type='cuit',
+                                )
+
+        if operation.video.is_mediathread_submit():
+            statsd.incr('main.upload.mediathread')
+            (set_course, username) = operation.video.mediathread_submit()
+            if set_course is not None:
+                user = User.objects.get(username=username)
+                params['set_course'] = set_course
+                o = Operation.objects.create(
+                    uuid=uuid.uuid4(),
+                    video=operation.video,
+                    action="submit to mediathread",
+                    status="enqueued",
+                    params=params,
+                    owner=user
+                    )
+                operations.append(o.id)
+                o.video.clear_mediathread_submit()
+    except:
+        statsd.incr('main.upload.failure')
+        transaction.rollback()
+        raise
+    finally:
+        transaction.commit()
+        tasks.process_operation.delay()
+        for o in operations:
+            tasks.process_operation.delay(o, params)
 
     return HttpResponse("ok")
 
@@ -750,13 +754,14 @@ def video_pcp_submit(request, id):
     if request.method == "POST":
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
-        pull_from_tahoe_and_submit_to_pcp.delay(video.id,
-                                                request.user,
-                                                request.POST.get('workflow',
-                                                                 ''),
-                                                settings.PCP_BASE_URL,
-                                                settings.PCP_USERNAME,
-                                                settings.PCP_PASSWORD)
+        tasks.pull_from_tahoe_and_submit_to_pcp.delay(
+            video.id,
+            request.user,
+            request.POST.get('workflow',
+                             ''),
+            settings.PCP_BASE_URL,
+            settings.PCP_USERNAME,
+            settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
