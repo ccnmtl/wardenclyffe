@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.forms import AddServerForm
 import uuid
-from wardenclyffe.main.tasks import pull_from_tahoe_and_submit_to_pcp
 import wardenclyffe.main.tasks as tasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
@@ -750,13 +749,14 @@ def video_pcp_submit(request, id):
     if request.method == "POST":
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
-        pull_from_tahoe_and_submit_to_pcp.delay(video.id,
-                                                request.user,
-                                                request.POST.get('workflow',
-                                                                 ''),
-                                                settings.PCP_BASE_URL,
-                                                settings.PCP_USERNAME,
-                                                settings.PCP_PASSWORD)
+        tasks.pull_from_tahoe_and_submit_to_pcp.delay(
+            video.id,
+            request.user,
+            request.POST.get('workflow',
+                             ''),
+            settings.PCP_BASE_URL,
+            settings.PCP_USERNAME,
+            settings.PCP_PASSWORD)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
