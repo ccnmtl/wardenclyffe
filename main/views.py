@@ -1,30 +1,31 @@
-# Create your views here.
+# stdlib imports
+import os
+import uuid
+import wardenclyffe.main.tasks as tasks
+
+from angeldust import PCP
 from annoying.decorators import render_to
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
+from django_statsd.clients import statsd
+from munin.helpers import muninview
+from simplejson import dumps
+from taggit.models import Tag
+from wardenclyffe.main.forms import AddServerForm
+from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
 from wardenclyffe.main.models import Server
-from django.contrib.auth.models import User
-from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
-from wardenclyffe.main.forms import AddServerForm
-import uuid
-import wardenclyffe.main.tasks as tasks
+from wardenclyffe.surelink.helpers import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
-import os
-from angeldust import PCP
-from django.conf import settings
-from django.db import transaction
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from taggit.models import Tag
-from simplejson import dumps
 from zencoder import Zencoder
-from django.db.models import Q
-from surelink.helpers import SureLink
-from munin.helpers import muninview
-from django_statsd.clients import statsd
 
 
 @login_required
