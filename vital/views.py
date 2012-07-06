@@ -3,7 +3,6 @@ from annoying.decorators import render_to
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from wardenclyffe.main.models import Video, Operation, Collection, File
-from wardenclyffe.main.models import OperationLog
 from django.contrib.auth.models import User
 import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
@@ -207,40 +206,6 @@ def drop_form(request):
         raise
 
     return dict(user=user)
-
-
-def done(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        statsd.incr("vital.done")
-        operation = r[0]
-        operation.status = "complete"
-        operation.save()
-        OperationLog.objects.create(operation=operation,
-                                    info="PCP completed")
-        if operation.video.is_vital_submit():
-            cunix_path = request.POST.get('movie_destination_path', '')
-            rtsp_url = cunix_path.replace(
-                "/media/qtstreams/projects/",
-                "rtsp://qtss.cc.columbia.edu/projects/")
-            (set_course, username, notify_url) = operation.video.vital_submit()
-            if set_course is not None:
-                user = User.objects.get(username=username)
-                File.objects.create(video=operation.video,
-                                    label="Quicktime Streaming Video",
-                                    url=rtsp_url,
-                                    location_type='rtsp_url')
-                tasks.submit_to_vital.delay(operation.video.id, user,
-                                            set_course,
-                                            rtsp_url,
-                                            settings.VITAL_SECRET,
-                                            notify_url)
-                operation.video.clear_vital_submit()
-    return HttpResponse("ok")
 
 
 def posterdone(request):
