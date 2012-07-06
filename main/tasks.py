@@ -10,7 +10,7 @@ import uuid
 import tempfile
 import subprocess
 from django.conf import settings
-from simplejson import dumps
+from simplejson import dumps, loads
 import paramiko
 import random
 import re
@@ -151,6 +151,8 @@ def submit_to_pcp(operation, params):
     statsd.incr("submit_to_pcp")
     ouuid = operation.uuid
 
+    # ignore the passed in params and use the ones from the operation object
+    params = loads(operation.params)
     pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
               settings.PCP_PASSWORD)
     # TODO: probably don't always want it to be .mp4
