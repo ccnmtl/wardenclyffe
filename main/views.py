@@ -509,7 +509,7 @@ def create_operations(request, v, params):
                                          video=v,
                                          action=action,
                                          status="enqueued",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=request.user)
             operations.append(o.id)
     # run collection's default workflow(s)
@@ -521,7 +521,7 @@ def create_operations(request, v, params):
             video=v,
             action="submit to podcast producer",
             status="enqueued",
-            params=new_params,
+            params=dumps(new_params),
             owner=request.user,
             )
         operations.append(o.id)
@@ -657,6 +657,12 @@ def done(request):
                                 filename=cunix_path,
                                 location_type='cuit',
                                 )
+        if cunix_path.startswith("/media/h264"):
+            File.objects.create(video=operation.video,
+                                label="CUIT H264",
+                                filename=cunix_path,
+                                location_type='cuit',
+                                )
 
         if operation.video.is_mediathread_submit():
             statsd.incr('main.upload.mediathread')
@@ -669,7 +675,7 @@ def done(request):
                     video=operation.video,
                     action="submit to mediathread",
                     status="enqueued",
-                    params=params,
+                    params=dumps(params),
                     owner=user
                     )
                 operations.append(o.id)

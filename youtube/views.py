@@ -9,6 +9,7 @@ import os
 from django.conf import settings
 from django.db import transaction
 from django_statsd.clients import statsd
+from simplejson import dumps
 
 
 @transaction.commit_manually
@@ -44,7 +45,7 @@ def youtube(request):
                                              video=v,
                                              action="extract metadata",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=request.user)
                 operations.append((o.id, params))
                 params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
@@ -53,7 +54,7 @@ def youtube(request):
                                              video=v,
                                              action="save file to tahoe",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=request.user)
                 operations.append((o.id, params))
                 params = dict(tmpfilename=tmpfilename)
@@ -61,7 +62,7 @@ def youtube(request):
                                              video=v,
                                              action="make images",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=request.user)
                 operations.append((o.id, params))
                 params = dict(tmpfilename=tmpfilename)
@@ -70,7 +71,7 @@ def youtube(request):
                                              video=v,
                                              action="upload to youtube",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=request.user)
                 operations.append((o.id, params))
             except:

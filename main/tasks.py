@@ -10,6 +10,7 @@ import uuid
 import tempfile
 import subprocess
 from django.conf import settings
+from simplejson import dumps
 import paramiko
 import random
 import re
@@ -22,7 +23,7 @@ def with_operation(f, video, action, params, user, args, kwargs):
     operation = Operation.objects.create(video=video,
                                          action=action,
                                          status="in progress",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=user,
                                          uuid=ouuid)
     try:

@@ -16,6 +16,7 @@ import hashlib
 from django_statsd.clients import statsd
 from wardenclyffe.util.mail import send_vital_received_mail
 import os
+from simplejson import dumps
 
 
 @transaction.commit_manually
@@ -124,7 +125,7 @@ def drop(request):
                                              video=v,
                                              action="extract metadata",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=user)
                 operations.append((o.id, params))
                 params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
@@ -133,7 +134,7 @@ def drop(request):
                                              video=v,
                                              action="save file to tahoe",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=user
                                              )
                 operations.append((o.id, params))
@@ -142,7 +143,7 @@ def drop(request):
                                              video=v,
                                              action="make images",
                                              status="enqueued",
-                                             params=params,
+                                             params=dumps(params),
                                              owner=user)
                 operations.append((o.id, params))
                 workflow = settings.PCP_WORKFLOW
@@ -156,7 +157,7 @@ def drop(request):
                         video=v,
                         action="submit to podcast producer",
                         status="enqueued",
-                        params=params,
+                        params=dumps(params),
                         owner=user)
                     operations.append((o.id, params))
             except:

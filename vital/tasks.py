@@ -5,6 +5,7 @@ from restclient import POST
 from wardenclyffe.util.mail import send_vital_uploaded_mail
 from wardenclyffe.util.mail import send_vital_failed_mail
 from django_statsd.clients import statsd
+from simplejson import dumps
 
 
 # TODO: convert to decorator
@@ -13,7 +14,7 @@ def with_operation(f, video, action, params, user, args, kwargs):
     operation = Operation.objects.create(video=video,
                                          action=action,
                                          status="in progress",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=user,
                                          uuid=ouuid)
     try:
