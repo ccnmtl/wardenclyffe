@@ -26,6 +26,7 @@ from wardenclyffe.surelink.helpers import SureLink
 import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
+from wardenclyffe.util.mail import send_vital_received_mail
 from zencoder import Zencoder
 
 
@@ -79,6 +80,10 @@ def received(request):
         if operation.video.is_mediathread_submit():
             send_mediathread_received_mail(operation.video.title,
                                            operation.owner.username)
+
+        if operation.video.is_vital_submit():
+            send_vital_received_mail(operation.video.title,
+                                     operation.owner.username)
     else:
         statsd.incr('main.received_failure')
 
@@ -737,6 +742,13 @@ def posterdone(request):
                             label="CUIT thumbnail image",
                             url=poster_url,
                             location_type='cuitthumb')
+        if operation.video.is_vital_submit():
+            # vital wants a special one
+            File.objects.create(video=operation.video,
+                                label="vital thumbnail image",
+                                url=poster_url,
+                                location_type='vitalthumb')
+
     return HttpResponse("ok")
 
 

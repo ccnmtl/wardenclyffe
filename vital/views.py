@@ -6,14 +6,12 @@ from wardenclyffe.main.models import Video, Operation, Collection, File
 from django.contrib.auth.models import User
 import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
-from wardenclyffe.util import uuidparse
 from django.conf import settings
 from django.db import transaction
 import uuid
 import hmac
 import hashlib
 from django_statsd.clients import statsd
-from wardenclyffe.util.mail import send_vital_received_mail
 import os
 from simplejson import dumps
 
@@ -206,41 +204,3 @@ def drop_form(request):
         raise
 
     return dict(user=user)
-
-
-def posterdone(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        statsd.incr("vital.posterdone")
-        operation = r[0]
-        if operation.video.is_vital_submit():
-            cunix_path = request.POST.get('image_destination_path', '')
-            poster_url = cunix_path.replace(
-                "/www/data/ccnmtl/broadcast/projects/vital/thumbs/",
-                "http://ccnmtl.columbia.edu/broadcast/projects/vital/thumbs/")
-
-            File.objects.create(video=operation.video,
-                                label="vital thumbnail image",
-                                url=poster_url,
-                                location_type='vitalthumb')
-    return HttpResponse("ok")
-
-
-def received(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        statsd.incr("vital.received")
-        operation = r[0]
-        if operation.video.is_vital_submit():
-            send_vital_received_mail(operation.video.title,
-                                     operation.owner.username)
-
-    return HttpResponse("ok")
