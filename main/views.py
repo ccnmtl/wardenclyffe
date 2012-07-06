@@ -742,6 +742,13 @@ def posterdone(request):
                             label="CUIT thumbnail image",
                             url=poster_url,
                             location_type='cuitthumb')
+        if operation.video.is_vital_submit():
+            # vital wants a special one
+            File.objects.create(video=operation.video,
+                                label="vital thumbnail image",
+                                url=poster_url,
+                                location_type='vitalthumb')
+
     return HttpResponse("ok")
 
 
