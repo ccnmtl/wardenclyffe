@@ -570,6 +570,7 @@ def upload(request):
     try:
         v = form.save(commit=False)
         v.uuid = vuuid
+        v.creator = request.user.username
         collection_id = request.GET.get('collection', None)
         if collection_id:
             v.collection_id = collection_id
