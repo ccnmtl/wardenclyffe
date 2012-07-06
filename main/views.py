@@ -512,6 +512,19 @@ def create_operations(request, v, params):
                                          params=params,
                                          owner=request.user)
             operations.append(o.id)
+    # run collection's default workflow(s)
+    for cw in v.collection.collectionworkflow_set.all():
+        new_params = params.copy()
+        new_params['pcp_workflow'] = cw.workflow
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=v,
+            action="submit to podcast producer",
+            status="enqueued",
+            params=new_params,
+            owner=request.user,
+            )
+        operations.append(o.id)
     return operations
 
 
