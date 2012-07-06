@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Set default workflows for Collection: {{collection.title}}</h1>
+
+<form action="." method="post">
+{% if workflows %}
+<table style="width: 100%"> 
+<tr>
+	<th>select</th>
+  <th>workflow</th>
+  <th>uuid</th>
+  <th>description</th>
+</tr>
+{% for workflow in workflows %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><input type="checkbox" name="workflow_{{workflow.uuid}}" 
+					 {% if workflow.selected %}checked="checked"{% endif %}
+/></td>
+<th align="left">{{workflow.title}}</th>
+<td><nobr><tt>{{workflow.uuid}}</tt></nobr></td>
+<td>{{workflow.description}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% else %}
+<p>Can't get a list of workflows. Is Kino up at <a href="{{kino_base}}">{{kino_base}}</a>?</p>
+
+<pre>
+{{error_message}}
+</pre>
+{% endif %}
+
+<input type="submit" value="set default workflow(s)" />
+</form>
+{% endblock %}

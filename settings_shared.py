@@ -1,20 +1,20 @@
 # Django settings for wardenclyffe project.
 import os.path
 import sys
- 
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = ( )
+ADMINS = ()
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'postgresql_psycopg2' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'wardenclyffe' # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+DATABASE_ENGINE = 'postgresql_psycopg2'
+DATABASE_NAME = 'wardenclyffe'
+DATABASE_USER = ''
+DATABASE_PASSWORD = ''
+DATABASE_HOST = ''
+DATABASE_PORT = ''
 
 if 'test' in sys.argv:
     DATABASE_ENGINE = 'sqlite3'
@@ -55,12 +55,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'wardenclyffe.urls'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    # Put application templates before these fallback ones:
     "/var/www/wardenclyffe/templates/",
-    os.path.join(os.path.dirname(__file__),"templates"),
+    os.path.join(os.path.dirname(__file__), "templates"),
 )
 import djcelery
 djcelery.setup_loader()
@@ -77,7 +73,6 @@ INSTALLED_APPS = (
     'tagging',
     'smartif',
     'template_utils',
-    'typogrify',
     'djcelery',
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
@@ -112,17 +107,22 @@ THUMBNAIL_SUBDIR = "thumbs"
 EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "
 EMAIL_HOST = 'localhost'
 SERVER_EMAIL = "wardenclyffe@ccnmtl.columbia.edu"
-# email addresses of video team members how want to be annoyed by lots of status email
-ANNOY_EMAILS = ["agraddy@columbia.edu","anders@columbia.edu"]
+# email addresses of video team members how want to
+# be annoyed by lots of status email
+ANNOY_EMAILS = ["agraddy@columbia.edu", "anders@columbia.edu"]
 
 # WIND settings
 
-AUTHENTICATION_BACKENDS = ('djangowind.auth.WindAuthBackend','django.contrib.auth.backends.ModelBackend',)
+AUTHENTICATION_BACKENDS = ('djangowind.auth.WindAuthBackend',
+                           'django.contrib.auth.backends.ModelBackend', )
 WIND_BASE = "https://wind.columbia.edu/"
 WIND_SERVICE = "cnmtl_full_np"
 WIND_PROFILE_HANDLERS = ['djangowind.auth.CDAPProfileHandler']
-WIND_AFFIL_HANDLERS = ['djangowind.auth.AffilGroupMapper','djangowind.auth.StaffMapper','djangowind.auth.SuperuserMapper']
+WIND_AFFIL_HANDLERS = ['djangowind.auth.AffilGroupMapper',
+                       'djangowind.auth.StaffMapper',
+                       'djangowind.auth.SuperuserMapper']
 WIND_STAFF_MAPPER_GROUPS = ['tlc.cunix.local:columbia.edu']
-WIND_SUPERUSER_MAPPER_GROUPS = ['anp8','jb2410','zm4','sbd12','egr2107','kmh2124','sld2131','amm8','mar227','ed2198', 'ej2223']
+WIND_SUPERUSER_MAPPER_GROUPS = ['anp8', 'jb2410', 'zm4', 'egr2107',
+                                'amm8', 'mar227']
 
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
