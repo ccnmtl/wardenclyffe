@@ -23,6 +23,7 @@ from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
 from wardenclyffe.surelink.helpers import SureLink
+import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
 from zencoder import Zencoder
@@ -629,6 +630,28 @@ def test_upload(request):
     return HttpResponse("a response")
 
 
+def handle_vital_submit(operation, cunix_path):
+    if operation.video.is_vital_submit():
+        statsd.incr("vital.done")
+        rtsp_url = cunix_path.replace(
+            "/media/qtstreams/projects/",
+            "rtsp://qtss.cc.columbia.edu/projects/")
+        (set_course, username, notify_url) = operation.video.vital_submit()
+        if set_course is not None:
+            user = User.objects.get(username=username)
+            File.objects.create(video=operation.video,
+                                label="Quicktime Streaming Video",
+                                url=rtsp_url,
+                                location_type='rtsp_url')
+            vitaltasks.submit_to_vital.delay(
+                operation.video.id, user,
+                set_course,
+                rtsp_url,
+                settings.VITAL_SECRET,
+                notify_url)
+            operation.video.clear_vital_submit()
+
+
 @transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
@@ -664,6 +687,8 @@ def done(request):
                                 filename=cunix_path,
                                 location_type='cuit',
                                 )
+
+        handle_vital_submit(operation, cunix_path)
 
         if operation.video.is_mediathread_submit():
             statsd.incr('main.upload.mediathread')
