@@ -2,6 +2,7 @@ from django.db import models
 from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
+from django.utils.simplejson import loads
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
@@ -446,6 +447,30 @@ During the %s step. The error encountered was:
                 statsd.incr("event.mail_sent")
 
         self.save()
+
+    def post_process(self):
+        """ the operation has completed, now we have a chance
+        to do additional work. Generally, this is for
+        a submit to PCP operation and we want to create
+        a derived File to track where the result ended up"""
+        if self.action == "submit to podcast producer":
+            # see if the workflow has a post_process hook
+            p = loads(self.params)
+            if 'pcp_workflow' not in p:
+                # what? how could that happen?
+                return
+            workflow = p['pcp_workflow']
+            if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
+                # no hooks configured
+                return
+            if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
+                # no hooks registered for this workflow
+                return
+            for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
+                if not hasattr(self, hook):
+                    continue
+                f = getattr(self, hook)
+                f()
 
 
 class OperationFile(models.Model):

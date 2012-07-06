@@ -16,6 +16,7 @@ from simplejson import loads
 import hmac
 import hashlib
 from django_statsd.clients import statsd
+from simplejson import dumps
 
 
 @render_to('mediathread/mediathread.html')
@@ -92,7 +93,7 @@ def mediathread_post(request):
                                          video=v,
                                          action="extract metadata",
                                          status="enqueued",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=user)
             operations.append((o.id, params))
             params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
@@ -101,7 +102,7 @@ def mediathread_post(request):
                                          video=v,
                                          action="save file to tahoe",
                                          status="enqueued",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=user)
             operations.append((o.id, params))
             params = dict(tmpfilename=tmpfilename)
@@ -109,7 +110,7 @@ def mediathread_post(request):
                                          video=v,
                                          action="make images",
                                          status="enqueued",
-                                         params=params,
+                                         params=dumps(params),
                                          owner=user)
             operations.append((o.id, params))
 
@@ -125,7 +126,7 @@ def mediathread_post(request):
                     video=v,
                     action="submit to podcast producer",
                     status="enqueued",
-                    params=params,
+                    params=dumps(params),
                     owner=user
                     )
                 operations.append((o.id, params))
@@ -153,7 +154,7 @@ def video_mediathread_submit(request, id):
                                      video=video,
                                      action="submit to mediathread",
                                      status="enqueued",
-                                     params=params,
+                                     params=dumps(params),
                                      owner=request.user,
                                      )
         wardenclyffe.vital.tasks.process_operation.delay(o.id, params)
