@@ -13,7 +13,6 @@ import uuid
 import hmac
 import hashlib
 from django_statsd.clients import statsd
-from wardenclyffe.util.mail import send_vital_received_mail
 import os
 from simplejson import dumps
 
@@ -227,20 +226,4 @@ def posterdone(request):
                                 label="vital thumbnail image",
                                 url=poster_url,
                                 location_type='vitalthumb')
-    return HttpResponse("ok")
-
-
-def received(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        statsd.incr("vital.received")
-        operation = r[0]
-        if operation.video.is_vital_submit():
-            send_vital_received_mail(operation.video.title,
-                                     operation.owner.username)
-
     return HttpResponse("ok")
