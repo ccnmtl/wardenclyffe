@@ -56,6 +56,12 @@ class Collection(TimeStampedModel):
             return EditForm(instance=self)
 
 
+class CollectionWorkflow(models.Model):
+    collection = models.ForeignKey(Collection)
+    workflow = UUIDField()
+    label = models.CharField(max_length=256, default="", blank=True)
+
+
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
