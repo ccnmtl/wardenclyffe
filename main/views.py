@@ -21,7 +21,7 @@ from wardenclyffe.main.forms import AddServerForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
-from wardenclyffe.main.models import Server
+from wardenclyffe.main.models import Server, CollectionWorkflow
 from wardenclyffe.surelink.helpers import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
@@ -271,6 +271,48 @@ def edit_collection(request, id):
             return HttpResponseRedirect(collection.get_absolute_url())
     form = collection.edit_form()
     return dict(collection=collection, form=form)
+
+
+@login_required
+@render_to('main/edit_collection_workflows.html')
+def edit_collection_workflows(request, id):
+    collection = get_object_or_404(Collection, id=id)
+
+    workflows = []
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except:
+        workflows = []
+
+    if request.method == 'POST':
+        # clear existing ones
+        collection.collectionworkflow_set.all().delete()
+        # re-add
+        for k in request.POST.keys():
+            if k.startswith('workflow_'):
+                uuid = k.split('_')[1]
+                label = 'default workflow'
+                for w in workflows:
+                    if w.uuid == uuid:
+                        label = w.title
+                        break
+                cw = CollectionWorkflow.objects.create(
+                    collection=collection,
+                    workflow=uuid,
+                    label=label,
+                    )
+        return HttpResponseRedirect(collection.get_absolute_url())
+
+    existing_uuids = [str(cw.workflow) for cw in
+                      collection.collectionworkflow_set.all()]
+    for w in workflows:
+        if str(w.uuid) in existing_uuids:
+            w.selected = True
+
+    return dict(collection=collection, workflows=workflows)
 
 
 @login_required

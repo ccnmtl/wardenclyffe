@@ -54,6 +54,20 @@ jQuery(document).ready(function()
 <p><a href="/upload/?collection={{collection.id}}">add a video</a></p>
 <p><a href="rss/"><img src="http://pmt.ccnmtl.columbia.edu/images/rss.png"
 			/> RSS Feed</a></p>
+
+<h2>Default Workflows</h2>
+{% if collection.collectionworkflow_set.count %}
+<ul>
+	{% for cw in collection.collectionworkflow_set.all %}
+	<li>{{cw.label}} [{{cw.workflow}}]</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>None set</p>
+{% endif %}
+<a href="workflows/">Edit</a>
+
+
 {% if videos %}
 <h2>Recent Videos</h2>
 <p>You can also browse <a href="videos/">all videos in the collection</a></p>

@@ -58,7 +58,7 @@ class Collection(TimeStampedModel):
 
 class CollectionWorkflow(models.Model):
     collection = models.ForeignKey(Collection)
-    workflow = UUIDField()
+    workflow = models.CharField(max_length=256, default="", blank=True)
     label = models.CharField(max_length=256, default="", blank=True)
 
 
