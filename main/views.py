@@ -630,6 +630,11 @@ def test_upload(request):
 
 @transaction.commit_manually
 def done(request):
+    from django.core.mail import send_mail
+    send_mail("wc done", str(request.POST),
+              'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu',
+              ['anders@columbia.edu'],
+              fail_silently=False)
     if 'title' not in request.POST:
         transaction.commit()
         return HttpResponse("expecting a title")
