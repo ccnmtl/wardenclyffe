@@ -382,10 +382,12 @@ class Operation(TimeStampedModel):
                  uuid=self.uuid,
                  id=self.id,
                  video_id=self.video.id,
+                 video_url=self.video.get_absolute_url(),
                  video_title=self.video.title,
                  video_creator=self.video.creator,
                  collection_id=self.video.collection.id,
                  collection_title=self.video.collection.title,
+                 collection_url=self.video.collection.get_absolute_url(),
                  modified=str(self.modified)[:19],
                  )
         return d

@@ -21,11 +21,11 @@ var newRow = function(el) {
     .append($("<div class=\"operation_status\"></div>").addClass(cleanStatus(el.status))));
   r.append("<td>" + el.action + "</td>");
 
-  // TODO link to video
-  r.append("<td>" + el.video_title + "</td>");
+  r.append($("<td></td>")
+   .append($("<a href='" + el.video_url + "'>" + el.video_title + "</a>")));
 
-  // TODO link to collection
-  r.append("<td>" + el.collection_title + "</td>");
+  r.append($("<td></td>")
+   .append($("<a href='" + el.collection_url + "'>"+ el.collection_title + "</a>")));
 
   r.append("<td class=\"modified\">" + el.modified + "</td>");
   r.append("<td>" + el.video_creator + "</td>");
