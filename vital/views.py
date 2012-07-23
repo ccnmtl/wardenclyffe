@@ -69,104 +69,106 @@ def submit(request, id):
 @transaction.commit_manually
 @render_to('vital/drop.html')
 def drop(request):
-    if request.method == "POST":
-        operations = []
-        if request.FILES['source_file']:
-            statsd.incr("vital.drop")
-            # save it locally
-            vuuid = uuid.uuid4()
-            try:
-                os.makedirs(settings.TMP_DIR)
-            except:
-                pass
-            extension = request.FILES['source_file'].name.split(".")[-1]
-            tmpfilename = (settings.TMP_DIR + "/" + str(vuuid) + "." +
-                           extension.lower())
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['source_file'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-            # make db entry
-            try:
-                collection = Collection.objects.get(
-                    id=settings.VITAL_COLLECTION_ID)
-                filename = request.FILES['source_file'].name
-                user = User.objects.get(username=request.session['username'])
-                v = Video.objects.create(collection=collection,
-                                         title=request.POST.get('title', ''),
-                                         creator=request.session['username'],
-                                         uuid=vuuid)
-                source_file = File.objects.create(video=v,
-                                                  label="source file",
-                                                  filename=filename,
-                                                  location_type='none')
-                # we make a "vitalsubmit" file to store the submission
-                # info and serve as a flag that it needs to be submitted
-                # (when PCP comes back)
-                submit_file = File.objects.create(video=v,
-                                                  label="vital submit",
-                                                  filename=filename,
-                                                  location_type='vitalsubmit')
-                submit_file.set_metadata("username",
-                                         request.session['username'])
-                submit_file.set_metadata("set_course",
-                                         request.session['set_course'])
-                submit_file.set_metadata("redirect_to",
-                                         request.session['redirect_to'])
-                submit_file.set_metadata("notify_url",
-                                         request.session['notify_url'])
+    if request.method != "POST":
+        transaction.commit()
+        return HttpResponse("POST only")
+    operations = []
+    if request.FILES['source_file']:
+        statsd.incr("vital.drop")
+        # save it locally
+        vuuid = uuid.uuid4()
+        try:
+            os.makedirs(settings.TMP_DIR)
+        except:
+            pass
+        extension = request.FILES['source_file'].name.split(".")[-1]
+        tmpfilename = (settings.TMP_DIR + "/" + str(vuuid) + "." +
+                       extension.lower())
+        tmpfile = open(tmpfilename, 'wb')
+        for chunk in request.FILES['source_file'].chunks():
+            tmpfile.write(chunk)
+        tmpfile.close()
+        # make db entry
+        try:
+            collection = Collection.objects.get(
+                id=settings.VITAL_COLLECTION_ID)
+            filename = request.FILES['source_file'].name
+            user = User.objects.get(username=request.session['username'])
+            v = Video.objects.create(collection=collection,
+                                     title=request.POST.get('title', ''),
+                                     creator=request.session['username'],
+                                     uuid=vuuid)
+            source_file = File.objects.create(video=v,
+                                              label="source file",
+                                              filename=filename,
+                                              location_type='none')
+            # we make a "vitalsubmit" file to store the submission
+            # info and serve as a flag that it needs to be submitted
+            # (when PCP comes back)
+            submit_file = File.objects.create(video=v,
+                                              label="vital submit",
+                                              filename=filename,
+                                              location_type='vitalsubmit')
+            submit_file.set_metadata("username",
+                                     request.session['username'])
+            submit_file.set_metadata("set_course",
+                                     request.session['set_course'])
+            submit_file.set_metadata("redirect_to",
+                                     request.session['redirect_to'])
+            submit_file.set_metadata("notify_url",
+                                     request.session['notify_url'])
 
+            params = dict(tmpfilename=tmpfilename,
+                          source_file_id=source_file.id)
+            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                         video=v,
+                                         action="extract metadata",
+                                         status="enqueued",
+                                         params=dumps(params),
+                                         owner=user)
+            operations.append((o.id, params))
+            params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
+                          tahoe_base=settings.TAHOE_BASE)
+            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                         video=v,
+                                         action="save file to tahoe",
+                                         status="enqueued",
+                                         params=dumps(params),
+                                         owner=user
+                                         )
+            operations.append((o.id, params))
+            params = dict(tmpfilename=tmpfilename)
+            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                         video=v,
+                                         action="make images",
+                                         status="enqueued",
+                                         params=dumps(params),
+                                         owner=user)
+            operations.append((o.id, params))
+            workflow = settings.PCP_WORKFLOW
+            if hasattr(settings, 'VITAL_PCP_WORKFLOW'):
+                workflow = settings.VITAL_PCP_WORKFLOW
                 params = dict(tmpfilename=tmpfilename,
-                              source_file_id=source_file.id)
-                o = Operation.objects.create(uuid=uuid.uuid4(),
-                                             video=v,
-                                             action="extract metadata",
-                                             status="enqueued",
-                                             params=dumps(params),
-                                             owner=user)
-                operations.append((o.id, params))
-                params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
-                              tahoe_base=settings.TAHOE_BASE)
-                o = Operation.objects.create(uuid=uuid.uuid4(),
-                                             video=v,
-                                             action="save file to tahoe",
-                                             status="enqueued",
-                                             params=dumps(params),
-                                             owner=user
-                                             )
-                operations.append((o.id, params))
-                params = dict(tmpfilename=tmpfilename)
-                o = Operation.objects.create(uuid=uuid.uuid4(),
-                                             video=v,
-                                             action="make images",
-                                             status="enqueued",
-                                             params=dumps(params),
-                                             owner=user)
-                operations.append((o.id, params))
-                workflow = settings.PCP_WORKFLOW
-                if hasattr(settings, 'VITAL_PCP_WORKFLOW'):
-                    workflow = settings.VITAL_PCP_WORKFLOW
-                    params = dict(tmpfilename=tmpfilename,
-                                  pcp_workflow=workflow)
+                              pcp_workflow=workflow)
 
-                    o = Operation.objects.create(
-                        uuid=uuid.uuid4(),
-                        video=v,
-                        action="submit to podcast producer",
-                        status="enqueued",
-                        params=dumps(params),
-                        owner=user)
-                    operations.append((o.id, params))
-            except:
-                statsd.incr("vital.drop.failure")
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
+                o = Operation.objects.create(
+                    uuid=uuid.uuid4(),
+                    video=v,
+                    action="submit to podcast producer",
+                    status="enqueued",
+                    params=dumps(params),
+                    owner=user)
+                operations.append((o.id, params))
+        except:
+            statsd.incr("vital.drop.failure")
+            transaction.rollback()
+            raise
+        else:
+            transaction.commit()
 
-                for o, kwargs in operations:
-                    maintasks.process_operation.delay(o, kwargs)
-                return HttpResponseRedirect(request.session['redirect_to'])
+            for o, kwargs in operations:
+                maintasks.process_operation.delay(o, kwargs)
+            return HttpResponseRedirect(request.session['redirect_to'])
 
 
 @render_to('vital/drop.html')
