@@ -50,16 +50,16 @@ class SureLink:
         if self.poster == 'default_custom_poster':
             if 'secure' in self.filename:
                 # secure: parallel dir as video file in /broadcast/posters/
-                self.poster = ("http://ccnmtl.columbia.edu/broadcast/posters/"
-                               + self.filename.replace('.mp4',
-                                                       '.jpg').replace('.flv',
-                                                                       '.jpg'))
+                self.poster = (
+                    "http://ccnmtl.columbia.edu/broadcast/posters/"
+                    + self.filename.replace('.mp4', '.jpg')
+                    .replace('.flv', '.jpg'))
             else:
                 # insecure: same dir as video file
-                self.poster = ("http://ccnmtl.columbia.edu/broadcast/"
-                               + self.filename.replace('.mp4',
-                                                       '.jpg').replace('.flv',
-                                                                       '.jpg'))
+                self.poster = (
+                    "http://ccnmtl.columbia.edu/broadcast/"
+                    + self.filename.replace('.mp4', '.jpg')
+                    .replace('.flv', '.jpg'))
 
         return ("player=%s&file=%s&width=%d&height=%d&poster=%s%s%s" %
                 (self.player_string(), self.filename, self.width, self.height,
