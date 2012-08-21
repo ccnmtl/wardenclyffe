@@ -717,7 +717,6 @@ def done(request):
         raise
     finally:
         transaction.commit()
-        tasks.process_operation.delay()
         for o in operations:
             tasks.process_operation.delay(o, params)
 
