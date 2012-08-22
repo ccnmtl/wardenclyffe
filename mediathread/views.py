@@ -80,15 +80,10 @@ def mediathread_post(request):
                 filename, user, request.session['set_course'],
                 request.session['redirect_to'])
 
-            params = dict(tmpfilename=tmpfilename,
-                          source_file_id=source_file.id)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="extract metadata",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user)
+            o, params = v.make_extract_metadata_operation(
+                tmpfilename, source_file, user)
             operations.append((o.id, params))
+
             params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
                           tahoe_base=settings.TAHOE_BASE)
             o = Operation.objects.create(uuid=uuid.uuid4(),

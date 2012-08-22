@@ -12,6 +12,8 @@ from django.conf import settings
 import os.path
 from django.core.mail import send_mail
 from django_statsd.clients import statsd
+import uuid
+from simplejson import dumps
 
 add_introspection_rules(
     [],
@@ -253,6 +255,17 @@ class Video(TimeStampedModel):
         submit_file.set_metadata("username", user.username)
         submit_file.set_metadata("set_course", set_course)
         submit_file.set_metadata("redirect_to", redirect_to)
+
+    def make_extract_metadata_operation(self, tmpfilename, source_file, user):
+        params = dict(tmpfilename=tmpfilename,
+                      source_file_id=source_file.id)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="extract metadata",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return (o, params)
 
 
 class File(TimeStampedModel):
