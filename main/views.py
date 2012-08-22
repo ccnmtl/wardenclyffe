@@ -501,24 +501,10 @@ def save_file_locally(request):
     return (source_filename, tmpfilename, vuuid)
 
 
-def create_operations(request, v, tmpfilename, source_file, filename, ):
-    operations = []
-    params = []
-    if request.POST.get("extract_metadata", False):
-        o, p = v.make_extract_metadata_operation(
-            tmpfilename, source_file, request.user)
-        operations.append(o)
-        params.append(p)
-    if request.POST.get("upload_to_tahoe", False):
-        o, p = v.make_save_file_to_tahoe_operation(
-            tmpfilename, request.user)
-        operations.append(o)
-        params.append(p)
-    if request.POST.get("extract_images", False):
-        o, p = v.make_make_images_operation(
-            tmpfilename, request.user)
-        operations.append(o)
-        params.append(p)
+def create_operations(request, v, tmpfilename, source_file, filename):
+    operations, params = v.make_default_operations(
+        tmpfilename, source_file, request.user)
+
     if request.POST.get("submit_to_vital", False):
         o, p = v.make_submit_to_podcast_producer_operation(
             tmpfilename, settings.VITAL_PCP_WORKFLOW, request.user)
@@ -552,11 +538,13 @@ def prep_vital_submit(request, v, source_filename):
 @login_required
 def upload(request):
     if request.method != "POST":
+        transaction.rollback()
         return HttpResponseRedirect("/upload/")
 
     form = UploadVideoForm(request.POST, request.FILES)
     if not form.is_valid():
         # TODO: give the user proper feedback here
+        transaction.rollback()
         return HttpResponseRedirect("/upload/")
 
     collection_id = None

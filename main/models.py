@@ -328,6 +328,23 @@ class Video(TimeStampedModel):
                                    filename=filename,
                                    location_type='none')
 
+    def make_default_operations(self, tmpfilename, source_file, user):
+        operations = []
+        params = []
+        o, p = self.make_extract_metadata_operation(
+            tmpfilename, source_file, user)
+        operations.append(o)
+        params.append(p)
+        o, p = self.make_save_file_to_tahoe_operation(
+            tmpfilename, user)
+        operations.append(o)
+        params.append(p)
+        o, p = self.make_make_images_operation(
+            tmpfilename, user)
+        operations.append(o)
+        params.append(p)
+        return operations, params
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)

@@ -56,6 +56,7 @@ def mediathread_post(request):
 
     tmpfilename = request.POST.get('tmpfilename', '')
     operations = []
+    params = []
     if tmpfilename.startswith(settings.TMP_DIR):
         statsd.incr("mediathread.mediathread")
         filename = os.path.basename(tmpfilename)
@@ -77,24 +78,16 @@ def mediathread_post(request):
                 filename, user, request.session['set_course'],
                 request.session['redirect_to'])
 
-            o, params = v.make_extract_metadata_operation(
+            operations, params = v.make_default_operations(
                 tmpfilename, source_file, user)
-            operations.append((o.id, params))
-
-            o, params = v.make_save_file_to_tahoe_operation(
-                tmpfilename, user)
-            operations.append((o.id, params))
-
-            o, params = v.make_make_images_operation(
-                tmpfilename, user)
-            operations.append((o.id, params))
 
             workflow = settings.PCP_WORKFLOW
             if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
                 workflow = settings.MEDIATHREAD_PCP_WORKFLOW
-                o, params = v.make_submit_to_podcast_producer_operation(
+                o, p = v.make_submit_to_podcast_producer_operation(
                     tmpfilename, workflow, user)
-                operations.append((o.id, params))
+                operations.append(o)
+                params.append(p)
 
         except:
             statsd.incr("mediathread.mediathread.failure")
@@ -103,8 +96,8 @@ def mediathread_post(request):
         else:
             transaction.commit()
             # hand operations off to celery
-            for o, kwargs in operations:
-                maintasks.process_operation.delay(o, kwargs)
+            for o, p in zip(operations, params):
+                maintasks.process_operation.delay(o.id, p)
             return HttpResponseRedirect(request.session['redirect_to'])
 
 

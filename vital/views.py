@@ -72,6 +72,7 @@ def drop(request):
         transaction.commit()
         return HttpResponse("POST only")
     operations = []
+    params = []
     if request.FILES['source_file']:
         statsd.incr("vital.drop")
         # save it locally
@@ -105,24 +106,16 @@ def drop(request):
                 filename, user, request.session['set_course'],
                 request.session['redirect_to'],
                 request.session['notify_url'])
-            o, params = v.make_extract_metadata_operation(
+            operations, params = v.make_default_operations(
                 tmpfilename, source_file, user)
-            operations.append((o.id, params))
-
-            o, params = v.make_save_file_to_tahoe_operation(
-                tmpfilename, user)
-            operations.append((o.id, params))
-
-            o, params = v.make_make_images_operation(
-                tmpfilename, user)
-            operations.append((o.id, params))
 
             workflow = settings.PCP_WORKFLOW
             if hasattr(settings, 'VITAL_PCP_WORKFLOW'):
                 workflow = settings.VITAL_PCP_WORKFLOW
-                o, params = v.make_submit_to_podcast_producer_operation(
+                o, p = v.make_submit_to_podcast_producer_operation(
                     tmpfilename, workflow, user)
-                operations.append((o.id, params))
+                operations.append(o)
+                params.append(p)
         except:
             statsd.incr("vital.drop.failure")
             transaction.rollback()
@@ -130,8 +123,8 @@ def drop(request):
         else:
             transaction.commit()
 
-            for o, kwargs in operations:
-                maintasks.process_operation.delay(o, kwargs)
+            for o, p in zip(operations, params):
+                maintasks.process_operation.delay(o.id, p)
             return HttpResponseRedirect(request.session['redirect_to'])
 
 

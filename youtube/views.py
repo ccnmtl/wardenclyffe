@@ -18,6 +18,7 @@ def youtube(request):
         statsd.incr("youtube.youtube")
         tmpfilename = request.POST.get('tmpfilename', '')
         operations = []
+        params = []
         if tmpfilename.startswith(settings.TMP_DIR):
             # make db entry
             filename = os.path.basename(tmpfilename)
@@ -34,29 +35,21 @@ def youtube(request):
                     description=request.POST.get("description", ""),
                     uuid=vuuid)
                 source_file = v.make_source_file(filename)
-                o, params = v.make_extract_metadata_operation(
+                operations, params = v.make_default_operations(
                     tmpfilename, source_file, request.user)
-                operations.append((o.id, params))
 
-                o, params = v.make_save_file_to_tahoe_operation(
+                o, p = v.make_upload_to_youtube_operation(
                     tmpfilename, request.user)
-                operations.append((o.id, params))
-
-                o, params = v.make_make_images_operation(
-                    tmpfilename, request.user)
-                operations.append((o.id, params))
-
-                o, params = v.make_upload_to_youtube_operation(
-                    tmpfilename, request.user)
-                operations.append((o.id, params))
+                operations.append(o)
+                params.append(p)
             except:
                 statsd.incr("youtube.youtube.failure")
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
-                for o, kwargs in operations:
-                    wardenclyffe.main.tasks.process_operation.delay(o, kwargs)
+                for o, p in zip(operations, params):
+                    wardenclyffe.main.tasks.process_operation.delay(o.id, p)
                 return HttpResponseRedirect("/youtube/done/")
         else:
             return HttpResponse("no tmpfilename parameter set")
