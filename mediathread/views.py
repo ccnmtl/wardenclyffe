@@ -88,13 +88,8 @@ def mediathread_post(request):
                 tmpfilename, user)
             operations.append((o.id, params))
 
-            params = dict(tmpfilename=tmpfilename)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="make images",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user)
+            o, params = v.make_make_images_operation(
+                tmpfilename, user)
             operations.append((o.id, params))
 
             workflow = settings.PCP_WORKFLOW
