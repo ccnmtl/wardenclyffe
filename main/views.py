@@ -501,69 +501,55 @@ def save_file_locally(request):
     return (source_filename, tmpfilename, vuuid)
 
 
-def create_operations(request, v, params):
-    operations = []
-    for p, action in [
-        ("submit_to_vital", "submit to podcast producer"),
-        ("extract_metadata", "extract metadata"),
-        ("upload_to_tahoe", "save file to tahoe"),
-        ("extract_images", "make images"),
-        ("submit_to_youtube", "upload to youtube")
-        ]:
-        if request.POST.get(p, False):
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action=action,
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=request.user)
-            operations.append(o.id)
+def create_operations(request, v, tmpfilename, source_file, filename):
+    operations, params = v.make_default_operations(
+        tmpfilename, source_file, request.user)
+
+    if request.POST.get("submit_to_vital", False):
+        o, p = v.make_submit_to_podcast_producer_operation(
+            tmpfilename, settings.VITAL_PCP_WORKFLOW, request.user)
+        operations.append(o)
+        params.append(p)
+    if request.POST.get("submit_to_youtube", False):
+        o, p = v.make_upload_to_youtube_operation(
+            tmpfilename, request.user)
+        operations.append(o)
+        params.append(p)
     # run collection's default workflow(s)
     for cw in v.collection.collectionworkflow_set.all():
-        new_params = params.copy()
-        new_params['pcp_workflow'] = cw.workflow
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=v,
-            action="submit to podcast producer",
-            status="enqueued",
-            params=dumps(new_params),
-            owner=request.user,
-            )
-        operations.append(o.id)
-    return operations
+        o, p = v.make_submit_to_podcast_producer_operation(
+            tmpfilename, cw.workflow, request.user)
+        operations.append(o)
+        params.append(p)
+    return operations, params
 
 
 def prep_vital_submit(request, v, source_filename):
     if request.POST.get('submit_to_vital', False) \
             and request.POST.get('course_id', False):
-        submit_file = File.objects.create(
-            video=v,
-            label="vital submit",
-            filename=source_filename,
-            location_type='vitalsubmit')
-        submit_file.set_metadata("username",
-                                 request.user.username)
-        submit_file.set_metadata("set_course",
-                                 request.POST['course_id'])
-        submit_file.set_metadata("notify_url",
-                                 settings.VITAL_NOTIFY_URL)
+        v.make_vital_submit_file(
+            source_filename, request.user,
+            request.POST['course_id'],
+            "",
+            settings.VITAL_NOTIFY_URL)
 
 
 @transaction.commit_manually
 @login_required
 def upload(request):
     if request.method != "POST":
+        transaction.rollback()
         return HttpResponseRedirect("/upload/")
 
     form = UploadVideoForm(request.POST, request.FILES)
     if not form.is_valid():
         # TODO: give the user proper feedback here
+        transaction.rollback()
         return HttpResponseRedirect("/upload/")
 
     collection_id = None
     operations = []
-    params = dict()
+    params = []
     statsd.incr('main.upload')
 
     # save it locally
@@ -582,26 +568,20 @@ def upload(request):
             v.collection_id = collection_id
         v.save()
         form.save_m2m()
-        source_file = File.objects.create(video=v,
-                                          label="source file",
-                                          filename=source_filename,
-                                          location_type='none')
-        params['tmpfilename'] = tmpfilename
-        params['source_file_id'] = source_file.id
-        params['filename'] = source_filename
-        params['pcp_workflow'] = settings.VITAL_PCP_WORKFLOW
+        source_file = v.make_source_file(source_filename)
 
         if source_filename:
             prep_vital_submit(request, v, source_filename)
-            operations = create_operations(request, v, params)
+            operations, params = create_operations(
+                request, v, tmpfilename, source_file, source_filename)
     except:
         statsd.incr('main.upload.failure')
         transaction.rollback()
         raise
     else:
         transaction.commit()
-        for o in operations:
-            tasks.process_operation.delay(o, params)
+        for o, p in zip(operations, params):
+            tasks.process_operation.delay(o.id, p)
     return HttpResponseRedirect("/")
 
 

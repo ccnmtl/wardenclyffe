@@ -256,6 +256,17 @@ class Video(TimeStampedModel):
         submit_file.set_metadata("set_course", set_course)
         submit_file.set_metadata("redirect_to", redirect_to)
 
+    def make_vital_submit_file(self, filename, user, set_course, redirect_to,
+                               notify_url):
+        submit_file = File.objects.create(video=self,
+                                          label="vital submit",
+                                          filename=filename,
+                                          location_type='vitalsubmit')
+        submit_file.set_metadata("username", user.username)
+        submit_file.set_metadata("set_course", set_course)
+        submit_file.set_metadata("redirect_to", redirect_to)
+        submit_file.set_metadata("notify_url", notify_url)
+
     def make_extract_metadata_operation(self, tmpfilename, source_file, user):
         params = dict(tmpfilename=tmpfilename,
                       source_file_id=source_file.id)
@@ -301,11 +312,38 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_upload_to_youtube_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="upload to youtube",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return o, params
+
     def make_source_file(self, filename):
         return File.objects.create(video=self,
                                    label="source file",
                                    filename=filename,
                                    location_type='none')
+
+    def make_default_operations(self, tmpfilename, source_file, user):
+        operations = []
+        params = []
+        o, p = self.make_extract_metadata_operation(
+            tmpfilename, source_file, user)
+        operations.append(o)
+        params.append(p)
+        o, p = self.make_save_file_to_tahoe_operation(
+            tmpfilename, user)
+        operations.append(o)
+        params.append(p)
+        o, p = self.make_make_images_operation(
+            tmpfilename, user)
+        operations.append(o)
+        params.append(p)
+        return operations, params
 
 
 class File(TimeStampedModel):
