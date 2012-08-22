@@ -75,17 +75,11 @@ def mediathread_post(request):
             # we make a "mediathreadsubmit" file to store the submission
             # info and serve as a flag that it needs to be submitted
             # (when PCP comes back)
-            submit_file = File.objects.create(video=v,
-                                              label="mediathread submit",
-                                              filename=filename,
-                                              location_type='mediathreadsubmit'
-                                              )
             user = User.objects.get(username=request.session['username'])
-            submit_file.set_metadata("username", request.session['username'])
-            submit_file.set_metadata("set_course",
-                                     request.session['set_course'])
-            submit_file.set_metadata("redirect_to",
-                                     request.session['redirect_to'])
+            v.make_mediathread_submit_file(
+                filename, user, request.session['set_course'],
+                request.session['redirect_to'])
+
             params = dict(tmpfilename=tmpfilename,
                           source_file_id=source_file.id)
             o = Operation.objects.create(uuid=uuid.uuid4(),

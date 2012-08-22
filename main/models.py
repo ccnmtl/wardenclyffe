@@ -243,6 +243,17 @@ class Video(TimeStampedModel):
         except:
             return None
 
+    def make_mediathread_submit_file(self, filename, user, set_course,
+                                     redirect_to):
+        submit_file = File.objects.create(video=self,
+                                          label="mediathread submit",
+                                          filename=filename,
+                                          location_type='mediathreadsubmit'
+                                          )
+        submit_file.set_metadata("username", user.username)
+        submit_file.set_metadata("set_course", set_course)
+        submit_file.set_metadata("redirect_to", redirect_to)
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
