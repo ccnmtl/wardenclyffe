@@ -1109,6 +1109,14 @@ POSTER_OPTIONS = [
     dict(value=POSTER_BASE + "_320x240.jpg",
          label="CCNMTL 320x240"),
     ]
+PROTECTION_OPTIONS = [
+    dict(value="public-mp4-download",
+         label="public mp4/mp3 non-streaming"),
+    dict(value="public",
+         label="public streaming flv"),
+    dict(value="protected",
+         label="protected streaming flv/protected mp3 (valid-user)"),
+]
 
 
 @render_to("main/surelink.html")
@@ -1140,7 +1148,9 @@ def surelink(request):
         rows=len(results) * 3,
         files=request.GET.get('files', ''),
         poster=request.GET.get('poster', ''),
-        poster_options=POSTER_OPTIONS)
+        poster_options=POSTER_OPTIONS,
+        protection_options=PROTECTION_OPTIONS,
+        )
 
 
 @muninview(config="""graph_title Total Videos

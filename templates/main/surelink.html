@@ -62,9 +62,12 @@
 </td></tr>
 <tr><td>  <label for="protection"><b>Link type:</b></label></td><td>
   <select name="protection"> 
-     <option value="public-mp4-download"  >public mp4/mp3 non-streaming</option> 
-     <option value="public"  >public streaming flv</option> 
-     <option value="protected"  >protected streaming flv/protected mp3 (valid-user)</option> 
+		{% for po in protection_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value protection %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
   </select> 
   <br /> 
 </td></tr>
