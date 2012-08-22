@@ -267,6 +267,17 @@ class Video(TimeStampedModel):
                                      owner=user)
         return (o, params)
 
+    def make_save_file_to_tahoe_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
+                      tahoe_base=settings.TAHOE_BASE)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="save file to tahoe",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return (o, params)
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)

@@ -84,15 +84,10 @@ def mediathread_post(request):
                 tmpfilename, source_file, user)
             operations.append((o.id, params))
 
-            params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
-                          tahoe_base=settings.TAHOE_BASE)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="save file to tahoe",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user)
+            o, params = v.make_save_file_to_tahoe_operation(
+                tmpfilename, user)
             operations.append((o.id, params))
+
             params = dict(tmpfilename=tmpfilename)
             o = Operation.objects.create(uuid=uuid.uuid4(),
                                          video=v,
