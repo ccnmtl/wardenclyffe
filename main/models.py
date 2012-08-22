@@ -288,6 +288,19 @@ class Video(TimeStampedModel):
                                      owner=user)
         return o, params
 
+    def make_submit_to_podcast_producer_operation(
+        self, tmpfilename, workflow, user):
+        params = dict(tmpfilename=tmpfilename,
+                      pcp_workflow=workflow)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="submit to podcast producer",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)

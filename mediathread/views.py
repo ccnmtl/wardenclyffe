@@ -95,18 +95,8 @@ def mediathread_post(request):
             workflow = settings.PCP_WORKFLOW
             if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
                 workflow = settings.MEDIATHREAD_PCP_WORKFLOW
-                params = dict(tmpfilename=tmpfilename)
-                params = dict(tmpfilename=tmpfilename,
-                              pcp_workflow=workflow)
-
-                o = Operation.objects.create(
-                    uuid=uuid.uuid4(),
-                    video=v,
-                    action="submit to podcast producer",
-                    status="enqueued",
-                    params=dumps(params),
-                    owner=user
-                    )
+                o, params = v.make_submit_to_podcast_producer_operation(
+                    tmpfilename, workflow, user)
                 operations.append((o.id, params))
 
         except:
