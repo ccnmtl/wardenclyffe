@@ -312,6 +312,16 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_upload_to_youtube_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="upload to youtube",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return o, params
+
     def make_source_file(self, filename):
         return File.objects.create(video=self,
                                    label="source file",
