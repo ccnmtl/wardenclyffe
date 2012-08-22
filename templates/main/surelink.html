@@ -97,12 +97,12 @@
 <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
   
 <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-<li class="ui-state-default ui-corner-top"><a href="#tabs-1">Iframe Embed</a></li>
-<li class="ui-state-default ui-corner-top"><a href="#tabs-3">Drupal *5* at ccnmtl</a></li>
-<li class="ui-state-default ui-corner-top"><a href="#tabs-4">GlobalMDP Study Embed</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-iframe">Iframe Embed</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-drupal">Drupal *5* at ccnmtl</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-globalmdp">GlobalMDP Study Embed</a></li>
 </ul>
 
-<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-1">
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-iframe">
   Use this especially in Courseworks and Sakai or any https link (so
   it will work with IE). This view does not work with Auth=default, so
   be sure to specify WIND (or the relevant option) 
@@ -111,7 +111,7 @@
 {% endfor %}</textarea></div>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
-	    ui-tabs-hide" id="tabs-3">
+	    ui-tabs-hide" id="tabs-drupal">
 Instructions: Enter this into an embedded media field.  To configure a
 media field
 see <a href="http://wiki.ccnmtl.columbia.edu/index.php/Making_a_Drupal_Collection_Site#Content_Management">Making
@@ -123,7 +123,7 @@ sure the Auth type is the same as for the site (Wind or Pamacea) -- --
 style="width:100%">{% for r in results %}{{r.drupal_embed}}
 {% endfor %}</textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
-	    ui-tabs-hide" id="tabs-4">
+	    ui-tabs-hide" id="tabs-globalmdp">
 <textarea rows="{{rows}}" cols="100" style="width:100%">
 {% for r in results %}{{r.mdp_embed}}
 {% endfor %}
