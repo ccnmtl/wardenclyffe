@@ -75,11 +75,7 @@ def import_quicktime(request):
                                             filename=filename,
                                             location_type='cuit')
             ServerFile.objects.create(server=server, file=cuit_file)
-            File.objects.create(video=v,
-                                label="source file",
-                                filename="",
-                                location_type='none')
-
+            v.make_source_file("")
             video_ids.append(v.id)
     except:
         transaction.rollback()

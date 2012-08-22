@@ -582,10 +582,7 @@ def upload(request):
             v.collection_id = collection_id
         v.save()
         form.save_m2m()
-        source_file = File.objects.create(video=v,
-                                          label="source file",
-                                          filename=source_filename,
-                                          location_type='none')
+        source_file = v.make_source_file(source_filename)
         params['tmpfilename'] = tmpfilename
         params['source_file_id'] = source_file.id
         params['filename'] = source_filename
