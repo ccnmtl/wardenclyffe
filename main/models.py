@@ -12,6 +12,8 @@ from django.conf import settings
 import os.path
 from django.core.mail import send_mail
 from django_statsd.clients import statsd
+import uuid
+from simplejson import dumps
 
 add_introspection_rules(
     [],
@@ -242,6 +244,68 @@ class Video(TimeStampedModel):
             return self.file_set.filter(location_type="cuit")[0]
         except:
             return None
+
+    def make_mediathread_submit_file(self, filename, user, set_course,
+                                     redirect_to):
+        submit_file = File.objects.create(video=self,
+                                          label="mediathread submit",
+                                          filename=filename,
+                                          location_type='mediathreadsubmit'
+                                          )
+        submit_file.set_metadata("username", user.username)
+        submit_file.set_metadata("set_course", set_course)
+        submit_file.set_metadata("redirect_to", redirect_to)
+
+    def make_extract_metadata_operation(self, tmpfilename, source_file, user):
+        params = dict(tmpfilename=tmpfilename,
+                      source_file_id=source_file.id)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="extract metadata",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return (o, params)
+
+    def make_save_file_to_tahoe_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
+                      tahoe_base=settings.TAHOE_BASE)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="save file to tahoe",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return (o, params)
+
+    def make_make_images_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="make images",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return o, params
+
+    def make_submit_to_podcast_producer_operation(
+        self, tmpfilename, workflow, user):
+        params = dict(tmpfilename=tmpfilename,
+                      pcp_workflow=workflow)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="submit to podcast producer",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
+    def make_source_file(self, filename):
+        return File.objects.create(video=self,
+                                   label="source file",
+                                   filename=filename,
+                                   location_type='none')
 
 
 class File(TimeStampedModel):
