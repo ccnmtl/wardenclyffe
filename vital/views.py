@@ -2,7 +2,7 @@
 from annoying.decorators import render_to
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from wardenclyffe.main.models import Video, Operation, Collection, File
+from wardenclyffe.main.models import Video, Collection, File
 from django.contrib.auth.models import User
 import wardenclyffe.vital.tasks as tasks
 import wardenclyffe.main.tasks as maintasks
@@ -13,7 +13,6 @@ import hmac
 import hashlib
 from django_statsd.clients import statsd
 import os
-from simplejson import dumps
 
 
 @transaction.commit_manually
@@ -98,66 +97,31 @@ def drop(request):
                                      title=request.POST.get('title', ''),
                                      creator=request.session['username'],
                                      uuid=vuuid)
-            source_file = File.objects.create(video=v,
-                                              label="source file",
-                                              filename=filename,
-                                              location_type='none')
+            source_file = v.make_source_file(filename=filename)
             # we make a "vitalsubmit" file to store the submission
             # info and serve as a flag that it needs to be submitted
             # (when PCP comes back)
-            submit_file = File.objects.create(video=v,
-                                              label="vital submit",
-                                              filename=filename,
-                                              location_type='vitalsubmit')
-            submit_file.set_metadata("username",
-                                     request.session['username'])
-            submit_file.set_metadata("set_course",
-                                     request.session['set_course'])
-            submit_file.set_metadata("redirect_to",
-                                     request.session['redirect_to'])
-            submit_file.set_metadata("notify_url",
-                                     request.session['notify_url'])
+            v.make_vital_submit_file(
+                filename, user, request.session['set_course'],
+                request.session['redirect_to'],
+                request.session['notify_url'])
+            o, params = v.make_extract_metadata_operation(
+                tmpfilename, source_file, user)
+            operations.append((o.id, params))
 
-            params = dict(tmpfilename=tmpfilename,
-                          source_file_id=source_file.id)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="extract metadata",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user)
+            o, params = v.make_save_file_to_tahoe_operation(
+                tmpfilename, user)
             operations.append((o.id, params))
-            params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
-                          tahoe_base=settings.TAHOE_BASE)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="save file to tahoe",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user
-                                         )
+
+            o, params = v.make_make_images_operation(
+                tmpfilename, user)
             operations.append((o.id, params))
-            params = dict(tmpfilename=tmpfilename)
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=v,
-                                         action="make images",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=user)
-            operations.append((o.id, params))
+
             workflow = settings.PCP_WORKFLOW
             if hasattr(settings, 'VITAL_PCP_WORKFLOW'):
                 workflow = settings.VITAL_PCP_WORKFLOW
-                params = dict(tmpfilename=tmpfilename,
-                              pcp_workflow=workflow)
-
-                o = Operation.objects.create(
-                    uuid=uuid.uuid4(),
-                    video=v,
-                    action="submit to podcast producer",
-                    status="enqueued",
-                    params=dumps(params),
-                    owner=user)
+                o, params = v.make_submit_to_podcast_producer_operation(
+                    tmpfilename, workflow, user)
                 operations.append((o.id, params))
         except:
             statsd.incr("vital.drop.failure")

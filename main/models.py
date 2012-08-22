@@ -256,6 +256,17 @@ class Video(TimeStampedModel):
         submit_file.set_metadata("set_course", set_course)
         submit_file.set_metadata("redirect_to", redirect_to)
 
+    def make_vital_submit_file(self, filename, user, set_course, redirect_to,
+                               notify_url):
+        submit_file = File.objects.create(video=self,
+                                          label="vital submit",
+                                          filename=filename,
+                                          location_type='vitalsubmit')
+        submit_file.set_metadata("username", user.username)
+        submit_file.set_metadata("set_course", set_course)
+        submit_file.set_metadata("redirect_to", redirect_to)
+        submit_file.set_metadata("notify_url", notify_url)
+
     def make_extract_metadata_operation(self, tmpfilename, source_file, user):
         params = dict(tmpfilename=tmpfilename,
                       source_file_id=source_file.id)
