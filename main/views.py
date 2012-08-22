@@ -1098,6 +1098,18 @@ def subject_autocomplete(request):
 
     return HttpResponse("\n".join(all_subjects.keys()))
 
+POSTER_BASE = "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb"
+POSTER_OPTIONS = [
+    dict(value="default_custom_poster",
+         label="broadcast/posters/[media path]/[filename].jpg"),
+    dict(value=POSTER_BASE + "_480x360.jpg",
+         label="CCNMTL 480x360"),
+    dict(value=POSTER_BASE + "_480x272.jpg",
+         label="CCNMTL 480x272"),
+    dict(value=POSTER_BASE + "_320x240.jpg",
+         label="CCNMTL 320x240"),
+    ]
+
 
 @render_to("main/surelink.html")
 def surelink(request):
@@ -1126,7 +1138,9 @@ def surelink(request):
         captions=request.GET.get('captions', ''),
         results=results,
         rows=len(results) * 3,
-        files=request.GET.get('files', ''))
+        files=request.GET.get('files', ''),
+        poster=request.GET.get('poster', ''),
+        poster_options=POSTER_OPTIONS)
 
 
 @muninview(config="""graph_title Total Videos
