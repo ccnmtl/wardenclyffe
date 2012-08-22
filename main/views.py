@@ -1098,6 +1098,36 @@ def subject_autocomplete(request):
 
     return HttpResponse("\n".join(all_subjects.keys()))
 
+POSTER_BASE = "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb"
+POSTER_OPTIONS = [
+    dict(value="default_custom_poster",
+         label="broadcast/posters/[media path]/[filename].jpg"),
+    dict(value=POSTER_BASE + "_480x360.jpg",
+         label="CCNMTL 480x360"),
+    dict(value=POSTER_BASE + "_480x272.jpg",
+         label="CCNMTL 480x272"),
+    dict(value=POSTER_BASE + "_320x240.jpg",
+         label="CCNMTL 320x240"),
+    ]
+PROTECTION_OPTIONS = [
+    dict(value="public-mp4-download",
+         label="public mp4/mp3 non-streaming"),
+    dict(value="public",
+         label="public streaming flv"),
+    dict(value="protected",
+         label="protected streaming flv/protected mp3 (valid-user)"),
+]
+AUTHTYPE_OPTIONS = [
+    dict(value="", label="None (Public)"),
+    dict(value="wikispaces",
+         label="Wikispaces (Pamacea auth-domain) [authtype=wikispaces]"),
+    dict(value="auth",
+         label=("Standard UNI (Pamacea domain incompatible with wikispaces)"
+                " [authtype=auth]")),
+    dict(value="wind",
+         label="WIND [authtype=wind]"),
+]
+
 
 @render_to("main/surelink.html")
 def surelink(request):
@@ -1126,7 +1156,13 @@ def surelink(request):
         captions=request.GET.get('captions', ''),
         results=results,
         rows=len(results) * 3,
-        files=request.GET.get('files', ''))
+        files=request.GET.get('files', ''),
+        poster=request.GET.get('poster', ''),
+        poster_options=POSTER_OPTIONS,
+        protection_options=PROTECTION_OPTIONS,
+        authtype_options=AUTHTYPE_OPTIONS,
+        authtype=request.GET.get('authtype', ''),
+        )
 
 
 @muninview(config="""graph_title Total Videos

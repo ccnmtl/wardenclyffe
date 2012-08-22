@@ -42,10 +42,12 @@
 </td></tr>
 <tr><td>  <label for="poster"><b>Poster:</b></label></td><td>
   <select name="poster"> 
-    <option value="default_custom_poster"   >broadcast/posters/[media path]/[filename].jpg</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"  >CCNMTL 480x360</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x272.jpg"  >CCNMTL 480x272</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_320x240.jpg"  >CCNMTL 320x240</option> 
+		{% for po in poster_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value poster %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
   </select> 
   <br /> 
 </td></tr>
@@ -60,29 +62,26 @@
 </td></tr>
 <tr><td>  <label for="protection"><b>Link type:</b></label></td><td>
   <select name="protection"> 
-     <option value="public-mp4-download"  >public mp4/mp3 non-streaming</option> 
-     <option value="public"  >public streaming flv</option> 
-     <option value="protected"  >protected streaming flv/protected mp3 (valid-user)</option> 
+		{% for po in protection_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value protection %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
   </select> 
   <br /> 
 </td></tr>
 <tr><td>  <label for="authtype"><b>Auth (for protected streams only):</b></label></td><td>
   <select name="authtype"> 
-    <option value="">None (Public)</option> 
-    <option value="wikispaces"  >Wikispaces (Pamacea auth-domain) [authtype=wikispaces]</option> 
-    <option value="auth"  >Standard UNI (Pamacea domain incompatible with wikispaces) [authtype=auth]</option> 
-    <option value="wind"  >WIND [authtype=wind]</option> 
+		{% for ato in authtype_options %}
+		<option value="{{ato.value}}"
+						{% ifequal ato.value authtype %}
+						selected
+						{% endifequal %}>{{ato.label}}</option>
+		{% endfor %}
   </select> 
 </td></tr>
 </table>
-  <!--
-  <br />
-  <label for="player"><b>Player:</b></label>  
-  <select name="player">
-    <option value="v3">Standard (Flowplayer 3.1)</option>
-    <option value="test">Experimental Flowplayer 3.2</option>
-  </select>
-  --> 
   <input type="hidden" name="player" value="v4" /> 
   <br /> 
  
@@ -97,12 +96,12 @@
 <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
   
 <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-<li class="ui-state-default ui-corner-top"><a href="#tabs-1">Iframe Embed</a></li>
-<li class="ui-state-default ui-corner-top"><a href="#tabs-3">Drupal *5* at ccnmtl</a></li>
-<li class="ui-state-default ui-corner-top"><a href="#tabs-4">GlobalMDP Study Embed</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-iframe">Iframe Embed</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-drupal">Drupal *5* at ccnmtl</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-globalmdp">GlobalMDP Study Embed</a></li>
 </ul>
 
-<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-1">
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-iframe">
   Use this especially in Courseworks and Sakai or any https link (so
   it will work with IE). This view does not work with Auth=default, so
   be sure to specify WIND (or the relevant option) 
@@ -111,7 +110,7 @@
 {% endfor %}</textarea></div>
 
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
-	    ui-tabs-hide" id="tabs-3">
+	    ui-tabs-hide" id="tabs-drupal">
 Instructions: Enter this into an embedded media field.  To configure a
 media field
 see <a href="http://wiki.ccnmtl.columbia.edu/index.php/Making_a_Drupal_Collection_Site#Content_Management">Making
@@ -123,7 +122,7 @@ sure the Auth type is the same as for the site (Wind or Pamacea) -- --
 style="width:100%">{% for r in results %}{{r.drupal_embed}}
 {% endfor %}</textarea></div>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom
-	    ui-tabs-hide" id="tabs-4">
+	    ui-tabs-hide" id="tabs-globalmdp">
 <textarea rows="{{rows}}" cols="100" style="width:100%">
 {% for r in results %}{{r.mdp_embed}}
 {% endfor %}
