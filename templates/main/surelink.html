@@ -73,21 +73,15 @@
 </td></tr>
 <tr><td>  <label for="authtype"><b>Auth (for protected streams only):</b></label></td><td>
   <select name="authtype"> 
-    <option value="">None (Public)</option> 
-    <option value="wikispaces"  >Wikispaces (Pamacea auth-domain) [authtype=wikispaces]</option> 
-    <option value="auth"  >Standard UNI (Pamacea domain incompatible with wikispaces) [authtype=auth]</option> 
-    <option value="wind"  >WIND [authtype=wind]</option> 
+		{% for ato in authtype_options %}
+		<option value="{{ato.value}}"
+						{% ifequal ato.value authtype %}
+						selected
+						{% endifequal %}>{{ato.label}}</option>
+		{% endfor %}
   </select> 
 </td></tr>
 </table>
-  <!--
-  <br />
-  <label for="player"><b>Player:</b></label>  
-  <select name="player">
-    <option value="v3">Standard (Flowplayer 3.1)</option>
-    <option value="test">Experimental Flowplayer 3.2</option>
-  </select>
-  --> 
   <input type="hidden" name="player" value="v4" /> 
   <br /> 
  

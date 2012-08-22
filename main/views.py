@@ -1117,6 +1117,16 @@ PROTECTION_OPTIONS = [
     dict(value="protected",
          label="protected streaming flv/protected mp3 (valid-user)"),
 ]
+AUTHTYPE_OPTIONS = [
+    dict(value="", label="None (Public)"),
+    dict(value="wikispaces",
+         label="Wikispaces (Pamacea auth-domain) [authtype=wikispaces]"),
+    dict(value="auth",
+         label=("Standard UNI (Pamacea domain incompatible with wikispaces)"
+                " [authtype=auth]")),
+    dict(value="wind",
+         label="WIND [authtype=wind]"),
+]
 
 
 @render_to("main/surelink.html")
@@ -1150,6 +1160,8 @@ def surelink(request):
         poster=request.GET.get('poster', ''),
         poster_options=POSTER_OPTIONS,
         protection_options=PROTECTION_OPTIONS,
+        authtype_options=AUTHTYPE_OPTIONS,
+        authtype=request.GET.get('authtype', ''),
         )
 
 
