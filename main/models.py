@@ -301,6 +301,12 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_source_file(self, filename):
+        return File.objects.create(video=self,
+                                   label="source file",
+                                   filename=filename,
+                                   location_type='none')
+
 
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)

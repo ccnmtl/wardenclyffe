@@ -3,7 +3,7 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
-from wardenclyffe.main.models import Video, Operation, Collection, File
+from wardenclyffe.main.models import Video, Operation, Collection
 from django.contrib.auth.models import User
 import uuid
 import wardenclyffe.main.tasks as maintasks
@@ -68,10 +68,7 @@ def mediathread_post(request):
                                      title=request.POST.get('title', ''),
                                      creator=request.session['username'],
                                      uuid=vuuid)
-            source_file = File.objects.create(video=v,
-                                              label="source file",
-                                              filename=filename,
-                                              location_type='none')
+            source_file = v.make_source_file(filename)
             # we make a "mediathreadsubmit" file to store the submission
             # info and serve as a flag that it needs to be submitted
             # (when PCP comes back)
