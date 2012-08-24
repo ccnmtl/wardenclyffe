@@ -45,10 +45,12 @@
     {% if file.has_cuit_poster %}
     <option value="{{file.cuit_poster_url}}"  >Automatically created poster</option> 
     {% endif %}
-    <option value="default_custom_poster"   >broadcast/posters/[media path]/[filename].jpg</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"  >CCNMTL 480x360</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x272.jpg"  >CCNMTL 480x272</option> 
-    <option value="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_320x240.jpg"  >CCNMTL 320x240</option> 
+		{% for po in poster_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value poster %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
   </select> 
   <br /> 
 </td></tr>
@@ -63,19 +65,23 @@
 </td></tr>
 <tr><td>  <label for="protection"><b>Link type:</b></label></td><td>
   <select name="protection"> 
-     <option value="public-mp4-download"  >public mp4/mp3 non-streaming</option> 
-     <option value="public"  >public streaming flv</option> 
-     <option value="protected"  >protected streaming flv/protected mp3 (valid-user)</option> 
+		{% for po in protection_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value protection %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
   </select> 
   <br /> 
 </td></tr>
 <tr><td>  <label for="authtype"><b>Auth:</b></label></td><td>
   <select name="authtype"> 
-    <option value="">None (Public)</option> 
-    <option value="default"  >Default to Context Auth (Courseworks, Sakai, EdBlogs, Wikispaces) [authtype=default]</option> 
-    <option value="wikispaces"  >Wikispaces (Pamacea auth-domain) [authtype=wikispaces]</option> 
-    <option value="auth"  >Standard UNI (Pamacea domain incompatible with wikispaces) [authtype=auth]</option> 
-    <option value="wind"  >WIND [authtype=wind]</option> 
+		{% for ato in authtype_options %}
+		<option value="{{ato.value}}"
+						{% ifequal ato.value authtype %}
+						selected
+						{% endifequal %}>{{ato.label}}</option>
+		{% endfor %}
   </select> 
 </td></tr>
 </table>
