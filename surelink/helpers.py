@@ -3,7 +3,7 @@ import hashlib
 
 class SureLink:
     def __init__(self, filename, width, height, captions, poster, protection,
-                 authtype, player, protection_key):
+                 authtype, protection_key):
         self.filename = filename
         self.width = width
         self.height = height
@@ -11,7 +11,6 @@ class SureLink:
         self.poster = poster
         self.protection = protection
         self.authtype = authtype
-        self.player = player
         self.protection_key = protection_key
 
     def get_protection(self, force_public=False):
@@ -25,10 +24,7 @@ class SureLink:
     def player_string(self):
         if self.protection == "public-mp4-download":
             return 'download_mp4_v3'
-        else:
-            if self.player is None:
-                return 'v3'
-        return self.player
+        return "v4"
 
     def captions_string(self):
         if self.captions:

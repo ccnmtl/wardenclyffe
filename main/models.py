@@ -445,7 +445,7 @@ class File(TimeStampedModel):
 
         s = SureLink(filename=filename, width=0, height=0,
                      captions='', poster='', protection="public",
-                     authtype='', player='v4', protection_key=PROTECTION_KEY)
+                     authtype='', protection_key=PROTECTION_KEY)
         return s.public_url()
 
     def is_cuit(self):
