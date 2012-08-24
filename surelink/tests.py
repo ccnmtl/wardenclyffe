@@ -9,7 +9,7 @@ class PublicFLVTestCase(unittest.TestCase):
         self.surelink = SureLink("test/test_stream.flv",
                                  480, 360, "",
                                  THUMB_URL,
-                                 "public", "", "v4",
+                                 "public", "",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
@@ -65,7 +65,7 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
         self.surelink = SureLink("test/test_stream.flv",
                                  480, 360, "",
                                  "default_custom_poster",
-                                 "public", "", "v4",
+                                 "public", "",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
@@ -120,7 +120,7 @@ class PublicMP4TestCase(unittest.TestCase):
         self.surelink = SureLink("test/test_clip.mp4",
                                  480, 360, "",
                                  THUMB_URL,
-                                 "public-mp4-download", "", "v4",
+                                 "public-mp4-download", "",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):
@@ -174,7 +174,7 @@ class WindMP4TestCase(unittest.TestCase):
         self.surelink = SureLink("test/test_clip.mp4",
                                  480, 360, "",
                                  THUMB_URL,
-                                 "protected", "wind", "v4",
+                                 "protected", "wind",
                                  settings.SURELINK_PROTECTION_KEY)
 
     def testProtection(self):

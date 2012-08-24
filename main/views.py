@@ -761,7 +761,6 @@ def file_surelink(request, id):
                  request.GET.get('poster', ''),
                  request.GET.get('protection', ''),
                  request.GET.get('authtype', ''),
-                 request.GET.get('player', ''),
                  PROTECTION_KEY)
 
     return dict(
@@ -1143,7 +1142,6 @@ def surelink(request):
                          request.GET.get('poster', ''),
                          request.GET.get('protection', ''),
                          request.GET.get('authtype', ''),
-                         request.GET.get('player', ''),
                          PROTECTION_KEY)
             results.append(s)
     return dict(
