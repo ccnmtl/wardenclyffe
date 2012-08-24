@@ -15,10 +15,7 @@ class SureLink:
         self.protection_key = protection_key
 
     def test(self):
-        if self.player == "test":
-            return "new"
-        else:
-            return ""
+        return ""
 
     def get_protection(self, force_public=False):
         if force_public:
