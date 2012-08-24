@@ -14,9 +14,6 @@ class SureLink:
         self.player = player
         self.protection_key = protection_key
 
-    def test(self):
-        return ""
-
     def get_protection(self, force_public=False):
         if force_public:
             protection = "public"
@@ -63,8 +60,8 @@ class SureLink:
                  self.poster, self.captions_string(), self.authtype_string()))
 
     def src_url(self):
-        return ("http://ccnmtl.columbia.edu/stream/%sjsembed?%s%s" %
-                (self.test(), self.video_options(), self.protection_string()))
+        return ("http://ccnmtl.columbia.edu/stream/jsembed?%s%s" %
+                (self.video_options(), self.protection_string()))
 
     def public_url(self):
         return ("http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" %
