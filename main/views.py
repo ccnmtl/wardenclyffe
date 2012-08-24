@@ -774,7 +774,13 @@ def file_surelink(request, id):
         height=request.GET.get('height', ''),
         captions=request.GET.get('captions', ''),
         filename=filename,
-        file=f)
+        file=f,
+        poster=request.GET.get('poster', ''),
+        poster_options=POSTER_OPTIONS,
+        protection_options=PROTECTION_OPTIONS,
+        authtype_options=AUTHTYPE_OPTIONS,
+        authtype=request.GET.get('authtype', ''),
+        )
 
 
 @login_required
