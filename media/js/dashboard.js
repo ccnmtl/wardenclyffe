@@ -1,13 +1,45 @@
 var Operation = Backbone.Model.extend({
     defaults: {
     },
-    initialize: function() {
+    initialize: function () {
     }
 });
 
 var Operations = Backbone.Collection.extend({
     model: Operation
 });
+
+var buildOperationView = function (operationModel, operationController) {
+    var base = document.createElement('div'),
+    operationEl = document.createElement('div');
+
+    base.appendChild(operationEl);
+
+    var render = function () {
+        // We use a templating library such as Underscore
+        // templating which generates the HTML for our
+        // photo entry
+        operationEl.innerHTML = _.template('operationTemplate', {});
+    };
+
+    operationModel.addSubscriber(render);
+
+    operationEl.addEventListener('click', function () {
+        operationController.handleEvent('click', operationModel);
+    });
+
+    var show = function () {
+        operationEl.style.display  = '';
+    };
+
+    var hide = function () {
+        operationEl.style.display  = 'none';
+    };
+    return {
+        showView: show,
+        hideView: hide
+    };
+};
 
 function getQueryParams() {
     var vars = {}, hash;
