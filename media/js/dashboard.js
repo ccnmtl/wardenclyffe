@@ -77,22 +77,22 @@ var WCRefresh = function (e) {
         type: "get",
         dateType: 'json',
         error: requestFailed,
-        success: function (d) {
-            if (!d) {
-                requestFailed();
-                return;
-            }
-            if (d.modified === mostRecentOperation) {
-                // nothing to update
-            } else {
-                mostRecentOperation = d.modified;
-                var data = getQueryParams();
-                refreshOperations(data);
-            }
-            currentRefresh = defaultRefresh;
-            setTimeout(WCRefresh, defaultRefresh);
-        }
+        success: getMostRecentSuccess
     });
+};
+
+var getMostRecentSuccess = function (d) {
+    if (!d) {
+        requestFailed();
+        return;
+    }
+    if (d.modified !== mostRecentOperation) {
+        mostRecentOperation = d.modified;
+        var data = getQueryParams();
+        refreshOperations(data);
+    }
+    currentRefresh = defaultRefresh;
+    setTimeout(WCRefresh, defaultRefresh);
 };
 
 var requestFailed = function () {
@@ -104,57 +104,58 @@ var requestFailed = function () {
     setTimeout(WCRefresh, currentRefresh);
 };
 
+var refreshOperationsSuccess = function (d) {
+    if (!d) {
+        requestFailed();
+        return;
+    }
+    if (d.operations.length) {
+        var rowsToAdd    = [];
+        var rowsToUpdate = [];
+        var rowsToDelete = [];
+        
+        for (var i = d.operations.length - 1; i >= 0; i--) {
+            // TODO: compare/update
+            var el = d.operations[i];
+            var operation_id = el.id;
+            var oldRow = WCgetRow(operation_id);
+            if (oldRow.length > 0) {
+                rowsToUpdate.push([oldRow, el]);
+            } else {
+                rowsToAdd.push(el);
+            }
+        }
+        if (rowsToUpdate.length > 0) {
+            for (i = 0; i < rowsToUpdate.length; i++) {
+                updateRow(rowsToUpdate[i][0], rowsToUpdate[i][1]);
+            }
+        }
+        if (rowsToAdd.length > 0) {
+            for (i = 0; i < rowsToAdd.length; i++) {
+                var r = newRow(rowsToAdd[i]);
+                $("#operations tbody").prepend(r);
+            }
+        }
+        if (sortInitialized === 0) {
+            $("#operations").tablesorter({sortList: [[4, 1]]});
+            sortInitialized = 1;
+        }
+        orderTableByDate();
+        stripeTable();
+        trimTable(200);
+    }
+};
+
+
 var refreshOperations = function (data) {
-		$.ajax(
-        {
+		$.ajax({
             url: "/recent_operations/",
             type: 'get',
             dataType: 'json',
             data: data,
             error: requestFailed,
-            success: function (d) {
-                if (!d) {
-                    requestFailed();
-                    return;
-                }
-                if (d.operations.length) {
-                    var rowsToAdd    = [];
-                    var rowsToUpdate = [];
-                    var rowsToDelete = [];
-                
-                    for (var i = d.operations.length - 1; i >= 0; i--) {
-                        // TODO: compare/update
-                        var el = d.operations[i];
-                        var operation_id = el.id;
-                        var oldRow = WCgetRow(operation_id);
-                        if (oldRow.length > 0) {
-                            rowsToUpdate.push([oldRow, el]);
-                        } else {
-                            rowsToAdd.push(el);
-                        }
-                    }
-                    if (rowsToUpdate.length > 0) {
-                        for (i = 0; i < rowsToUpdate.length; i++) {
-                            updateRow(rowsToUpdate[i][0], rowsToUpdate[i][1]);
-                        }
-                    }
-                    if (rowsToAdd.length > 0) {
-                        for (i = 0; i < rowsToAdd.length; i++) {
-                            var r = newRow(rowsToAdd[i]);
-                            $("#operations tbody").prepend(r);
-                        }
-                    }
-                    if (sortInitialized === 0) {
-                        $("#operations").tablesorter({sortList: [[4, 1]]});
-                        sortInitialized = 1;
-                    }
-                    orderTableByDate();
-                    stripeTable();
-                    trimTable(200);
-                }
-            }
-        }
-    );
+            success: refreshOperationsSuccess
+        });
     };
 
 
