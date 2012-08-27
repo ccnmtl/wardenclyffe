@@ -24,6 +24,8 @@ class SureLink:
     def player_string(self):
         if self.protection == "public-mp4-download":
             return 'download_mp4_v3'
+        elif self.protection in ("mp4_public_stream", "mp4_secure_stream"):
+            return self.protection
         return "v4"
 
     def captions_string(self):
