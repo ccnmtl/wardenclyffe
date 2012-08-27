@@ -79,6 +79,57 @@ var requestFailed = function() {
   setTimeout(WCRefresh,currentRefresh);
 };
 
+var refreshOperations = function(data) {
+		$.ajax({
+        url: "/recent_operations/",
+        type: 'get',
+        dataType: 'json',
+        data: data,
+        error: requestFailed,
+        success: function(d){
+            if (!d) {
+                requestFailed();
+                return;
+            }
+            if (d.operations.length) {
+                var rowsToAdd    = [];
+                var rowsToUpdate = [];
+                var rowsToDelete = [];
+                
+                for (var i = d.operations.length-1; i >= 0; i--) {
+                    // TODO: compare/update
+                    var el = d.operations[i];
+                    var operation_id = el.id;
+                    var oldRow = getRow(operation_id);
+                    if (oldRow.length > 0) {
+                        rowsToUpdate.push([oldRow,el]);
+                    } else {
+                        rowsToAdd.push(el);
+                    }
+                }
+                if (rowsToUpdate.length > 0) {
+                    for(i = 0; i < rowsToUpdate.length; i++) {
+                        updateRow(rowsToUpdate[i][0],rowsToUpdate[i][1]);
+                    }
+                }
+                if (rowsToAdd.length > 0) {
+                    for(i = 0; i < rowsToAdd.length; i++) {
+                        var r = newRow(rowsToAdd[i]);
+                        $("#operations tbody").prepend(r);
+                    }
+                }
+                if (sortInitialized === 0) {
+                    $("#operations").tablesorter( {sortList: [[4,1]]} );
+                    sortInitialized = 1;
+                }
+                orderTableByDate();
+                stripeTable();
+                trimTable(200);
+            }
+        }
+    });
+};
+
 var WCRefresh = function(e) {
   // first, we check if there are new operations at all
   // by calling /num_operations/ and comparing.
@@ -98,54 +149,7 @@ var WCRefresh = function(e) {
       } else {
 				mostRecentOperation = d.modified;
 				var data = getQueryParams();
-				$.ajax({
-                 url: "/recent_operations/",
-                 type: 'get',
-                 dataType: 'json',
-                 data: data,
-                 error: requestFailed,
-                 success: function(d){
-                   if (!d) {
-                     requestFailed();
-                     return;
-                   }
-                   if (d.operations.length) {
-                     var rowsToAdd    = [];
-                     var rowsToUpdate = [];
-                     var rowsToDelete = [];
-
-                     for (var i = d.operations.length-1; i >= 0; i--) {
-                       // TODO: compare/update
-                       var el = d.operations[i];
-                       var operation_id = el.id;
-                       var oldRow = getRow(operation_id);
-                       if (oldRow.length > 0) {
-                         rowsToUpdate.push([oldRow,el]);
-                       } else {
-                         rowsToAdd.push(el);
-                       }
-                     }
-                     if (rowsToUpdate.length > 0) {
-                       for(i = 0; i < rowsToUpdate.length; i++) {
-                         updateRow(rowsToUpdate[i][0],rowsToUpdate[i][1]);
-                       }
-                     }
-                     if (rowsToAdd.length > 0) {
-                       for(i = 0; i < rowsToAdd.length; i++) {
-                         var r = newRow(rowsToAdd[i]);
-                         $("#operations tbody").prepend(r);
-                       }
-                     }
-                     if (sortInitialized === 0) {
-                       $("#operations").tablesorter( {sortList: [[4,1]]} );
-                       sortInitialized = 1;
-                     }
-                     orderTableByDate();
-                     stripeTable();
-                     trimTable(200);
-                   }
-                 }
-        });
+        refreshOperations(data);
       }
       currentRefresh = defaultRefresh;
       setTimeout(WCRefresh,defaultRefresh);
