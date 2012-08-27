@@ -1,3 +1,14 @@
+var Operation = Backbone.Model.extend({
+    defaults: {
+    },
+    initialize: function() {
+    }
+});
+
+var Operations = Backbone.Collection.extend({
+    model: Operation
+});
+
 function getQueryParams() {
     var vars = {}, hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -58,6 +69,8 @@ var stripeTable = function () {
     $("#operations tbody tr:odd").addClass("odd");
     $("#operations tbody tr:even").addClass("even");
 };
+
+var maxRows = 200;
 
 var trimTable = function (maxRows) {
 };
@@ -146,7 +159,7 @@ var refreshOperationsSuccess = function (d) {
         }
         orderTableByDate();
         stripeTable();
-        trimTable(200);
+        trimTable(maxRows);
     }
 };
 
