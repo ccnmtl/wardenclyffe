@@ -104,6 +104,11 @@ var requestFailed = function () {
     setTimeout(WCRefresh, currentRefresh);
 };
 
+var addOperation = function (o) {
+    var r = newRow(o);
+    $("#operations tbody").prepend(r);
+};
+
 var refreshOperationsSuccess = function (d) {
     if (!d) {
         requestFailed();
@@ -132,8 +137,7 @@ var refreshOperationsSuccess = function (d) {
         }
         if (rowsToAdd.length > 0) {
             for (i = 0; i < rowsToAdd.length; i++) {
-                var r = newRow(rowsToAdd[i]);
-                $("#operations tbody").prepend(r);
+                addOperation(rowsToAdd[i]);
             }
         }
         if (sortInitialized === 0) {
