@@ -138,10 +138,18 @@ style="width:100%">{% for r in results %}{{r.drupal_embed}}
 <div style="width:{{r.width}}"><script type="text/javascript" src="{{r.src_url}}"></script>
 </div>
 <br />
-<div style="display:{% ifequal protection "public-mp4-download"%}none{% else %}block{% endifequal %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
+{% ifequal protection "public-mp4-download"%}
+{% else %}
+{% ifequal protection "mp4_secure_stream" %}
+{% else %}
+{% ifequal protection "mp4_public_stream" %}
+<div><b>Unprotected Public</b> URL (e.g. for download):<br />
 <a href="{{r.public_url}}">{{r.public_url}}</a>
   <p>To test a slow connection, replace "OPTIONS" with "slow".</p>
 </div>
+{% endifequal %}
+{% endifequal %}
+{% endifequal %}
 </td>
 {% if not public %}
 <td>
