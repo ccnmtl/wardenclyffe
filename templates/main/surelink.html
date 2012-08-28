@@ -30,10 +30,25 @@
   <label for="file"><b>Media (path) and filenames (one per line):</b></label></td><td>
   <textarea name="files" cols="60" rows="5">{{files}}</textarea>
   <br /> 
-  <span style="font-size:small">i.e. public
+  <span style="font-size:small">
+<b>for videos in <code>/media/h264/ccnmtl/</code> (streamed from
+	stream.ccnmtl.columbia.edu):</b><br />
+do not include <code>public</code> or <code>secure</code> (those are
+	implied by the Link Type below). Do include
+	the initial slash. eg: <code>/test_public.mp4</code> with a Link
+	Type of "mp4 public stream" will correspond
+	to <code>/media/h264/ccnmtl/public/test_public.mp4</code>
+	while <code>/test_secure.mp4</code> with a Link Type of "mp4 secure
+	stream" will correspond
+	to <code>/media/h264/ccnmtl/secure/test_secure.mp4</code>. <br />
+<br />
+<b>for videos in <code>broadcast</code>:</b><br />
+i.e. public
   media: <code>test/test_clip.mp4</code>
   or <code>test/test_clip.flv</code>;<br />
-   private media: <code>secure/test/test_stream.flv</code></span>
+   private media: <code>secure/test/test_stream.flv</code>
+
+</span>
 </td></tr>
 <tr><td>  <label for="captions"><b><a href="http://flowplayer.org/plugins/flash/captions.html">Captions
   URL</a> (optional):</b></label></td><td>
