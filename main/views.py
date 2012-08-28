@@ -1123,7 +1123,7 @@ PROTECTION_OPTIONS = [
          label="protected streaming flv/protected mp3 (valid-user)"),
     dict(value="mp4_public_stream",
          label="mp4 public stream"),
-    dict(value="mp4 secure stream",
+    dict(value="mp4_secure_stream",
          label="mp4 secure stream"),
 ]
 AUTHTYPE_OPTIONS = [
