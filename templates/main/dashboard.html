@@ -16,6 +16,8 @@
 
 {% block content %}
 
+
+
 <form action="." method="get">
 <h3>Filters</h3>
 
@@ -64,6 +66,8 @@
 <input type="submit" value="filter" />
 </form>
 
+
+
 <table id="operations">
   <thead>
     <tr>
@@ -76,9 +80,22 @@
     </tr>
   </thead>
 
-  <tbody>
+  <tbody id="bb-operations">
 
-  </tbody>
+	</tbody>
 </table>
+
+
+<script type="text/template" id="operation-template">
+
+		<td><div class="operation_status <%- clean_status %>"></div></td>
+		<td><%- action %></td>
+    <td><a href="<%- video_url %>"><%- video_title %></a></td>
+		<td><a href="<%- collection_url %>"><%- collection_title %></a></td>
+		<td class="modified"><%- modified %></td>
+		<td><%- video_creator %></td>
+
+</script>
+
 
 {% endblock %}
