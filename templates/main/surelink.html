@@ -158,6 +158,7 @@ style="width:100%">{% for r in results %}{{r.drupal_embed}}
 {% ifequal protection "mp4_secure_stream" %}
 {% else %}
 {% ifequal protection "mp4_public_stream" %}
+{% else %}
 <div><b>Unprotected Public</b> URL (e.g. for download):<br />
 <a href="{{r.public_url}}">{{r.public_url}}</a>
   <p>To test a slow connection, replace "OPTIONS" with "slow".</p>
