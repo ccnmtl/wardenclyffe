@@ -140,3 +140,6 @@ WIND_SUPERUSER_MAPPER_GROUPS = ['anp8', 'jb2410', 'zm4', 'egr2107',
                                 'amm8', 'mar227']
 
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
+H264_SECURE_STREAM_DIRECTORY = "/media/h264/ccnmtl/secure/"
+H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
+H264_SECURE_STREAM_BASE = "http://stream.ccnmtl.columbia.edu/secvideos/"

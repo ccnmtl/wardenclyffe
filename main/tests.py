@@ -544,3 +544,26 @@ class SpecialCharacterTests(TestCase):
                           "video_foo_file")
         self.assertEquals(strip_special_characters("a.b.c"), "a_b_c")
         self.assertEquals(strip_special_characters("(foo)"), "_foo_")
+
+
+class H264SecureStreamFileTest(TestCase):
+    def setUp(self):
+        self.collection = Collection.objects.create(title="test collection",
+                                            uuid=uuid.uuid4())
+        self.video = Video.objects.create(collection=self.collection,
+                                          title="test video",
+                                          uuid=uuid.uuid4())
+        self.file = File.objects.create(
+            video=self.video,
+            label="CUIT File",
+            location_type="cuit",
+            filename=("/media/h264/ccnmtl/secure/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
+            )
+
+    def test_h264_secure_stream_url(self):
+        assert self.video.h264_secure_stream_url() == (
+            "http://stream.ccnmtl.columbia.edu/secvideos/"
+            "SECURE/courses/56d27944-4131-11e1-8164-0017f20ea192"
+            "-Mediathread_video_uploaded_by_mlp55.mp4")

@@ -37,10 +37,13 @@ def submit_to_mediathread(operation, params):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "upload",
         }
-    if video.mediathread_url():
-        params['flv_pseudo'] = video.mediathread_url()
-        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
+    if video.h264_secure_streamable():
+        params['mp4'] = video.h264_secure_stream_url()
+        params["mp4-metadata"] = "w%dh%d" % (width, height)
     else:
+        # eventually we probably also want to try
+        # h264 public streams, but for now, fall back to
+        # tahoe
         params['mp4'] = video.tahoe_download_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
 

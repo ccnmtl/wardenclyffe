@@ -183,6 +183,14 @@ class Video(TimeStampedModel):
             return f.mediathread_public_url()
         return ""
 
+    def h264_secure_stream_url(self):
+        r = self.file_set.filter(location_type="cuit")
+        if r.count() > 0:
+            f = r[0]
+            if f.is_h264_secure_streamable():
+                return f.h264_secure_stream_url()
+        return ""
+
     def poster_url(self):
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
@@ -447,6 +455,16 @@ class File(TimeStampedModel):
                      captions='', poster='', protection="public",
                      authtype='', protection_key=PROTECTION_KEY)
         return s.public_url()
+
+    def is_h264_secure_streamable(self):
+        return self.filename.startswith(settings.H264_SECURE_STREAM_DIRECTORY)
+
+    def h264_secure_stream_url(self):
+        """ the URL handed to mediathread for h264 streams """
+        filename = self.filename
+        if filename.startswith(settings.H264_SECURE_STREAM_DIRECTORY):
+            filename = filename[len(settings.H264_SECURE_STREAM_DIRECTORY):]
+        return settings.H264_SECURE_STREAM_BASE + "SECURE/" + filename
 
     def is_cuit(self):
         return self.location_type == "cuit"
