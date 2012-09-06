@@ -38,7 +38,7 @@ def submit_to_mediathread(operation, params):
         "metadata-tag": "upload",
         }
     if video.h264_secure_stream_url():
-        params['mp4'] = video.h264_secure_stream_url()
+        params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
     else:
         # eventually we probably also want to try
