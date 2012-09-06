@@ -37,7 +37,10 @@ def submit_to_mediathread(operation, params):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "upload",
         }
-    if video.h264_secure_stream_url():
+    if video.mediathread_url():
+        params['flv_pseudo'] = video.mediathread_url()
+        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
+    elif video.h264_secure_stream_url():
         params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
     else:
