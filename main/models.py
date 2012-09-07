@@ -166,7 +166,9 @@ class Video(TimeStampedModel):
         r = self.file_set.filter(location_type="vitalthumb")
         if r.count() > 0:
             f = r[0]
-            return f.url
+            return f.url.replace(
+                "/www/data/ccnmtl/broadcast/",
+                "http://ccnmtl.columbia.edu/broadcast/")
         return ""
 
     def cuit_url(self):
