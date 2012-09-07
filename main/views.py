@@ -715,7 +715,9 @@ def posterdone(request):
         cunix_path = request.POST.get('image_destination_path', '')
         poster_url = cunix_path.replace(
             "/www/data/ccnmtl/broadcast/posters/",
-            "http://ccnmtl.columbia.edu/broadcast/posters/")
+            "http://ccnmtl.columbia.edu/broadcast/posters/").replace(
+            "/www/data/ccnmtl/broadcast/",
+            "http://ccnmtl.columbia.edu/broadcast/")
 
         File.objects.create(video=operation.video,
                             label="CUIT thumbnail image",
