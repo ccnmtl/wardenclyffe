@@ -37,12 +37,14 @@ def submit_to_mediathread(operation, params):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "upload",
         }
-    if video.mediathread_url():
-        params['flv_pseudo'] = video.mediathread_url()
-        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
-    elif video.h264_secure_stream_url():
+    if video.h264_secure_stream_url():
+        # prefer h264 secure pseudo stream
         params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
+    elif video.mediathread_url():
+        # try flv pseudo stream as a fallback
+        params['flv_pseudo'] = video.mediathread_url()
+        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
     else:
         # eventually we probably also want to try
         # h264 public streams, but for now, fall back to
