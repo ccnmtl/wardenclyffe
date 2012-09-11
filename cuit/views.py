@@ -1,7 +1,7 @@
 from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
-from main.models import Video, Operation, File, Server, ServerFile, Series
+from main.models import Video, Operation, File, Server, ServerFile, Collection
 import uuid
 import tasks
 import os
@@ -57,7 +57,7 @@ def import_quicktime(request):
         return HttpResponseRedirect("/cuit/")
 
     try:
-        s = Series.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
+        s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
         server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
 
         video_ids = []
@@ -103,7 +103,7 @@ def import_retry(request):
 @render_to("cuit/broken_quicktime.html")
 def broken_quicktime(request):
     broken_files = []
-    s = Series.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
+    s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
     for v in s.video_set.all():
         f = v.cuit_file()
         if not f:
