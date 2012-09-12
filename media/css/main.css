@@ -2090,6 +2090,11 @@ body.mediathread .adminformtable
 	border: 0 !important;
 	border-collapse: collapse !important;
 	font-size: 100%;
+	width: 100%;
+}
+
+body.mediathread .adminformcontainer {
+    margin: 25px 50px;
 }
 
 body.vital .adminformtable td,
@@ -2104,6 +2109,7 @@ body.mediathread #adminformtable th
 	border: 0 !important;
 	border-bottom: 1px solid #ccc !important;
 	border-collapse: collapse !important;
+	border: 0 !important;
 }
 
 body.vital input.regButton,
@@ -2143,6 +2149,7 @@ body.mediathread
 body.mediathread h1
 {
 	font-family:'lucida grande', arial, verdana, sans-serif !important;
+	padding-top: 1em;
 }
 
 body.mediathread #container
@@ -2199,15 +2206,14 @@ body.mediathread #header #logo_project
 /* ---- Standard navigation block elements ---------- */
 
 body.mediathread #mediathread_logo {
-	display: block;
-  float: right;
-  height: 43px;
+    display: block;
+    float: right;
+    height: 43px;
   	border-bottom: 1px solid #acacac;
   	border-left:  1px solid #acacac;
 	background-color: #6f6f6f;
 	-moz-border-radius-bottomleft: 10px;
--webkit-border-bottom-left-radius: 10px;
-
+    -webkit-border-bottom-left-radius: 10px;
 }
 
 body.mediathread #content
@@ -2236,12 +2242,64 @@ body.mediathread #footer_m div
 {
 	float: right;
 	margin: 0 5px 0 0;
-		height: 33px;
-		width: 200px;
+	height: 33px;
+	width: 200px;
 	background: #444 url('../img/logo_ccnmtl_meth.gif') right center no-repeat;
 }
 
 .uploadifyQueueItem
 {
 	width: 250px !important;
+	margin-left: 125px;
+    margin-top: -30px !important;
+}
+
+.uploadifyQueueItem.completed {
+    margin-left: 0px !important;
+    margin-top: 0px !important;
+}
+
+
+td.step.one,
+td.step.two,
+td.step.three {
+    width: 37px;
+}
+
+td.step.one img {
+    position: absolute;
+    clip:rect(0px, 35px, 42px, 0px);
+    margin-top: -16px;
+}
+
+td.step.two img {
+    position: absolute;
+    clip:rect(42px, 35px, 84px, 0px);
+    margin-top: -58px;
+}
+
+td.step.three img {
+    position: absolute;
+    clip:rect(84px, 35px, 126px, 0px);
+    margin-top: -96px;
+}
+
+td.step.three input {
+    background-color: #4e4e4e;
+    border: #4e4e4e;
+    color: white;
+    height: 30px;
+    width: 120px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    font-size: 12px;
+}
+
+td.step h4 {
+    margin: 0;
+    border: 0;
+    padding-top: 0;
+    font-weight: bold;
+    font-size: 12px;
+    font-style: normal;
 }

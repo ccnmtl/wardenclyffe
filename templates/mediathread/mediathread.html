@@ -9,110 +9,131 @@
 	<link rel="stylesheet" href="/site_media/css/main_ie6_1col.css" media="screen" />
 	<![endif]-->
 	<link rel="shortcut icon" href="/site_media/img/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /> 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
-        type="text/javascript" ></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" type="text/javascript"></script>
-<script src="/site_media/js/jquery.query.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /> 
 
-<script type="text/javascript" src="/site_media/js/swfobject.js"></script>
-<script src="/site_media/js/jquery.uploadify.v2.1.4.min.js"></script>
-<link rel="stylesheet" href="/site_media/css/uploadify.css"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
+        type="text/javascript" ></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" 
+        type="text/javascript"></script>
+    <script src="/site_media/js/jquery.query.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="/site_media/js/swfobject.js"></script>
+    <script src="/site_media/js/jquery.uploadify.v2.1.4.min.js"></script>
+    <link rel="stylesheet" href="/site_media/css/uploadify.css"></script>
 </head>
 <body class="one_column fixed mediathread">
-<div id="container">
-<!-- ###### Site banner ###### -->
-<div id="header">
-	<!-- Project title/logo --><h1 id="logo_project"></h1>	
-	<div id="mediathread_logo"><a href="#" onclick="window.location = jQuery.query.get('redirect_url').split('&')[0];"><img src="/site_media/img/logo_mediathread.png" width="172" height="42" /></a></div>
-</div><!-- id="header" -->
+    <div id="container">
+        <!-- ###### Site banner ###### -->
+        <div id="header">
+        	<!-- Project title/logo --><h1 id="logo_project"></h1>	
+        	<div id="mediathread_logo"><a href="#" onclick="window.location = jQuery.query.get('redirect_url').split('&')[0];"><img src="/site_media/img/logo_mediathread.png" width="172" height="42" /></a></div>
+        </div><!-- id="header" -->
 
+        <!-- ###### Don't touch this ###### -->
+        <div class="visualclear"></div>
 
+        <div id="content">
+            <h1>Mediathread Video Upload</h1>
 
-
-<!-- ###### Don't touch this ###### -->
-<div class="visualclear"></div>
-
-<div id="content">
-<h1>Mediathread Video Upload</h1>
-
-<p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
-  {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
-<div id="admincontent" style="width: 600px;"> 
-	<div id="admincontent-inner"> 
-		<div id="admincontent-top"> 
-		<div id="admincontent-top-inner"> 
-			<div id="admincontent-top-body"></div> 
-		</div> 
-		</div> 
-  <div style="padding: 10px;" >
-  Use this form to upload a video. Mediathread supports video files that end in .mov, .mp4, or .avi. 
-  Any other video should be converted to a Quicktime-compatible format before uploading. Submitted files must be less than 2GB.
-  </div>
-
-<form action="post/" method="post" enctype="multipart/form-data">
-<div id="vitaldropform">
-<table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable" style="width: 100%;"> 
- 
-	<tr>
-	<td align="right"><b id="upload_area">Select video file to upload:</b></td>
-	<td>
-	<input type="file" name="source_file" id="file_upload" />
-	<input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
-	</td>
-	</tr> 
-
-	<tr>
-	<td align="right"><b>Title:</b></td>
-	<td><input type="text" name="title" value="Mediathread video uploaded by {{user.username}}" size="50" /></td>
-	</tr> 
-
-
-	<tr><td colspan="2" align="center"> 
-	    <input type="submit" value="Upload" class="regButton"
-	    id="submit" disabled="disabled" />
-	</td></tr> 
-
-
-</table> 
-
-</div>
-</form>
-<div style="padding: 10px;">
-  <p>If you encounter a problem converting or uploading a video, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
-</div>
-
-		<div id="admincontent-bottom"> 
-		<div id="admincontent-bottom-inner"> 
-			<div id="admincontent-bottom-body"></div> 
-		</div> 
-		</div> 
-	</div><!-- End id="admincontent-inner" --> 
-</div><!-- End id="admincontent" --> 
+            <div id="admincontent" style="width: 600px;"> 
+            	<div id="admincontent-inner"> 
+            		<div id="admincontent-top"> 
+                		<div id="admincontent-top-inner"> 
+                			<div id="admincontent-top-body"></div> 
+                		</div> 
+            		</div> 
+                    <div style="padding: 5px 15px 0 15px;">
+                        <p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
+                        {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
+                    
+                        <p>Use this form to upload a video. Mediathread supports video files that end in .mov, .mp4, or .avi. 
+                        Any other video should be converted to a Quicktime-compatible format before uploading. Submitted files must be less than 2GB.</p>
+                    </div>
+            
+                    <form action="post/" method="post" enctype="multipart/form-data">
+                    <div id="vitaldropform" class="adminformcontainer">
+                        <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
+                        	<tr>
+                                <td class="step one">
+                                    <img src="/site_media/img/steps.png" alt="step one"></img>
+                                </td>
+                                <td class="step">
+                                    <h4 id="upload_area">SELECT video file to upload (.mov, .mp4, .avi)</h4>
+                                    <div>
+                                    <input type="file" name="source_file" id="file_upload" />
+                                    <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="height: 30px"><td></td></tr>
+                        
+                        	<tr class="post-upload" style="display: none">
+                                <td class="step two">
+                                    <img src="/site_media/img/steps.png" alt="step two"></img>
+                                </td>
+                        	    <td class="step">
+                                    <h4>UPDATE the video title</h4>
+                                    <input type="text" name="title" value="Mediathread video uploaded by {{user.username}}" size="50" />
+                                </td>
+                        	</tr> 
+                            <tr style="height: 30px"><td></td></tr>
+                        	<tr class="post-upload" style="display: none">
+                                <td class="step three">
+                                    <img src="/site_media/img/steps.png" alt="step three"></img>
+                                </td>
+                                <td class="step three" colspan="2">
+                                    <h4>UPLOAD the video</h4> 
+                        	        <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
+                        	   </td>
+                            </tr> 
+                        
+                        
+                        </table> 
+                    
+                    </div>
+                    </form>
+            
+                    <hr />
+                    <div style="padding: 5px 15px 0 15px;">
+                      <p>If you encounter a problem converting or uploading a video, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
+                    </div>
+            
+            		<div id="admincontent-bottom"> 
+            		<div id="admincontent-bottom-inner"> 
+            			<div id="admincontent-bottom-body"></div> 
+            		</div> 
+            		</div> 
+            	</div><!-- End id="admincontent-inner" --> 
+            </div><!-- End id="admincontent" --> 
 
 </div>
 <br />
 <br />
 	<!-- ###### Footer ###### -->
 	<div id="footer_m"><div></div></div>
-<script type="text/javascript">
-$(document).ready(function() {
-  $('#file_upload').uploadify({
-    'uploader'  : '/site_media/swf/uploadify.swf',
-    'script'    : '/uploadify/',
-    'cancelImg' : '/site_media/img/pixel.gif',
-    'folder'    : '/uploads',
-    'auto'      : true,
-    'fileExt'     : '*.mov;*.avi;*.mp4;*.mp3;*.m4v',
-    'fileDesc'  : 'Video Files',
-    'removeCompleted' : false,
-    'onComplete'  : function(event, ID, fileObj, response, data) {
-      $("#tmpfilename").val(response);
-      $("#submit").removeAttr("disabled");
-      $("#file_uploadUploader").replaceWith();
-    },
-    'multi' : false
-  });
-});
-</script>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+          jQuery('#file_upload').uploadify({
+              'uploader'  : '/site_media/swf/uploadify.swf',
+              'script'    : '/uploadify/',
+              'cancelImg' : '/site_media/img/pixel.gif',
+              'folder'    : '/uploads',
+              'auto'      : true,
+              'fileExt'     : '*.mov;*.avi;*.mp4;*.mp3;*.m4v',
+              'fileDesc'  : 'Video Files',
+              'removeCompleted' : false,
+              'buttonText' : 'Select File',
+              'buttonClass': 'uploadify-button',
+              'onAllComplete'  : function(event, ID, fileObj, response, data) {
+                  jQuery("#tmpfilename").val(response);
+                  var elt = jQuery(".uploadifyQueueItem.completed span.percentage")[0];
+                  jQuery(elt).html(" - Ready to upload");
+                  jQuery("#submit").removeAttr("disabled");
+                  jQuery("#file_uploadUploader").replaceWith();
+                  jQuery(".post-upload").fadeIn();
+              },
+              'multi' : false
+          });
+        });
+    </script>
 </body>
