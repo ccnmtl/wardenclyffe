@@ -771,6 +771,9 @@ def file(request, id):
                         " [authtype=auth]")),
             ]
         poster_options = [
+            dict(value=("http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+                        + str(f.video.poster_url())),
+                 label="Wardenclyffe generated"),
             dict(value=POSTER_BASE + "_320x240.jpg",
                  label="CCNMTL 320x240"),
             dict(value=POSTER_BASE + "_480x360.jpg",
