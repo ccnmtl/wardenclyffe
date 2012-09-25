@@ -72,6 +72,7 @@ urlpatterns = patterns(
     (r'^mediathread/$', 'mediathread.views.mediathread'),
     (r'^mediathread/post/$', 'mediathread.views.mediathread_post'),
     (r'^youtube/$', 'youtube.views.youtube'),
+    (r'^youtube/post/$', 'youtube.views.youtube_post'),
     (r'^youtube/done/$', 'youtube.views.youtube_done'),
     (r'^uploadify/$', 'main.views.uploadify'),
     (r'^done/$', 'main.views.done'),
