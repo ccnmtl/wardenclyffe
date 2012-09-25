@@ -193,6 +193,9 @@ class Video(TimeStampedModel):
                 return f.h264_secure_stream_url()
         return ""
 
+    def has_poster(self):
+        return Poster.objects.filter(video=self).count()
+
     def poster_url(self):
         r = Poster.objects.filter(video=self)
         if r.count() > 0:

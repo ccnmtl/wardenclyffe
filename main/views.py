@@ -770,10 +770,8 @@ def file(request, id):
                         " with wikispaces)"
                         " [authtype=auth]")),
             ]
+
         poster_options = [
-            dict(value=("http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
-                        + str(f.video.poster_url())),
-                 label="Wardenclyffe generated"),
             dict(value=POSTER_BASE + "_320x240.jpg",
                  label="CCNMTL 320x240"),
             dict(value=POSTER_BASE + "_480x360.jpg",
@@ -781,6 +779,14 @@ def file(request, id):
             dict(value=POSTER_BASE + "_480x272.jpg",
                  label="CCNMTL 480x272"),
             ]
+
+        if f.video.has_poster():
+            poster_options.insert(
+                0,
+                dict(value=("http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+                            + str(f.video.poster_url())),
+                     label="Wardenclyffe generated")
+                )
 
     return dict(file=f, surelink=surelink, filename=filename,
                 poster_options=poster_options,
