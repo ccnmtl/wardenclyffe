@@ -746,7 +746,7 @@ def file(request, id):
     f = get_object_or_404(File, id=id)
     surelink = None
     filename = f.filename
-    if filename.startswith("/www/data/ccnmtl/broadcast/"):
+    if filename and filename.startswith("/www/data/ccnmtl/broadcast/"):
         filename = filename[len("/www/data/ccnmtl/broadcast/"):]
     if f.is_h264_secure_streamable():
         filename = f.h264_secure_path()
