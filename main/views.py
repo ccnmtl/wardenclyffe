@@ -783,8 +783,7 @@ def file(request, id):
         if f.video.has_poster():
             poster_options.insert(
                 0,
-                dict(value=("http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
-                            + str(f.video.poster_url())),
+                dict(value=(f.video.poster_url()),
                      label="Wardenclyffe generated")
                 )
 

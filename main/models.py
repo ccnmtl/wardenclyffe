@@ -199,7 +199,9 @@ class Video(TimeStampedModel):
     def poster_url(self):
         r = Poster.objects.filter(video=self)
         if r.count() > 0:
-            return r[0].image.image
+            return (
+                "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+                + str(r[0].image.image))
 
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
