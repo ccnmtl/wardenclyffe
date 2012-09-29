@@ -744,7 +744,54 @@ def video(request, id):
 @render_to('main/file.html')
 def file(request, id):
     f = get_object_or_404(File, id=id)
-    return dict(file=f)
+    surelink = None
+    filename = f.filename
+    if filename and filename.startswith("/www/data/ccnmtl/broadcast/"):
+        filename = filename[len("/www/data/ccnmtl/broadcast/"):]
+    if f.is_h264_secure_streamable():
+        filename = f.h264_secure_path()
+    protection_options = PROTECTION_OPTIONS
+    authtype_options = AUTHTYPE_OPTIONS
+    poster_options = POSTER_OPTIONS
+
+    if f.is_h264_secure_streamable():
+        protection_options = [
+            dict(value="mp4_secure_stream",
+                 label="mp4 secure stream"),
+            ]
+        authtype_options = [
+            dict(value="wind",
+                 label="WIND [authtype=wind]"),
+            dict(value="wikispaces",
+                 label=("Wikispaces (Pamacea auth-domain) "
+                        "[authtype=wikispaces]")),
+            dict(value="auth",
+                 label=("Standard UNI (Pamacea domain incompatible"
+                        " with wikispaces)"
+                        " [authtype=auth]")),
+            ]
+
+        poster_options = [
+            dict(value=POSTER_BASE + "_320x240.jpg",
+                 label="CCNMTL 320x240"),
+            dict(value=POSTER_BASE + "_480x360.jpg",
+                 label="CCNMTL 480x360"),
+            dict(value=POSTER_BASE + "_480x272.jpg",
+                 label="CCNMTL 480x272"),
+            ]
+
+        if f.video.has_poster():
+            poster_options.insert(
+                0,
+                dict(value=(f.video.poster_url()),
+                     label="Wardenclyffe generated")
+                )
+
+    return dict(file=f, surelink=surelink, filename=filename,
+                poster_options=poster_options,
+                protection_options=protection_options,
+                authtype_options=authtype_options,
+                )
 
 
 @login_required
@@ -755,7 +802,8 @@ def file_surelink(request, id):
     filename = f.filename
     if filename.startswith("/www/data/ccnmtl/broadcast/"):
         filename = filename[len("/www/data/ccnmtl/broadcast/"):]
-
+    if f.is_h264_secure_streamable():
+        filename = f.h264_secure_path()
     s = SureLink(filename,
                  int(request.GET.get('width', '0')),
                  int(request.GET.get('height', '0')),

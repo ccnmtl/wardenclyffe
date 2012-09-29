@@ -193,7 +193,16 @@ class Video(TimeStampedModel):
                 return f.h264_secure_stream_url()
         return ""
 
+    def has_poster(self):
+        return Poster.objects.filter(video=self).count()
+
     def poster_url(self):
+        r = Poster.objects.filter(video=self)
+        if r.count() > 0:
+            return (
+                "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+                + str(r[0].image.image))
+
         if self.image_set.all().count() > 0:
             # TODO: get absolute url of first image
             # and use that
@@ -415,18 +424,20 @@ class File(TimeStampedModel):
     # we see if the video has a source file associated
     # with it that may have the dimensions
     def guess_width(self):
-        try:
-            return self.get_width()
-        except:
+        r = self.metadata_set.filter(field="ID_VIDEO_WIDTH")
+        if r.count() > 0:
+            return int(r[0].value)
+        else:
             try:
                 return self.video.get_dimensions()[0]
             except:
                 return None
 
     def guess_height(self):
-        try:
-            return self.get_height()
-        except:
+        r = self.metadata_set.filter(field="ID_VIDEO_HEIGHT")
+        if r.count() > 0:
+            return int(r[0].value)
+        else:
             try:
                 return self.video.get_dimensions()[1]
             except:
@@ -460,6 +471,9 @@ class File(TimeStampedModel):
 
     def is_h264_secure_streamable(self):
         return self.filename.startswith(settings.H264_SECURE_STREAM_DIRECTORY)
+
+    def h264_secure_path(self):
+        return "/" + self.filename[len(settings.H264_SECURE_STREAM_DIRECTORY):]
 
     def h264_secure_stream_url(self):
         """ the URL handed to mediathread for h264 streams """
