@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>Mediathread  &mdash; Video Upload</title>
-	<link rel="stylesheet" href="/site_media/css/main.css" media="screen" />
+	<link rel="stylesheet" href="/site_media/css/main.css?v=1" media="screen" />
 	<link rel="stylesheet" href="/site_media/css/print.css" media="print" />
 	<!--[if IE 6]>
 	<link rel="stylesheet" href="/site_media/css/main_ie6_1col.css" media="screen" />
@@ -113,6 +113,7 @@
 	<div id="footer_m"><div></div></div>
     <script type="text/javascript">
         jQuery(document).ready(function() {
+          
           jQuery('#file_upload').uploadify({
               'uploader'  : '/site_media/swf/uploadify.swf',
               'script'    : '/uploadify/',
@@ -124,7 +125,7 @@
               'removeCompleted' : false,
               'buttonText' : 'Select File',
               'buttonClass': 'uploadify-button',
-              'onAllComplete'  : function(event, ID, fileObj, response, data) {
+              'onComplete'  : function(event, ID, fileObj, response, data) {
                   jQuery("#tmpfilename").val(response);
                   var elt = jQuery(".uploadifyQueueItem.completed span.percentage")[0];
                   jQuery(elt).html(" - Ready to upload");
