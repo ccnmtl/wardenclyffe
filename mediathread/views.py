@@ -45,7 +45,8 @@ def mediathread(request):
     request.session['nonce'] = nonce
     request.session['redirect_to'] = redirect_to
     request.session['hmac'] = hmc
-    return dict(username=username, user=user)
+    return dict(username=username, user=user,
+                audio=request.GET.get('audio', False))
 
 
 @transaction.commit_manually
@@ -55,6 +56,7 @@ def mediathread_post(request):
         return HttpResponse("post only")
 
     tmpfilename = request.POST.get('tmpfilename', '')
+    audio = request.POST.get('audio', False)
     operations = []
     params = []
     if tmpfilename.startswith(settings.TMP_DIR):
@@ -76,14 +78,19 @@ def mediathread_post(request):
             user = User.objects.get(username=request.session['username'])
             v.make_mediathread_submit_file(
                 filename, user, request.session['set_course'],
-                request.session['redirect_to'])
+                request.session['redirect_to'], audio=audio)
 
             operations, params = v.make_default_operations(
-                tmpfilename, source_file, user)
+                tmpfilename, source_file, user, audio=audio)
 
-            workflow = settings.PCP_WORKFLOW
-            if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
-                workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+            workflow = None
+            if audio:
+                if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW'):
+                    workflow = settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW
+            else:
+                if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
+                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+            if workflow:
                 o, p = v.make_submit_to_podcast_producer_operation(
                     tmpfilename, workflow, user)
                 operations.append(o)

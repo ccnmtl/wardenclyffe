@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Mediathread  &mdash; Video Upload</title>
+	<title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
 	<link rel="stylesheet" href="/site_media/css/main.css?v=1" media="screen" />
 	<link rel="stylesheet" href="/site_media/css/print.css" media="print" />
 	<!--[if IE 6]>
@@ -33,7 +33,7 @@
         <div class="visualclear"></div>
 
         <div id="content">
-            <h1>Mediathread Video Upload</h1>
+            <h1>Mediathread {% if audio %}Audio{% else %}Video{% endif %} Upload</h1>
 
             <div id="admincontent" style="width: 600px;"> 
             	<div id="admincontent-inner"> 
@@ -45,12 +45,19 @@
                     <div style="padding: 5px 15px 0 15px;">
                         <p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
                         {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
-                    
+                    {% if audio %}
+                        <p>Use this form to upload audio. Mediathread supports audio files that end in <tt>.mp3</tt>. 
+                        Any other audio should be converted to a mp3 before uploading.</p>
+                    {% else %}
                         <p>Use this form to upload a video. Mediathread supports video files that end in .mov, .mp4, or .avi. 
                         Any other video should be converted to a Quicktime-compatible format before uploading. Submitted files must be less than 2GB.</p>
+                    {% endif %}
                     </div>
             
                     <form action="post/" method="post" enctype="multipart/form-data">
+{% if audio %}
+                    <input type="hidden" name="audio" value="True" />
+{% endif %}
                     <div id="vitaldropform" class="adminformcontainer">
                         <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
                         	<tr>
@@ -58,7 +65,7 @@
                                     <img src="/site_media/img/steps.png" alt="step one"></img>
                                 </td>
                                 <td class="step">
-                                    <h4 id="upload_area">SELECT video file to upload (.mov, .mp4, .avi)</h4>
+                                    <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
                                     <div>
                                     <input type="file" name="source_file" id="file_upload" />
                                     <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
@@ -72,8 +79,8 @@
                                     <img src="/site_media/img/steps.png" alt="step two"></img>
                                 </td>
                         	    <td class="step">
-                                    <h4>UPDATE the video title</h4>
-                                    <input type="text" name="title" value="Mediathread video uploaded by {{user.username}}" size="50" />
+                                    <h4>UPDATE the {% if audio %}audio{% else %}video{% endif %} title</h4>
+                                    <input type="text" name="title" value="Mediathread {% if audio %}audio{% else %}video{% endif %} uploaded by {{user.username}}" size="50" />
                                 </td>
                         	</tr> 
                             <tr style="height: 30px"><td></td></tr>
@@ -82,7 +89,7 @@
                                     <img src="/site_media/img/steps.png" alt="step three"></img>
                                 </td>
                                 <td class="step three" colspan="2">
-                                    <h4>UPLOAD the video</h4> 
+                                    <h4>UPLOAD the {% if audio %}audio{% else %}video{% endif %}</h4>
                         	        <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
                         	   </td>
                             </tr> 
@@ -95,7 +102,7 @@
             
                     <hr />
                     <div style="padding: 5px 15px 0 15px;">
-                      <p>If you encounter a problem converting or uploading a video, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
+                      <p>if you encounter a problem converting or uploading a {% if audio %}audio{% else %}video{% endif %}, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
                     </div>
             
             		<div id="admincontent-bottom"> 
@@ -120,8 +127,8 @@
               'cancelImg' : '/site_media/img/pixel.gif',
               'folder'    : '/uploads',
               'auto'      : true,
-              'fileExt'     : '*.mov;*.avi;*.mp4;*.mp3;*.m4v',
-              'fileDesc'  : 'Video Files',
+              'fileExt'   : {% if audio %}'*.mp3'{% else %}'*.mov;*.avi;*.mp4;*.mp3;*.m4v'{% endif %},
+              'fileDesc'  : '{% if audio %}Audio{% else %}Video{% endif %} Files',
               'removeCompleted' : false,
               'buttonText' : 'Select File',
               'buttonClass': 'uploadify-button',

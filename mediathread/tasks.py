@@ -10,24 +10,14 @@ def submit_to_mediathread(operation, params):
     video = operation.video
     user = operation.owner
     course_id = params['set_course']
+    audio = params['audio']
     mediathread_secret = settings.MEDIATHREAD_SECRET
     mediathread_base = settings.MEDIATHREAD_BASE
-
-    (width, height) = video.get_dimensions()
-    if not width or not height:
-        statsd.incr(
-            "mediathread.tasks.submit_to_mediathread.failure.dimensions")
-        return ("failed", "could not figure out dimensions")
-    if not video.mediathread_url() and not video.tahoe_download_url():
-        statsd.incr(
-            "mediathread.tasks.submit_to_mediathread.failure.video_url")
-        return ("failed", "no video URL")
     params = {
         'set_course': course_id,
         'as': user.username,
         'secret': mediathread_secret,
         'title': video.title,
-        'thumb': video.cuit_poster_url() or video.poster_url(),
         "metadata-creator": video.creator,
         "metadata-description": video.description,
         "metadata-subject": video.subject,
@@ -37,20 +27,34 @@ def submit_to_mediathread(operation, params):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "upload",
         }
-    if video.h264_secure_stream_url():
-        # prefer h264 secure pseudo stream
-        params['mp4_pseudo'] = video.h264_secure_stream_url()
-        params["mp4-metadata"] = "w%dh%d" % (width, height)
-    elif video.mediathread_url():
-        # try flv pseudo stream as a fallback
-        params['flv_pseudo'] = video.mediathread_url()
-        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
+
+    if audio:
+        params['mp3'] = video.mediathread_url()
     else:
-        # eventually we probably also want to try
-        # h264 public streams, but for now, fall back to
-        # tahoe
-        params['mp4'] = video.tahoe_download_url()
-        params["mp4-metadata"] = "w%dh%d" % (width, height)
+        (width, height) = video.get_dimensions()
+        if not width or not height:
+            statsd.incr(
+                "mediathread.tasks.submit_to_mediathread.failure.dimensions")
+            return ("failed", "could not figure out dimensions")
+        if not video.mediathread_url() and not video.tahoe_download_url():
+            statsd.incr(
+                "mediathread.tasks.submit_to_mediathread.failure.video_url")
+            return ("failed", "no video URL")
+        params['thumb'] = video.cuit_poster_url() or video.poster_url(),
+        if video.h264_secure_stream_url():
+            # prefer h264 secure pseudo stream
+            params['mp4_pseudo'] = video.h264_secure_stream_url()
+            params["mp4-metadata"] = "w%dh%d" % (width, height)
+        elif video.mediathread_url():
+            # try flv pseudo stream as a fallback
+            params['flv_pseudo'] = video.mediathread_url()
+            params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
+        else:
+            # eventually we probably also want to try
+            # h264 public streams, but for now, fall back to
+            # tahoe
+            params['mp4'] = video.tahoe_download_url()
+            params["mp4-metadata"] = "w%dh%d" % (width, height)
 
     resp, content = POST(mediathread_base + "/save/",
                          params=params, async=False, resp=True)

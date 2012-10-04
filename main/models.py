@@ -227,9 +227,12 @@ class Video(TimeStampedModel):
         r = self.file_set.filter(location_type="mediathreadsubmit")
         if r.count() > 0:
             f = r[0]
-            return (f.get_metadata("set_course"), f.get_metadata("username"), )
+            return (f.get_metadata("set_course"),
+                    f.get_metadata("username"),
+                    f.get_metadata("audio"),
+                    )
         else:
-            return (None, None)
+            return (None, None, None)
 
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
@@ -265,7 +268,7 @@ class Video(TimeStampedModel):
             return None
 
     def make_mediathread_submit_file(self, filename, user, set_course,
-                                     redirect_to):
+                                     redirect_to, audio=False):
         submit_file = File.objects.create(video=self,
                                           label="mediathread submit",
                                           filename=filename,
@@ -274,6 +277,8 @@ class Video(TimeStampedModel):
         submit_file.set_metadata("username", user.username)
         submit_file.set_metadata("set_course", set_course)
         submit_file.set_metadata("redirect_to", redirect_to)
+        if audio:
+            submit_file.set_metadata("audio", "True")
 
     def make_vital_submit_file(self, filename, user, set_course, redirect_to,
                                notify_url):
@@ -347,21 +352,24 @@ class Video(TimeStampedModel):
                                    filename=filename,
                                    location_type='none')
 
-    def make_default_operations(self, tmpfilename, source_file, user):
+    def make_default_operations(self, tmpfilename, source_file, user,
+                                audio=False):
         operations = []
         params = []
-        o, p = self.make_extract_metadata_operation(
-            tmpfilename, source_file, user)
-        operations.append(o)
-        params.append(p)
+        if not audio:
+            o, p = self.make_extract_metadata_operation(
+                tmpfilename, source_file, user)
+            operations.append(o)
+            params.append(p)
         o, p = self.make_save_file_to_tahoe_operation(
             tmpfilename, user)
         operations.append(o)
         params.append(p)
-        o, p = self.make_make_images_operation(
-            tmpfilename, user)
-        operations.append(o)
-        params.append(p)
+        if not audio:
+            o, p = self.make_make_images_operation(
+                tmpfilename, user)
+            operations.append(o)
+            params.append(p)
         return operations, params
 
 
