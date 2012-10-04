@@ -140,7 +140,7 @@ class EmptyVideoTest(TestCase):
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None, None)
+        assert self.video.mediathread_submit() == (None, None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
@@ -290,7 +290,7 @@ ID_VIDEO_WIDTH,704"""
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None, None)
+        assert self.video.mediathread_submit() == (None, None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
@@ -448,7 +448,7 @@ ID_VIDEO_WIDTH,704"""
         assert not self.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None, None)
+        assert self.video.mediathread_submit() == (None, None, None)
 
     def test_is_vital_submit(self):
         assert not self.video.is_vital_submit()
