@@ -29,7 +29,12 @@ def submit_to_mediathread(operation, params):
         }
 
     if audio:
-        params['mp3'] = video.mediathread_url()
+        # default for audio uploads is the public streaming server
+        # but default to tahoe if we don't have that.
+        if video.h264_public_stream_url():
+            params['mp3'] = video.h264_public_stream_url()
+        else:
+            params['mp3'] = video.tahoe_download_url()
     else:
         (width, height) = video.get_dimensions()
         if not width or not height:

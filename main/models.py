@@ -193,6 +193,14 @@ class Video(TimeStampedModel):
                 return f.h264_secure_stream_url()
         return ""
 
+    def h264_public_stream_url(self):
+        r = self.file_set.filter(location_type="cuit")
+        if r.count() > 0:
+            f = r[0]
+            if f.is_h264_public_streamable():
+                return f.h264_public_stream_url()
+        return ""
+
     def has_poster(self):
         return Poster.objects.filter(video=self).count()
 
@@ -489,6 +497,15 @@ class File(TimeStampedModel):
         if filename.startswith(settings.H264_SECURE_STREAM_DIRECTORY):
             filename = filename[len(settings.H264_SECURE_STREAM_DIRECTORY):]
         return settings.H264_SECURE_STREAM_BASE + "SECURE/" + filename
+
+    def is_h264_public_streamable(self):
+        return self.filename.startswith(settings.H264_PUBLIC_STREAM_DIRECTORY)
+
+    def h264_public_stream_url(self):
+        filename = self.filename
+        if filename.startswith(settings.H264_PUBLIC_STREAM_DIRECTORY):
+            filename = filename[len(settings.H264_PUBLIC_STREAM_DIRECTORY):]
+        return settings.H264_PUBLIC_STREAM_BASE + filename
 
     def is_cuit(self):
         return self.location_type == "cuit"
