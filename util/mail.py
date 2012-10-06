@@ -13,7 +13,7 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
 
 
 def send_mediathread_received_mail(video_title, uni):
-    subject = "Video submitted to Mediathread"
+    subject = "Mediathread submission received"
     body = """
 This email confirms that '%s' has been successfully submitted to Mediathread for %s.
 
@@ -30,7 +30,7 @@ If you have any questions, please visit
 
 
 def send_mediathread_uploaded_mail(video_title, uni, url):
-    subject = 'Uploaded video now available in Mediathread'
+    subject = 'Mediathread submission now available'
     body = """
 This email confirms that %s, uploaded to Mediathread for %s, is now available.
 
