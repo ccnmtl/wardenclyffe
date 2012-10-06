@@ -15,9 +15,9 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
 def send_mediathread_received_mail(video_title, uni):
     subject = "Video submitted to Mediathread"
     body = """
-This email confirms that '%s' has been successfully submitted to Mediathread by %s.
+This email confirms that '%s' has been successfully submitted to Mediathread for %s.
 
-The video is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+The media file is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
 
 If you have any questions, please visit
 
@@ -32,7 +32,7 @@ If you have any questions, please visit
 def send_mediathread_uploaded_mail(video_title, uni, url):
     subject = 'Uploaded video now available in Mediathread'
     body = """
-This email confirms that %s, uploaded to Mediathread by %s, is now available.
+This email confirms that %s, uploaded to Mediathread for %s, is now available.
 
 View/Annotate it here: %s
 
