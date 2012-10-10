@@ -45,7 +45,7 @@ def submit_to_mediathread(operation, params):
             statsd.incr(
                 "mediathread.tasks.submit_to_mediathread.failure.video_url")
             return ("failed", "no video URL")
-        params['thumb'] = video.cuit_poster_url() or video.poster_url(),
+        params['thumb'] = video.cuit_poster_url() or video.poster_url()
         if video.h264_secure_stream_url():
             # prefer h264 secure pseudo stream
             params['mp4_pseudo'] = video.h264_secure_stream_url()
