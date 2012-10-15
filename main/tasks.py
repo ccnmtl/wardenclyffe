@@ -103,7 +103,7 @@ def make_images(operation, params):
             video=operation.video,
             image="images/%05d/%s" % (operation.video.id, img))
         statsd.incr("image_created")
-    shutil.rmdir(tmpdir)
+    shutil.rmtree(tmpdir)
     if Poster.objects.filter(video=operation.video).count() == 0\
             and len(imgs) > 0:
         # pick a random image out of the set and assign
