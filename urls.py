@@ -13,6 +13,7 @@ urlpatterns = patterns(
     ('^$', 'main.views.index'),
     ('^dashboard/', 'main.views.dashboard'),
     ('^recent_operations/', 'main.views.recent_operations'),
+    ('^slow_operations/', 'main.views.slow_operations'),
     ('^most_recent_operation/',
      'main.views.most_recent_operation'),
     ('^accounts/', include('djangowind.urls')),
