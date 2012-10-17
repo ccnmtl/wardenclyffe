@@ -154,7 +154,8 @@ def slow_operations(request):
     status_filters = ["enqueued", "in progress", "submitted"]
     operations = Operation.objects.filter(
         status__in=status_filters,
-        modified__lt=datetime.now() - timedelta(hours=1))
+        modified__lt=datetime.now() - timedelta(hours=1)
+        ).order_by("-modified")
     return dict(operations=operations)
 
 
