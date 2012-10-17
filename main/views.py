@@ -5,6 +5,7 @@ import wardenclyffe.main.tasks as tasks
 
 from angeldust import PCP
 from annoying.decorators import render_to
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -145,6 +146,16 @@ def most_recent_operation(request):
         dumps(dict(modified=str(Operation.objects.all().order_by(
                         "-modified")[0].modified)[:19])),
         mimetype="application/json")
+
+
+@login_required
+@render_to('main/slow_operations.html')
+def slow_operations(request):
+    status_filters = ["enqueued", "in progress", "submitted"]
+    operations = Operation.objects.filter(
+        status__in=status_filters,
+        modified__lt=datetime.now() - timedelta(hours=1))
+    return dict(operations=operations)
 
 
 @login_required
@@ -877,7 +888,10 @@ def delete_operation(request, id):
     if request.method == "POST":
         video = o.video
         o.delete()
-        return HttpResponseRedirect(video.get_absolute_url())
+        redirect_to = request.META.get(
+            'HTTP_REFERER',
+            video.get_absolute_url())
+        return HttpResponseRedirect(redirect_to)
     else:
         return dict()
 
