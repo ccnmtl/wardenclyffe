@@ -6,6 +6,7 @@
 
 {% block content %}
 
+{% if operations %}
 <table id="operations">
   <thead>
     <tr>
@@ -34,5 +35,8 @@
 		{% endfor %}
 	</tbody>
 </table>
+{% else %}
+<p>No slow operations at the moment.</p>
+{% endif %}
 
 {% endblock %}
