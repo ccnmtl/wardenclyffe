@@ -5,19 +5,49 @@ from django.conf import settings
 
 def send_to_everyone(subject, body, toaddress, fromaddress):
     """ send email to the user as well as everyone in settings.ANNOY_EMAILS """
-    send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
+    if toaddress:
+        send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
     statsd.incr('event.mail_sent')
     for vuser in settings.ANNOY_EMAILS:
         send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
         statsd.incr('event.mail_sent')
 
 
+def send_slow_operations_email(operations):
+    cnt = operations.count()
+    s_string = ""
+    h_string = "has"
+    if cnt > 1:
+        s_string = "s"
+        h_string = "have"
+    subject = "Slow operations detected"
+    body = """
+Wardenclyffe has detected %d operation%s that %s taken over an hour to
+complete.
+
+This may indicate a problem or just an unusually high workload. Either way,
+someone should probably investigate:
+
+    http://wardenclyffe.ccnmtl.columbia.edu/slow_operations/
+
+Wardenclyffe will continue sending these emails hourly as long as there are
+any slow operations detected, so remember to clear out fixed or
+permanently broken ones.
+
+""" % (cnt, s_string, h_string)
+    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    send_to_everyone(subject, body, None, fromaddress)
+
+
 def send_mediathread_received_mail(video_title, uni):
     subject = "Mediathread submission received"
     body = """
-This email confirms that '%s' has been successfully submitted to Mediathread for %s.
+This email confirms that '%s' has been successfully submitted to
+Mediathread for %s.
 
-The media file is now being processed.  When it is available in your Mediathread course you will receive another email confirmation.  This confirmation should arrive within 24 hours.
+The media file is now being processed.  When it is available in
+your Mediathread course you will receive another email confirmation.
+This confirmation should arrive within 24 hours.
 
 If you have any questions, please visit
 
