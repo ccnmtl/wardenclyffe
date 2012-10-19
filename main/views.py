@@ -601,6 +601,8 @@ def upload(request):
 def rerun_operation(request, operation_id):
     operation = get_object_or_404(Operation, id=operation_id)
     if request.method == "POST":
+        operation.status = "enqueued"
+        operation.save()
         tasks.process_operation.delay(operation_id, loads(operation.params))
     redirect_to = request.META.get(
         'HTTP_REFERER',
