@@ -16,7 +16,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django_statsd.clients import statsd
 from munin.helpers import muninview
-from simplejson import dumps
+from simplejson import dumps, loads
 from taggit.models import Tag
 from wardenclyffe.main.forms import AddServerForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
@@ -595,6 +595,17 @@ def upload(request):
         for o, p in zip(operations, params):
             tasks.process_operation.delay(o.id, p)
     return HttpResponseRedirect("/")
+
+
+@login_required
+def rerun_operation(request, operation_id):
+    operation = get_object_or_404(Operation, id=operation_id)
+    if request.method == "POST":
+        tasks.process_operation.delay(operation_id, loads(operation.params))
+    redirect_to = request.META.get(
+        'HTTP_REFERER',
+        operation.video.get_absolute_url())
+    return HttpResponseRedirect(redirect_to)
 
 
 @render_to('main/upload.html')
