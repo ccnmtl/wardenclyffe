@@ -1,6 +1,4 @@
 import urllib2
-from poster.encode import multipart_encode, MultipartParam
-from poster.streaminghttp import register_openers
 from restclient import GET, POST
 from datetime import datetime
 from angeldust import PCP
@@ -16,6 +14,7 @@ from simplejson import dumps, loads
 import paramiko
 import random
 import re
+import requests
 import shutil
 from django_statsd.clients import statsd
 
@@ -74,24 +73,21 @@ def get_date_dir(tahoe_base):
 
 def save_file_to_tahoe(operation, params):
     statsd.incr("save_file_to_tahoe")
-    source_file = open(params['tmpfilename'], "rb")
-    tahoe_base = settings.TAHOE_BASE
     # make a YYYY/MM/DD directory to put the file in
     # instead of dumping everything in one big directory
     # which is getting slow to update
-    tahoe_base = get_date_dir(tahoe_base)
+    tahoe_base = get_date_dir(settings.TAHOE_BASE)
 
-    register_openers()
-    datagen, headers = multipart_encode((
-            ("t", "upload"),
-            MultipartParam(name='file', fileobj=source_file,
-                           filename=os.path.basename(params['tmpfilename']))))
-    request = urllib2.Request(tahoe_base, datagen, headers)
+    files = {
+        'file': (os.path.basename(params['tmpfilename']),
+         open(params['tmpfilename'], "rb"))
+        }
     try:
-        cap = urllib2.urlopen(request).read()
+        r = requests.post(tahoe_base, params=dict(t="upload"), files=files)
+        cap = r.text
     except Exception, e:
         return ("failed", "tahoe gave an error: " + str(e))
-    source_file.close()
+
     if not cap.startswith('URI'):
         # looks like we didn't get a response we were expecting from tahoe
         return ("failed", "upload failed: " + cap)
