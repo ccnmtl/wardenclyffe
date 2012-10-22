@@ -39,6 +39,24 @@ permanently broken ones.
     send_to_everyone(subject, body, None, fromaddress)
 
 
+def send_failed_operation_mail(operation, error_message):
+    subject = 'Video upload failed'
+    body = """An error has occurred while processing the video:
+   "%s"
+
+at:
+
+   http://wardenclyffe.ccnmtl.columbia.edu%s
+
+During the %s step. The error encountered was:
+
+%s
+""" % (operation.video.title, operation.video.get_absolute_url(),
+       operation.action, str(error_message))
+    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    send_to_everyone(subject, body, None, fromaddress)
+
+
 def send_mediathread_received_mail(video_title, uni):
     subject = "Mediathread submission received"
     body = """

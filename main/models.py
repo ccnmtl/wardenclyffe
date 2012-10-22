@@ -10,7 +10,7 @@ from south.modelsinspector import add_introspection_rules
 from surelink.helpers import SureLink
 from django.conf import settings
 import os.path
-from django.core.mail import send_mail
+from wardenclyffe.util.mail import send_failed_operation_mail
 from django_statsd.clients import statsd
 import uuid
 from simplejson import dumps
@@ -590,26 +590,10 @@ class Operation(TimeStampedModel):
             OperationLog.objects.create(operation=self, info=str(e))
             error_message = str(e)
 
+        self.save()
         if self.status == "failed":
             statsd.incr("main.process_task.failure")
-            for vuser in settings.ANNOY_EMAILS:
-                send_mail('Video upload failed',
-                          """An error has occurred while processing the video:
-   "%s"
-
-at:
-
-   http://wardenclyffe.ccnmtl.columbia.edu%s
-
-During the %s step. The error encountered was:
-
-%s
-""" % (self.video.title, self.video.get_absolute_url(), error_message),
-                          'ccnmtl-vital@columbia.edu',
-                          [vuser], fail_silently=False)
-                statsd.incr("event.mail_sent")
-
-        self.save()
+            send_failed_operation_mail(self, error_message)
 
     def post_process(self):
         """ the operation has completed, now we have a chance
