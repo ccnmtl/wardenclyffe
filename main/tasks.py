@@ -1,6 +1,8 @@
 import urllib2
 from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
+from restclient import GET, POST
+from datetime import datetime
 from angeldust import PCP
 from celery.decorators import task
 from wardenclyffe.main.models import Video, File, Operation, OperationFile
@@ -38,15 +40,52 @@ def with_operation(f, video, action, params, user, args, kwargs):
     operation.save()
 
 
+def split_cap(tahoe_url):
+    parts = tahoe_url.split('URI:DIR2')
+    return (parts[0], "URI:DIR2" + parts[1])
+
+
+def get_or_create_tahoe_dir(tahoe_base, dirname):
+    base, cap = split_cap(tahoe_base)
+    info = loads(GET(tahoe_base + "?t=json"))
+    dirnode = info[1]
+    children = dirnode['children']
+    if dirname not in children:
+        # need to make it
+        new_cap = POST(tahoe_base, params=dict(
+                t="mkdir",
+                name=dirname), async=False)
+        return base + new_cap + "/"
+    else:
+        new_cap = children[dirname][1]['rw_uri']
+        return base + new_cap + "/"
+
+
+def get_date_dir(tahoe_base):
+    n = datetime.now()
+    year = "%04d" % n.year
+    month = "%02d" % n.month
+    day = "%02d" % n.day
+    year_dir = get_or_create_tahoe_dir(tahoe_base, year)
+    month_dir = get_or_create_tahoe_dir(year_dir, month)
+    day_dir = get_or_create_tahoe_dir(month_dir, day)
+    return day_dir
+
+
 def save_file_to_tahoe(operation, params):
     statsd.incr("save_file_to_tahoe")
     source_file = open(params['tmpfilename'], "rb")
+    tahoe_base = settings.TAHOE_BASE
+    # make a YYYY/MM/DD directory to put the file in
+    # instead of dumping everything in one big directory
+    # which is getting slow to update
+    tahoe_base = get_date_dir(tahoe_base)
+
     register_openers()
     datagen, headers = multipart_encode((
             ("t", "upload"),
             MultipartParam(name='file', fileobj=source_file,
                            filename=os.path.basename(params['tmpfilename']))))
-    tahoe_base = settings.TAHOE_BASE
     request = urllib2.Request(tahoe_base, datagen, headers)
     cap = urllib2.urlopen(request).read()
     source_file.close()
