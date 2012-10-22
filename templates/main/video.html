@@ -117,61 +117,62 @@ var removeTag = function(tagName,tagId) {
 <h2>Operations</h2>
 
 <table>
+{% for operation in video.operation_set.all %}
+<tr>
+	<td class="{{operation.status}}">&nbsp;&nbsp;&nbsp;</td>
+	<td><b><a href="{{operation.get_absolute_url}}">{{operation.action}}</a></b></td>
+	<td>
+		<a href="/user/{{operation.owner.username}}/">
+			{% if operation.owner.first_name %}
+			{{operation.owner.first_name}} {{operation.owner.last_name}}
+			{% else %}
+			{{operation.owner.username}}
+			{% endif %}
+		</a>
+		<tt>{{operation.uuid}}</tt>
+	</td>
+	<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
+	<td><form action="/operation/{{operation.id}}/rerun/"
+					method="post"><input type="submit" value="RERUN"/></form>
+	</td>
+
+</tr>
 
 <tr>
-  <th>action</th>
-  <th>owner</th>
-  <th>status</th>
-  <th>params</th>
-  <th>started</th>
-  <th>last update</th>
-  <th>actions</th>
+	<td></td>
+	<td colspan="4">started: <b><tt>{{operation.created|date:"Y-m-d H:i:s"}}</tt></b> 
+	last update: <b><tt>{{operation.modified|date:"Y-m-d H:i:s"}}</tt></b></td>
 </tr>
 
-{% for operation in video.operation_set.all %}
-<tr class="operation">
-  <td>{{operation.action}}<br />
-      <nobr><tt>{{operation.uuid}}</tt></nobr></td>
-  <td><a href="/user/{{operation.owner.username}}/">{{operation.owner.first_name}} {{operation.owner.last_name}}</a></td>
-  <td class="{{operation.status}}">{{operation.status}}</td>
-  <td>{{operation.params}}</td>
-  <td>
-    <nobr>{% ifchanged operation.created.date %}{{operation.created|date:"Y-m-d H:i:s"}}{% else %}{{operation.created|date:"H:i:s"}}{% endifchanged %}</nobr></td>
-  <td><nobr>{{operation.modified|date:"Y-m-d H:i:s"}}</nobr></td>
-<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]
-<form action="/operation/{{operation.id}}/rerun/"
-		method="post"><input type="submit" value="RERUN"/></form>
-</td>
+{% if operation.params %}
+<tr>
+	<td></td>
+	<td colspan="4">
+		<tt style="font-size: 90%">
+			{{operation.params}}
+		</tt>
+	</td>
 </tr>
-{% if operation.operationfile_set.count %}
-{% for of in operation.operationfile_set.all %}
-<tr class="file">
-<td>{{of.file.label}}</td>
-<td>{{of.file.url}}</td>
-<td>{% if of.file.cap %}<a href="{{of.file.tahoe_download_url}}">{{of.file.filename}}</a>{% endif %}</td>
-<td>{{of.file.location_type}}</td>
-<td><nobr>{{of.file.created|date:"Y-m-d H:i:s"}}</nobr></td>
-<td><nobr>{{of.file.modified|date:"Y-m-d H:i:s"}}</nobr></td>
-<td></td>
-</tr>
-{% endfor %}
 {% endif %}
 
 {% if operation.operationlog_set.count %}
 {% for log in operation.operationlog_set.all %}
-<tr class="log">
-<td></td>
-<td colspan="4">{{log.info}}</td>
-<td><nobr>{{log.created|date:"Y-m-d H:i:s"}}</nobr></td>
-<td></td>
+<tr>
+	<td></td>
+	<td>
+		<b>{{log.created|date:"Y-m-d H:i:s"}}</b>
+	</td>
+	<td colspan="3">
+		{{log.info}}
+	</td>
 </tr>
 {% endfor %}
-
-
 {% endif %}
-{% endfor %}
 
+
+{% endfor %}
 </table>
+
 {% endif %}
 </div>
 
