@@ -125,7 +125,7 @@ var removeTag = function(tagName,tagId) {
   <th>params</th>
   <th>started</th>
   <th>last update</th>
-  <th>delete</th>
+  <th>actions</th>
 </tr>
 
 {% for operation in video.operation_set.all %}
@@ -138,7 +138,10 @@ var removeTag = function(tagName,tagId) {
   <td>
     <nobr>{% ifchanged operation.created.date %}{{operation.created|date:"Y-m-d H:i:s"}}{% else %}{{operation.created|date:"H:i:s"}}{% endifchanged %}</nobr></td>
   <td><nobr>{{operation.modified|date:"Y-m-d H:i:s"}}</nobr></td>
-<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
+<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]
+<form action="/operation/{{operation.id}}/rerun/"
+		method="post"><input type="submit" value="RERUN"/></form>
+</td>
 </tr>
 {% if operation.operationfile_set.count %}
 {% for of in operation.operationfile_set.all %}
