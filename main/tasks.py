@@ -87,8 +87,15 @@ def save_file_to_tahoe(operation, params):
             MultipartParam(name='file', fileobj=source_file,
                            filename=os.path.basename(params['tmpfilename']))))
     request = urllib2.Request(tahoe_base, datagen, headers)
-    cap = urllib2.urlopen(request).read()
+    try:
+        cap = urllib2.urlopen(request).read()
+    except Exception, e:
+        return ("failed", "tahoe gave an error: " + str(e))
     source_file.close()
+    if not cap.startswith('URI'):
+        # looks like we didn't get a response we were expecting from tahoe
+        return ("failed", "upload failed: " + cap)
+
     f = File.objects.create(video=operation.video, url="", cap=cap,
                             location_type="tahoe",
                             filename=params['filename'],
