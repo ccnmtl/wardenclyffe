@@ -132,6 +132,11 @@
               'removeCompleted' : false,
               'buttonText' : 'Select File',
               'buttonClass': 'uploadify-button',
+              'onUploadError' : function(file, errorCode, errorMsg, errorString) {
+                 alert("There was an error uploading the file.\n" +
+                       "This is usually a temporary issue.\n" +
+                       "Please wait a minute or two and try again.");
+              },
               'onComplete'  : function(event, ID, fileObj, response, data) {
                   jQuery("#tmpfilename").val(response);
                   var elt = jQuery(".uploadifyQueueItem.completed span.percentage")[0];
