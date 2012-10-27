@@ -14,9 +14,10 @@ from simplejson import dumps, loads
 import paramiko
 import random
 import re
-import requests
 import shutil
 from django_statsd.clients import statsd
+from poster.encode import multipart_encode, MultipartParam
+from poster.streaminghttp import register_openers
 
 
 # TODO: convert to decorator
@@ -77,20 +78,22 @@ def save_file_to_tahoe(operation, params):
     # instead of dumping everything in one big directory
     # which is getting slow to update
     tahoe_base = get_date_dir(settings.TAHOE_BASE)
-
-    files = {
-        'file': (os.path.basename(params['tmpfilename']),
-         open(params['tmpfilename'], "rb"))
-        }
+    source_file = open(params['tmpfilename'], "rb")
+    register_openers()
+    datagen, headers = multipart_encode((
+            ("t", "upload"),
+            MultipartParam(name='file', fileobj=source_file,
+                           filename=os.path.basename(params['tmpfilename']))))
+    request = urllib2.Request(tahoe_base, datagen, headers)
     try:
-        r = requests.post(tahoe_base, params=dict(t="upload"), files=files)
-        cap = r.text
+        cap = urllib2.urlopen(request).read()
     except Exception, e:
         return ("failed", "tahoe gave an error: " + str(e))
 
+    source_file.close()
     if not cap.startswith('URI'):
         # looks like we didn't get a response we were expecting from tahoe
-        return ("failed", "upload failed: " + cap)
+        return ("failed", "upload failed (invalid cap): " + cap)
 
     f = File.objects.create(video=operation.video, url="", cap=cap,
                             location_type="tahoe",
