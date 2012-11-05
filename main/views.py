@@ -35,7 +35,7 @@ from zencoder import Zencoder
 @render_to('main/index.html')
 def index(request):
     return dict(
-        collection=Collection.objects.all().order_by("title"),
+        collection=Collection.objects.filter(active=True).order_by("title"),
         videos=Video.objects.all().order_by("-modified")[:20],
                 operations=Operation.objects.all().order_by("-modified")[:20])
 
@@ -289,6 +289,15 @@ def edit_collection(request, id):
             return HttpResponseRedirect(collection.get_absolute_url())
     form = collection.edit_form()
     return dict(collection=collection, form=form)
+
+
+@login_required
+def collection_toggle_active(request, id):
+    collection = get_object_or_404(Collection, id=id)
+    if request.method == "POST":
+        collection.active = not collection.active
+        collection.save()
+    return HttpResponseRedirect(collection.get_absolute_url())
 
 
 @login_required
@@ -614,6 +623,7 @@ def rerun_operation(request, operation_id):
 @login_required
 def upload_form(request):
     form = UploadVideoForm()
+    form.fields["collection"].queryset = Collection.objects.filter(active=True)
     collection_id = request.GET.get('collection', None)
     if collection_id:
         collection = get_object_or_404(Collection, id=collection_id)

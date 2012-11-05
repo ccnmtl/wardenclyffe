@@ -30,6 +30,8 @@ urlpatterns = patterns(
      'main.views.all_collection_operations'),
     (r'^collection/(?P<id>\d+)/edit/$',
      'main.views.edit_collection'),
+    (r'^collection/(?P<id>\d+)/toggle_active/$',
+     'main.views.collection_toggle_active'),
     (r'^collection/(?P<id>\d+)/delete/$',
      'main.views.delete_collection'),
     (r'^collection/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',

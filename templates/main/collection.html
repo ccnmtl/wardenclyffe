@@ -51,6 +51,15 @@ jQuery(document).ready(function()
 </table>
 <p><a href="edit/">edit collection metadata</a></p>
 
+<form action="toggle_active/" method="post">
+{% if collection.active %}
+<input type="submit" value="de-activate collection" />
+{% else %}
+<input type="submit" value="re-activate collection" />
+{% endif %}
+</form>
+
+
 <p><a href="/upload/?collection={{collection.id}}">add a video</a></p>
 <p><a href="rss/"><img src="http://pmt.ccnmtl.columbia.edu/images/rss.png"
 			/> RSS Feed</a></p>
