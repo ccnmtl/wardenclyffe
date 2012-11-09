@@ -138,6 +138,10 @@
                        "Please wait a minute or two and try again.");
               },
               'onComplete'  : function(event, ID, fileObj, response, data) {
+                  if (response == "False") {
+                     alert("upload failed. probably a bad network connection. please try again.");
+				             return;
+                  }
                   jQuery("#tmpfilename").val(response);
                   var elt = jQuery(".uploadifyQueueItem.completed span.percentage")[0];
                   jQuery(elt).html(" - Ready to upload");

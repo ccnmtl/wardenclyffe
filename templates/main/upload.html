@@ -198,6 +198,10 @@ jQuery(document).ready(function()
     'fileDesc'  : 'Video Files',
     'removeCompleted' : false,
     'onComplete'  : function(event, ID, fileObj, response, data) {
+      if (response == "False") {
+          alert("upload failed. probably a bad network connection. please try again.");
+			    return;
+      }
       $("#tmpfilename").val(response);
       $("#submit").removeAttr("disabled");
       $("#file_uploadUploader").replaceWith();

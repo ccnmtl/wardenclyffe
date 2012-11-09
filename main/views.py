@@ -94,20 +94,28 @@ def received(request):
 def uploadify(request, *args, **kwargs):
     if request.method == 'POST':
         statsd.incr('main.uploadify_post')
-        if request.FILES:
-            # save it locally
-            vuuid = uuid.uuid4()
-            safe_makedirs(settings.TMP_DIR)
-            extension = request.FILES['Filedata'].name.split(".")[-1]
-            tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
-                + extension.lower()
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['Filedata'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-            return HttpResponse(tmpfilename)
-        else:
-            statsd.incr('main.uploadify_post_no_file')
+        try:
+            if request.FILES:
+                # save it locally
+                vuuid = uuid.uuid4()
+                safe_makedirs(settings.TMP_DIR)
+                extension = request.FILES['Filedata'].name.split(".")[-1]
+                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
+                    + extension.lower()
+                tmpfile = open(tmpfilename, 'wb')
+                for chunk in request.FILES['Filedata'].chunks():
+                    tmpfile.write(chunk)
+                tmpfile.close()
+                return HttpResponse(tmpfilename)
+            else:
+                statsd.incr('main.uploadify_post_no_file')
+        except IOError:
+            # this happens when the client connection is lost
+            # during the upload. eg, bad wifi, or the user
+            # is impatient and hits reload or back, or if they
+            # cancel the upload. Not really our fault and not much
+            # we can do about it.
+            return HttpResponse('False')
     return HttpResponse('True')
 
 
