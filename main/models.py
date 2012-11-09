@@ -2,7 +2,6 @@ from django.db import models
 from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
-from django.utils.simplejson import loads
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
@@ -13,7 +12,7 @@ import os.path
 from wardenclyffe.util.mail import send_failed_operation_mail
 from django_statsd.clients import statsd
 import uuid
-from simplejson import dumps
+from json import dumps, loads
 
 add_introspection_rules(
     [],
@@ -556,6 +555,12 @@ class Operation(TimeStampedModel):
 
     def get_absolute_url(self):
         return "/operation/%s/" % self.uuid
+
+    def formatted_params(self):
+        try:
+            return dumps(loads(self.params), indent=4)
+        except:
+            return self.params
 
     def get_task(self):
         import wardenclyffe.main.tasks
