@@ -704,6 +704,21 @@ def handle_mediathread_submit(operation):
     return ([], dict())
 
 
+def make_cunix_file(operation, cunix_path):
+    if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+        File.objects.create(video=operation.video,
+                            label="CUIT File",
+                            filename=cunix_path,
+                            location_type='cuit',
+                            )
+    if cunix_path.startswith("/media/h264"):
+        File.objects.create(video=operation.video,
+                            label="CUIT H264",
+                            filename=cunix_path,
+                            location_type='cuit',
+                            )
+
+
 @transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
@@ -725,21 +740,8 @@ def done(request):
         operation.save()
         OperationLog.objects.create(operation=operation,
                                     info="PCP completed")
-
         cunix_path = request.POST.get('movie_destination_path', '')
-        if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
-            File.objects.create(video=operation.video,
-                                label="CUIT File",
-                                filename=cunix_path,
-                                location_type='cuit',
-                                )
-        if cunix_path.startswith("/media/h264"):
-            File.objects.create(video=operation.video,
-                                label="CUIT H264",
-                                filename=cunix_path,
-                                location_type='cuit',
-                                )
-
+        make_cunix_file(operation, cunix_path)
         handle_vital_submit(operation, cunix_path)
         (operations, params) = handle_mediathread_submit(operation)
     except:
