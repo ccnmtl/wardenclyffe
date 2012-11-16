@@ -4,7 +4,7 @@ from datetime import datetime
 from angeldust import PCP
 from celery.decorators import task
 from wardenclyffe.main.models import Video, File, Operation, OperationFile
-from wardenclyffe.main.models import OperationLog, Image, Poster
+from wardenclyffe.main.models import Image, Poster
 import os.path
 import uuid
 import tempfile
@@ -33,10 +33,10 @@ def with_operation(f, video, action, params, user, args, kwargs):
         (success, message) = f(video, user, operation, *args, **kwargs)
         operation.status = success
         if operation.status == "failed" or message != "":
-            OperationLog.objects.create(operation=operation, info=message)
+            operation.log(info=message)
     except Exception, e:
         operation.status = "failed"
-        OperationLog.objects.create(operation=operation, info=str(e))
+        operation.log(info=str(e))
     operation.save()
 
 
@@ -236,8 +236,7 @@ def pull_from_tahoe_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
         r = urllib2.urlopen(url)
         t.write(r.read())
         t.seek(0)
-        OperationLog.objects.create(operation=operation,
-                                    info="downloaded from tahoe")
+        operation.log(info="downloaded from tahoe")
         # TODO: figure out how to re-use submit_to_pcp()
         print "submitting to PCP"
         pcp = PCP(pcp_base_url, pcp_username, pcp_password)
@@ -299,9 +298,7 @@ def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
         extension = os.path.splitext(filename)[1]
         tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
         sftp_get(filename, tmpfilename)
-
-        OperationLog.objects.create(operation=operation,
-                                    info="downloaded from cuit")
+        operation.log(info="downloaded from cuit")
 
         print "submitting to PCP"
         pcp = PCP(pcp_base_url, pcp_username, pcp_password)

@@ -21,7 +21,7 @@ from taggit.models import Tag
 from wardenclyffe.main.forms import AddServerForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
-from wardenclyffe.main.models import Metadata, OperationLog, Image, Poster
+from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
 from wardenclyffe.surelink.helpers import SureLink
 import wardenclyffe.vital.tasks as vitaltasks
@@ -738,8 +738,7 @@ def done(request):
         operation = r[0]
         operation.status = "complete"
         operation.save()
-        OperationLog.objects.create(operation=operation,
-                                    info="PCP completed")
+        operation.log(info="PCP completed")
         cunix_path = request.POST.get('movie_destination_path', '')
         make_cunix_file(operation, cunix_path)
         handle_vital_submit(operation, cunix_path)

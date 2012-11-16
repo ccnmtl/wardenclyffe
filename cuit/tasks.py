@@ -1,5 +1,5 @@
 from celery.decorators import task
-from wardenclyffe.main.models import Video, File, Operation, OperationLog
+from wardenclyffe.main.models import Video, File, Operation
 import wardenclyffe.main.tasks
 import os.path
 import os
@@ -21,12 +21,10 @@ def with_operation(f, video, action, params, user, args, kwargs):
         (success, message) = f(video, user, operation, *args, **kwargs)
         operation.status = success
         if operation.status == "failed" or message != "":
-            OperationLog.objects.create(operation=operation,
-                                        info=message)
+            operation.log(info=message)
     except Exception, e:
         operation.status = "failed"
-        OperationLog.objects.create(operation=operation,
-                                    info=str(e))
+        operation.log(info=str(e))
     operation.save()
 
 
@@ -72,8 +70,7 @@ def import_from_cuit(video_id, user, **kwargs):
         extension = os.path.splitext(filename)[1]
         tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
         sftp_get(filename, tmpfilename)
-        OperationLog.objects.create(operation=operation,
-                                    info="downloaded from CUIT")
+        operation.log(info="downloaded from CUIT")
 
         wardenclyffe.main.tasks.extract_metadata(operation,
                                        dict(source_file_id=f.id,

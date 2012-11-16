@@ -593,11 +593,11 @@ class Operation(TimeStampedModel):
             (success, message) = f(self, args)
             self.status = success
             if self.status == "failed" or message != "":
-                OperationLog.objects.create(operation=self, info=message)
+                self.log(info=message)
                 error_message = message
         except Exception, e:
             self.status = "failed"
-            OperationLog.objects.create(operation=self, info=str(e))
+            self.log(info=str(e))
             error_message = str(e)
 
         self.save()
@@ -628,6 +628,10 @@ class Operation(TimeStampedModel):
                     continue
                 f = getattr(self, hook)
                 f()
+
+    def log(self, info=""):
+        OperationLog.objects.create(operation=self,
+                                    info=info)
 
 
 class OperationFile(models.Model):

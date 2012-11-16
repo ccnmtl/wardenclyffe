@@ -1,5 +1,5 @@
 from celery.decorators import task
-from wardenclyffe.main.models import Video, Operation, OperationLog
+from wardenclyffe.main.models import Video, Operation
 import uuid
 from restclient import POST
 from wardenclyffe.util.mail import send_vital_uploaded_mail
@@ -21,12 +21,10 @@ def with_operation(f, video, action, params, user, args, kwargs):
         (success, message) = f(video, user, operation, *args, **kwargs)
         operation.status = success
         if operation.status == "failed" or message != "":
-            OperationLog.objects.create(operation=operation,
-                                        info=message)
+            operation.log(info=message)
     except Exception, e:
         operation.status = "failed"
-        OperationLog.objects.create(operation=operation,
-                                    info=str(e))
+        operation.log(info=str(e))
     operation.save()
 
 
