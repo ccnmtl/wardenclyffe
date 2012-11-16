@@ -721,11 +721,12 @@ def done(request):
         if operation.video.is_mediathread_submit():
             statsd.incr('main.upload.mediathread')
             (set_course, username,
-             audio) = operation.video.mediathread_submit()
+             audio, audio2) = operation.video.mediathread_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
                 params['set_course'] = set_course
                 params['audio'] = audio
+                params['audio2'] = audio2
                 o = Operation.objects.create(
                     uuid=uuid.uuid4(),
                     video=operation.video,
