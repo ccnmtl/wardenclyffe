@@ -765,10 +765,8 @@ def posterdone(request):
         operation = r[0]
         cunix_path = request.POST.get('image_destination_path', '')
         poster_url = cunix_path.replace(
-            "/www/data/ccnmtl/broadcast/posters/",
-            "http://ccnmtl.columbia.edu/broadcast/posters/").replace(
-            "/www/data/ccnmtl/broadcast/",
-            "http://ccnmtl.columbia.edu/broadcast/")
+            settings.CUNIX_BROADCAST_DIRECTORY,
+            settings.CUNIX_BROADCAST_URL)
 
         File.objects.create(video=operation.video,
                             label="CUIT thumbnail image",
@@ -797,8 +795,8 @@ def file(request, id):
     f = get_object_or_404(File, id=id)
     surelink = None
     filename = f.filename
-    if filename and filename.startswith("/www/data/ccnmtl/broadcast/"):
-        filename = filename[len("/www/data/ccnmtl/broadcast/"):]
+    if filename and filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+        filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
     if f.is_h264_secure_streamable():
         filename = f.h264_secure_path()
     protection_options = PROTECTION_OPTIONS
@@ -851,8 +849,8 @@ def file_surelink(request, id):
     f = get_object_or_404(File, id=id)
     PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
     filename = f.filename
-    if filename.startswith("/www/data/ccnmtl/broadcast/"):
-        filename = filename[len("/www/data/ccnmtl/broadcast/"):]
+    if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+        filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
     if f.is_h264_secure_streamable():
         filename = f.h264_secure_path()
     s = SureLink(filename,
@@ -1207,7 +1205,7 @@ def subject_autocomplete(request):
 
     return HttpResponse("\n".join(all_subjects.keys()))
 
-POSTER_BASE = "http://ccnmtl.columbia.edu/broadcast/posters/vidthumb"
+POSTER_BASE = settings.CUNIX_BROADCAST_URL + "posters/vidthumb"
 POSTER_OPTIONS = [
     dict(value="default_custom_poster",
          label="broadcast/posters/[media path]/[filename].jpg"),
