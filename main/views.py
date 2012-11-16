@@ -711,7 +711,7 @@ def make_cunix_file(operation, cunix_path):
                             filename=cunix_path,
                             location_type='cuit',
                             )
-    if cunix_path.startswith("/media/h264"):
+    if cunix_path.startswith(settings.CUNIX_H264_DIRECTORY):
         File.objects.create(video=operation.video,
                             label="CUIT H264",
                             filename=cunix_path,
