@@ -45,8 +45,25 @@ def mediathread(request):
     request.session['nonce'] = nonce
     request.session['redirect_to'] = redirect_to
     request.session['hmac'] = hmc
+    audio = request.GET.get('audio', False)
+    audio2 = request.GET.get('audio2', False)
     return dict(username=username, user=user,
-                audio=request.GET.get('audio', False))
+                audio=audio or audio2,
+                audio2=audio2,
+                )
+
+
+def select_workflow(audio, audio2):
+    if audio:
+        if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW'):
+            return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW
+    if audio2:
+        if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW2'):
+            return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2
+    else:
+        if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
+            return settings.MEDIATHREAD_PCP_WORKFLOW
+    return None
 
 
 @transaction.commit_manually
@@ -57,6 +74,7 @@ def mediathread_post(request):
 
     tmpfilename = request.POST.get('tmpfilename', '')
     audio = request.POST.get('audio', False)
+    audio2 = request.POST.get('audio2', False)
     operations = []
     params = []
     if tmpfilename.startswith(settings.TMP_DIR):
@@ -78,18 +96,14 @@ def mediathread_post(request):
             user = User.objects.get(username=request.session['username'])
             v.make_mediathread_submit_file(
                 filename, user, request.session['set_course'],
-                request.session['redirect_to'], audio=audio)
+                request.session['redirect_to'], audio=audio,
+                audio2=audio2
+                )
 
             operations, params = v.make_default_operations(
-                tmpfilename, source_file, user, audio=audio)
+                tmpfilename, source_file, user, audio=audio, audio2=audio2)
 
-            workflow = None
-            if audio:
-                if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW'):
-                    workflow = settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW
-            else:
-                if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
-                    workflow = settings.MEDIATHREAD_PCP_WORKFLOW
+            workflow = select_workflow(audio, audio2)
             if workflow:
                 o, p = v.make_submit_to_podcast_producer_operation(
                     tmpfilename, workflow, user)

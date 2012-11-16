@@ -238,6 +238,7 @@ class Video(TimeStampedModel):
             return (f.get_metadata("set_course"),
                     f.get_metadata("username"),
                     f.get_metadata("audio"),
+                    f.get_metadata("audio2"),
                     )
         else:
             return (None, None, None)
@@ -276,7 +277,8 @@ class Video(TimeStampedModel):
             return None
 
     def make_mediathread_submit_file(self, filename, user, set_course,
-                                     redirect_to, audio=False):
+                                     redirect_to, audio=False,
+                                     audio2=False):
         submit_file = File.objects.create(video=self,
                                           label="mediathread submit",
                                           filename=filename,
@@ -287,6 +289,8 @@ class Video(TimeStampedModel):
         submit_file.set_metadata("redirect_to", redirect_to)
         if audio:
             submit_file.set_metadata("audio", "True")
+        if audio2:
+            submit_file.set_metadata("audio2", "True")
 
     def make_vital_submit_file(self, filename, user, set_course, redirect_to,
                                notify_url):
@@ -361,10 +365,10 @@ class Video(TimeStampedModel):
                                    location_type='none')
 
     def make_default_operations(self, tmpfilename, source_file, user,
-                                audio=False):
+                                audio=False, audio2=False):
         operations = []
         params = []
-        if not audio:
+        if not audio and not audio2:
             o, p = self.make_extract_metadata_operation(
                 tmpfilename, source_file, user)
             operations.append(o)
@@ -373,7 +377,7 @@ class Video(TimeStampedModel):
             tmpfilename, user)
         operations.append(o)
         params.append(p)
-        if not audio:
+        if not audio and not audio2:
             o, p = self.make_make_images_operation(
                 tmpfilename, user)
             operations.append(o)
