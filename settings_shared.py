@@ -147,3 +147,5 @@ H264_SECURE_STREAM_BASE = "http://stream.ccnmtl.columbia.edu/secvideos/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
 H264_PUBLIC_STREAM_BASE = "http://stream.ccnmtl.columbia.edu/public/"
+
+CUNIX_SECURE_DIRECTORY = "/www/data/ccnmtl/broadcast/secure/"

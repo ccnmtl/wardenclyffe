@@ -705,7 +705,7 @@ def handle_mediathread_submit(operation):
 
 
 def make_cunix_file(operation, cunix_path):
-    if cunix_path.startswith("/www/data/ccnmtl/broadcast/secure/"):
+    if cunix_path.startswith(settings.CUNIX_SECURE_DIRECTORY):
         File.objects.create(video=operation.video,
                             label="CUIT File",
                             filename=cunix_path,
