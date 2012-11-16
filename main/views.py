@@ -122,16 +122,16 @@ def uploadify(request, *args, **kwargs):
 def recent_operations(request):
     submitted = request.GET.get('submitted', '') == '1'
     status_filters = []
-    if request.GET.get('status_filter_failed', not submitted):
-        status_filters.append("failed")
-    if request.GET.get('status_filter_enqueued', not submitted):
-        status_filters.append("enqueued")
-    if request.GET.get('status_filter_complete', not submitted):
-        status_filters.append("complete")
-    if request.GET.get('status_filter_inprogress', not submitted):
-        status_filters.append("in progress")
-    if request.GET.get('status_filter_submitted', not submitted):
-        status_filters.append("submitted")
+    for (status, get_param) in [
+        ("failed", "status_filter_failed"),
+        ("enqueued", "status_filter_enqueued"),
+        ("complete", 'status_filter_complete'),
+        ("in progress", 'status_filter_inprogress'),
+        ("submitted", 'status_filter_submitted'),
+        ]:
+        if request.GET.get(get_param, not submitted):
+            status_filters.append(status)
+
     user_filter = request.GET.get('user', '')
     collection_filter = int(request.GET.get('collection', False) or '0')
 
