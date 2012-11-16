@@ -680,6 +680,30 @@ def handle_vital_submit(operation, cunix_path):
             operation.video.clear_vital_submit()
 
 
+def handle_mediathread_submit(operation):
+    params = dict()
+    if operation.video.is_mediathread_submit():
+        statsd.incr('main.upload.mediathread')
+        (set_course, username,
+         audio, audio2) = operation.video.mediathread_submit()
+        if set_course is not None:
+            user = User.objects.get(username=username)
+            params['set_course'] = set_course
+            params['audio'] = audio
+            params['audio2'] = audio2
+            o = Operation.objects.create(
+                uuid=uuid.uuid4(),
+                video=operation.video,
+                action="submit to mediathread",
+                status="enqueued",
+                params=dumps(params),
+                owner=user
+                )
+            o.video.clear_mediathread_submit()
+            return ([o.id, ], params)
+    return ([], dict())
+
+
 @transaction.commit_manually
 def done(request):
     if 'title' not in request.POST:
@@ -717,26 +741,7 @@ def done(request):
                                 )
 
         handle_vital_submit(operation, cunix_path)
-
-        if operation.video.is_mediathread_submit():
-            statsd.incr('main.upload.mediathread')
-            (set_course, username,
-             audio, audio2) = operation.video.mediathread_submit()
-            if set_course is not None:
-                user = User.objects.get(username=username)
-                params['set_course'] = set_course
-                params['audio'] = audio
-                params['audio2'] = audio2
-                o = Operation.objects.create(
-                    uuid=uuid.uuid4(),
-                    video=operation.video,
-                    action="submit to mediathread",
-                    status="enqueued",
-                    params=dumps(params),
-                    owner=user
-                    )
-                operations.append(o.id)
-                o.video.clear_mediathread_submit()
+        (operations, params) = handle_mediathread_submit(operation)
     except:
         statsd.incr('main.upload.failure')
         transaction.rollback()
