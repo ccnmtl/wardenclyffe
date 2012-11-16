@@ -45,16 +45,15 @@ def index(request):
 def dashboard(request):
     submitted = request.GET.get('submitted', '') == '1'
     status_filters = dict()
-    status_filters["failed"] = request.GET.get('status_filter_failed',
-                                               not submitted)
-    status_filters["complete"] = request.GET.get('status_filter_complete',
-                                                 not submitted)
-    status_filters["submitted"] = request.GET.get('status_filter_submitted',
-                                                  not submitted)
-    status_filters["inprogress"] = request.GET.get('status_filter_inprogress',
-                                                   not submitted)
-    status_filters["enqueued"] = request.GET.get('status_filter_enqueued',
-                                                 not submitted)
+    for (status, get_param) in [
+        ("failed", 'status_filter_failed'),
+        ("complete", 'status_filter_complete'),
+        ("submitted", 'status_filter_submitted'),
+        ("inprogress", 'status_filter_inprogress'),
+        ("enqueued", 'status_filter_enqueued'),
+        ]:
+        status_filters[status] = request.GET.get(get_param, not submitted)
+
     user_filter = request.GET.get('user', '')
     collection_filter = int(request.GET.get('collection', False) or '0')
     d = dict(
