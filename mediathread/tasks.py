@@ -5,12 +5,19 @@ from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
 
 
+def guess_dimensions(video, audio2):
+    if audio2:
+        return 160, 120
+    return video.get_dimensions()
+
+
 def submit_to_mediathread(operation, params):
     statsd.incr("mediathread.tasks.submit_to_mediathread")
     video = operation.video
     user = operation.owner
     course_id = params['set_course']
     audio = params['audio']
+    audio2 = params['audio2']
     mediathread_secret = settings.MEDIATHREAD_SECRET
     mediathread_base = settings.MEDIATHREAD_BASE
     params = {
@@ -36,7 +43,7 @@ def submit_to_mediathread(operation, params):
         else:
             params['mp3'] = video.tahoe_download_url()
     else:
-        (width, height) = video.get_dimensions()
+        (width, height) = guess_dimensions(video, audio2)
         if not width or not height:
             statsd.incr(
                 "mediathread.tasks.submit_to_mediathread.failure.dimensions")
