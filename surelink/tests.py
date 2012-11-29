@@ -68,6 +68,9 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
                                  "public", "",
                                  settings.SURELINK_PROTECTION_KEY)
 
+    def testGroup(self):
+        self.assertEquals(self.surelink.group(), 'public')
+
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
                           "74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
@@ -176,6 +179,9 @@ class WindMP4TestCase(unittest.TestCase):
                                  THUMB_URL,
                                  "protected", "wind",
                                  settings.SURELINK_PROTECTION_KEY)
+
+    def testGroup(self):
+        self.assertEquals(self.surelink.group(), 'protected')
 
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
