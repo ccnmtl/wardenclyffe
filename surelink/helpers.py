@@ -1,5 +1,17 @@
 import hashlib
 
+# variables for now. think about how to parameterize later
+
+# urls
+BROADCAST_URL_BASE = "http://ccnmtl.columbia.edu/broadcast/"
+STREAM_URL_BASE = "http://ccnmtl.columbia.edu/stream/"
+SURELINK_BASE = "https://surelink.ccnmtl.columbia.edu/video/"
+
+# protections
+PUBLIC_MP4_DOWNLOAD = "public-mp4-download"
+PUBLIC_MP4_STREAM = "mp4_public_stream"
+SECURE_MP4_STREAM = "mp4_secure_stream"
+
 
 class SureLink:
     def __init__(self, filename, width, height, captions, poster, protection,
@@ -22,9 +34,9 @@ class SureLink:
         return hashlib.sha1(s).hexdigest()
 
     def player_string(self):
-        if self.protection == "public-mp4-download":
+        if self.protection == PUBLIC_MP4_DOWNLOAD:
             return 'download_mp4_v3'
-        elif self.protection in ("mp4_public_stream", "mp4_secure_stream"):
+        elif self.protection in (PUBLIC_MP4_STREAM, SECURE_MP4_STREAM):
             return self.protection
         return "v4"
 
@@ -43,13 +55,13 @@ class SureLink:
             if 'secure' in self.filename:
                 # secure: parallel dir as video file in /broadcast/posters/
                 self.poster = (
-                    "http://ccnmtl.columbia.edu/broadcast/posters/"
+                    BROADCAST_URL_BASE + "posters/"
                     + self.filename.replace('.mp4', '.jpg')
                     .replace('.flv', '.jpg'))
             else:
                 # insecure: same dir as video file
                 self.poster = (
-                    "http://ccnmtl.columbia.edu/broadcast/"
+                    BROADCAST_URL_BASE
                     + self.filename.replace('.mp4', '.jpg')
                     .replace('.flv', '.jpg'))
 
@@ -58,12 +70,13 @@ class SureLink:
                  self.poster, self.captions_string(), self.authtype_string()))
 
     def src_url(self):
-        return ("http://ccnmtl.columbia.edu/stream/jsembed?%s%s" %
-                (self.video_options(), self.protection_string()))
+        return ("%sjsembed?%s%s" % (STREAM_URL_BASE, self.video_options(),
+                                    self.protection_string()))
 
     def public_url(self):
-        return ("http://ccnmtl.columbia.edu/stream/flv/%s/OPTIONS/%s" %
-                (self.get_protection(force_public=True), self.filename))
+        return ("%sflv/%s/OPTIONS/%s" % (
+                STREAM_URL_BASE, self.get_protection(force_public=True),
+                self.filename))
 
     def group(self):
         if self.protection.startswith('public'):
@@ -77,7 +90,7 @@ class SureLink:
         return ""
 
     def public_mp4_download(self):
-        return self.protection == "public-mp4-download"
+        return self.protection == PUBLIC_MP4_DOWNLOAD
 
     ##### Nitty-gritty embed codes! #####
 
@@ -86,7 +99,6 @@ class SureLink:
                 self.src_url())
 
     def iframe_embed(self):
-        SURELINK_BASE = "https://surelink.ccnmtl.columbia.edu/video/"
         return ("""<iframe width="%d" height="%d" src="%s?%s%s" />""" %
                 (self.width, self.height + 24, SURELINK_BASE,
                  self.video_options(), self.protection_string()))
@@ -95,8 +107,8 @@ class SureLink:
         return """[ccnmtl_video src="%s"]""" % self.src_url()
 
     def drupal_embed(self):
-        return ("http://ccnmtl.columbia.edu/stream/flv/xdrupalx/OPTIONS/%s" %
-                self.filename)
+        return ("%sflv/xdrupalx/OPTIONS/%s" % (STREAM_URL_BASE,
+                                               self.filename))
 
     def mdp_embed(self):
         width_string = ""
@@ -107,8 +119,9 @@ class SureLink:
             height_string = "[h]%d" % self.height
 
         if self.public_mp4_download():
-            return ("[mp4]http://ccnmtl.columbia.edu/broadcast/%s%s%s[mp4]" %
-                    (self.filename, width_string, height_string))
+            return ("[mp4]%s%s%s%s[mp4]" %
+                    (BROADCAST_URL_BASE, self.filename, width_string,
+                     height_string))
         else:
             return "[flv]%s%s%s[flv]" % (self.public_url(), width_string,
                                          height_string)
