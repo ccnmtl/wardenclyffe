@@ -167,8 +167,8 @@ class Video(TimeStampedModel):
         if r.count() > 0:
             f = r[0]
             return f.url.replace(
-                "/www/data/ccnmtl/broadcast/",
-                "http://ccnmtl.columbia.edu/broadcast/")
+                settings.CUNIX_BROADCAST_DIRECTORY,
+                settings.CUNIX_BROADCAST_URL)
         return ""
 
     def cuit_url(self):
@@ -208,7 +208,7 @@ class Video(TimeStampedModel):
         r = Poster.objects.filter(video=self)
         if r.count() > 0:
             return (
-                "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+                settings.POSTER_BASE_URL
                 + str(r[0].image.image))
 
         if self.image_set.all().count() > 0:
@@ -216,9 +216,7 @@ class Video(TimeStampedModel):
             # and use that
             # return self.image_set.all()[0].image
             pass
-        poster_base = "http://ccnmtl.columbia.edu/"
-        poster_path = "broadcast/posters/vidthumb_480x360.jpg"
-        return poster_base + poster_path
+        return settings.DEFAULT_POSTER_URL
 
     def cuit_poster_url(self):
         try:
@@ -385,12 +383,35 @@ class Video(TimeStampedModel):
         return operations, params
 
 
+class WrongFileType(Exception):
+    pass
+
+
+class FileType(object):
+    def __init__(self, file):
+        self.file = file
+
+    def tahoe_download_url(self):
+        raise WrongFileType
+
+
+class TahoeFile(FileType):
+    def tahoe_download_url(self):
+        return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.file.cap\
+            + "/@@named=" + self.file.filename
+
+
+class CUITFile(FileType):
+    pass
+
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256, blank=True, null=True, default="")
     url = models.URLField(default="", blank=True, null=True, max_length=2000)
     cap = models.CharField(max_length=256, default="", blank=True, null=True)
-    filename = models.CharField(max_length=256, blank=True, null=True)
+    filename = models.CharField(max_length=256, blank=True, null=True,
+                                default="")
     location_type = models.CharField(max_length=256, default="tahoe",
                                      choices=(('tahoe', 'tahoe'),
                                               ('pcp', 'pcp'),
@@ -398,12 +419,16 @@ class File(TimeStampedModel):
                                               ('youtube', 'youtube'),
                                               ('none', 'none')))
 
-    def tahoe_download_url(self):
+    def filetype(self):
         if self.location_type == "tahoe":
-            return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.cap\
-                + "/@@named=" + self.filename
+            return TahoeFile(self)
+        elif self.location_type == "cuit":
+            return CUITFile(self)
         else:
-            return None
+            return FileType(self)
+
+    def tahoe_download_url(self):
+        return self.filetype().tahoe_download_url()
 
     def set_metadata(self, field, value):
         r = Metadata.objects.filter(file=self, field=field)
@@ -475,14 +500,14 @@ class File(TimeStampedModel):
                                    location_type='cuitthumb')[0].url
 
     def cuit_public_url(self):
-        filename = self.filename[len("/www/data/ccnmtl/broadcast/"):]
-        return "http://ccnmtl.columbia.edu/stream/flv/%s" % filename
+        filename = self.filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+        return "%s%s" % (settings.FLV_STREAM_BASE_URL, filename)
 
     def mediathread_public_url(self):
         PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
         filename = self.filename
-        if filename.startswith("/www/data/ccnmtl/broadcast/"):
-            filename = filename[len("/www/data/ccnmtl/broadcast/"):]
+        if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+            filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
 
         s = SureLink(filename=filename, width=0, height=0,
                      captions='', poster='', protection="public",
@@ -490,6 +515,8 @@ class File(TimeStampedModel):
         return s.public_url()
 
     def is_h264_secure_streamable(self):
+        if self.filename is None:
+            return False
         return self.filename.startswith(settings.H264_SECURE_STREAM_DIRECTORY)
 
     def h264_secure_path(self):

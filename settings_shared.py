@@ -159,3 +159,9 @@ CUNIX_BROADCAST_DIRECTORY = "/www/data/ccnmtl/broadcast/"
 CUNIX_BROADCAST_URL = "http://ccnmtl.columbia.edu/broadcast/"
 CUNIX_SECURE_DIRECTORY = "/www/data/ccnmtl/broadcast/secure/"
 CUNIX_H264_DIRECTORY = "/media/h264"
+FLV_STREAM_BASE_URL = "http://ccnmtl.columbia.edu/stream/flv/"
+
+POSTER_BASE_URL = "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+DEFAULT_POSTER_URL = (
+    "http://ccnmtl.columbia.edu/"
+    "broadcast/posters/vidthumb_480x360.jpg")
