@@ -67,9 +67,8 @@ def send_failed_operation_mail(operation, error_message):
     send_to_everyone(subject, body, None, fromaddress)
 
 
-def send_mediathread_received_mail(video_title, uni):
-    subject = "Mediathread submission received"
-    body = """
+def mediathread_received_body(video_title, uni):
+    return """
 This email confirms that '%s' has been successfully submitted to
 Mediathread for %s.
 
@@ -82,6 +81,11 @@ If you have any questions, please visit
     http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (video_title, uni)
+
+
+def send_mediathread_received_mail(video_title, uni):
+    subject = "Mediathread submission received"
+    body = mediathread_received_body(video_title, uni)
     fromaddress = 'ccnmtl-mediathread@columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)

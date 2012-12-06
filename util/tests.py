@@ -1,6 +1,7 @@
 from django.test import TestCase
 from wardenclyffe.util.mail import slow_operations_email_body
 from wardenclyffe.util.mail import failed_operation_body
+from wardenclyffe.util.mail import mediathread_received_body
 
 
 class DummyVideo(object):
@@ -39,3 +40,8 @@ class BodyTest(TestCase):
         body = failed_operation_body(dummy_op, "fake error message")
         assert "fake error message" in body
         assert "http://wardenclyffe.ccnmtl.columbia.edu/video/1/" in body
+
+    def test_mediathread_received_body(self):
+        body = mediathread_received_body("test video", "testuni")
+        assert "confirms that 'test video'" in body
+        assert "for testuni" in body
