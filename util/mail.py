@@ -13,14 +13,12 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
         statsd.incr('event.mail_sent')
 
 
-def send_slow_operations_email(operations):
-    cnt = operations.count()
+def slow_operations_email_body(cnt):
     s_string = ""
     h_string = "has"
     if cnt > 1:
         s_string = "s"
         h_string = "have"
-    subject = "Slow operations detected"
     body = """
 Wardenclyffe has detected %d operation%s that %s taken over an hour to
 complete.
@@ -35,6 +33,13 @@ any slow operations detected, so remember to clear out fixed or
 permanently broken ones.
 
 """ % (cnt, s_string, h_string)
+    return body
+
+
+def send_slow_operations_email(operations):
+    cnt = operations.count()
+    subject = "Slow operations detected"
+    body = slow_operations_email_body(cnt)
     fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
     send_to_everyone(subject, body, None, fromaddress)
 

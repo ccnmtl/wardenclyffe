@@ -40,7 +40,8 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
     '--with-coverage',
     ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
-     'wardenclyffe.vital,wardenclyffe.youtube,wardenclyffe.surelink'),
+     'wardenclyffe.vital,wardenclyffe.youtube,wardenclyffe.surelink,'
+     'wardenclyffe.util'),
 ]
 
 
