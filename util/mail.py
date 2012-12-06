@@ -91,9 +91,8 @@ def send_mediathread_received_mail(video_title, uni):
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 
-def send_mediathread_uploaded_mail(video_title, uni, url):
-    subject = 'Mediathread submission now available'
-    body = """
+def mediathread_uploaded_body(video_title, uni, url):
+    return """
 This email confirms that %s, uploaded to Mediathread for %s, is now available.
 
 View/Annotate it here: %s
@@ -103,6 +102,10 @@ If you have any questions, please visit
     http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
 
 """ % (video_title, uni, url)
+
+def send_mediathread_uploaded_mail(video_title, uni, url):
+    subject = 'Mediathread submission now available'
+    body = mediathread_uploaded_body(video_title, uni, url)
     fromaddress = 'ccnmtl-mediathread@columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)

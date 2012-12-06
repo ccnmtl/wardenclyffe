@@ -2,6 +2,7 @@ from django.test import TestCase
 from wardenclyffe.util.mail import slow_operations_email_body
 from wardenclyffe.util.mail import failed_operation_body
 from wardenclyffe.util.mail import mediathread_received_body
+from wardenclyffe.util.mail import mediathread_uploaded_body
 
 
 class DummyVideo(object):
@@ -45,3 +46,10 @@ class BodyTest(TestCase):
         body = mediathread_received_body("test video", "testuni")
         assert "confirms that 'test video'" in body
         assert "for testuni" in body
+
+    def test_mediathread_uploaded_body(self):
+        body = mediathread_uploaded_body("test video", "testuni",
+                                         "http://example.com/")
+        assert "confirms that test video" in body
+        assert "for testuni" in body
+        assert "http://example.com/" in body
