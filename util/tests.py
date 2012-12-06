@@ -30,7 +30,6 @@ class BodyTest(TestCase):
         num_operations = 1
         body = slow_operations_email_body(num_operations)
         assert "1 operation " in body
-
         num_operations = 2
         body = slow_operations_email_body(num_operations)
         assert "2 operations " in body

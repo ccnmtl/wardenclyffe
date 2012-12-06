@@ -16,26 +16,9 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
 
 
 def slow_operations_email_body(cnt):
-    s_string = ""
-    h_string = "has"
-    if cnt > 1:
-        s_string = "s"
-        h_string = "have"
-    body = """
-Wardenclyffe has detected %d operation%s that %s taken over an hour to
-complete.
-
-This may indicate a problem or just an unusually high workload. Either way,
-someone should probably investigate:
-
-    http://wardenclyffe.ccnmtl.columbia.edu/slow_operations/
-
-Wardenclyffe will continue sending these emails hourly as long as there are
-any slow operations detected, so remember to clear out fixed or
-permanently broken ones.
-
-""" % (cnt, s_string, h_string)
-    return body
+    t = get_template("util/slow_operations_email_body.txt")
+    d = Context(dict(cnt=cnt, mcnt=cnt > 1))
+    return t.render(d)
 
 
 def send_slow_operations_email(operations):
