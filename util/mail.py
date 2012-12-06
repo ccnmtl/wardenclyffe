@@ -44,8 +44,7 @@ def send_slow_operations_email(operations):
     send_to_everyone(subject, body, None, fromaddress)
 
 
-def send_failed_operation_mail(operation, error_message):
-    subject = 'Video upload failed'
+def failed_operation_body(operation, error_message):
     body = """An error has occurred while processing the video:
    "%s"
 
@@ -58,6 +57,12 @@ During the %s step. The error encountered was:
 %s
 """ % (operation.video.title, operation.video.get_absolute_url(),
        operation.action, str(error_message))
+    return body
+
+
+def send_failed_operation_mail(operation, error_message):
+    subject = 'Video upload failed'
+    body = failed_operation_body(operation, error_message)
     fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
     send_to_everyone(subject, body, None, fromaddress)
 
