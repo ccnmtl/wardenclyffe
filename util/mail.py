@@ -43,19 +43,9 @@ def send_failed_operation_mail(operation, error_message):
 
 
 def mediathread_received_body(video_title, uni):
-    return """
-This email confirms that '%s' has been successfully submitted to
-Mediathread for %s.
-
-The media file is now being processed.  When it is available in
-your Mediathread course you will receive another email confirmation.
-This confirmation should arrive within 24 hours.
-
-If you have any questions, please visit
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (video_title, uni)
+    t = get_template("util/mediathread_received_email_body.txt")
+    d = Context(dict(video_title=video_title, uni=uni))
+    return t.render(d)
 
 
 def send_mediathread_received_mail(video_title, uni):
