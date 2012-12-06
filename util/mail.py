@@ -1,6 +1,8 @@
 from django.core.mail import send_mail
 from django_statsd.clients import statsd
 from django.conf import settings
+from django.template.loader import get_template
+from django.template import Context
 
 
 def send_to_everyone(subject, body, toaddress, fromaddress):
@@ -45,19 +47,9 @@ def send_slow_operations_email(operations):
 
 
 def failed_operation_body(operation, error_message):
-    body = """An error has occurred while processing the video:
-   "%s"
-
-at:
-
-   http://wardenclyffe.ccnmtl.columbia.edu%s
-
-During the %s step. The error encountered was:
-
-%s
-""" % (operation.video.title, operation.video.get_absolute_url(),
-       operation.action, str(error_message))
-    return body
+    t = get_template("util/failed_operation_email_body.txt")
+    d = Context(dict(operation=operation, error_message=error_message))
+    return t.render(d)
 
 
 def send_failed_operation_mail(operation, error_message):
