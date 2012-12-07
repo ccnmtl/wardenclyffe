@@ -16,6 +16,7 @@ from wardenclyffe.util.mail import send_vital_received_mail
 from wardenclyffe.util.mail import send_vital_uploaded_mail
 from wardenclyffe.util.mail import send_vital_failed_mail
 from wardenclyffe.util.mail import send_youtube_submitted_mail
+from wardenclyffe.util import uuidparse
 
 
 class DummyVideo(object):
@@ -158,3 +159,13 @@ class MailTest(TestCase):
         self.assertEqual(
             mail.outbox[0].subject,
             "\"fake video title\" was submitted to Columbia on YouTube EDU")
+
+
+class UUIDParseTest(TestCase):
+    def test_uuidparse(self):
+        self.assertEqual(
+            uuidparse('4a6e4a20-fd8f-4e2a-9808-4ed612b1f0d0.mov'),
+            '4a6e4a20-fd8f-4e2a-9808-4ed612b1f0d0')
+        self.assertEqual(
+            uuidparse('not a uuid'),
+            '')
