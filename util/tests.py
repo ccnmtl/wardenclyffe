@@ -9,6 +9,7 @@ from wardenclyffe.util.mail import vital_uploaded_body
 from wardenclyffe.util.mail import vital_failed_body
 from wardenclyffe.util.mail import youtube_submitted_body
 from wardenclyffe.util.mail import send_slow_operations_email
+from wardenclyffe.util.mail import send_failed_operation_mail
 
 
 class DummyVideo(object):
@@ -60,6 +61,13 @@ class BodyTest(TestCase):
         body = failed_operation_body(dummy_op, "fake error message")
         assert "fake error message" in body
         assert "http://wardenclyffe.ccnmtl.columbia.edu/video/1/" in body
+
+    def test_send_failed_operation_mail(self):
+        dummy_op = DummyOperation(action="dummy",
+                                  video=DummyVideo("dummy video"))
+        send_failed_operation_mail(dummy_op, "fake error message")
+        assert len(mail.outbox) > 0
+        self.assertEqual(mail.outbox[0].subject, 'Video upload failed')
 
     def test_mediathread_received_body(self):
         body = mediathread_received_body("test video", "testuni")
