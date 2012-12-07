@@ -102,13 +102,16 @@ def send_vital_uploaded_mail(video_title, uni, course_id):
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 
-def send_vital_failed_mail(video_title, uni, error_content):
-    subject = 'VITAL video upload failed'
-    body = """An error has occurred while attempting to upload your video, "%s", to VITAL.
+def vital_failed_body(video_title, error_content):
+    return """An error has occurred while attempting to upload your video, "%s", to VITAL.
 Please contact CCNMTL video staff for assistance.
 The error encountered:
 %s
 """ % (video_title, error_content)
+
+def send_vital_failed_mail(video_title, uni, error_content):
+    subject = 'VITAL video upload failed'
+    body = vital_failed_body(video_title, error_content)
     fromaddress = 'ccnmtl-vital@columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)

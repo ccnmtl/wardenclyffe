@@ -5,6 +5,7 @@ from wardenclyffe.util.mail import mediathread_received_body
 from wardenclyffe.util.mail import mediathread_uploaded_body
 from wardenclyffe.util.mail import vital_received_body
 from wardenclyffe.util.mail import vital_uploaded_body
+from wardenclyffe.util.mail import vital_failed_body
 
 
 class DummyVideo(object):
@@ -66,3 +67,8 @@ class BodyTest(TestCase):
         assert "confirms that test video" in body
         assert "by testuni" in body
         assert "http://example.com/" in body
+
+    def test_vital_failed_body(self):
+        body = vital_failed_body("fake video title", "fake error message")
+        assert "fake error message" in body
+        assert "fake video title" in body
