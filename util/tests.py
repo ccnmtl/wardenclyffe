@@ -13,6 +13,7 @@ from wardenclyffe.util.mail import send_failed_operation_mail
 from wardenclyffe.util.mail import send_mediathread_received_mail
 from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from wardenclyffe.util.mail import send_vital_received_mail
+from wardenclyffe.util.mail import send_vital_uploaded_mail
 
 
 class DummyVideo(object):
@@ -114,6 +115,12 @@ class BodyTest(TestCase):
         assert "confirms that test video" in body
         assert "by testuni" in body
         assert "http://example.com/" in body
+
+    def test_send_vital_uploaded_mail(self):
+        send_vital_uploaded_mail("test video", 'testuni', "fake course id")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         'Uploaded video now available in VITAL')
 
     def test_vital_failed_body(self):
         body = vital_failed_body("fake video title", "fake error message")
