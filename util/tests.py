@@ -10,6 +10,7 @@ from wardenclyffe.util.mail import vital_failed_body
 from wardenclyffe.util.mail import youtube_submitted_body
 from wardenclyffe.util.mail import send_slow_operations_email
 from wardenclyffe.util.mail import send_failed_operation_mail
+from wardenclyffe.util.mail import send_mediathread_received_mail
 
 
 class DummyVideo(object):
@@ -73,6 +74,12 @@ class BodyTest(TestCase):
         body = mediathread_received_body("test video", "testuni")
         assert "confirms that 'test video'" in body
         assert "for testuni" in body
+
+    def test_send_mediathread_received_mail(self):
+        send_mediathread_received_mail("fake video", "fakeuni")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         "Mediathread submission received")
 
     def test_mediathread_uploaded_body(self):
         body = mediathread_uploaded_body("test video", "testuni",
