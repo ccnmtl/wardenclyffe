@@ -71,12 +71,10 @@ def send_mediathread_uploaded_mail(video_title, uni, url):
 
 
 def vital_received_body(video_title, uni):
-    return """This email confirms that %s has been successfully submitted to VITAL by %s.
+    t = get_template("util/vital_received_email_body.txt")
+    d = Context(dict(video_title=video_title, uni=uni))
+    return t.render(d)
 
-The video is now being processed.  When it appears in your VITAL course library you will receive another email confirmation.  This confirmation should arrive within 24 hours.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-""" % (video_title, uni)
 
 def send_vital_received_mail(video_title, uni):
     subject = 'Video submitted to VITAL'
