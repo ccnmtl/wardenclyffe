@@ -15,6 +15,7 @@ from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from wardenclyffe.util.mail import send_vital_received_mail
 from wardenclyffe.util.mail import send_vital_uploaded_mail
 from wardenclyffe.util.mail import send_vital_failed_mail
+from wardenclyffe.util.mail import send_youtube_submitted_mail
 
 
 class DummyVideo(object):
@@ -141,3 +142,11 @@ class BodyTest(TestCase):
         assert 'confirms that "fake video title"' in body
         assert "by fakeuni" in body
         assert "YouTube URL: http://example.com/" in body
+
+    def test_send_youtube_submitted_mail(self):
+        send_youtube_submitted_mail("fake video title", "fakeuni",
+                                    "http://example.com/")
+        assert len(mail.outbox) > 1
+        self.assertEqual(
+            mail.outbox[0].subject,
+            "\"fake video title\" was submitted to Columbia on YouTube EDU")
