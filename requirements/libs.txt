@@ -33,3 +33,4 @@ requirements/src/raven-0.7.0.tar.gz
 requirements/src/statsd-0.5.1.tar.gz
 requirements/src/requests-0.13.3.tar.gz
 requirements/src/coverage-3.5.3.tar.gz
+requirements/src/nose-exclude-0.1.5.tar.gz

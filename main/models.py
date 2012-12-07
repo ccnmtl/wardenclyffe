@@ -37,9 +37,19 @@ class Collection(TimeStampedModel):
     tags = TaggableManager(blank=True)
 
     def __unicode__(self):
+        """
+        >>> c = Collection.objects.create(title="foo")
+        >>> str(c)
+        'foo'
+        """
         return self.title
 
     def get_absolute_url(self):
+        """
+        >>> c = Collection.objects.create(title="foo")
+        >>> c.get_absolute_url().startswith("/collection/")
+        True
+        """
         return "/collection/%d/" % self.id
 
     def add_video_form(self):

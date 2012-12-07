@@ -37,8 +37,12 @@ SOUTH_TESTS_MIGRATE = False
 SOUTH_AUTO_FREEZE_APP = True
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+
 NOSE_ARGS = [
     '--with-coverage',
+    "--with-doctest",
+    "--noexe",
+    "--exclude-dir-file=exclude_tests.txt",
     ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
      'wardenclyffe.vital,wardenclyffe.youtube,wardenclyffe.surelink,'
      'wardenclyffe.util'),
