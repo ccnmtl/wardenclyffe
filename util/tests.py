@@ -55,12 +55,6 @@ class BodyTest(TestCase):
         body = slow_operations_email_body(num_operations)
         assert "2 operations " in body
 
-    def test_send_slow_operations_email(self):
-        operations = DummyOperationsSet(1)
-        send_slow_operations_email(operations)
-        assert len(mail.outbox) > 0
-        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
-
     def test_failed_operation_body(self):
         dummy_op = DummyOperation(action="dummy",
                                   video=DummyVideo("dummy video"))
@@ -68,23 +62,10 @@ class BodyTest(TestCase):
         assert "fake error message" in body
         assert "http://wardenclyffe.ccnmtl.columbia.edu/video/1/" in body
 
-    def test_send_failed_operation_mail(self):
-        dummy_op = DummyOperation(action="dummy",
-                                  video=DummyVideo("dummy video"))
-        send_failed_operation_mail(dummy_op, "fake error message")
-        assert len(mail.outbox) > 0
-        self.assertEqual(mail.outbox[0].subject, 'Video upload failed')
-
     def test_mediathread_received_body(self):
         body = mediathread_received_body("test video", "testuni")
         assert "confirms that 'test video'" in body
         assert "for testuni" in body
-
-    def test_send_mediathread_received_mail(self):
-        send_mediathread_received_mail("fake video", "fakeuni")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         "Mediathread submission received")
 
     def test_mediathread_uploaded_body(self):
         body = mediathread_uploaded_body("test video", "testuni",
@@ -93,23 +74,10 @@ class BodyTest(TestCase):
         assert "for testuni" in body
         assert "http://example.com/" in body
 
-    def test_send_mediathread_uploaded_mail(self):
-        send_mediathread_uploaded_mail("fake video", "fakeuni",
-                                       "http://example.com/")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         "Mediathread submission now available")
-
     def test_vital_received_body(self):
         body = vital_received_body("test video", "testuni")
         assert "test video has been successfully" in body
         assert "by testuni" in body
-
-    def test_send_vital_received_mail(self):
-        send_vital_received_mail("test video", "fakeuni")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         "Video submitted to VITAL")
 
     def test_vital_uploaded_body(self):
         body = vital_uploaded_body("test video", "testuni",
@@ -118,23 +86,10 @@ class BodyTest(TestCase):
         assert "by testuni" in body
         assert "http://example.com/" in body
 
-    def test_send_vital_uploaded_mail(self):
-        send_vital_uploaded_mail("test video", 'testuni', "fake course id")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         'Uploaded video now available in VITAL')
-
     def test_vital_failed_body(self):
         body = vital_failed_body("fake video title", "fake error message")
         assert "fake error message" in body
         assert "fake video title" in body
-
-    def test_send_vital_failed_mail(self):
-        send_vital_failed_mail("fake video title", "fakeuni",
-                               "fake error message")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         'VITAL video upload failed')
 
     def test_youtube_submitted_body(self):
         body = youtube_submitted_body("fake video title", "fakeuni",
@@ -142,6 +97,59 @@ class BodyTest(TestCase):
         assert 'confirms that "fake video title"' in body
         assert "by fakeuni" in body
         assert "YouTube URL: http://example.com/" in body
+
+
+class MailTest(TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_send_slow_operations_email(self):
+        operations = DummyOperationsSet(1)
+        send_slow_operations_email(operations)
+        assert len(mail.outbox) > 0
+        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
+
+    def test_send_failed_operation_mail(self):
+        dummy_op = DummyOperation(action="dummy",
+                                  video=DummyVideo("dummy video"))
+        send_failed_operation_mail(dummy_op, "fake error message")
+        assert len(mail.outbox) > 0
+        self.assertEqual(mail.outbox[0].subject, 'Video upload failed')
+
+    def test_send_mediathread_received_mail(self):
+        send_mediathread_received_mail("fake video", "fakeuni")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         "Mediathread submission received")
+
+    def test_send_mediathread_uploaded_mail(self):
+        send_mediathread_uploaded_mail("fake video", "fakeuni",
+                                       "http://example.com/")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         "Mediathread submission now available")
+
+    def test_send_vital_received_mail(self):
+        send_vital_received_mail("test video", "fakeuni")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         "Video submitted to VITAL")
+
+    def test_send_vital_uploaded_mail(self):
+        send_vital_uploaded_mail("test video", 'testuni', "fake course id")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         'Uploaded video now available in VITAL')
+
+    def test_send_vital_failed_mail(self):
+        send_vital_failed_mail("fake video title", "fakeuni",
+                               "fake error message")
+        assert len(mail.outbox) > 1
+        self.assertEqual(mail.outbox[0].subject,
+                         'VITAL video upload failed')
 
     def test_send_youtube_submitted_mail(self):
         send_youtube_submitted_mail("fake video title", "fakeuni",
