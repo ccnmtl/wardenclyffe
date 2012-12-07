@@ -6,6 +6,7 @@ from wardenclyffe.util.mail import mediathread_uploaded_body
 from wardenclyffe.util.mail import vital_received_body
 from wardenclyffe.util.mail import vital_uploaded_body
 from wardenclyffe.util.mail import vital_failed_body
+from wardenclyffe.util.mail import youtube_submitted_body
 
 
 class DummyVideo(object):
@@ -72,3 +73,10 @@ class BodyTest(TestCase):
         body = vital_failed_body("fake video title", "fake error message")
         assert "fake error message" in body
         assert "fake video title" in body
+
+    def test_youtube_submitted_body(self):
+        body = youtube_submitted_body("fake video title", "fakeuni",
+                                      "http://example.com/")
+        assert 'confirms that "fake video title"' in body
+        assert "by fakeuni" in body
+        assert "YouTube URL: http://example.com/" in body

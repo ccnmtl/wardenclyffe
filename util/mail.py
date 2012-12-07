@@ -117,9 +117,8 @@ def send_vital_failed_mail(video_title, uni, error_content):
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 
-def send_youtube_submitted_mail(video_title, uni, url):
-    subject = "\"%s\" was submitted to Columbia on YouTube EDU" % video_title
-    body = """This email confirms that "%s" has been successfully submitted to Columbia's YouTube channel by %s.
+def youtube_submitted_body(video_title, uni, url):
+    return """This email confirms that "%s" has been successfully submitted to Columbia's YouTube channel by %s.
 
 Your video will now be reviewed by our staff, and published. When completed, it will be available at the following destination:
 
@@ -127,6 +126,10 @@ YouTube URL: %s
 
 If you have any questions, please contact Columbia's YouTube administrators at ccnmtl-youtube@columbia.edu.
 """ % (video_title, uni, url)
+
+def send_youtube_submitted_mail(video_title, uni, url):
+    subject = "\"%s\" was submitted to Columbia on YouTube EDU" % video_title
+    body = youtube_submitted_body(video_title, uni, url)
     fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
