@@ -86,14 +86,17 @@ def send_vital_received_mail(video_title, uni):
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 
-def send_vital_uploaded_mail(video_title, uni, course_id):
-    subject = 'Uploaded video now available in VITAL'
-    body = """
+def vital_uploaded_body(video_title, uni, course_id):
+    return """
 This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
 
 If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
 
 """ % (video_title, uni, course_id)
+
+def send_vital_uploaded_mail(video_title, uni, course_id):
+    subject = 'Uploaded video now available in VITAL'
+    body = vital_uploaded_body(video_title, uni, course_id)
     fromaddress = 'ccnmtl-vital@columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
