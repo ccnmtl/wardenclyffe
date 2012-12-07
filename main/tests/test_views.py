@@ -8,15 +8,20 @@ class SimpleText(TestCase):
         self.u = User.objects.create(username="foo")
         self.u.set_password("bar")
         self.u.save()
+        self.c = Client()
 
     def tearDown(self):
         self.u.delete()
 
     def test_index(self):
-        c = Client()
-        response = c.get('/')
+        response = self.c.get('/')
         self.assertEquals(response.status_code, 302)
 
-        c.login(username="foo", password="bar")
-        response = c.get('/')
+        self.c.login(username="foo", password="bar")
+        response = self.c.get('/')
+        self.assertEquals(response.status_code, 200)
+
+    def test_dashboard(self):
+        self.c.login(username="foo", password="bar")
+        response = self.c.get("/dashboard/")
         self.assertEquals(response.status_code, 200)
