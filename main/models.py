@@ -142,9 +142,23 @@ class Video(TimeStampedModel):
         return ""
 
     def get_absolute_url(self):
+        """
+        >>> c = Collection.objects.create(title="foo")
+        >>> v = Video.objects.create(collection=c, title="bar")
+        >>> v.get_absolute_url().startswith("/video/")
+        True
+        """
         return "/video/%d/" % self.id
 
     def get_oembed_url(self):
+        """
+        >>> c = Collection.objects.create(title="foo")
+        >>> v = Video.objects.create(collection=c, title="bar")
+        >>> v.get_oembed_url().startswith("/video/")
+        True
+        >>> v.get_oembed_url().endswith("/oembed/")
+        True
+        """
         return "/video/%d/oembed/" % self.id
 
     def add_file_form(self, data=None):
