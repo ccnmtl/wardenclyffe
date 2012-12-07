@@ -99,11 +99,10 @@ def send_vital_uploaded_mail(video_title, uni, course_id):
 
 
 def vital_failed_body(video_title, error_content):
-    return """An error has occurred while attempting to upload your video, "%s", to VITAL.
-Please contact CCNMTL video staff for assistance.
-The error encountered:
-%s
-""" % (video_title, error_content)
+    t = get_template("util/vital_failed_email_body.txt")
+    d = Context(dict(video_title=video_title, error_content=error_content))
+    return t.render(d)
+
 
 def send_vital_failed_mail(video_title, uni, error_content):
     subject = 'VITAL video upload failed'
