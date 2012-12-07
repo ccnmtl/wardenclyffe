@@ -57,16 +57,10 @@ def send_mediathread_received_mail(video_title, uni):
 
 
 def mediathread_uploaded_body(video_title, uni, url):
-    return """
-This email confirms that %s, uploaded to Mediathread for %s, is now available.
+    t = get_template("util/mediathread_uploaded_email_body.txt")
+    d = Context(dict(video_title=video_title, uni=uni, url=url))
+    return t.render(d)
 
-View/Annotate it here: %s
-
-If you have any questions, please visit
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-
-""" % (video_title, uni, url)
 
 def send_mediathread_uploaded_mail(video_title, uni, url):
     subject = 'Mediathread submission now available'
