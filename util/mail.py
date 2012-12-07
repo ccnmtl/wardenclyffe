@@ -85,12 +85,10 @@ def send_vital_received_mail(video_title, uni):
 
 
 def vital_uploaded_body(video_title, uni, course_id):
-    return """
-This email confirms that %s, uploaded to VITAL by %s, is now available in the %s course library.
+    t = get_template("util/vital_uploaded_email_body.txt")
+    d = Context(dict(video_title=video_title, uni=uni, course_id=course_id))
+    return t.render(d)
 
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-
-""" % (video_title, uni, course_id)
 
 def send_vital_uploaded_mail(video_title, uni, course_id):
     subject = 'Uploaded video now available in VITAL'
