@@ -1,3 +1,4 @@
+from django.core import mail
 from django.test import TestCase
 from wardenclyffe.util.mail import slow_operations_email_body
 from wardenclyffe.util.mail import failed_operation_body
@@ -7,6 +8,7 @@ from wardenclyffe.util.mail import vital_received_body
 from wardenclyffe.util.mail import vital_uploaded_body
 from wardenclyffe.util.mail import vital_failed_body
 from wardenclyffe.util.mail import youtube_submitted_body
+from wardenclyffe.util.mail import send_slow_operations_email
 
 
 class DummyVideo(object):
@@ -23,6 +25,14 @@ class DummyOperation(object):
         self.video = video
 
 
+class DummyOperationsSet(object):
+    def __init__(self, cnt=0):
+        self.cnt = cnt
+
+    def count(self):
+        return self.cnt
+
+
 class BodyTest(TestCase):
     def setUp(self):
         pass
@@ -37,6 +47,12 @@ class BodyTest(TestCase):
         num_operations = 2
         body = slow_operations_email_body(num_operations)
         assert "2 operations " in body
+
+    def test_send_slow_operations_email(self):
+        operations = DummyOperationsSet(1)
+        send_slow_operations_email(operations)
+        assert len(mail.outbox) > 0
+        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
 
     def test_failed_operation_body(self):
         dummy_op = DummyOperation(action="dummy",
