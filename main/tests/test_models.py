@@ -575,7 +575,7 @@ class OperationTest(TestCase):
     def setUp(self):
         self.c = Collection.objects.create(title="foo")
         self.v = Video.objects.create(collection=self.c, title="bar")
-        (self.u, _) = User.objects.get_or_create(username="doctestfoo")
+        (self.u, _) = User.objects.get_or_create(username="foo")
         self.o = Operation.objects.create(
             video=self.v, action="tahoe",
             owner=self.u, status="in progress", params="")

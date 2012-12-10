@@ -39,3 +39,25 @@ class SimpleText(TestCase):
         self.c.login(username="foo", password="bar")
         response = self.c.get("/recent_operations/")
         self.assertEquals(response.status_code, 200)
+
+    def test_upload_form(self):
+        self.c.login(username="foo", password="bar")
+        response = self.c.get("/upload/")
+        self.assertEquals(response.status_code, 200)
+
+        response = self.c.get("/scan_directory/")
+        self.assertEquals(response.status_code, 200)
+
+    def test_upload_errors(self):
+        # if we try to post without logging in, should get redirected
+        response = self.c.post("/upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+        self.c.login(username="foo", password="bar")
+        # GET should not work
+        response = self.c.get("/upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+        # invalid form
+        response = self.c.post("/upload/post/")
+        self.assertEquals(response.status_code, 302)
