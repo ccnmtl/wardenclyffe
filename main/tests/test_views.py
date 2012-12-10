@@ -25,3 +25,17 @@ class SimpleText(TestCase):
         self.c.login(username="foo", password="bar")
         response = self.c.get("/dashboard/")
         self.assertEquals(response.status_code, 200)
+
+    def test_received_invalid(self):
+        response = self.c.post("/received/")
+        assert response.content == "expecting a title"
+
+    def test_received(self):
+        response = self.c.post("/received/",
+                               {'title': 'some title. not a uuid'})
+        assert response.content == "ok"
+
+    def test_recent_operations(self):
+        self.c.login(username="foo", password="bar")
+        response = self.c.get("/recent_operations/")
+        self.assertEquals(response.status_code, 200)
