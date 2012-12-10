@@ -7,6 +7,7 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 from wardenclyffe.main.models import Collection, Video, File, WrongFileType
+from wardenclyffe.main.models import User, Operation
 import uuid
 from wardenclyffe.main.tasks import strip_special_characters
 
@@ -568,3 +569,26 @@ class H264SecureStreamFileTest(TestCase):
             "http://stream.ccnmtl.columbia.edu/secvideos/"
             "SECURE/courses/56d27944-4131-11e1-8164-0017f20ea192"
             "-Mediathread_video_uploaded_by_mlp55.mp4")
+
+
+class OperationTest(TestCase):
+    def setUp(self):
+        self.c = Collection.objects.create(title="foo")
+        self.v = Video.objects.create(collection=self.c, title="bar")
+        (self.u, _) = User.objects.get_or_create(username="doctestfoo")
+        self.o = Operation.objects.create(
+            video=self.v, action="tahoe",
+            owner=self.u, status="in progress", params="")
+
+    def tearDown(self):
+        self.o.delete()
+        self.v.delete()
+        self.u.delete()
+        self.c.delete()
+
+    def test_basics(self):
+        self.assertEquals(self.o.get_absolute_url().startswith("/operation/"),
+                          True)
+        d = self.o.as_dict()
+        self.assertEquals(d['status'], self.o.status)
+        self.assertEquals(self.o.formatted_params(), '')
