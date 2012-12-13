@@ -5,7 +5,7 @@ from wardenclyffe.main.models import Collection, Video, File
 import uuid
 
 
-class SimpleText(TestCase):
+class SimpleTest(TestCase):
     def setUp(self):
         self.u = User.objects.create(username="foo")
         self.u.set_password("bar")
