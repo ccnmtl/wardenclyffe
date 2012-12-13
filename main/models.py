@@ -7,6 +7,8 @@ from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
 from wardenclyffe.surelink.helpers import SureLink
+from wardenclyffe.surelink.helpers import PROTECTION_OPTIONS
+from wardenclyffe.surelink.helpers import AUTHTYPE_OPTIONS
 from django.conf import settings
 import os.path
 from wardenclyffe.util.mail import send_failed_operation_mail
@@ -588,6 +590,29 @@ class File(TimeStampedModel):
                      label="Wardenclyffe generated")
                 )
         return options
+
+    def protection_options(self):
+        if self.is_h264_secure_streamable():
+            return [
+                dict(value="mp4_secure_stream",
+                     label="mp4 secure stream"),
+                ]
+        return PROTECTION_OPTIONS
+
+    def authtype_options(self):
+        if self.is_h264_secure_streamable():
+            return [
+                dict(value="wind",
+                     label="WIND [authtype=wind]"),
+                dict(value="wikispaces",
+                     label=("Wikispaces (Pamacea auth-domain) "
+                            "[authtype=wikispaces]")),
+                dict(value="auth",
+                     label=("Standard UNI (Pamacea domain incompatible"
+                            " with wikispaces)"
+                            " [authtype=auth]")),
+                ]
+        return AUTHTYPE_OPTIONS
 
 
 class Metadata(models.Model):

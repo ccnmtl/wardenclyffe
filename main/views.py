@@ -795,36 +795,16 @@ def video(request, id):
 @render_to('main/file.html')
 def file(request, id):
     f = get_object_or_404(File, id=id)
-    surelink = None
     filename = f.filename
     if filename and filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
         filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
     if f.is_h264_secure_streamable():
         filename = f.h264_secure_path()
-    protection_options = PROTECTION_OPTIONS
-    authtype_options = AUTHTYPE_OPTIONS
 
-    if f.is_h264_secure_streamable():
-        protection_options = [
-            dict(value="mp4_secure_stream",
-                 label="mp4 secure stream"),
-            ]
-        authtype_options = [
-            dict(value="wind",
-                 label="WIND [authtype=wind]"),
-            dict(value="wikispaces",
-                 label=("Wikispaces (Pamacea auth-domain) "
-                        "[authtype=wikispaces]")),
-            dict(value="auth",
-                 label=("Standard UNI (Pamacea domain incompatible"
-                        " with wikispaces)"
-                        " [authtype=auth]")),
-            ]
-
-    return dict(file=f, surelink=surelink, filename=filename,
+    return dict(file=f, filename=filename,
                 poster_options=f.poster_options(POSTER_BASE),
-                protection_options=protection_options,
-                authtype_options=authtype_options,
+                protection_options=f.protection_options(),
+                authtype_options=f.authtype_options(),
                 )
 
 
