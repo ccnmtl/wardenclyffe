@@ -23,6 +23,8 @@ from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
+from wardenclyffe.surelink.helpers import PROTECTION_OPTIONS
+from wardenclyffe.surelink.helpers import AUTHTYPE_OPTIONS
 from wardenclyffe.surelink.helpers import SureLink
 import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
@@ -1199,28 +1201,6 @@ POSTER_OPTIONS = [
     dict(value=POSTER_BASE + "_320x240.jpg",
          label="CCNMTL 320x240"),
     ]
-PROTECTION_OPTIONS = [
-    dict(value="public-mp4-download",
-         label="public mp4/mp3 non-streaming"),
-    dict(value="public",
-         label="public streaming flv"),
-    dict(value="protected",
-         label="protected streaming flv/protected mp3 (valid-user)"),
-    dict(value="mp4_public_stream",
-         label="mp4 public stream"),
-    dict(value="mp4_secure_stream",
-         label="mp4 secure stream"),
-]
-AUTHTYPE_OPTIONS = [
-    dict(value="", label="None (Public)"),
-    dict(value="wikispaces",
-         label="Wikispaces (Pamacea auth-domain) [authtype=wikispaces]"),
-    dict(value="auth",
-         label=("Standard UNI (Pamacea domain incompatible with wikispaces)"
-                " [authtype=auth]")),
-    dict(value="wind",
-         label="WIND [authtype=wind]"),
-]
 
 
 @render_to("main/surelink.html")
