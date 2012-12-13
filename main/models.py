@@ -571,6 +571,24 @@ class File(TimeStampedModel):
     def video_format(self):
         return self.get_metadata("ID_VIDEO_FORMAT")
 
+    def poster_options(self, cuit_poster_base):
+        options = [
+            dict(value=cuit_poster_base + "_320x240.jpg",
+                 label="CCNMTL 320x240"),
+            dict(value=cuit_poster_base + "_480x360.jpg",
+                 label="CCNMTL 480x360"),
+            dict(value=cuit_poster_base + "_480x272.jpg",
+                 label="CCNMTL 480x272"),
+            ]
+
+        if self.video.has_poster():
+            options.insert(
+                0,
+                dict(value=(self.video.poster_url()),
+                     label="Wardenclyffe generated")
+                )
+        return options
+
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about
