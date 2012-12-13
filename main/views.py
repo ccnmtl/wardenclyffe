@@ -841,8 +841,8 @@ def file_surelink(request, id):
         file=f,
         poster=request.GET.get('poster', ''),
         poster_options=POSTER_OPTIONS,
-        protection_options=PROTECTION_OPTIONS,
-        authtype_options=AUTHTYPE_OPTIONS,
+        protection_options=f.protection_options(),
+        authtype_options=f.authtype_options(),
         authtype=request.GET.get('authtype', ''),
         )
 
