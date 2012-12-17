@@ -105,7 +105,7 @@ urlpatterns = patterns(
     (r'munin/total_operations/', 'main.views.total_operations'),
     (r'munin/total_minutes/', 'main.views.total_minutes'),
     ('^munin/', include('munin.urls')),
-
+    ('smoketest/', include('smoketest.urls')),
     ('^stats/', direct_to_template, {'template': 'main/stats.html'}),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',
      {'document_root': site_media_root}),

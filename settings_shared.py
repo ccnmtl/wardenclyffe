@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'wardenclyffe.cuit',
     'raven.contrib.django',
     'django_statsd',
+    'smoketest',
 )
 
 STATSD_CLIENT = 'statsd.client'
