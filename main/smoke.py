@@ -1,6 +1,7 @@
 from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
+import os.path
 
 
 class DBConnectivityTest(SmokeTest):
@@ -98,10 +99,10 @@ class CUITSSHTest(SmokeTest):
 
 
 class WatchDirTest(SmokeTest):
-    """ make sure the watch directory exists and has the right
-    permissions"""
+    """ make sure the watch directory exists"""
     def test_watchdir(self):
-        pass
+        self.assertTrue(os.path.exists(settings.WATCH_DIRECTORY))
+        self.assertTrue(os.path.isdir(settings.WATCH_DIRECTORY))
 
 
 class TahoeTest(SmokeTest):
