@@ -96,18 +96,6 @@ class KinoTest(SmokeTest):
         self.assertTrue(len(workflows) > 0)
 
 
-class YoutubeTest(SmokeTest):
-    """ make sure our youtube account works """
-    def test_youtube_connection(self):
-        pass
-
-
-class CUITSSHTest(SmokeTest):
-    """ make sure we have key-based ssh access to the CUIT servers """
-    def test_cuit_ssh(self):
-        pass
-
-
 class WatchDirTest(SmokeTest):
     """ make sure the watch directory exists"""
     def test_watchdir(self):
