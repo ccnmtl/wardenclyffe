@@ -31,6 +31,7 @@ class ExpectedSettings(SmokeTest):
     def test_vital_settings(self):
         self.assertIsNotNone(settings.VITAL_PCP_WORKFLOW)
         self.assertIsNotNone(settings.VITAL_COLLECTION_ID)
+        self.assertIsNotNone(settings.VITAL_SECRET)
 
     def test_mediathread_settings(self):
         self.assertIsNotNone(settings.MEDIATHREAD_BASE)
@@ -49,10 +50,26 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.YOUTUBE_CLIENT_ID)
 
     def test_sshsftp_settings(self):
-        pass
+        self.assertIsNotNone(settings.SFTP_HOSTNAME)
+        self.assertIsNotNone(settings.SFTP_USER)
+        self.assertIsNotNone(settings.SSH_PRIVATE_KEY_PATH)
+        self.assertIsNotNone(settings.CREDENTIALS)
 
     def test_rabbitmq_settings(self):
-        pass
+        self.assertIsNotNone(settings.BROKER_HOST)
+        self.assertIsNotNone(settings.BROKER_PORT)
+        self.assertIsNotNone(settings.BROKER_USER)
+        self.assertIsNotNone(settings.BROKER_PASSWORD)
+        self.assertIsNotNone(settings.BROKER_VHOST)
+
+    def test_sentry_settings(self):
+        if not settings.DEBUG:
+            self.assertIsNotNone(settings.SENTRY_SERVERS)
+            self.assertIsNotNone(settings.SENTRY_SITE)
+            self.assertIsNotNone(settings.SENTRY_KEY)
+
+    def test_surelink_settings(self):
+        self.assertIsNotNone(settings.SURELINK_PROTECTION_KEY)
 
 
 class RabbitMQTest(SmokeTest):
