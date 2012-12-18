@@ -1,7 +1,9 @@
+from angeldust import PCP
 from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
 import os.path
+import requests
 
 
 class DBConnectivityTest(SmokeTest):
@@ -83,7 +85,15 @@ class KinoTest(SmokeTest):
     """ make sure the Kino server is up and we can connect
     with the username/password we have """
     def test_kino_connection(self):
-        pass
+        workflows = []
+        try:
+            p = PCP(settings.PCP_BASE_URL,
+                    settings.PCP_USERNAME,
+                    settings.PCP_PASSWORD)
+            workflows = p.workflows()
+        except:
+            workflows = []
+        self.assertTrue(len(workflows) > 0)
 
 
 class YoutubeTest(SmokeTest):
@@ -109,4 +119,5 @@ class TahoeTest(SmokeTest):
     """ make sure we can connect to Tahoe and that the
     base CAP looks legit"""
     def test_tahoe(self):
-        pass
+        response = requests.get(settings.TAHOE_BASE)
+        self.assertEqual(response.status_code, 200)
