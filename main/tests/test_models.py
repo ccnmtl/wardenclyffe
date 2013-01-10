@@ -6,7 +6,7 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from wardenclyffe.main.models import Collection, Video, File, WrongFileType
+from wardenclyffe.main.models import Collection, Video, File
 from wardenclyffe.main.models import User, Operation
 import uuid
 from wardenclyffe.main.tasks import strip_special_characters
@@ -40,8 +40,8 @@ class CUITFileTest(TestCase):
     def test_tahoe_download_url(self):
         assert self.video.tahoe_file() is None
         assert self.video.cap() is None
-        with self.assertRaises(WrongFileType):
-            self.file.tahoe_download_url()
+#        with self.assertRaises(WrongFileType):
+#            self.file.tahoe_download_url()
 
     def test_mediathread_url(self):
         self.assertEqual(
