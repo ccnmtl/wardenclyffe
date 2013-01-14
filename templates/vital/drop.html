@@ -1,3 +1,4 @@
+{% load waffle_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -37,10 +38,7 @@ function validate_file_format(allowed_ext){
 </script>
 </head>
 <body class="vital">
-{% if 1 %}
-{% include 'main/maintenance_mode.html' %}
-{% else %}
-
+{% flag allow_uploads %}
 
 <div class="visual-portal-wrapper"><!-- Page wrapper -->
 
@@ -116,5 +114,7 @@ function validate_file_format(allowed_ext){
 
 </div><!-- End content area, class="documentContentMain" -->
 </div><!-- End Page wrapper, class="visual-portal-wrapper" -->
-{% endif %}
+{% else %}
+{% include 'main/maintenance_mode.html' %}
+{% endflag %
 </body>
