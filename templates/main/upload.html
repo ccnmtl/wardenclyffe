@@ -15,6 +15,9 @@
 {% endblock %}
 
 {% block content %}
+{% if 1 %}
+{% include 'main/maintenance_mode.html' %}
+{% else %}
 <form action="/upload/post/" method="post" enctype="multipart/form-data">
 
 <div class="panel_top">
@@ -215,6 +218,6 @@ jQuery(document).ready(function()
 </script>
 
 <script src="/site_media/js/help_windows.js" type="text/javascript" language="javascript"></script>
-
+{% endif %}
 {% endblock %}
 <!--  -->

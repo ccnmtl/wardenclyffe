@@ -37,6 +37,11 @@ function validate_file_format(allowed_ext){
 </script>
 </head>
 <body class="vital">
+{% if 1 %}
+{% include 'main/maintenance_mode.html' %}
+{% else %}
+
+
 <div class="visual-portal-wrapper"><!-- Page wrapper -->
 
 <div class="portal-top"><!-- Begin div for top navigation -->
@@ -111,4 +116,5 @@ function validate_file_format(allowed_ext){
 
 </div><!-- End content area, class="documentContentMain" -->
 </div><!-- End Page wrapper, class="visual-portal-wrapper" -->
+{% endif %}
 </body>

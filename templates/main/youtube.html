@@ -20,6 +20,10 @@
 
 </head>
 <body class="one_column fixed">
+{% if 1 %}
+{% include 'main/maintenance_mode.html' %}
+{% else %}
+
 <div id="container">
 <div id="youtubeheader">
 </div>
@@ -77,5 +81,6 @@ $(document).ready(function() {
   });
 });
 </script>
+{% endif %}
 </body>
 </html>

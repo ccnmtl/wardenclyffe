@@ -33,6 +33,9 @@
         <div class="visualclear"></div>
 
         <div id="content">
+{% if 1 %}
+{% include 'main/maintenance_mode.html' %}
+{% else %}
             <h1>Mediathread {% if audio %}Audio{% else %}Video{% endif %} Upload</h1>
 
             <div id="admincontent" style="width: 600px;"> 
@@ -121,7 +124,7 @@
 <br />
 <br />
 	<!-- ###### Footer ###### -->
-	<div id="footer_m"><div></div></div>
+	<div id="footer_m"><div></div>{% endif %}</div>
     <script type="text/javascript">
         jQuery(document).ready(function() {
           
