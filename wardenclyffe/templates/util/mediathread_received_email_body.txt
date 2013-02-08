@@ -1,0 +1,11 @@
+This email confirms that '{{video_title}}' has been successfully submitted to
+Mediathread for {{uni}}.
+
+The media file is now being processed.  When it is available in
+your Mediathread course you will receive another email confirmation.
+This confirmation should arrive within 24 hours.
+
+If you have any questions, please visit
+
+    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
+

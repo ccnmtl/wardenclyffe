@@ -1,4 +1,0 @@
-This email confirms that {{video_title}}, uploaded to VITAL by {{uni}}, is now available in the {{course_id}} course library.
-
-If you have any questions, please contact VITAL administrators at ccnmtl-vital@columbia.edu.
-

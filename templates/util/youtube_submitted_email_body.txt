@@ -1,7 +1,0 @@
-This email confirms that "{{video_title}}" has been successfully submitted to Columbia's YouTube channel by {{uni}}.
-
-Your video will now be reviewed by our staff, and published. When completed, it will be available at the following destination:
-
-YouTube URL: {{url}}
-
-If you have any questions, please contact Columbia's YouTube administrators at ccnmtl-youtube@columbia.edu.

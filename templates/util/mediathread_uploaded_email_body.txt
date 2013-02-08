@@ -1,8 +1,0 @@
-This email confirms that {{video_title}}, uploaded to Mediathread for {{uni}}, is now available.
-
-View/Annotate it here: {{url}}
-
-If you have any questions, please visit
-
-    http://support.ccnmtl.columbia.edu/knowledgebase/articles/44003-uploading-video-into-mediathread
-

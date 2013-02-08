@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% load thumbnail %}
+
+{% block js %}
+{{block.super}}
+<script type="text/javascript">
+var removeTag = function(tagName,tagId) {
+   var li = jQuery("#tag-" + tagId);
+   li.addClass("ui-state-disabled");
+   jQuery.ajax({url: "remove_tag/" + tagName + "/?ajax=1",
+   context: li,
+   success: function (){this.hide();}
+});
+//   jQuery("#tag-" + tagId).hide();
+};
+
+jQuery(document).ready(function() 
+    { 
+        jQuery(".tablesorter").tablesorter({widgets: ['zebra']}); 
+    } 
+); 
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Collection: {{collection.title}}</h1>
+
+<table>
+<tr><th>creator<br /><span class="dc">dcterms:creator</span></th></th><td>{{collection.creator}}</td></tr>
+<tr><th>contributor<br /><span class="dc">dcterms:contributor</span></th></th><td>{{collection.contributor}}</td></tr>
+<tr><th>language<br /><span class="dc">dcterms:language</span></th></th><td>{{collection.language}}</td></tr>
+<tr><th>description<br /><span class="dc">dcterms:description</span></th></th><td>{{collection.description}}</td></tr>
+<tr><th>subject<br /><span class="dc">dcterms:subject</span></th></th><td>{{collection.subject}}</td></tr>
+<tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{collection.license}}</td></tr>
+<tr><th>tags</th>
+<td>
+    <ul>
+      {% for tag in collection.tags.all %}
+      <li id="tag-{{tag.id}}">
+	<a href="/tag/{{tag}}/">{{tag}}</a>
+	[<a href="remove_tag/{{tag}}/"
+	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
+      </li>{% endfor %}
+    </ul>
+
+</td></tr>
+</table>
+<p><a href="edit/">edit collection metadata</a></p>
+
+<form action="toggle_active/" method="post">
+{% if collection.active %}
+<input type="submit" value="de-activate collection" />
+{% else %}
+<input type="submit" value="re-activate collection" />
+{% endif %}
+</form>
+
+
+<p><a href="/upload/?collection={{collection.id}}">add a video</a></p>
+<p><a href="rss/"><img src="http://pmt.ccnmtl.columbia.edu/images/rss.png"
+			/> RSS Feed</a></p>
+
+<h2>Default Workflows</h2>
+{% if collection.collectionworkflow_set.count %}
+<ul>
+	{% for cw in collection.collectionworkflow_set.all %}
+	<li>{{cw.label}} [{{cw.workflow}}]</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>None set</p>
+{% endif %}
+<a href="workflows/">Edit</a>
+
+
+{% if videos %}
+<h2>Recent Videos</h2>
+<p>You can also browse <a href="videos/">all videos in the collection</a></p>
+<table style="width: 100%" class="tablesorter"> 
+<thead>
+<tr><th colspan="2">Video</th>
+<th>uploaded</th>
+<th>modified</th>
+</tr>
+</thead>
+
+<tbody>
+{% for video in videos %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td>
+<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     width="160" height="120" />
+{% else %}
+{% thumbnail poster.image "160x120" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}</a>
+</td>
+
+<th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
+<td>{{video.created|date:"M d, Y H:i:s"}}</td>
+<td>{{video.modified|date:"M d, Y H:i:s"}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% if operations %}
+<h2>Recent Operations</h2>
+<p>You can also browse <a href="operations/">all operations in the collection</a></p>
+<table style="width: 100%" class="tablesorter">
+<thead>
+<tr>
+  <th>action</th>
+  <th>owner</th>
+  <th>video</th>
+  <th>status</th>
+  <th>started</th>
+  <th>last update</th>
+</tr>
+</thead>
+<tbody>
+{% for operation in operations %}
+<tr class="{% cycle 'odd' 'even' %}">
+  <td>{{operation.action}}</td>
+  <td><a href="/user/{{operation.owner.username}}/">{{operation.owner.first_name}} {{operation.owner.last_name}}</a></td>
+  <td><a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
+  <td class="{{operation.status}}">{{operation.status}}</td>
+  <td>{{operation.created|date:"M d, Y H:i:s"}}</td>
+  <td>{{operation.modified|date:"M d, Y H:i:s"}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+
+{% endblock %}

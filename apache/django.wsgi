@@ -4,8 +4,6 @@ import os, sys, site
 site.addsitedir('/var/www/wardenclyffe/wardenclyffe/ve/lib/python2.6/site-packages')
 
 # paths we might need to pick up the project's settings
-sys.path.append('/var/www/')
-sys.path.append('/var/www/wardenclyffe/')
 sys.path.append('/var/www/wardenclyffe/wardenclyffe/')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'wardenclyffe.settings_production'

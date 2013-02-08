@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block js %}
+ <link type="text/css" href="https://www1.columbia.edu/sec/ccnmtl/remote/jquery-ui/css/smoothness/jquery-ui-1.8.1.custom.css" rel="stylesheet" /> 
+  <script type="text/javascript" src="https://www1.columbia.edu/sec/ccnmtl/remote/jquery-ui/js/jquery-1.4.2.min.js"></script> 
+  <script type="text/javascript" src="https://www1.columbia.edu/sec/ccnmtl/remote/jquery-ui/js/jquery-ui-1.8.1.custom.min.js"></script> 
+
+  <style type="text/css"> 
+    body{ font: 72.5% "Trebuchet MS", sans-serif; margin: 50px;}
+  </style> 
+
+  <script type="text/javascript"> 
+     $(function(){
+       $('#tabs').tabs();
+     });
+  </script> 
+
+{% endblock %}
+
+{% load markup %}
+{% load thumbnail %}
+{% load oembed_tags %}
+{% block content %}
+<p><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>/<a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></p>
+<h1>File: {{file.label}}</h1>
+
+
+<table>
+<tr><th>label</th><td>{{file.label}}</td></tr>
+<tr><th>Location Type</th><td>{{file.location_type}}</td></tr>
+{% if file.url %}<tr><th>URL</th><td>{% if file.url %}<a href="{{file.url}}">{{file.url}}</a>{% endif %}</td></tr>{% endif %}
+{% if file.cap %}<tr><th>Tahoe CAP</th><td>{{file.cap}}</td></tr>{% endif %}
+{% if file.filename %}<tr><th>Filename</th><td>{{file.filename}}</td></tr>{% endif %}
+</table>
+
+{% ifequal file.location_type "mediathread" %}
+<p><a href="{{file.url}}">Annotate this video in mediathread</a></p>
+{% endifequal %}
+
+{% if file.surelinkable %}
+<div id="surelink">
+<h2>SureLink</h2> 
+ 
+<form method="GET" action="surelink/"> 
+ 
+  <label for="file"><b>Media (path) and filename:</b></label><br /> 
+  <input type="text" size="200" style="width:50%" name="file" value="{{filename}}"/><br /> 
+  <br /> 
+  <label for="captions"><b><a href="http://flowplayer.org/plugins/flash/captions.html">Captions
+  URL</a> (optional):</b></label><br />    
+  <input type="text" name="captions" value="{{captions}}" style="width:50%" /> 
+  <br /> 
+  <label for="poster"><b>Poster:</b></label>  <br />
+  <select name="poster"> 
+		{% for po in poster_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value poster %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
+  </select> 
+  <br /> 
+  <label for="width"><b>Width:</b></label> <br />
+  <input type="text" name="width" value="{{file.guess_width}}"
+  size="10" /> <br />
+  <label for="height"><b>Height (not including controls):</b></label>
+  <br />
+  <input type="text" name="height" value="{{file.guess_height}}" size="10"/> 
+  <br /> 
+  <label for="protection"><b>Link type:</b></label> <br />
+  <select name="protection"> 
+		{% for po in protection_options %}
+		<option value="{{po.value}}"
+						{% ifequal po.value protection %}
+						selected
+						{% endifequal %}>{{po.label}}</option>
+		{% endfor %}
+  </select> 
+  <br /> 
+  <label for="authtype"><b>Auth:</b></label>  <br />
+  <select name="authtype"> 
+		{% for ato in authtype_options %}
+		<option value="{{ato.value}}"
+						{% ifequal ato.value authtype %}
+						selected
+						{% endifequal %}>{{ato.label}}</option>
+		{% endfor %}
+  </select> 
+  <input type="hidden" name="player" value="v4" /> 
+  <br /> 
+ 
+  <input type="submit" value="Generate Link" /> 
+ 
+<br /> 
+ 
+</form> 
+
+
+
+</div>
+{% endif %}
+
+
+{% ifequal file.location_type "tahoe" %}
+<div id="embed">
+<p>Raw HTML Embed code:</p>
+
+<textarea rows="3" cols="100">
+&lt;script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?player=download_mp4_v3&amp;file={{file.tahoe_download_url}}&amp;width=480&amp;height=360&amp;poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&amp;protection=5916f0fe8ab583c47adf39fbe3a80086b7122994">&lt;/script>
+</textarea>
+
+<p>Preview</p>
+
+<script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?player=download_mp4_v3&file={{file.tahoe_download_url}}&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&protection=5916f0fe8ab583c47adf39fbe3a80086b7122994"></script>
+</div>
+{% endifequal %}
+
+{% if file.url %}
+{% ifequal file.location_type "mediathread" %}
+{% else %}
+<div id="embed">
+<p>Raw HTML Embed code:</p>
+<textarea rows="5" cols="100">
+{% oembed %}{{file.url}}{% endoembed %}
+</textarea>
+<p>Preview</p>
+{% oembed %}{{file.url}}{% endoembed %}
+</div>
+{% endifequal %}
+{% endif %}
+
+{% if file.metadata_set.count %}
+<div id="metadata">
+<h2>Metadata</h2>
+<table>
+{% for m in file.metadata_set.all %}
+<tr class="{% cycle 'even' 'odd' %}">
+<th style="text-align: left">{{m.field}}</th>
+<td><a href="/file/?{{m.field}}={{m.value}}">{{m.value}}</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+{% if file.is_cuit %}
+<p><a href="submit_to_workflow/">submit to a workflow</a></p>
+{% endif %}
+
+{% endblock %}

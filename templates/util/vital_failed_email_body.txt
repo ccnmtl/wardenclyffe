@@ -1,4 +1,0 @@
-An error has occurred while attempting to upload your video, "{{video_title}}", to VITAL.
-Please contact CCNMTL video staff for assistance.
-The error encountered:
-{{error_content}}

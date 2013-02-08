@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load markup %}
+
+{% block content %}
+
+[<a href="add/">add a server</a>]
+
+{% if servers %}
+<ul>
+{% for server in servers %}
+<li><a href="{{server.get_absolute_url}}">{{server.name}} [{{server.hostname}}]</a></li>
+{% endfor %}
+<ul>
+{% endif %}
+
+{% endblock %}

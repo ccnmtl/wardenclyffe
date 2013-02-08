@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block js %}
+
+{{block.super}}
+
+<script type="text/javascript">
+
+var selectAll = function()   {
+   $(".file_checkbox").attr('checked','checked');
+};
+var deselectAll = function() {
+   $(".file_checkbox").attr('checked','');
+};
+
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<table>
+<tr>
+<td>
+
+<table>
+  <tr>
+    <th></th>
+    <th>File</th>
+    <th>Collection</th>
+    <th>File Type</th>
+    <th>Video Format</th>
+    <th>Audio Format</th>
+  </tr>
+
+<form action="." method="get">
+  
+  <tr>
+    <th></th>
+    <td><input type="submit" value="filter" /></td>
+    <td>
+      <select multiple="multiple" name="include_collection" size="5">
+      {% for collection,included in all_collection %}
+      <option value="{{collection.id}}" {% if included %}selected="selected"{% endif %}/>{{collection.title}}</option>
+      {% endfor %}
+      </select>
+    </td>
+
+    <td>
+      <select multiple="multiple" name="include_file_types" size="5">
+      {% for ft,included in all_file_types %}
+      <option value="{{ft}}" {% if included %}selected="selected"{% endif %}/>{{ft}}</option>
+      {% endfor %}
+      </select>
+    </td>
+
+    <td>
+      <select multiple="multiple" name="include_video_formats" size="5">
+      {% for vf,included in all_video_formats %}
+        <option value="{{vf}}"  
+		{% if included %}selected="selected"{% endif %}/>{% if vf %}{{vf}}{% else %}[None]{% endif %}</option>
+      {% endfor %}
+      </select>
+    </td>
+    <td>
+
+      <select multiple="multiple" name="include_audio_formats" size="5">
+      {% for af,included in all_audio_formats %}
+        <option value="{{af}}"  {% if included %}selected="selected"{% endif %}/>{% if af %}{{af}}{% else %}[None]{% endif %}</option>
+      {% endfor %}
+      </select>
+
+    </td>
+  </tr>
+</form>
+  <form action="/bulk_file_operation/" method="get">
+    {% for file in files %}
+    <tr class="{% cycle 'odd' 'even' %}">
+      <td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>
+      <td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a> <a href="{{file.get_absolute_url}}">{{file.label}}</a></td>
+      <td><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a></td>
+      <td>{{file.location_type}}</td>
+      <td>{{file.video_format}}</td>
+      <td>{{file.audio_format}}</td>
+    </tr>
+    {% endfor %}
+
+<tr><td colspan="6">
+    <input type="button" value="select all" onclick="selectAll()"/>
+    <input type="button" value="deselect all" onclick="deselectAll()"/>
+
+  <input type="submit" value="bulk action" />
+  </form>
+</td>
+</tr>
+</table>
+
+
+
+{% endblock %}

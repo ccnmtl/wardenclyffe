@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% load thumbnail %}
+{% block title %}Dashboard{% endblock %}
+{% block pagetitle %}Dashboard{% endblock %}
+
+{% blo}
+
+{% block js %}
+{{block.super}}
+<script src="/site_media/js/underscore/underscore-min.js" type="application/javascript"></script>
+<script src="/site_media/js/backbone/backbone-min.js" type="application/javascript"></script>
+<script src="/site_media/js/dashboard.js" type="application/javascript"></script>
+<script type="text/javascript" src="/site_media/js/jquery.tablesorter.min.js"></script> 
+{% endblock %}
+
+{% block content %}
+
+
+
+<form action="." method="get">
+<h3>Filters</h3>
+
+<p><b>Status:</b>
+<input type="hidden" name="submitted" value="1" />
+<input type="checkbox" name="status_filter_failed" 
+{% if failed %}checked="checked"{% endif %}
+/> failed
+<input type="checkbox" name="status_filter_complete" 
+{% if complete %}checked="checked"{% endif %}
+/> complete
+<input type="checkbox" name="status_filter_submitted" 
+{% if submitted %}checked="checked"{% endif %}
+/> submitted
+<input type="checkbox" name="status_filter_inprogress" 
+{% if inprogress %}checked="checked"{% endif %}
+/> in progress
+<input type="checkbox" name="status_filter_enqueued" 
+{% if enqueued %}checked="checked"{% endif %}
+/> enqueued
+
+</p>
+
+<p><b>Collection:</b>
+<select name="collection">
+<option value="">ALL</option>
+{% for collection in all_collection %}
+<option value="{{collection.id}}"
+{% ifequal collection.id collection_filter %}selected="selected"{% endifequal %}
+>{{collection.title}}</option>
+{% endfor %}
+</select>
+</p>
+
+<p><b>User(s):</b>
+<select name="user">
+<option value="">ALL</option>
+{% for user in all_users %}
+<option value="{{user.username}}"
+{% ifequal user.username user_filter %}selected="selected"{% endifequal %}
+>[{{user.username}}]
+  {{user.first_name}} {{user.last_name}}</option>
+{% endfor %}
+</select>
+</p>
+<input type="submit" value="filter" />
+</form>
+
+
+
+<table id="operations">
+  <thead>
+    <tr>
+      <th></th>
+      <th>operation</th>
+      <th>video</th>
+      <th>collection</th>
+      <th>date</th>
+      <th>user</th>
+    </tr>
+  </thead>
+
+  <tbody id="bb-operations">
+
+	</tbody>
+</table>
+
+
+<script type="text/template" id="operation-template">
+
+		<td><div class="operation_status <%- clean_status %>"></div></td>
+		<td><%- action %></td>
+    <td><a href="<%- video_url %>"><%- video_title %></a></td>
+		<td><a href="<%- collection_url %>"><%- collection_title %></a></td>
+		<td class="modified"><%- modified %></td>
+		<td><%- video_creator %></td>
+
+</script>
+
+
+{% endblock %}
