@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% block content %}
+
+<a href="/server/">&lt;- Servers</a>
+
+<table>
+
+<tr><th>name</th><td>{{server.name}}</td></tr>
+<tr><th>hostname</th><td><tt>{{server.hostname}}</tt></td></tr>
+<tr><th>description</th><td>{{server.description|markdown}}</td></tr>
+<tr><th>credentials</th><td>{{server.credentials}}</td></tr>
+<tr><th>base_dir</th><td><tt>{{server.base_dir}}</tt></td></tr>
+<tr><th>base_url</th><td><tt>{{server.base_url}}</tt></td></tr>
+<tr><th>server_type</th><td>{{server.server_type}}</td></tr>
+
+</table>
+
+<form action="delete/" method="post">
+{% csrf_token %}
+<input type="submit" value="delete" />
+</form>
+
+{% if server.serverfile_set.count %}
+<h2>files</h2>
+
+<table>
+{% for serverfile in server.serverfile_set.all %}
+<tr>
+<td><a href="{{serverfile.file.video.get_absolute_url}}">{{serverfile.file.video.title}}</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="tabs">
+
+<ul>
+  <li><a href="#day">Last 24 Hours</a></li> 
+  <li><a href="#week">Week</a></li>
+  <li><a href="#month">Month</a></li>
+  <li><a href="#year">Year</a></li>
+</ul>
+
+<div id="day">
+<h2>Traffic</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.200&graphOnly=false&hideGrid=true&hideLegend=true">
+<h2>Response Times (max/mean/min)</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976726.925&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.lower)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.mean)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.upper)&hideGrid=true&hideLegend=true&from=-24hours"/>
+<h2>Errors</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.404&target=ccnmtl.app.counters.wardenclyffe.response.500&graphOnly=false&hideGrid=true">
+<h2>Main Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.extract_metadata&target=ccnmtl.app.counters.wardenclyffe.main.done&target=ccnmtl.app.counters.wardenclyffe.main.received&target=ccnmtl.app.counters.wardenclyffe.main.uploadify_post&target=ccnmtl.app.counters.wardenclyffe.make_images&target=ccnmtl.app.counters.wardenclyffe.save_file_to_tahoe&target=ccnmtl.app.counters.wardenclyffe.submit_to_pcp&hideLegend=false&hideGrid=true&from=-24hours">
+<h2>Mediathread Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.mediathread.tasks.submit_to_mediathread&target=ccnmtl.app.counters.wardenclyffe.mediathread.user_created&target=ccnmtl.app.counters.wardenclyffe.main.upload.mediathread&hideLegend=false&hideGrid=true&from=-24hours">
+<h2>Vital Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.vital.done&target=ccnmtl.app.counters.wardenclyffe.vital.received&target=ccnmtl.app.counters.wardenclyffe.vital.submit_to_vital&target=ccnmtl.app.counters.wardenclyffe.vital.posterdone&hideLegend=false&hideGrid=true&from=-24hours">
+<h2>Failures</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.main.process_task.failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.auth_failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.mediathread.failure&target=ccnmtl.app.counters.wardenclyffe.vital.drop.failure&graphOnly=false&hideGrid=true&from=-24hours">
+
+</div>
+
+
+<div id="week">
+<h2>Traffic</h2>
+
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.200&graphOnly=false&hideGrid=true&hideLegend=true&from=-7days">
+
+<h2>Response Times (max/mean/min)</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976726.925&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.lower)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.mean)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.upper)&hideGrid=true&hideLegend=true&from=-7days"/>
+
+<h2>Errors</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.404&target=ccnmtl.app.counters.wardenclyffe.response.500&graphOnly=false&hideGrid=true&from=-7days">
+
+<h2>Main Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.extract_metadata&target=ccnmtl.app.counters.wardenclyffe.main.done&target=ccnmtl.app.counters.wardenclyffe.main.received&target=ccnmtl.app.counters.wardenclyffe.main.uploadify_post&target=ccnmtl.app.counters.wardenclyffe.make_images&target=ccnmtl.app.counters.wardenclyffe.save_file_to_tahoe&target=ccnmtl.app.counters.wardenclyffe.submit_to_pcp&hideLegend=false&hideGrid=true&from=-7days">
+<h2>Mediathread Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.mediathread.tasks.submit_to_mediathread&target=ccnmtl.app.counters.wardenclyffe.mediathread.user_created&target=ccnmtl.app.counters.wardenclyffe.main.upload.mediathread&hideLegend=false&hideGrid=true&from=-7days">
+<h2>Vital Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.vital.done&target=ccnmtl.app.counters.wardenclyffe.vital.received&target=ccnmtl.app.counters.wardenclyffe.vital.submit_to_vital&target=ccnmtl.app.counters.wardenclyffe.vital.posterdone&hideLegend=false&hideGrid=true&from=-7days">
+<h2>Failures</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.main.process_task.failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.auth_failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.mediathread.failure&target=ccnmtl.app.counters.wardenclyffe.vital.drop.failure&graphOnly=false&hideGrid=true&from=-7days">
+
+</div>
+
+<div id="month">
+
+<h2>Traffic</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.200&graphOnly=false&hideGrid=true&hideLegend=true&from=-1months">
+<h2>Response Times (max/mean/min)</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976726.925&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.lower)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.mean)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.upper)&hideGrid=true&hideLegend=true&from=-1months"/>
+<h2>Errors</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.404&target=ccnmtl.app.counters.wardenclyffe.response.500&graphOnly=false&hideGrid=true&from=-1months">
+
+<h2>Main Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.extract_metadata&target=ccnmtl.app.counters.wardenclyffe.main.done&target=ccnmtl.app.counters.wardenclyffe.main.received&target=ccnmtl.app.counters.wardenclyffe.main.uploadify_post&target=ccnmtl.app.counters.wardenclyffe.make_images&target=ccnmtl.app.counters.wardenclyffe.save_file_to_tahoe&target=ccnmtl.app.counters.wardenclyffe.submit_to_pcp&hideLegend=false&hideGrid=true&from=-1months">
+<h2>Mediathread Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.mediathread.tasks.submit_to_mediathread&target=ccnmtl.app.counters.wardenclyffe.mediathread.user_created&target=ccnmtl.app.counters.wardenclyffe.main.upload.mediathread&hideLegend=false&hideGrid=true&from=-1months">
+<h2>Vital Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.vital.done&target=ccnmtl.app.counters.wardenclyffe.vital.received&target=ccnmtl.app.counters.wardenclyffe.vital.submit_to_vital&target=ccnmtl.app.counters.wardenclyffe.vital.posterdone&hideLegend=false&hideGrid=true&from=-1months">
+<h2>Failures</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.main.process_task.failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.auth_failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.mediathread.failure&target=ccnmtl.app.counters.wardenclyffe.vital.drop.failure&graphOnly=false&hideGrid=true&from=-1months">
+
+</div>
+
+
+<div id="year">
+<h2>Traffic</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.200&graphOnly=false&hideGrid=true&hideLegend=true&from=-1years">
+<h2>Response Times (max/mean/min)</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976726.925&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.lower)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.mean)&target=keepLastValue(ccnmtl.app.timers.wardenclyffe.view.GET.upper)&hideGrid=true&hideLegend=true&from=-1years"/>
+<h2>Errors</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.response.404&target=ccnmtl.app.counters.wardenclyffe.response.500&graphOnly=false&hideGrid=true&from=-1years">
+
+<h2>Main Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.extract_metadata&target=ccnmtl.app.counters.wardenclyffe.main.done&target=ccnmtl.app.counters.wardenclyffe.main.received&target=ccnmtl.app.counters.wardenclyffe.main.uploadify_post&target=ccnmtl.app.counters.wardenclyffe.make_images&target=ccnmtl.app.counters.wardenclyffe.save_file_to_tahoe&target=ccnmtl.app.counters.wardenclyffe.submit_to_pcp&hideLegend=false&hideGrid=true&from=-1years">
+<h2>Mediathread Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.mediathread.tasks.submit_to_mediathread&target=ccnmtl.app.counters.wardenclyffe.mediathread.user_created&target=ccnmtl.app.counters.wardenclyffe.main.upload.mediathread&hideLegend=false&hideGrid=true&from=-1years">
+<h2>Vital Events</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.vital.done&target=ccnmtl.app.counters.wardenclyffe.vital.received&target=ccnmtl.app.counters.wardenclyffe.vital.submit_to_vital&target=ccnmtl.app.counters.wardenclyffe.vital.posterdone&hideLegend=false&hideGrid=true&from=-1years">
+<h2>Failures</h2>
+<img width="900" height="200" src="http://nanny.cul.columbia.edu/render/?width=900&height=200&_salt=1337976132.743&target=ccnmtl.app.counters.wardenclyffe.main.process_task.failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.auth_failure&target=ccnmtl.app.counters.wardenclyffe.mediathread.mediathread.failure&target=ccnmtl.app.counters.wardenclyffe.vital.drop.failure&graphOnly=false&hideGrid=true&from=-1years">
+
+</div>
+</div>
+
+<script>
+$(function() {
+  $( "#tabs" ).tabs();
+});
+</script>
+
+{% endblock %}

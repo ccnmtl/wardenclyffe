@@ -1,0 +1,120 @@
+{% load waffle_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>VITAL  &mdash; Video Upload</title>
+	<link rel="stylesheet" href="/site_media/css/main.css" media="screen" />
+	<link rel="stylesheet" href="/site_media/css/print.css" media="print" />
+	<!--[if IE 6]>
+	<link rel="stylesheet" href="/site_media/css/main_ie6_1col.css" media="screen" />
+	<![endif]-->
+	<link rel="shortcut icon" href="/site_media/img/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /> 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
+        type="text/javascript" ></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" type="text/javascript"></script>
+<script src="/site_media/js/jquery.query.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+function validate_file_format(allowed_ext){
+    field_value=document.forms[0].source_file.value;
+    if(field_value!=""){
+        var file_ext= (field_value.substring((field_value.lastIndexOf('.')+1)).toLowerCase());
+        ext=allowed_ext.split(', ');
+        var allow=0;
+        for ( var i=0; i < ext.length; i++) {
+                if(ext[i]==file_ext){
+                    allow=1;
+                }
+        }
+        if(!allow){
+            alert('Invalid Video File format. Please upload a file with one of these suffixes: '+allowed_ext+'.');        
+            return false;
+        }
+    }
+    return false;
+} 
+</script>
+</head>
+<body class="vital">
+{% flag allow_uploads %}
+
+<div class="visual-portal-wrapper"><!-- Page wrapper -->
+
+<div class="portal-top"><!-- Begin div for top navigation -->
+	<div class="portal-top-shadeL"><!-- Begin div for logo and personal tools  class="portal-header-caseleft" -->
+	<div class="portal-top-shadeR"><!-- Begin div for logo and personal tools  class="portal-header-caseright" -->
+		<a href="#" onclick="window.location = jQuery.query.get('redirect_url').split('&')[0];"><h1 class="portal-logo"></h1></a>
+	</div><!-- End div for logo and personal tools  class="portal-header-caseright" -->
+	</div><!-- End div for logo and personal tools  class="portal-header-caseleft" -->
+	
+</div><!-- End div for top navigation, class="portal-top" -->
+
+
+<div class="portal-globalnav-search"><!-- Begin global sections and search area wrapper --> 
+</div><!-- End global sections and search area wrapper --> 
+
+
+<div class="documentContentMain"><!-- Begin content area, class="documentContentMain" -->
+<h1>VITAL Video Upload</h1>
+
+<p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
+  {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>. </p>
+
+<div id="admincontent" style="width: 600px;"> 
+	<div id="admincontent-inner"> 
+		<div id="admincontent-top"> 
+		<div id="admincontent-top-inner"> 
+			<div id="admincontent-top-body"></div> 
+		</div> 
+		</div> 
+  <div style="padding: 10px;" >Use this form to upload video to VITAL. This upload feature only supports any input files supported by Quicktime, and the file must end in one of these suffixes: <b>.mov, .mp4, .m4v, or .avi</b>. Any other video format should be converted to a Quicktime-compatible format before uploading. Files must be under 2GB to be submitted to VITAL.</div>
+
+
+<form action="post/" method="post" enctype="multipart/form-data">
+<div id="vitaldropform">
+<table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable" style="width: 100%;"> 
+ 
+	<tr>
+	<td align="right"><b>Select video file to upload:</b></td>
+	<td>
+	<input type="file" name="source_file" id="source_file" onchange="validate_file_format('mov, mp4, avi, m4v')"/>
+	</td>
+	</tr> 
+
+	<tr>
+	<td align="right"><b>Title:</b></td>
+	<td><input type="text" name="title" value="Vital video uploaded by {{user.username}}" size="50" /></td>
+	</tr> 
+
+	<tr><td colspan="2" align="center"> 
+	    <input type="submit" value="upload" class="regButton" />
+	</td></tr> 
+
+
+</table> 
+
+</div>
+</form>
+<div style="padding: 10px;">
+  <p>After uploading, you should recieve an email confirming your video submission. A second email will notify you once this submission has been processed and is avaialble within your VITAL library. Video processing can take up to 24 hours.</p>
+
+<p>If you encounter a problem converting or uploading a video, please contact <a href="mailto:ccnmtl-vital@columbia.edu">ccnmtl-vital@columbia.edu</a>.</p>
+</div>
+
+		<div id="admincontent-bottom"> 
+		<div id="admincontent-bottom-inner"> 
+			<div id="admincontent-bottom-body"></div> 
+		</div> 
+		</div> 
+	</div><!-- End id="admincontent-inner" --> 
+</div><!-- End id="admincontent" --> 
+
+
+</div><!-- End content area, class="documentContentMain" -->
+</div><!-- End Page wrapper, class="visual-portal-wrapper" -->
+{% else %}
+{% include 'main/maintenance_mode.html' %}
+{% endflag %}
+</body>

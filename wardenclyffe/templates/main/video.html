@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% load thumbnail %}
+{% load oembed_tags %}
+
+{% block js %}
+{{block.super}}
+<script type="text/javascript">
+var removeTag = function(tagName,tagId) {
+   var li = jQuery("#tag-" + tagId);
+   li.addClass("ui-state-disabled");
+   jQuery.ajax({url: "remove_tag/" + tagName + "/?ajax=1",
+   context: li,
+   success: function (){this.hide();}
+});
+//   jQuery("#tag-" + tagId).hide();
+};
+</script>
+
+{% endblock %}
+
+{% block extra_head %}
+<link rel="alternate" type="application/json+oembed" href="{{video.get_oembed_url}}" title="{{video.title}}" />
+{% endblock %}
+
+{% block content %}
+<p>In Collection: <a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></p>
+<h1>{{video.title}}</h1>
+
+
+<div id="tabs">
+
+<ul>
+  <li><a href="#basics">Basics</a></li> 
+  <li><a href="#frames">Frames</a></li>
+  <li><a href="#operations">Operations/History</a></li>
+  <li><a href="#files">Files</a></li>
+  <li><a href="#actions">Actions</a></li>
+</ul>
+
+<div id="basics">
+
+<table>
+<tr>
+<td>{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     />
+{% else %}
+{% thumbnail poster.image "480x360" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}
+</td>
+<td>
+<table>
+<tr><th>creator<br /><span class="dc">dcterms:creator</span></th><td><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
+<tr><th>description<br /><span class="dc">dcterms:description</span></th><td><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
+<tr><th>language<br /><span class="dc">dcterms:language</span></th><td><a href="/video/?language={{video.language}}">{{video.language}}</a></td></tr>
+<tr><th>subject<br /><span class="dc">dcterms:subject</span></th><td><a href="/video/?subject={{video.subject}}">{{video.subject}}</a></td></tr>
+<tr><th>license<br /><span class="dc">dcterms:license</span></th><td><a href="/video/?license={{video.license}}">{{video.license}}</a></td></tr>
+<tr><th>created<br /><span class="dc">dcterms:created</span></th><td>{{video.created|date:"r"}}</td></tr>
+<tr><th>last modified<br /><span class="dc">dcterms:modified</span></th><td>{{video.modified|date:"r"}}</td></tr>
+{% if video.tags.count %}
+<tr><th>tags</th>
+  <td>
+    <ul>
+      {% for tag in video.tags.all %}
+      <li id="tag-{{tag.id}}">
+	<a href="/tag/{{tag}}/">{{tag}}</a>
+	[<a href="remove_tag/{{tag}}/"
+	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
+      </li>{% endfor %}
+    </ul>
+  </td>
+</tr>
+{% endif %}
+</table>
+<p><a href="edit/">edit video metadata</a></p>
+</td></tr></table>
+
+</div>
+
+
+<div id="frames">
+{% if video.image_set.count %}
+{% for image in video.image_set.all %}
+{% thumbnail image.image "200x200" as thmb %}
+<div style="float: left; width: 200px"><img src="{{thmb.absolute_url}}" /><br />
+<a href="select_poster/{{image.id}}/">make poster</a></div>
+{% endfor %}
+<br style="clear:both" />
+{% endif %}
+</div>
+
+<div id="files">
+{% if video.file_set.count %}
+<table>
+<tr>
+<th>label</th>
+<th>type</th>
+<th></th>
+</tr>
+{% for file in video.file_set.all %}
+<tr class="{% cycle 'even' 'odd' %}">
+<th><a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
+<td>{{file.location_type}}</td>
+<td>[<a href="{{file.get_absolute_url}}delete/">X</a>]</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+</div>
+
+<div id="operations">
+{% if video.operation_set.count %}
+<h2>Operations</h2>
+
+<table>
+{% for operation in video.operation_set.all %}
+<tr>
+	<td class="{{operation.status}}">&nbsp;&nbsp;&nbsp;</td>
+	<td><b><a href="{{operation.get_absolute_url}}">{{operation.action}}</a></b></td>
+	<td>
+		<a href="/user/{{operation.owner.username}}/">
+			{% if operation.owner.first_name %}
+			{{operation.owner.first_name}} {{operation.owner.last_name}}
+			{% else %}
+			{{operation.owner.username}}
+			{% endif %}
+		</a>
+		<tt>{{operation.uuid}}</tt>
+	</td>
+	<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
+	<td><form action="/operation/{{operation.id}}/rerun/"
+					method="post"><input type="submit" value="RERUN"/></form>
+	</td>
+
+</tr>
+
+<tr>
+	<td></td>
+	<td colspan="4">started: <b><tt>{{operation.created|date:"Y-m-d H:i:s"}}</tt></b> 
+	last update: <b><tt>{{operation.modified|date:"Y-m-d H:i:s"}}</tt></b></td>
+</tr>
+
+{% if operation.params %}
+<tr>
+	<td></td>
+	<td colspan="4">
+		<tt style="font-size: 90%">
+			<pre>
+{{operation.formatted_params}}
+			</pre>
+		</tt>
+	</td>
+</tr>
+{% endif %}
+
+{% if operation.operationlog_set.count %}
+{% for log in operation.operationlog_set.all %}
+<tr>
+	<td></td>
+	<td>
+		<b>{{log.created|date:"Y-m-d H:i:s"}}</b>
+	</td>
+	<td colspan="3">
+		{{log.info}}
+	</td>
+</tr>
+{% endfor %}
+{% endif %}
+
+
+{% endfor %}
+</table>
+
+{% endif %}
+</div>
+
+<div id="actions">
+<p><a href="add_file/">manually add a file/location -&gt;</a></p>
+{% if video.tahoe_download_url %}
+<p><a href="pcp_submit/">submit to another PCP workflow -&gt;</a></p>
+<p><a href="mediathread_submit/">import into mediathread -&gt;</a></p>
+<p><a href="/vital/submit/{{video.id}}/">import into vital -&gt;</a></p>
+<form action="zencoder_submit/" method="post"><input type="submit"
+						     value="zencoder" /></form>
+
+<p>Raw HTML Embed code:</p>
+
+<textarea rows="3" cols="100">
+&lt;script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?player=download_mp4_v3&amp;file={{video.tahoe_download_url}}&amp;width=480&amp;height=360&amp;poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&amp;protection=5916f0fe8ab583c47adf39fbe3a80086b7122994">&lt;/script>
+</textarea>
+
+<p>Preview</p>
+
+<script type="text/javascript" src="http://ccnmtl.columbia.edu/stream/jsembed?player=download_mp4_v3&file={{video.tahoe_download_url}}&width=480&height=360&poster=http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg&protection=5916f0fe8ab583c47adf39fbe3a80086b7122994"></script>
+
+{% endif %}
+</div>
+</div>
+<script>
+$(function() {
+  $( "#tabs" ).tabs();
+});
+</script>
+{% endblock %}
