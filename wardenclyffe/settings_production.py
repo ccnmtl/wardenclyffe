@@ -44,6 +44,8 @@ if SentryHandler not in map(type, logger.handlers):
     logger.propagate = False
     logger.addHandler(logging.StreamHandler())
 
+INSTALLED_APPS.append('raven.contrib.django')
+
 
 
 try:

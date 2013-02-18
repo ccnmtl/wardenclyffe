@@ -94,7 +94,7 @@ TEMPLATE_DIRS = (
 import djcelery
 djcelery.setup_loader()
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -118,12 +118,11 @@ INSTALLED_APPS = (
     'django_nose',
     'munin',
     'wardenclyffe.cuit',
-    'raven.contrib.django',
     'django_statsd',
     'smoketest',
     'waffle',
     'debug_toolbar',
-)
+]
 
 INTERNAL_IPS = ('127.0.0.1', )
 DEBUG_TOOLBAR_PANELS = (
