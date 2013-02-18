@@ -32,6 +32,9 @@ if 'test' in sys.argv:
             'PASSWORD': '',
         }
     }
+    SURELINK_PROTECTION_KEY = "test-dummy-key"
+    MEDIATHREAD_SECRET = "test-dummy-secret"
+    TAHOE_DOWNLOAD_BASE = "http://tahoe.ccnmtl.columbia.edu/"
 
 SOUTH_TESTS_MIGRATE = False
 SOUTH_AUTO_FREEZE_APP = True

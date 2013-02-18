@@ -49,7 +49,7 @@ class CUITFileTest(TestCase):
         self.assertEqual(
             self.video.mediathread_url(),
             ("http://ccnmtl.columbia.edu/stream/flv/"
-             "b16c80a7e6b21e3671f8f7fa4ec468777f7e1e8b"
+             "99bd1007cd733e65d12d0f843e1a9f5c1f28dec2"
              "/OPTIONS/secure/courses/"
              "56d27944-4131-11e1-8164-0017f20ea192-"
              "Mediathread_video_uploaded_by_mlp55.flv"))
@@ -278,12 +278,14 @@ ID_VIDEO_WIDTH,704"""
             "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_mediathread_url(self):
-        assert self.video.mediathread_url() == (
-            "http://ccnmtl.columbia.edu/stream/flv/"
-            "e0c41066bd2c496c76fd178083d159386518be11"
-            "/OPTIONS/secure/courses/"
-            "40e67868-41f1-11e1-aaa7-0017f20ea192"
-            "-Mediathread_video_uploaded_by_anp8.flv")
+        self.assertEquals(
+            self.video.mediathread_url(),
+            (
+                "http://ccnmtl.columbia.edu/stream/flv/"
+                "4d9a45a17dbcf0c50241d0f5ec2f237d08f38398"
+                "/OPTIONS/secure/courses/"
+                "40e67868-41f1-11e1-aaa7-0017f20ea192"
+                "-Mediathread_video_uploaded_by_anp8.flv"))
 
     def test_poster_url(self):
         assert self.video.poster_url() == (
@@ -437,11 +439,12 @@ ID_VIDEO_WIDTH,704"""
             "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_mediathread_url(self):
-        assert self.video.mediathread_url() == (
-            "http://ccnmtl.columbia.edu/stream/flv/"
-            "e0c41066bd2c496c76fd178083d159386518be11"
-            "/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-"
-            "Mediathread_video_uploaded_by_anp8.flv")
+        self.assertEquals(
+            self.video.mediathread_url(),
+            ("http://ccnmtl.columbia.edu/stream/flv/"
+             "4d9a45a17dbcf0c50241d0f5ec2f237d08f38398"
+             "/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-"
+             "Mediathread_video_uploaded_by_anp8.flv"))
 
     def test_poster_url(self):
         assert self.video.poster_url() == (

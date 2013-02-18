@@ -14,7 +14,7 @@ class PublicFLVTestCase(unittest.TestCase):
 
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
-                          "74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
+                          "9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c")
 
     def testBasicEmbed(self):
         self.assertEquals(
@@ -24,8 +24,8 @@ class PublicFLVTestCase(unittest.TestCase):
              """jsembed?player=v4&file=test/test_stream.flv"""
              """&width=480&height=360&poster="""
              """http://ccnmtl.columbia.edu/broadcast/posters/"""
-             """vidthumb_480x360.jpg&protection=74464d1a6c82afe0f"""
-             """73ab5c59a2c5e25ab470857"></script>"""))
+             """vidthumb_480x360.jpg&protection=9fc95427445a4684eef0ecb64ba6"""
+             """bf8f9bfcfd6c"></script>"""))
 
     def testIFrameEmbed(self):
         self.assertEquals(
@@ -34,8 +34,8 @@ class PublicFLVTestCase(unittest.TestCase):
              """.ccnmtl.columbia.edu/video/?player=v4&file=test/"""
              """test_stream.flv&width=480&height=360&poster="""
              """http://ccnmtl.columbia.edu/broadcast/posters/"""
-             """vidthumb_480x360.jpg&protection=74464d1a6c82afe"""
-             """0f73ab5c59a2c5e25ab470857" />"""))
+             """vidthumb_480x360.jpg&protection=9fc95427445a4684eef0ecb6"""
+             """4ba6bf8f9bfcfd6c" />"""))
 
     def testEdblogsEmbed(self):
         self.assertEquals(
@@ -44,7 +44,7 @@ class PublicFLVTestCase(unittest.TestCase):
              """jsembed?player=v4&file=test/test_stream.flv&width=480"""
              """&height=360&poster=http://ccnmtl.columbia.edu/broadcast/"""
              """posters/vidthumb_480x360.jpg&protection="""
-             """74464d1a6c82afe0f73ab5c59a2c5e25ab470857"]"""))
+             """9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c"]"""))
 
     def testDrupalEmbed(self):
         self.assertEquals(
@@ -56,7 +56,7 @@ class PublicFLVTestCase(unittest.TestCase):
         self.assertEquals(
             self.surelink.mdp_embed(),
             ("""[flv]http://ccnmtl.columbia.edu/stream/flv/"""
-             """74464d1a6c82afe0f73ab5c59a2c5e25ab470857/OPTIONS/"""
+             """9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c/OPTIONS/"""
              """test/test_stream.flv[w]480[h]360[flv]"""))
 
 
@@ -73,7 +73,7 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
 
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
-                          "74464d1a6c82afe0f73ab5c59a2c5e25ab470857")
+                          "9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c")
 
     def testBasicEmbed(self):
         self.assertEquals(
@@ -82,8 +82,8 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
              """columbia.edu/stream/jsembed?player=v4&file=test/"""
              """test_stream.flv&width=480&height=360&poster="""
              """http://ccnmtl.columbia.edu/broadcast/test/"""
-             """test_stream.jpg&protection=74464d1a6c82afe0f73"""
-             """ab5c59a2c5e25ab470857"></script>"""))
+             """test_stream.jpg&protection=9fc95427445a4684eef0ecb6"""
+             """4ba6bf8f9bfcfd6c"></script>"""))
 
     def testIFrameEmbed(self):
         self.assertEquals(
@@ -92,8 +92,8 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
              """ccnmtl.columbia.edu/video/?player=v4&file=test/"""
              """test_stream.flv&width=480&height=360&poster="""
              """http://ccnmtl.columbia.edu/broadcast/test/"""
-             """test_stream.jpg&protection=74464d1a6c82afe0f73ab5c59a2c"""
-             """5e25ab470857" />"""))
+             """test_stream.jpg&protection=9fc95427445a4684eef0ecb64ba6bf8f"""
+             """9bfcfd6c" />"""))
 
     def testEdblogsEmbed(self):
         self.assertEquals(
@@ -102,7 +102,7 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
              """jsembed?player=v4&file=test/test_stream.flv&width=480"""
              """&height=360&poster=http://ccnmtl.columbia.edu/"""
              """broadcast/test/test_stream.jpg&protection="""
-             """74464d1a6c82afe0f73ab5c59a2c5e25ab470857"]"""))
+             """9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c"]"""))
 
     def testDrupalEmbed(self):
         self.assertEquals(
@@ -114,7 +114,7 @@ class PublicFLVDefaultPosterTestCase(unittest.TestCase):
         self.assertEquals(
             self.surelink.mdp_embed(),
             ("""[flv]http://ccnmtl.columbia.edu/stream/flv/"""
-             """74464d1a6c82afe0f73ab5c59a2c5e25ab470857"""
+             """9fc95427445a4684eef0ecb64ba6bf8f9bfcfd6c"""
              """/OPTIONS/test/test_stream.flv[w]480[h]360[flv]"""))
 
 
@@ -128,7 +128,7 @@ class PublicMP4TestCase(unittest.TestCase):
 
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
-                          "d81e0d43fbccf40dbcb6d695268069dd14c21536")
+                          "acfc85127771e4c63d9eab200520772d0e08bf7c")
 
     def testBasicEmbed(self):
         self.assertEquals(
@@ -137,8 +137,8 @@ class PublicMP4TestCase(unittest.TestCase):
              """columbia.edu/stream/jsembed?player=download_mp4_v3&"""
              """file=test/test_clip.mp4&width=480&height=360&"""
              """poster=http://ccnmtl.columbia.edu/broadcast/posters/"""
-             """vidthumb_480x360.jpg&protection=5916f0fe8ab583c47adf39f"""
-             """be3a80086b7122994"></script>"""))
+             """vidthumb_480x360.jpg&protection=e4e546e9398cacbe6b3e29f"""
+             """1ccd9d286fd5017ff"></script>"""))
 
     def testIFrameEmbed(self):
         self.assertEquals(
@@ -147,8 +147,8 @@ class PublicMP4TestCase(unittest.TestCase):
              """ccnmtl.columbia.edu/video/?player=download_mp4_v3&"""
              """file=test/test_clip.mp4&width=480&height=360&poster="""
              """http://ccnmtl.columbia.edu/broadcast/posters/"""
-             """vidthumb_480x360.jpg&protection=5916f0fe8ab583c47adf3"""
-             """9fbe3a80086b7122994" />"""))
+             """vidthumb_480x360.jpg&protection=e4e546e9398cacbe"""
+             """6b3e29f1ccd9d286fd5017ff" />"""))
 
     def testEdblogsEmbed(self):
         self.assertEquals(
@@ -157,7 +157,7 @@ class PublicMP4TestCase(unittest.TestCase):
              """jsembed?player=download_mp4_v3&file=test/test_clip.mp4"""
              """&width=480&height=360&poster=http://ccnmtl.columbia.edu/"""
              """broadcast/posters/vidthumb_480x360.jpg&protection="""
-             """5916f0fe8ab583c47adf39fbe3a80086b7122994"]"""))
+             """e4e546e9398cacbe6b3e29f1ccd9d286fd5017ff"]"""))
 
     def testDrupalEmbed(self):
         self.assertEquals(
@@ -185,7 +185,7 @@ class WindMP4TestCase(unittest.TestCase):
 
     def testProtection(self):
         self.assertEquals(self.surelink.get_protection(),
-                          "18e74f6f8998963c72154f969f11d8f3ad91345d")
+                          "d9ab631d356793e9d1d56db7caf4f0f13ef3928c")
 
     def testBasicEmbed(self):
         self.assertEquals(
@@ -223,5 +223,5 @@ class WindMP4TestCase(unittest.TestCase):
         self.assertEquals(
             self.surelink.mdp_embed(),
             ("""[flv]http://ccnmtl.columbia.edu/stream/flv/"""
-             """5916f0fe8ab583c47adf39fbe3a80086b7122994/OPTIONS/"""
+             """e4e546e9398cacbe6b3e29f1ccd9d286fd5017ff/OPTIONS/"""
              """test/test_clip.mp4[w]480[h]360[flv]"""))
