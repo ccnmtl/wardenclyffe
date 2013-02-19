@@ -22,7 +22,7 @@ DATABASES = {
     }
 }
 
-if 'test' in sys.argv:
+if 'test' in sys.argv or 'jenkins' in sys.argv:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -42,6 +42,17 @@ SOUTH_TESTS_MIGRATE = False
 SOUTH_AUTO_FREEZE_APP = True
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+JENKINS_TASKS = (
+    'django_jenkins.tasks.run_pylint',
+    'django_jenkins.tasks.with_coverage',
+    'django_jenkins.tasks.django_tests',
+    'django_jenkins.tasks.run_pep8',
+    'django_jenkins.tasks.run_pyflakes',
+)
+PROJECT_APPS = [
+    'wardenclyffe.main',
+    'wardenclyffe.mediathread',
+]
 
 NOSE_ARGS = [
     '--with-coverage',
@@ -123,6 +134,7 @@ INSTALLED_APPS = [
     'smoketest',
     'waffle',
     'debug_toolbar',
+    'django_jenkins',
 ]
 
 INTERNAL_IPS = ('127.0.0.1', )

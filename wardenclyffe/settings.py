@@ -2,7 +2,7 @@
 import sys
 from settings_shared import *
 
-if 'test' not in sys.argv:
+if 'test' not in sys.argv and 'jenkins' not in sys.argv:
     try:
         from local_settings import *
     except ImportError:
