@@ -53,8 +53,8 @@ PROJECT_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
     'wardenclyffe.surelink',
-    'wardenclyffe.vital',
     'wardenclyffe.util',
+    'wardenclyffe.vital',
     'wardenclyffe.youtube',
     'wardenclyffe.cuit',
 ]
@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
     'wardenclyffe.youtube',
+    'wardenclyffe.util',
     'oembed',
     'taggit',
     'wardenclyffe.vital',
