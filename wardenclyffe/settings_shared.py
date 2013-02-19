@@ -52,6 +52,11 @@ JENKINS_TASKS = (
 PROJECT_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
+    'wardenclyffe.surelink',
+    'wardenclyffe.vital',
+    'wardenclyffe.util',
+    'wardenclyffe.youtube',
+    'wardenclyffe.cuit',
 ]
 
 NOSE_ARGS = [
