@@ -10,6 +10,7 @@ ADMINS = ()
 MANAGERS = ADMINS
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 
+ALLOWED_HOSTS = [".ccnmtl.columbia.edu", "localhost"]
 
 DATABASES = {
     'default': {
