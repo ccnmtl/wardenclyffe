@@ -13,7 +13,7 @@ class SimpleTest(TestCase):
     server error. *Real* tests can come later.
     """
     def setUp(self):
-        self.u = User.objects.create(username="foo")
+        self.u = User.objects.create(username="foo", is_staff=True)
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()
@@ -149,7 +149,7 @@ class SimpleTest(TestCase):
 
 class TestSurelink(TestCase):
     def setUp(self):
-        self.u = User.objects.create(username="foo")
+        self.u = User.objects.create(username="foo", is_staff=True)
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()

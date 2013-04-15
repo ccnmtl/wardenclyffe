@@ -8,6 +8,7 @@ from annoying.decorators import render_to
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db import transaction
@@ -33,7 +34,12 @@ from wardenclyffe.util.mail import send_vital_received_mail
 from zencoder import Zencoder
 
 
+def is_staff(user):
+    return user and not user.is_anonymous() and user.is_staff
+
+
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/index.html')
 def index(request):
     return dict(
@@ -43,6 +49,7 @@ def index(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/dashboard.html')
 def dashboard(request):
     submitted = request.GET.get('submitted', '') == '1'
@@ -121,6 +128,7 @@ def uploadify(request, *args, **kwargs):
 
 
 @login_required
+@user_passes_test(is_staff)
 def recent_operations(request):
     submitted = request.GET.get('submitted', '') == '1'
     status_filters = []
@@ -150,6 +158,7 @@ def recent_operations(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 def most_recent_operation(request):
     return HttpResponse(
         dumps(
@@ -161,6 +170,7 @@ def most_recent_operation(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/slow_operations.html')
 def slow_operations(request):
     status_filters = ["enqueued", "in progress", "submitted"]
@@ -172,6 +182,7 @@ def slow_operations(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/servers.html')
 def servers(request):
     servers = Server.objects.all()
@@ -179,6 +190,7 @@ def servers(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/server.html')
 def server(request, id):
     server = get_object_or_404(Server, id=id)
@@ -186,6 +198,7 @@ def server(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/delete_confirm.html')
 def delete_server(request, id):
     s = get_object_or_404(Server, id=id)
@@ -197,6 +210,7 @@ def delete_server(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/edit_server.html')
 def edit_server(request, id):
     server = get_object_or_404(Server, id=id)
@@ -210,6 +224,7 @@ def edit_server(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/add_server.html')
 def add_server(request):
     if request.method == "POST":
@@ -225,6 +240,7 @@ def add_server(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/collection.html')
 def collection(request, id):
     collection = get_object_or_404(Collection, id=id)
@@ -236,6 +252,7 @@ def collection(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/all_collection_videos.html')
 def all_collection_videos(request, id):
     collection = get_object_or_404(Collection, id=id)
@@ -259,6 +276,7 @@ def all_collection_videos(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/all_collection_operations.html')
 def all_collection_operations(request, id):
     collection = get_object_or_404(Collection, id=id)
@@ -283,6 +301,7 @@ def all_collection_operations(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/user.html')
 def user(request, username):
     user = get_object_or_404(User, username=username)
@@ -293,6 +312,7 @@ def user(request, username):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/edit_collection.html')
 def edit_collection(request, id):
     collection = get_object_or_404(Collection, id=id)
@@ -306,6 +326,7 @@ def edit_collection(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 def collection_toggle_active(request, id):
     collection = get_object_or_404(Collection, id=id)
     if request.method == "POST":
@@ -315,6 +336,7 @@ def collection_toggle_active(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/edit_collection_workflows.html')
 def edit_collection_workflows(request, id):
     collection = get_object_or_404(Collection, id=id)
@@ -357,6 +379,7 @@ def edit_collection_workflows(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/edit_video.html')
 def edit_video(request, id):
     video = get_object_or_404(Video, id=id)
@@ -370,6 +393,7 @@ def edit_video(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 def remove_tag_from_video(request, id, tagname):
     video = get_object_or_404(Video, id=id)
     if 'ajax' in request.GET:
@@ -380,6 +404,7 @@ def remove_tag_from_video(request, id, tagname):
 
 
 @login_required
+@user_passes_test(is_staff)
 def remove_tag_from_collection(request, id, tagname):
     collection = get_object_or_404(Collection, id=id)
     if 'ajax' in request.GET:
@@ -390,6 +415,7 @@ def remove_tag_from_collection(request, id, tagname):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/tag.html')
 def tag(request, tagname):
     return dict(
@@ -401,12 +427,14 @@ def tag(request, tagname):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/tags.html')
 def tags(request):
     return dict(tags=Tag.objects.all().order_by("name"))
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/video_index.html')
 def video_index(request):
     videos = Video.objects.all()
@@ -444,6 +472,7 @@ def video_index(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/file_index.html')
 def file_index(request):
     files = File.objects.all()
@@ -470,6 +499,7 @@ def file_index(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/add_collection.html')
 def add_collection(request):
     if request.method == "POST":
@@ -491,6 +521,7 @@ def operation_info(request, uuid):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/operation.html')
 def operation(request, uuid):
     operation = get_object_or_404(Operation, uuid=uuid)
@@ -572,6 +603,7 @@ def prep_vital_submit(request, v, source_filename):
 
 @transaction.commit_manually
 @login_required
+@user_passes_test(is_staff)
 def upload(request):
     if request.method != "POST":
         transaction.rollback()
@@ -622,6 +654,7 @@ def upload(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 def rerun_operation(request, operation_id):
     operation = get_object_or_404(Operation, id=operation_id)
     if request.method == "POST":
@@ -636,6 +669,7 @@ def rerun_operation(request, operation_id):
 
 @render_to('main/upload.html')
 @login_required
+@user_passes_test(is_staff)
 def upload_form(request):
     form = UploadVideoForm()
     form.fields["collection"].queryset = Collection.objects.filter(active=True)
@@ -647,6 +681,7 @@ def upload_form(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/upload.html')
 def scan_directory(request):
     collection_id = None
@@ -791,6 +826,7 @@ def posterdone(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/video.html')
 def video(request, id):
     v = get_object_or_404(Video, id=id)
@@ -798,6 +834,7 @@ def video(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/file.html')
 def file(request, id):
     f = get_object_or_404(File, id=id)
@@ -815,6 +852,7 @@ def file(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to("main/file_surelink.html")
 def file_surelink(request, id):
     f = get_object_or_404(File, id=id)
@@ -854,6 +892,7 @@ def file_surelink(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/delete_confirm.html')
 def delete_file(request, id):
     f = get_object_or_404(File, id=id)
@@ -866,6 +905,7 @@ def delete_file(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/delete_confirm.html')
 def delete_video(request, id):
     v = get_object_or_404(Video, id=id)
@@ -878,6 +918,7 @@ def delete_video(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/delete_confirm.html')
 def delete_collection(request, id):
     s = get_object_or_404(Collection, id=id)
@@ -889,6 +930,7 @@ def delete_collection(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/delete_confirm.html')
 def delete_operation(request, id):
     o = get_object_or_404(Operation, id=id)
@@ -904,6 +946,7 @@ def delete_operation(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/pcp_submit.html')
 def video_pcp_submit(request, id):
     video = get_object_or_404(Video, id=id)
@@ -931,6 +974,7 @@ def video_pcp_submit(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/file_pcp_submit.html')
 def file_pcp_submit(request, id):
     file = get_object_or_404(File, id=id)
@@ -959,6 +1003,7 @@ def file_pcp_submit(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/file_filter.html')
 def file_filter(request):
 
@@ -1018,6 +1063,7 @@ def file_filter(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/bulk_file_operation.html')
 def bulk_file_operation(request):
     if request.method == "POST":
@@ -1050,6 +1096,7 @@ def bulk_file_operation(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 def video_zencoder_submit(request, id):
     video = get_object_or_404(Video, id=id)
     if request.method == "POST":
@@ -1068,6 +1115,7 @@ def video_zencoder_submit(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/add_file.html')
 def video_add_file(request, id):
     video = get_object_or_404(Video, id=id)
@@ -1084,6 +1132,7 @@ def video_add_file(request, id):
 
 
 @login_required
+@user_passes_test(is_staff)
 def video_select_poster(request, id, image_id):
     video = get_object_or_404(Video, id=id)
     image = get_object_or_404(Image, id=image_id)
@@ -1094,6 +1143,7 @@ def video_select_poster(request, id, image_id):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to('main/workflows.html')
 def list_workflows(request):
     error_message = ""
@@ -1111,6 +1161,7 @@ def list_workflows(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to("main/search.html")
 def search(request):
     q = request.GET.get('q', '')
@@ -1143,6 +1194,7 @@ def search(request):
 
 
 @login_required
+@user_passes_test(is_staff)
 @render_to("main/uuid_search.html")
 def uuid_search(request):
     uuid = request.GET.get('uuid', '')
