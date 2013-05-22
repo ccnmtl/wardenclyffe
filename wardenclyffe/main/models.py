@@ -426,6 +426,10 @@ class TahoeFile(FileType):
         return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.file.cap\
             + "/@@named=" + self.file.filename
 
+    def tahoe_info_url(self):
+        return settings.TAHOE_DOWNLOAD_BASE + "uri/" + self.file.cap\
+            + "?t=json"
+
 
 class CUITFile(FileType):
     pass
@@ -455,6 +459,9 @@ class File(TimeStampedModel):
 
     def tahoe_download_url(self):
         return self.filetype().tahoe_download_url()
+
+    def tahoe_info_url(self):
+        return self.filetype().tahoe_info_url()
 
     def set_metadata(self, field, value):
         r = Metadata.objects.filter(file=self, field=field)
