@@ -13,6 +13,7 @@ import hmac
 import hashlib
 from django_statsd.clients import statsd
 import os
+import waffle
 
 
 @transaction.commit_manually
@@ -130,6 +131,8 @@ def drop(request):
 
 @render_to('vital/drop.html')
 def drop_form(request):
+    if not waffle.flag_is_active(request, 'vital_uploads'):
+        return dict()
     # check their credentials
     nonce = request.GET.get('nonce', '')
     hmc = request.GET.get('hmac', '')

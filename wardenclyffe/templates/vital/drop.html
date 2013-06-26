@@ -39,6 +39,7 @@ function validate_file_format(allowed_ext){
 </head>
 <body class="vital">
 {% flag allow_uploads %}
+{% flag vital_uploads %}
 
 <div class="visual-portal-wrapper"><!-- Page wrapper -->
 
@@ -114,6 +115,10 @@ function validate_file_format(allowed_ext){
 
 </div><!-- End content area, class="documentContentMain" -->
 </div><!-- End Page wrapper, class="visual-portal-wrapper" -->
+{% else %}
+<p>Video uploads for VITAL have been disabled. Please contact your
+	partner at CCNMTL if you have questions.</p>
+{% endflag %}
 {% else %}
 {% include 'main/maintenance_mode.html' %}
 {% endflag %}

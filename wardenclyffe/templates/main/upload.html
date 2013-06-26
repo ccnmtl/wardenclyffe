@@ -115,11 +115,11 @@
 			<div class="section-header">
 			Process steps <div id="help_process_steps" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
 			</div>
-
+{% flag vital_uploads %}
 			<div class="fieldwrapper">
 				<input type="checkbox" name="submit_to_vital" id="submit_to_vital"/>Submit file to VITAL<br />
 			</div>
-
+{% endflag %}
 			<div class="fieldwrapper">
 				<input type="checkbox" name="submit_to_youtube" id="submit_to_youtube"/>Submit file to Youtube<br />
 			</div>
@@ -134,12 +134,12 @@
 
 		<div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box">
 		  <div class="section-header">Extra Fields</div>
-
+{% flag vital_uploads %}
 		  <div class="fieldwrapper inlinewrapper" id="vital_course_id">
 		    <label for="course_id">VITAL Course ID:</label>
 		    <input type="text" name="course_id" id="course_id" />
 		  </div>
-
+{% endflag %}
 		</div>
 
 	</div><!-- class="rightcol" -->
@@ -185,10 +185,12 @@ jQuery(document).ready(function()
       defaultText: 'Add a subject...'
       }
      );
+{% flag vital_uploads %}
     jQuery('#submit_to_vital').click(function() {
       jQuery('#extra_fields_box').toggle('blind',{},500);
     }
     );
+{% endflag %}
 {% if scan_directory %}
 {% else %}
     $('#file_upload').uploadify({
