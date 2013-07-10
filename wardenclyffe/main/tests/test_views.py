@@ -213,3 +213,10 @@ class TestFeed(TestCase):
     def test_rss_feed(self):
         response = self.c.get("/collection/%d/rss/" % self.collection.id)
         self.assertEquals(response.status_code, 200)
+
+
+class TestStats(TestCase):
+    def test_stats_page(self):
+        self.c = Client()
+        response = self.c.get("/stats/")
+        self.assertEquals(response.status_code, 200)
