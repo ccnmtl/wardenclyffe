@@ -407,6 +407,37 @@ class H264PublicStreamFileTest(TestCase):
                            "Mediathread_video_uploaded_by_mlp55.mp4"))
 
 
+class SubmitFilesTest(TestCase):
+    def test_mediathread_submit(self):
+        v = VideoFactory()
+        u = UserFactory()
+        v.make_mediathread_submit_file(
+            "file.mp4", u, "course-id",
+            "http://example.com/", audio=False,
+            audio2=False)
+        self.assertEquals(
+            v.mediathread_submit(),
+            ("course-id", u.username, None, None))
+        v.clear_mediathread_submit()
+        self.assertEquals(
+            v.mediathread_submit(),
+            (None, None, None))
+
+    def test_vital_submit(self):
+        v = VideoFactory()
+        u = UserFactory()
+        v.make_vital_submit_file(
+            "file.mp4", u, "course-id",
+            "http://example.com/", "http://example.com/notify/")
+        self.assertEquals(
+            v.vital_submit(),
+            ("course-id", u.username, "http://example.com/notify/"))
+        v.clear_vital_submit()
+        self.assertEquals(
+            v.vital_submit(),
+            (None, None, None))
+
+
 class OperationTest(TestCase):
     def test_basics(self):
         o = OperationFactory()
