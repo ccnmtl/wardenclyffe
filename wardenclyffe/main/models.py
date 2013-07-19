@@ -231,18 +231,14 @@ class Video(TimeStampedModel):
         return Poster.objects.filter(video=self).count()
 
     def poster_url(self):
+        return self.poster().url()
+
+    def poster(self):
         r = Poster.objects.filter(video=self)
         if r.count() > 0:
-            return (
-                settings.POSTER_BASE_URL
-                + str(r[0].image.image))
-
-        if self.image_set.all().count() > 0:
-            # TODO: get absolute url of first image
-            # and use that
-            # return self.image_set.all()[0].image
-            pass
-        return settings.DEFAULT_POSTER_URL
+            return r[0]
+        else:
+            return DummyPoster()
 
     def cuit_poster_url(self):
         try:
@@ -284,15 +280,6 @@ class Video(TimeStampedModel):
 
     def clear_vital_submit(self):
         self.file_set.filter(location_type="vitalsubmit").delete()
-
-    def poster(self):
-        class DummyPoster:
-            dummy = True
-        r = Poster.objects.filter(video=self)
-        if r.count() > 0:
-            return r[0].image
-        else:
-            return DummyPoster()
 
     def cuit_file(self):
         try:
@@ -750,7 +737,6 @@ class OperationLog(TimeStampedModel):
 
 class Image(TimeStampedModel):
     video = models.ForeignKey(Video)
-
     image = ImageWithThumbnailsField(upload_to="images",
                                      thumbnail={'size': (100, 100)})
 
@@ -761,6 +747,17 @@ class Image(TimeStampedModel):
 class Poster(models.Model):
     video = models.ForeignKey(Video)
     image = models.ForeignKey(Image)
+
+    def url(self):
+        return (settings.POSTER_BASE_URL
+                + str(self.image.image))
+
+
+class DummyPoster:
+    dummy = True
+
+    def url(self):
+        return settings.DEFAULT_POSTER_URL
 
 
 class Server(models.Model):

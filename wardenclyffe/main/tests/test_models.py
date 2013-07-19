@@ -114,9 +114,10 @@ class EmptyVideoTest(TestCase):
         assert self.video.mediathread_url() == ""
 
     def test_poster_url(self):
-        assert self.video.poster_url() == (
-            "http://ccnmtl.columbia.edu/broadcast/posters/"
-            "vidthumb_480x360.jpg")
+        self.assertEquals(
+            self.video.poster_url(),
+            ("http://ccnmtl.columbia.edu/broadcast/posters/"
+             "vidthumb_480x360.jpg"))
 
     def test_cuit_poster_url(self):
         assert self.video.cuit_poster_url() is None
@@ -425,6 +426,7 @@ class OperationTest(TestCase):
         # just run these to get the coverage up. don't worry if they fail
         for (o, p) in zip(ops, params):
             o.process(params)
+            o.post_process()
 
 
 class ServerTest(TestCase):
