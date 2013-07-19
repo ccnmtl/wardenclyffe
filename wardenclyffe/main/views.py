@@ -862,6 +862,9 @@ def file_surelink(request, id):
         filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
     if f.is_h264_secure_streamable():
         filename = f.h264_secure_path()
+    if (request.GET.get('protection', '') == 'mp4_public_stream'
+            and f.is_h264_public_streamable()):
+        filename = f.h264_public_path()
     s = SureLink(filename,
                  int(request.GET.get('width', '0')),
                  int(request.GET.get('height', '0')),

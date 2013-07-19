@@ -169,6 +169,14 @@ class TestSurelink(TestCase):
                       "courses/56d27944-4131-11e1-8164-0017f20ea192"
                       "-Mediathread_video_uploaded_by_mlp55.mp4"),
         )
+        self.public_file = File.objects.create(
+            video=self.video,
+            label="CUIT File",
+            location_type="cuit",
+            filename=("/media/h264/ccnmtl/public/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
+        )
 
     def tearDown(self):
         self.u.delete()
@@ -183,6 +191,28 @@ class TestSurelink(TestCase):
 
         response = self.c.get("/file/%d/surelink/" % self.file.id)
         self.assertEquals(response.status_code, 200)
+
+    def test_file_surelink_public_stream(self):
+        """ regression test for PMT #87084 """
+        response = self.c.get("/file/%d/" % self.file.id)
+        self.assertEquals(response.status_code, 200)
+
+        response = self.c.get(
+            "/file/%d/surelink/" % self.public_file.id,
+            {'file': self.public_file.filename,
+             'captions': '',
+             'poster': ('http://wardenclyffe.ccnmtl.columbia.edu/'
+                        'uploads/images/11213/00000238.jpg'),
+             'width': self.public_file.guess_width(),
+             'height': self.public_file.guess_height(),
+             'protection': 'mp4_public_stream',
+             'authtype': '',
+             'player': 'v4',
+             })
+        self.assertEquals(response.status_code, 200)
+        assert "&lt;iframe" in response.content
+        assert "file=/media/h264/ccnmtl/" not in response.content
+        assert "file=/course" in response.content
 
 
 class TestFeed(TestCase):
