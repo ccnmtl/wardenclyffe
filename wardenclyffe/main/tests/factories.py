@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from wardenclyffe.main.models import Collection, Video, File, Operation
+from wardenclyffe.main.models import Server
 import factory
 import uuid
 
@@ -148,3 +149,10 @@ class OperationFactory(factory.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     status = "in progress"
     params = ""
+
+
+class ServerFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Server
+    name = "test server"
+    hostname = "testserver.ccnmtl.columbia.edu"
+    credentials = ""

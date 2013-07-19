@@ -13,6 +13,7 @@ from factories import MediathreadFileFactory, FileFactory
 from factories import PublicFileFactory, OperationFactory
 from factories import DimensionlessSourceFileFactory
 from factories import VitalThumbnailFileFactory
+from factories import ServerFactory
 
 
 class CUITFileTest(TestCase):
@@ -413,3 +414,13 @@ class OperationTest(TestCase):
         d = o.as_dict()
         self.assertEquals(d['status'], o.status)
         self.assertEquals(o.formatted_params(), '')
+
+
+class ServerTest(TestCase):
+    def test_unicode(self):
+        s = ServerFactory()
+        self.assertEquals(str(s), s.name)
+
+    def test_url(self):
+        s = ServerFactory()
+        self.assertEquals(s.get_absolute_url(), "/server/%d/" % s.id)
