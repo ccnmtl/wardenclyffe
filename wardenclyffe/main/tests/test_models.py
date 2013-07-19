@@ -428,6 +428,32 @@ class OperationTest(TestCase):
             o.process(params)
             o.post_process()
 
+    def test_audio_default_operations_creation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        (ops, params) = f.video.make_default_operations(
+            "/tmp/file.mov",
+            f, u, True, True)
+        self.assertEquals(len(ops), 1)
+        # just run these to get the coverage up. don't worry if they fail
+        for (o, p) in zip(ops, params):
+            o.process(params)
+
+    def test_submit_to_pcp_operation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        o, p = f.video.make_submit_to_podcast_producer_operation(
+            "/tmp/file.mov", "SOMEWORKFLOW", u)
+        o.process(p)
+        o.post_process()
+
+    def test_make_upload_to_youtube_operation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        o, p = f.video.make_upload_to_youtube_operation("/tmp/file.mov", u)
+        o.process(p)
+        o.post_process()
+
 
 class ServerTest(TestCase):
     def test_unicode(self):
