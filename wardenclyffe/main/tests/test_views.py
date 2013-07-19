@@ -1,41 +1,7 @@
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
-from wardenclyffe.main.models import Collection, Video, File
-import factory
-import uuid
-
-
-class CollectionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Collection
-    title = "Mediathread Spring 2012"
-    subject = "test subject"
-    uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
-
-
-class VideoFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Video
-    title = "test video"
-    creator = "anp8"
-    subject = "test subject"
-    uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
-    collection = factory.SubFactory(CollectionFactory)
-
-
-class FileFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = File
-    label = "CUIT File"
-    location_type = "cuit"
-    filename = ("/media/h264/ccnmtl/secure/"
-                "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                "-Mediathread_video_uploaded_by_mlp55.mp4")
-    video = factory.SubFactory(VideoFactory)
-
-
-class UserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = User
-    username = "foo"
-    is_staff = True
+from factories import FileFactory
+from factories import UserFactory
 
 
 class SimpleTest(TestCase):

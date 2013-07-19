@@ -6,32 +6,21 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from wardenclyffe.main.models import Collection, Video, File
-from wardenclyffe.main.models import User, Operation
-import uuid
 from wardenclyffe.main.tasks import strip_special_characters
+from factories import CollectionFactory, VideoFactory, CUITFLVFileFactory
+from factories import SourceFileFactory, TahoeFileFactory
+from factories import MediathreadFileFactory, FileFactory
+from factories import PublicFileFactory, OperationFactory
+from factories import DimensionlessSourceFileFactory
+from factories import VitalThumbnailFileFactory
 
 
 class CUITFileTest(TestCase):
     def setUp(self):
-        self.collection = Collection.objects.create(
-            title="test collection",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(
-            collection=self.collection,
-            title="test video",
-            uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/www/data/ccnmtl/broadcast/secure/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.flv"),
-        )
+        self.file = CUITFLVFileFactory()
 
     def test_extension(self):
-        assert self.video.extension() == ".flv"
+        assert self.file.video.extension() == ".flv"
 
     def test_is_cuit(self):
         assert self.file.is_cuit()
@@ -40,14 +29,12 @@ class CUITFileTest(TestCase):
         assert self.file.surelinkable()
 
     def test_tahoe_download_url(self):
-        assert self.video.tahoe_file() is None
-        assert self.video.cap() is None
-#        with self.assertRaises(WrongFileType):
-#            self.file.tahoe_download_url()
+        assert self.file.video.tahoe_file() is None
+        assert self.file.video.cap() is None
 
     def test_mediathread_url(self):
         self.assertEqual(
-            self.video.mediathread_url(),
+            self.file.video.mediathread_url(),
             ("http://ccnmtl.columbia.edu/stream/flv/"
              "99bd1007cd733e65d12d0f843e1a9f5c1f28dec2"
              "/OPTIONS/secure/courses/"
@@ -56,26 +43,22 @@ class CUITFileTest(TestCase):
 
     def test_poster_url(self):
         assert not self.file.has_cuit_poster()
-        assert self.video.cuit_poster_url() is None
+        assert self.file.video.cuit_poster_url() is None
 
     def test_filename(self):
-        assert self.video.filename() == self.file.filename
+        assert self.file.video.filename() == self.file.filename
 
     def test_cuit_url(self):
         assert self.file.cuit_public_url() == (
             "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
             "56d27944-4131-11e1-8164-0017f20ea192-"
             "Mediathread_video_uploaded_by_mlp55.flv")
-        assert self.video.cuit_url() == self.file.cuit_public_url()
+        assert self.file.video.cuit_url() == self.file.cuit_public_url()
 
 
 class CollectionTest(TestCase):
-    def setUp(self):
-        self.collection = Collection.objects.create(
-            title="test collection",
-            uuid=uuid.uuid4())
-
     def test_forms(self):
+        self.collection = CollectionFactory()
         add_form = self.collection.add_video_form()
         assert "id_title" in str(add_form)
         assert 'title' in add_form.fields
@@ -88,13 +71,7 @@ class EmptyVideoTest(TestCase):
     """ test the behavior for a video that doesn't have any files associated
     with it """
     def setUp(self):
-        self.collection = Collection.objects.create(
-            title="test collection",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(
-            collection=self.collection,
-            title="test video",
-            uuid=uuid.uuid4())
+        self.video = VideoFactory()
 
     def test_extension(self):
         assert self.video.extension() == ""
@@ -164,84 +141,27 @@ class EmptyVideoTest(TestCase):
 
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
-    def setUp(self):
-        self.collection = Collection.objects.create(
-            title="Mediathread Spring 2012",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="test video",
-                                          creator="anp8",
-                                          uuid=uuid.uuid4())
-
-        self.source_file = File.objects.create(
-            video=self.video,
-            label="source file",
-            location_type="none",
-            filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
-        )
-        metadata = """ID_AUDIO_BITRATE,128000
-ID_AUDIO_CODEC,faad
-ID_AUDIO_FORMAT,255
-ID_AUDIO_ID,0
-ID_AUDIO_NCH,2
-ID_AUDIO_RATE,48000
-ID_CHAPTERS,0
-ID_DEMUXER,lavfpref
-ID_EXIT,EOF
-ID_FILENAME,/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov
-ID_LENGTH,31.26
-ID_SEEKABLE,1
-ID_VIDEO_ASPECT,1.3333
-ID_VIDEO_BITRATE,0
-ID_VIDEO_CODEC,ffh264
-ID_VIDEO_FORMAT,avc1
-ID_VIDEO_FPS,29.970
-ID_VIDEO_HEIGHT,480
-ID_VIDEO_ID,1
-ID_VIDEO_WIDTH,704"""
-        for line in metadata.split("\n"):
-            line = line.strip()
-            (k, v) = line.split(",")
-            self.source_file.set_metadata(k, v)
-        self.cuit_file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
-                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
-                      "Mediathread_video_uploaded_by_anp8.flv"),
-        )
-        self.tahoe_file = File.objects.create(
-            video=self.video,
-            label="uploaded source file",
-            location_type="tahoe",
-            cap=("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-                 "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-                 "3:10:4783186"),
-            filename=("/var/www/wardenclyffe/tmp//6a0dac24-7982-"
-                      "4df3-a1cb-86d52bf4df94.mov")
-        )
-        self.mediathread_file = File.objects.create(
-            video=self.video,
-            label="mediathread",
-            location_type="mediathread",
-            url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
-        )
-
     def test_extension(self):
-        assert self.video.extension() == ".mov"
+        tahoe_file = TahoeFileFactory()
+        f = CUITFLVFileFactory()
+        self.assertEquals(tahoe_file.video.extension(), ".mov")
+        self.assertEquals(f.video.extension(), ".flv")
 
     def test_tahoe_file(self):
-        assert self.video.tahoe_file() == self.tahoe_file
+        tahoe_file = TahoeFileFactory()
+        assert tahoe_file.video.tahoe_file() == tahoe_file
 
     def test_source_file(self):
-        assert self.video.source_file() == self.source_file
+        source_file = SourceFileFactory()
+        assert source_file.video.source_file() == source_file
 
     def test_cap(self):
-        assert self.video.cap() == self.tahoe_file.cap
+        tahoe_file = TahoeFileFactory()
+        assert tahoe_file.video.cap() == tahoe_file.cap
 
     def test_tahoe_download_url(self):
-        assert self.video.tahoe_download_url() == (
+        tahoe_file = TahoeFileFactory()
+        assert tahoe_file.video.tahoe_download_url() == (
             "http://tahoe.ccnmtl.columbia.edu/file/"
             "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
             "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
@@ -249,7 +169,8 @@ ID_VIDEO_WIDTH,704"""
             "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
 
     def test_enclosure_url(self):
-        assert self.video.enclosure_url() == (
+        tahoe_file = TahoeFileFactory()
+        assert tahoe_file.video.enclosure_url() == (
             "http://tahoe.ccnmtl.columbia.edu/file/"
             "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
             "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
@@ -257,29 +178,42 @@ ID_VIDEO_WIDTH,704"""
             "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
 
     def test_filename(self):
-        assert self.video.filename() == self.source_file.filename
+        source_file = SourceFileFactory()
+        assert source_file.video.filename() == source_file.filename
 
     def test_add_file_form(self):
-        self.video.add_file_form()
+        f = CUITFLVFileFactory()
+        f.video.add_file_form()
 
     def test_edit_form(self):
-        self.video.edit_form()
+        f = CUITFLVFileFactory()
+        f.video.edit_form()
 
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (704, 480)
+        source_file = SourceFileFactory()
+        assert source_file.video.get_dimensions() == (704, 480)
 
     def test_vital_thumb_url(self):
-        assert self.video.vital_thumb_url() == ""
+        f = CUITFLVFileFactory()
+        assert f.video.vital_thumb_url() == ""
 
     def test_cuit_url(self):
-        assert self.video.cuit_url() == (
+        f = CUITFLVFileFactory(
+            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
+                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+                      "Mediathread_video_uploaded_by_anp8.flv"))
+        assert f.video.cuit_url() == (
             "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
             "40e67868-41f1-11e1-aaa7-0017f20ea192-"
             "Mediathread_video_uploaded_by_anp8.flv")
 
     def test_mediathread_url(self):
+        f = CUITFLVFileFactory(
+            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
+                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
+                      "Mediathread_video_uploaded_by_anp8.flv"))
         self.assertEquals(
-            self.video.mediathread_url(),
+            f.video.mediathread_url(),
             (
                 "http://ccnmtl.columbia.edu/stream/flv/"
                 "4d9a45a17dbcf0c50241d0f5ec2f237d08f38398"
@@ -288,106 +222,57 @@ ID_VIDEO_WIDTH,704"""
                 "-Mediathread_video_uploaded_by_anp8.flv"))
 
     def test_poster_url(self):
-        assert self.video.poster_url() == (
+        f = CUITFLVFileFactory()
+        assert f.video.poster_url() == (
             "http://ccnmtl.columbia.edu/broadcast/posters/"
             "vidthumb_480x360.jpg")
 
     def test_cuit_poster_url(self):
-        assert self.video.cuit_poster_url() is None
+        f = CUITFLVFileFactory()
+        assert f.video.cuit_poster_url() is None
 
     def test_is_mediathread_submit(self):
-        assert not self.video.is_mediathread_submit()
+        f = CUITFLVFileFactory()
+        assert not f.video.is_mediathread_submit()
 
     def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None, None, None)
+        f = MediathreadFileFactory()
+        assert f.video.mediathread_submit() == (None, None, None)
 
     def test_is_vital_submit(self):
-        assert not self.video.is_vital_submit()
+        f = CUITFLVFileFactory()
+        assert not f.video.is_vital_submit()
 
     def test_vital_submit(self):
-        assert self.video.vital_submit() == (None, None, None)
+        f = CUITFLVFileFactory()
+        assert f.video.vital_submit() == (None, None, None)
 
     def test_poster(self):
-        assert self.video.poster().dummy
+        f = CUITFLVFileFactory()
+        assert f.video.poster().dummy
 
     def test_cuit_file(self):
-        assert self.video.cuit_file() == self.cuit_file
+        f = CUITFLVFileFactory()
+        assert f.video.cuit_file() == f
 
 
 class VitalVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Vital """
     def setUp(self):
-        self.collection = Collection.objects.create(title="Vital Spring 2012",
-                                                    uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="Vital video uploaded by anp8",
-                                          creator="anp8",
-                                          uuid=uuid.uuid4())
-
-        self.source_file = File.objects.create(
+        self.source_file = SourceFileFactory()
+        self.video = self.source_file.video
+        self.cuit_file = CUITFLVFileFactory(
             video=self.video,
-            label="source file",
-            location_type="none",
-            filename="wctest.mov",
-        )
-        metadata = """ID_AUDIO_BITRATE,128000
-ID_AUDIO_CODEC,faad
-ID_AUDIO_FORMAT,255
-ID_AUDIO_ID,0
-ID_AUDIO_NCH,2
-ID_AUDIO_RATE,48000
-ID_CHAPTERS,0
-ID_DEMUXER,lavfpref
-ID_EXIT,EOF
-ID_FILENAME,/var/www/wardenclyffe/tmp//5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov
-ID_LENGTH,31.26
-ID_SEEKABLE,1
-ID_VIDEO_ASPECT,1.3333
-ID_VIDEO_BITRATE,0
-ID_VIDEO_CODEC,ffh264
-ID_VIDEO_FORMAT,avc1
-ID_VIDEO_FPS,29.970
-ID_VIDEO_HEIGHT,480
-ID_VIDEO_ID,1
-ID_VIDEO_WIDTH,704"""
-        for line in metadata.split("\n"):
-            line = line.strip()
-            (k, v) = line.split(",")
-            self.source_file.set_metadata(k, v)
-        self.cuit_file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
             filename=("/www/data/ccnmtl/broadcast/secure/courses/"
                       "40e67868-41f1-11e1-aaa7-0017f20ea192-"
-                      "Mediathread_video_uploaded_by_anp8.flv"),
-        )
-        self.tahoe_file = File.objects.create(
+                      "Mediathread_video_uploaded_by_anp8.flv"))
+        self.tahoe_file = TahoeFileFactory(
             video=self.video,
-            label="uploaded source file",
-            location_type="tahoe",
             cap=("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
                  "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
                  "3:10:4783186"),
             filename=("/var/www/wardenclyffe/tmp//"
-                      "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"),
-        )
-        self.vital_thumbnail = File.objects.create(
-            video=self.video,
-            label="vital thumbnail image",
-            location_type="vitalthumb",
-            url=("http://ccnmtl.columbia.edu/broadcast/projects/vital/"
-                 "thumbs/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-"
-                 "Vital_video_uploaded_by_anp8_thumb.png"),
-        )
-        self.qtsp_file = File.objects.create(
-            video=self.video,
-            label="Quicktime Streaming Video",
-            location_type="rtsp_url",
-            url=("rtsp://qtss.cc.columbia.edu/projects/vital/"
-                 "25b0e81e-42b2-11e1-a13d-0017f20ea192-"
-                 "Vital_video_uploaded_by_anp8.mov"),
-        )
+                      "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"))
 
     def test_extension(self):
         assert self.video.extension() == ".mov"
@@ -430,7 +315,8 @@ ID_VIDEO_WIDTH,704"""
         assert self.video.get_dimensions() == (704, 480)
 
     def test_vital_thumb_url(self):
-        assert self.video.vital_thumb_url() == self.vital_thumbnail.url
+        v = VitalThumbnailFileFactory()
+        assert v.video.vital_thumb_url() == v.url
 
     def test_cuit_url(self):
         assert self.video.cuit_url() == (
@@ -477,77 +363,16 @@ class MissingDimensionsTest(TestCase):
     """ test the behavior for a video that has a source file, but
     that we couldn't parse the dimensions out of for some reason
     """
-    def setUp(self):
-        self.collection = Collection.objects.create(
-            title="Mediathread Spring 2012",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="test video",
-                                          creator="anp8",
-                                          uuid=uuid.uuid4())
-
-        self.source_file = File.objects.create(
-            video=self.video,
-            label="source file",
-            location_type="none",
-            filename="6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov",
-        )
-        metadata = """ID_AUDIO_BITRATE,128000
-ID_AUDIO_CODEC,faad
-ID_AUDIO_FORMAT,255
-ID_AUDIO_ID,0
-ID_AUDIO_NCH,2
-ID_AUDIO_RATE,48000
-ID_CHAPTERS,0
-ID_DEMUXER,lavfpref
-ID_EXIT,EOF
-ID_FILENAME,/var/www/wardenclyffe/tmp//6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov
-ID_LENGTH,31.26
-ID_SEEKABLE,1
-ID_VIDEO_ASPECT,1.3333
-ID_VIDEO_BITRATE,0
-ID_VIDEO_CODEC,ffh264
-ID_VIDEO_FORMAT,avc1
-ID_VIDEO_FPS,29.970
-ID_VIDEO_ID,1"""
-        for line in metadata.split("\n"):
-            line = line.strip()
-            (k, v) = line.split(",")
-            self.source_file.set_metadata(k, v)
-        self.cuit_file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=(
-                "/www/data/ccnmtl/broadcast/secure/courses/"
-                "40e67868-41f1-11e1-aaa7-0017f20ea192-"
-                "Mediathread_video_uploaded_by_anp8.flv"),
-        )
-        self.tahoe_file = File.objects.create(
-            video=self.video,
-            label="uploaded source file",
-            location_type="tahoe",
-            cap=(
-                "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-                "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-                "3:10:4783186"),
-            filename=(
-                "/var/www/wardenclyffe/tmp//"
-                "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
-        )
-        self.mediathread_file = File.objects.create(
-            video=self.video,
-            label="mediathread",
-            location_type="mediathread",
-            url="http://mediathread.ccnmtl.columbia.edu/asset/5684/",
-        )
-
     def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (0, 0)
+        m = MediathreadFileFactory()
+        TahoeFileFactory(video=m.video)
+        CUITFLVFileFactory(video=m.video)
+        DimensionlessSourceFileFactory(video=m.video)
+
+        assert m.video.get_dimensions() == (0, 0)
 
 
 class SpecialCharacterTests(TestCase):
-
     def test_strip_characters(self):
         self.assertEquals(strip_special_characters("video file"), "video_file")
         self.assertEquals(strip_special_characters("video \"foo\" file"),
@@ -557,78 +382,34 @@ class SpecialCharacterTests(TestCase):
 
 
 class H264SecureStreamFileTest(TestCase):
-    def setUp(self):
-        self.collection = Collection.objects.create(
-            title="test collection",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(
-            collection=self.collection,
-            title="test video",
-            uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/secure/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
-
     def test_h264_secure_stream_url(self):
-        assert self.video.h264_secure_stream_url() == (
+        f = FileFactory()
+        assert f.video.h264_secure_stream_url() == (
             "http://stream.ccnmtl.columbia.edu/secvideos/"
             "SECURE/courses/56d27944-4131-11e1-8164-0017f20ea192"
             "-Mediathread_video_uploaded_by_mlp55.mp4")
 
 
 class H264PublicStreamFileTest(TestCase):
-    def setUp(self):
-        self.collection = Collection.objects.create(
-            title="test collection",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(
-            collection=self.collection,
-            title="test video",
-            uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/public/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
-
     def test_h264_public_stream_url(self):
-        self.assertEquals(self.video.h264_public_stream_url(),
+        f = PublicFileFactory()
+        self.assertEquals(f.video.h264_public_stream_url(),
                           ("http://stream.ccnmtl.columbia.edu/public/"
                            "courses/56d27944-4131-11e1-8164-0017f20ea192-"
                            "Mediathread_video_uploaded_by_mlp55.mp4"))
 
     def test_h264_public_path(self):
-        self.assertEquals(self.file.h264_public_path(),
+        f = PublicFileFactory()
+        self.assertEquals(f.h264_public_path(),
                           ("/courses/56d27944-4131-11e1-8164-0017f20ea192-"
                            "Mediathread_video_uploaded_by_mlp55.mp4"))
 
 
 class OperationTest(TestCase):
-    def setUp(self):
-        self.c = Collection.objects.create(title="foo")
-        self.v = Video.objects.create(collection=self.c, title="bar")
-        (self.u, _) = User.objects.get_or_create(username="foo")
-        self.o = Operation.objects.create(
-            video=self.v, action="tahoe",
-            owner=self.u, status="in progress", params="")
-
-    def tearDown(self):
-        self.o.delete()
-        self.v.delete()
-        self.u.delete()
-        self.c.delete()
-
     def test_basics(self):
-        self.assertEquals(self.o.get_absolute_url().startswith("/operation/"),
+        o = OperationFactory()
+        self.assertEquals(o.get_absolute_url().startswith("/operation/"),
                           True)
-        d = self.o.as_dict()
-        self.assertEquals(d['status'], self.o.status)
-        self.assertEquals(self.o.formatted_params(), '')
+        d = o.as_dict()
+        self.assertEquals(d['status'], o.status)
+        self.assertEquals(o.formatted_params(), '')
