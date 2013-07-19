@@ -28,6 +28,10 @@ class SimpleTest(TestCase):
         response = self.c.get('/')
         self.assertEquals(response.status_code, 200)
 
+    def test_smoke(self):
+        response = self.c.get('/smoketest/')
+        self.assertEquals(response.status_code, 200)
+
     def test_dashboard(self):
         self.c.login(username="foo", password="bar")
         response = self.c.get("/dashboard/")
