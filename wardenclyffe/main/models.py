@@ -437,12 +437,11 @@ class File(TimeStampedModel):
                                               ('none', 'none')))
 
     def filetype(self):
-        if self.location_type == "tahoe":
-            return TahoeFile(self)
-        elif self.location_type == "cuit":
-            return CUITFile(self)
-        else:
-            return FileType(self)
+        tmap = dict(
+            tahoe=TahoeFile,
+            cuit=CUITFile,
+        )
+        return tmap.get(self.location_type, FileType)(self)
 
     def tahoe_download_url(self):
         return self.filetype().tahoe_download_url()
