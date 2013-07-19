@@ -2,7 +2,40 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from wardenclyffe.main.models import Collection, Video, File
+import factory
 import uuid
+
+
+class CollectionFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Collection
+    title = "Mediathread Spring 2012"
+    subject = "test subject"
+    uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
+
+
+class VideoFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Video
+    title = "test video"
+    creator = "anp8"
+    subject = "test subject"
+    uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
+    collection = factory.SubFactory(CollectionFactory)
+
+
+class FileFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = File
+    label = "CUIT File"
+    location_type = "cuit"
+    filename = ("/media/h264/ccnmtl/secure/"
+                "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                "-Mediathread_video_uploaded_by_mlp55.mp4")
+    video = factory.SubFactory(VideoFactory)
+
+
+class UserFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = User
+    username = "foo"
+    is_staff = True
 
 
 class SimpleTest(TestCase):
@@ -13,27 +46,10 @@ class SimpleTest(TestCase):
     server error. *Real* tests can come later.
     """
     def setUp(self):
-        self.u = User.objects.create(username="foo", is_staff=True)
+        self.u = UserFactory()
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()
-        self.collection = Collection.objects.create(
-            title="Mediathread Spring 2012",
-            subject="test subject",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="test video",
-                                          creator="anp8",
-                                          subject="test subject",
-                                          uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/secure/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
 
     def tearDown(self):
         self.u.delete()
@@ -92,8 +108,9 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_uuid_search(self):
+        f = FileFactory()
         self.c.login(username="foo", password="bar")
-        response = self.c.get("/uuid_search/", dict(uuid=self.video.uuid))
+        response = self.c.get("/uuid_search/", dict(uuid=f.video.uuid))
         self.assertEquals(response.status_code, 200)
 
     def test_search(self):
@@ -102,11 +119,12 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_file_filter(self):
+        f = FileFactory()
         self.c.login(username="foo", password="bar")
         response = self.c.get(
             "/file/filter/",
             dict(
-                include_collection=self.collection.id,
+                include_collection=f.video.collection.id,
             ))
         self.assertEquals(response.status_code, 200)
 
@@ -126,19 +144,24 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_collection_videos(self):
+        f = FileFactory()
         self.c.login(username="foo", password="bar")
-        response = self.c.get("/collection/%d/videos/" % self.collection.id)
+        response = self.c.get(
+            "/collection/%d/videos/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_collection_operations(self):
+        f = FileFactory()
         self.c.login(username="foo", password="bar")
         response = self.c.get("/collection/%d/operations/"
-                              % self.collection.id)
+                              % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_collection_page(self):
+        f = FileFactory()
         self.c.login(username="foo", password="bar")
-        response = self.c.get("/collection/%d/" % self.collection.id)
+        response = self.c.get(
+            "/collection/%d/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_slow_operations(self):
@@ -149,62 +172,41 @@ class SimpleTest(TestCase):
 
 class TestSurelink(TestCase):
     def setUp(self):
-        self.u = User.objects.create(username="foo", is_staff=True)
+        self.u = UserFactory()
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()
         self.c.login(username="foo", password="bar")
-        self.collection = Collection.objects.create(
-            title="Mediathread Spring 2012",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="test video",
-                                          creator="anp8",
-                                          uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/secure/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
-        self.public_file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/public/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
-
-    def tearDown(self):
-        self.u.delete()
 
     def test_surelink_form(self):
         response = self.c.get("/surelink/")
         self.assertEquals(response.status_code, 200)
 
     def test_file_surelink_form(self):
-        response = self.c.get("/file/%d/" % self.file.id)
+        f = FileFactory()
+        response = self.c.get("/file/%d/" % f.id)
         self.assertEquals(response.status_code, 200)
 
-        response = self.c.get("/file/%d/surelink/" % self.file.id)
+        response = self.c.get("/file/%d/surelink/" % f.id)
         self.assertEquals(response.status_code, 200)
 
     def test_file_surelink_public_stream(self):
         """ regression test for PMT #87084 """
-        response = self.c.get("/file/%d/" % self.file.id)
+        public_file = FileFactory(
+            filename=("/media/h264/ccnmtl/public/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.mp4"))
+        response = self.c.get("/file/%d/" % public_file.id)
         self.assertEquals(response.status_code, 200)
 
         response = self.c.get(
-            "/file/%d/surelink/" % self.public_file.id,
-            {'file': self.public_file.filename,
+            "/file/%d/surelink/" % public_file.id,
+            {'file': public_file.filename,
              'captions': '',
              'poster': ('http://wardenclyffe.ccnmtl.columbia.edu/'
                         'uploads/images/11213/00000238.jpg'),
-             'width': self.public_file.guess_width(),
-             'height': self.public_file.guess_height(),
+             'width': public_file.guess_width(),
+             'height': public_file.guess_height(),
              'protection': 'mp4_public_stream',
              'authtype': '',
              'player': 'v4',
@@ -216,32 +218,10 @@ class TestSurelink(TestCase):
 
 
 class TestFeed(TestCase):
-    def setUp(self):
-        self.u = User.objects.create(username="foo")
-        self.u.set_password("bar")
-        self.u.save()
-        self.c = Client()
-        self.collection = Collection.objects.create(
-            title="Mediathread Spring 2012",
-            uuid=uuid.uuid4())
-        self.video = Video.objects.create(collection=self.collection,
-                                          title="test video",
-                                          creator="anp8",
-                                          uuid=uuid.uuid4())
-        self.file = File.objects.create(
-            video=self.video,
-            label="CUIT File",
-            location_type="cuit",
-            filename=("/media/h264/ccnmtl/secure/"
-                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
-                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
-        )
-
-    def tearDown(self):
-        self.u.delete()
-
     def test_rss_feed(self):
-        response = self.c.get("/collection/%d/rss/" % self.collection.id)
+        self.c = Client()
+        f = FileFactory()
+        response = self.c.get("/collection/%d/rss/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
 
