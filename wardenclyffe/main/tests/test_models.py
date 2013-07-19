@@ -581,6 +581,36 @@ class H264SecureStreamFileTest(TestCase):
             "-Mediathread_video_uploaded_by_mlp55.mp4")
 
 
+class H264PublicStreamFileTest(TestCase):
+    def setUp(self):
+        self.collection = Collection.objects.create(
+            title="test collection",
+            uuid=uuid.uuid4())
+        self.video = Video.objects.create(
+            collection=self.collection,
+            title="test video",
+            uuid=uuid.uuid4())
+        self.file = File.objects.create(
+            video=self.video,
+            label="CUIT File",
+            location_type="cuit",
+            filename=("/media/h264/ccnmtl/public/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.mp4"),
+        )
+
+    def test_h264_public_stream_url(self):
+        self.assertEquals(self.video.h264_public_stream_url(),
+                          ("http://stream.ccnmtl.columbia.edu/public/"
+                           "courses/56d27944-4131-11e1-8164-0017f20ea192-"
+                           "Mediathread_video_uploaded_by_mlp55.mp4"))
+
+    def test_h264_public_path(self):
+        self.assertEquals(self.file.h264_public_path(),
+                          ("/courses/56d27944-4131-11e1-8164-0017f20ea192-"
+                           "Mediathread_video_uploaded_by_mlp55.mp4"))
+
+
 class OperationTest(TestCase):
     def setUp(self):
         self.c = Collection.objects.create(title="foo")

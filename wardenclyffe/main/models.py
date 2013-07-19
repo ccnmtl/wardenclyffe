@@ -571,6 +571,9 @@ class File(TimeStampedModel):
             filename = filename[len(settings.H264_PUBLIC_STREAM_DIRECTORY):]
         return settings.H264_PUBLIC_STREAM_BASE + filename
 
+    def h264_public_path(self):
+        return "/" + self.filename[len(settings.H264_PUBLIC_STREAM_DIRECTORY):]
+
     def is_cuit(self):
         return self.location_type == "cuit"
 
