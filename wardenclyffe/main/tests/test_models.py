@@ -179,6 +179,15 @@ class MediathreadVideoTest(TestCase):
             ":3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
             "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
 
+    def test_tahoe_info_url(self):
+        tahoe_file = TahoeFileFactory()
+        self.assertEquals(
+            tahoe_file.tahoe_info_url(),
+            ("http://tahoe.ccnmtl.columbia.edu/uri/"
+             "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
+             "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
+             ":3:10:4783186?t=json"))
+
     def test_filename(self):
         source_file = SourceFileFactory()
         assert source_file.video.filename() == source_file.filename
