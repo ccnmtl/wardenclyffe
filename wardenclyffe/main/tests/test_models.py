@@ -13,7 +13,7 @@ from factories import MediathreadFileFactory, FileFactory
 from factories import PublicFileFactory, OperationFactory
 from factories import DimensionlessSourceFileFactory
 from factories import VitalThumbnailFileFactory
-from factories import ServerFactory
+from factories import ServerFactory, UserFactory
 
 
 class CUITFileTest(TestCase):
@@ -414,6 +414,17 @@ class OperationTest(TestCase):
         d = o.as_dict()
         self.assertEquals(d['status'], o.status)
         self.assertEquals(o.formatted_params(), '')
+
+    def test_default_operations_creation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        (ops, params) = f.video.make_default_operations(
+            "/tmp/file.mov",
+            f, u)
+        self.assertEquals(len(ops), 3)
+        # just run these to get the coverage up. don't worry if they fail
+        for (o, p) in zip(ops, params):
+            o.process(params)
 
 
 class ServerTest(TestCase):
