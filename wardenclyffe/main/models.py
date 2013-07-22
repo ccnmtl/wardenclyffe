@@ -774,6 +774,15 @@ class Server(models.Model):
     def get_absolute_url(self):
         return "/server/%d/" % self.id
 
+    def edit_form(self, data=None):
+        class EditForm(forms.ModelForm):
+            class Meta:
+                model = Server
+        if data:
+            return EditForm(data, instance=self)
+        else:
+            return EditForm(instance=self)
+
 
 class ServerFile(TimeStampedModel):
     server = models.ForeignKey(Server)
