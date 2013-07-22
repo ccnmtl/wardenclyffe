@@ -200,3 +200,10 @@ class TestStats(TestCase):
         self.c = Client()
         response = self.c.get("/stats/")
         self.assertEquals(response.status_code, 200)
+
+
+class TestUploadify(TestCase):
+    def test_uploadify(self):
+        self.c = Client()
+        response = self.c.post("/uploadify/", {})
+        self.assertEqual(response.status_code, 200)

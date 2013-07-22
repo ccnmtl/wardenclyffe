@@ -432,6 +432,21 @@ class SubmitFilesTest(TestCase):
             v.mediathread_submit(),
             (None, None, None))
 
+    def test_mediathread_submit_audio(self):
+        v = VideoFactory()
+        u = UserFactory()
+        v.make_mediathread_submit_file(
+            "file.mp4", u, "course-id",
+            "http://example.com/", audio=True,
+            audio2=True)
+        self.assertEquals(
+            v.mediathread_submit(),
+            ("course-id", u.username, u'True', u'True'))
+        v.clear_mediathread_submit()
+        self.assertEquals(
+            v.mediathread_submit(),
+            (None, None, None))
+
     def test_vital_submit(self):
         v = VideoFactory()
         u = UserFactory()
