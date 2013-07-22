@@ -39,6 +39,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     TAHOE_DOWNLOAD_BASE = "http://tahoe.ccnmtl.columbia.edu/"
     WATCH_DIRECTORY = "/tmp/"
     TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
+    TMP_DIR = "/tmp"
 
 SOUTH_TESTS_MIGRATE = False
 SOUTH_AUTO_FREEZE_APP = True
