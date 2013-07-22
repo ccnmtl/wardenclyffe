@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.test.client import Client
 from factories import FileFactory
-from factories import UserFactory
 from factories import OperationFactory
+from factories import ServerFactory
+from factories import UserFactory
 
 
 class SimpleTest(TestCase):
@@ -227,3 +228,62 @@ class TestStaff(TestCase):
     def test_most_recent_operation_empty(self):
         r = self.c.get("/most_recent_operation/")
         self.assertEqual(r.status_code, 200)
+
+    def test_servers_empty(self):
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_servers(self):
+        s = ServerFactory()
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
+
+    def test_server(self):
+        s = ServerFactory()
+        r = self.c.get(s.get_absolute_url())
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
+
+    def test_edit_server(self):
+        s = ServerFactory()
+        r = self.c.get(s.get_absolute_url() + "edit/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
+        self.assertTrue("<form " in r.content)
+
+    def test_delete_server(self):
+        s = ServerFactory()
+        # make sure it appears in the list
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
+        # delete it
+        r = self.c.post("/server/%d/delete/" % s.id, {})
+        self.assertEqual(r.status_code, 302)
+        # now it should be gone
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(s.name in r.content)
+        self.assertFalse(s.hostname in r.content)
+
+    def test_delete_server_get(self):
+        """ GET request should just be confirm form, not actually delete """
+        s = ServerFactory()
+        # make sure it appears in the list
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
+
+        r = self.c.get("/server/%d/delete/" % s.id)
+        self.assertEqual(r.status_code, 200)
+        # it should not be gone
+        r = self.c.get("/server/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(s.name in r.content)
+        self.assertTrue(s.hostname in r.content)
