@@ -160,13 +160,17 @@ def recent_operations(request):
 @login_required
 @user_passes_test(is_staff)
 def most_recent_operation(request):
-    return HttpResponse(
-        dumps(
-            dict(
-                modified=str(
-                    Operation.objects.all().order_by(
-                        "-modified")[0].modified)[:19])),
-        mimetype="application/json")
+    qs = Operation.objects.all().order_by("-modified")
+    if qs.count():
+        return HttpResponse(
+            dumps(
+                dict(
+                    modified=str(qs[0].modified)[:19])),
+            mimetype="application/json")
+    else:
+        return HttpResponse(
+            dumps(dict()),
+            mimetype="application/json")
 
 
 @login_required

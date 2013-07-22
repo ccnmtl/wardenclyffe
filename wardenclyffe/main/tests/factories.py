@@ -45,7 +45,7 @@ class CUITFLVFileFactory(FileFactory):
 
 class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
-    username = "foo"
+    username = factory.Sequence(lambda n: "user%03d" % n)
     is_staff = True
 
 

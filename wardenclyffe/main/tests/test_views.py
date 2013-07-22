@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.test.client import Client
 from factories import FileFactory
 from factories import UserFactory
+from factories import OperationFactory
 
 
 class SimpleTest(TestCase):
@@ -24,7 +25,7 @@ class SimpleTest(TestCase):
         response = self.c.get('/')
         self.assertEquals(response.status_code, 302)
 
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get('/')
         self.assertEquals(response.status_code, 200)
 
@@ -33,7 +34,7 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_dashboard(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/dashboard/")
         self.assertEquals(response.status_code, 200)
 
@@ -47,12 +48,12 @@ class SimpleTest(TestCase):
         assert response.content == "ok"
 
     def test_recent_operations(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/recent_operations/")
         self.assertEquals(response.status_code, 200)
 
     def test_upload_form(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/")
         self.assertEquals(response.status_code, 200)
 
@@ -64,7 +65,7 @@ class SimpleTest(TestCase):
         response = self.c.post("/upload/post/")
         self.assertEquals(response.status_code, 302)
 
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         # GET should not work
         response = self.c.get("/upload/post/")
         self.assertEquals(response.status_code, 302)
@@ -79,18 +80,18 @@ class SimpleTest(TestCase):
 
     def test_uuid_search(self):
         f = FileFactory()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/uuid_search/", dict(uuid=f.video.uuid))
         self.assertEquals(response.status_code, 200)
 
     def test_search(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/search/", dict(q="test"))
         self.assertEquals(response.status_code, 200)
 
     def test_file_filter(self):
         f = FileFactory()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/file/filter/",
             dict(
@@ -99,43 +100,43 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_video_index(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/video/")
         self.assertEquals(response.status_code, 200)
 
     def test_file_index(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/")
         self.assertEquals(response.status_code, 200)
 
     def test_user_page(self):
-        self.c.login(username="foo", password="bar")
-        response = self.c.get("/user/foo/")
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/user/%s/" % self.u.username)
         self.assertEquals(response.status_code, 200)
 
     def test_collection_videos(self):
         f = FileFactory()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/videos/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_collection_operations(self):
         f = FileFactory()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/collection/%d/operations/"
                               % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_collection_page(self):
         f = FileFactory()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
     def test_slow_operations(self):
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/slow_operations/")
         self.assertEquals(response.status_code, 200)
 
@@ -146,7 +147,7 @@ class TestSurelink(TestCase):
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()
-        self.c.login(username="foo", password="bar")
+        self.c.login(username=self.u.username, password="bar")
 
     def test_surelink_form(self):
         response = self.c.get("/surelink/")
@@ -207,3 +208,22 @@ class TestUploadify(TestCase):
         self.c = Client()
         response = self.c.post("/uploadify/", {})
         self.assertEqual(response.status_code, 200)
+
+
+class TestStaff(TestCase):
+    def setUp(self):
+        self.u = UserFactory()
+        self.u.set_password("bar")
+        self.u.save()
+        self.c = Client()
+        self.c.login(username=self.u.username, password="bar")
+
+    def test_most_recent_operation(self):
+        o = OperationFactory()
+        r = self.c.get("/most_recent_operation/")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(str(o.modified.year) in r.content)
+
+    def test_most_recent_operation_empty(self):
+        r = self.c.get("/most_recent_operation/")
+        self.assertEqual(r.status_code, 200)
