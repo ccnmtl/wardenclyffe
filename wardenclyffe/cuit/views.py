@@ -41,7 +41,9 @@ def list_all_cuit_files():
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey=mykey)
     sftp = paramiko.SFTPClient.from_transport(transport)
-    return sftp_recursive_listdir(sftp, sftp_path)
+    results = sftp_recursive_listdir(sftp, sftp_path)
+    sftp.close()
+    return results
 
 
 @login_required
