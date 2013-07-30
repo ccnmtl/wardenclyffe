@@ -17,3 +17,4 @@ class CUITSFTPTest(SmokeTest):
         sftp = paramiko.SFTPClient.from_transport(transport)
         sftp.chdir(sftp_path)
         self.assertTrue(len(sftp.listdir_attr()))
+        sftp.close()
