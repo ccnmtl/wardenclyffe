@@ -1,5 +1,6 @@
 # flake8: noqa
 from settings_shared import *
+import sys
 
 TEMPLATE_DIRS = (
     "/var/www/wardenclyffe/wardenclyffe/wardenclyffe/templates",
@@ -32,21 +33,20 @@ DATABASES = {
 SENTRY_SITE = 'wardenclyffe'
 SENTRY_SERVERS = ['http://sentry.ccnmtl.columbia.edu/sentry/store/']
 
-import logging
-from raven.contrib.django.handlers import SentryHandler
-logger = logging.getLogger()
-# ensure we havent already registered the handler
-if SentryHandler not in map(type, logger.handlers):
-    logger.addHandler(SentryHandler())
+if 'migrate' not in sys.argv:
+    import logging
+    from raven.contrib.django.handlers import SentryHandler
+    logger = logging.getLogger()
+    # ensure we havent already registered the handler
+    if SentryHandler not in map(type, logger.handlers):
+        logger.addHandler(SentryHandler())
 
-    # Add StreamHandler to sentry's default so you can catch missed exceptions
-    logger = logging.getLogger('sentry.errors')
-    logger.propagate = False
-    logger.addHandler(logging.StreamHandler())
+        # Add StreamHandler to sentry's default so you can catch missed exceptions
+        logger = logging.getLogger('sentry.errors')
+        logger.propagate = False
+        logger.addHandler(logging.StreamHandler())
 
-INSTALLED_APPS.append('raven.contrib.django')
-
-
+    INSTALLED_APPS.append('raven.contrib.django')
 
 try:
     from local_settings import *
