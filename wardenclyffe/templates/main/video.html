@@ -85,7 +85,7 @@ var removeTag = function(tagName,tagId) {
 
 <div id="frames">
 {% if video.image_set.count %}
-{% for image in video.image_set.all %}
+{% for image in video.upto_hundred_images %}
 {% thumbnail image.image "200x200" as thmb %}
 <div style="float: left; width: 200px"><img src="{{thmb.absolute_url}}" /><br />
 <a href="select_poster/{{image.id}}/">make poster</a></div>

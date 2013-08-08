@@ -395,6 +395,16 @@ class Video(TimeStampedModel):
             params.append(p)
         return operations, params
 
+    def upto_hundred_images(self):
+        """ return the first 100 frames for the video
+
+        some really long videos end up with thousands of frames
+        which takes sorl a long time to thumbnail and makes
+        the page really slow. There's really no good reason
+        to show *all* those images. The first hundred or so
+        ought to be enough to select a poster from """
+        return self.image_set.all()[:100]
+
 
 class WrongFileType(Exception):
     pass
