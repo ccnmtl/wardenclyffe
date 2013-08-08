@@ -19,9 +19,8 @@ ret = subprocess.call(["python", "virtualenv.py",
 if ret: exit(ret)
 
 ret = subprocess.call([os.path.join(vedir, 'bin', 'pip'), "install",
-                       "-E", vedir,
-                       "--index-url=''",
-                       "--requirement",os.path.join(pwd,"requirements/apps.txt")])
+                       "--index-url=http://pypi.ccnmtl.columbia.edu/",
+                       "--requirement",os.path.join(pwd,"requirements.txt")])
 if ret: exit(ret)
 
 ret = subprocess.call(["python","virtualenv.py","--relocatable",vedir])
