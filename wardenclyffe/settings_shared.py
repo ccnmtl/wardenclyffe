@@ -60,6 +60,7 @@ PROJECT_APPS = [
     'wardenclyffe.vital',
     'wardenclyffe.youtube',
     'wardenclyffe.cuit',
+    'wardenclyffe.graphite',
 ]
 
 NOSE_ARGS = [
@@ -69,7 +70,7 @@ NOSE_ARGS = [
     "--exclude-dir-file=exclude_tests.txt",
     ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
      'wardenclyffe.vital,wardenclyffe.youtube,wardenclyffe.surelink,'
-     'wardenclyffe.util'),
+     'wardenclyffe.util,wardenclyffe.graphite'),
 ]
 
 
@@ -144,6 +145,7 @@ INSTALLED_APPS = [
     'waffle',
     'debug_toolbar',
     'django_jenkins',
+    'wardenclyffe.graphite',
 ]
 
 INTERNAL_IPS = ('127.0.0.1', )
