@@ -1,10 +1,13 @@
 import urllib2
 from restclient import GET, POST
-from datetime import datetime
+from datetime import datetime, timedelta
 from angeldust import PCP
 from celery.decorators import task
+from celery.decorators import periodic_task
+from celery.task.schedules import crontab
 from wardenclyffe.main.models import Video, File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
+from wardenclyffe.util.mail import send_slow_operations_email
 import os.path
 import uuid
 import tempfile
@@ -343,3 +346,18 @@ def flv_encode(video_id, user, basedir, infile, outfile, ffmpeg_path):
 
 def strip_special_characters(title):
     return re.sub('[\W_]+', '_', title)
+
+
+@periodic_task(
+    run_every=crontab(
+        hour="7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23",
+        minute="3", day_of_week="*"))
+def check_for_slow_operations():
+    status_filters = ["enqueued", "in progress", "submitted"]
+    operations = Operation.objects.filter(
+        status__in=status_filters,
+        modified__lt=datetime.now() - timedelta(hours=1)
+    ).order_by("-modified")
+    if operations.count() > 0:
+        send_slow_operations_email(operations)
+    # else, no slow operations to warn about. excellent.
