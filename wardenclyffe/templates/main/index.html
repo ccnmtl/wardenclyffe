@@ -66,7 +66,7 @@ jQuery(function($){
 						{% if poster.dummy %}
 						<img src="/site_media/img/vidthumb160.jpg" width="160" height="120" />
 						{% else %}
-						{% thumbnail poster.image "160x120" as thmb %}
+						{% thumbnail poster.image.image "160x120" as thmb %}
 						<img src="{{thmb.absolute_url}}" width="160"/>
 						{% endif %}
 						{% endwith %}</a>
