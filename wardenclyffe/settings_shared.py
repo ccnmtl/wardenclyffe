@@ -215,3 +215,9 @@ POSTER_BASE_URL = "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
 DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
     "broadcast/posters/vidthumb_480x360.jpg")
+
+# something is up with statsd + gauges so for now we're bypassing
+# that and sending some metrics straight to graphite
+GRAPHITE_PREFIX = "ccnmtl.app.counters.wardenclyffe"
+CARBON_SERVER = '128.59.222.209'
+CARBON_PORT = 2003
