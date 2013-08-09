@@ -7,6 +7,22 @@ import sys
 from .models import operation_count_by_status
 
 
+def send_to_graphite(message):
+    sock = socket()
+    try:
+        sock.connect((settings.CARBON_SERVER, settings.CARBON_PORT))
+    except:
+        print (
+            "Couldn't connect to %(server)s on port %(port)d, "
+            "is carbon-agent.py running?") % {
+                'server': settings.CARBON_SERVER,
+                'port': settings.CARBON_PORT,
+            }
+        sys.exit(1)
+
+    sock.sendall(message)
+
+
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def operations_report():
     results = operation_count_by_status()
@@ -27,16 +43,4 @@ def operations_report():
                                             results['in progress'], now),
     ]
     message = "\n".join(lines) + "\n"
-    sock = socket()
-    try:
-        sock.connect((settings.CARBON_SERVER, settings.CARBON_PORT))
-    except:
-        print (
-            "Couldn't connect to %(server)s on port %(port)d, "
-            "is carbon-agent.py running?") % {
-                'server': settings.CARBON_SERVER,
-                'port': settings.CARBON_PORT,
-            }
-        sys.exit(1)
-
-    sock.sendall(message)
+    send_to_graphite(message)
