@@ -23,9 +23,7 @@ def send_to_graphite(message):
     sock.sendall(message)
 
 
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
-def operations_report():
-    results = operation_count_by_status()
+def operation_count_report(results):
     total = sum(results.values())
     now = int(time.time())
     lines = [
@@ -43,4 +41,10 @@ def operations_report():
                                             results['in progress'], now),
     ]
     message = "\n".join(lines) + "\n"
-    send_to_graphite(message)
+    return message
+
+
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+def operations_report():
+    results = operation_count_by_status()
+    send_to_graphite(operation_count_report(results))
