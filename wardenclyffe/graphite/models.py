@@ -1,5 +1,5 @@
 from django.conf import settings
-from wardenclyffe.main.models import Operation, File
+from wardenclyffe.main.models import Operation, File, Metadata
 import time
 import requests
 
@@ -81,3 +81,20 @@ def tahoe_report():
     ]
     message = "\n".join(lines) + "\n"
     return message
+
+
+def minutes_video_stats():
+    "return the total number of minutes of video uploaded"
+    return sum(
+        [
+            float(str(m.value))
+            for m in Metadata.objects.filter(
+                field='ID_LENGTH',
+                file__location_type='none')]) / 60.0
+
+
+def minutes_video_report():
+    minutes = minutes_video_stats()
+    now = int(time.time())
+    return "%s.minutes_video %d %d\n" % (settings.GRAPHITE_PREFIX,
+                                         int(minutes), now)

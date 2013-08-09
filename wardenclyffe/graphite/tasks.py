@@ -5,6 +5,7 @@ from socket import socket
 import sys
 from .models import operation_count_report
 from .models import tahoe_report
+from .models import minutes_video_report
 
 
 def send_to_graphite(message):
@@ -26,6 +27,11 @@ def send_to_graphite(message):
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def operations_report():
     send_to_graphite(operation_count_report())
+
+
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+def minutes_video():
+    send_to_graphite(minutes_video_report())
 
 
 @periodic_task(run_every=crontab(hour="22", minute="13", day_of_week="*"))
