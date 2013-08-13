@@ -43,7 +43,7 @@ def operations_report():
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def minutes_video():
     send_to_graphite(minutes_video_report())
-    statsd.gauge("minutes_video", minutes_video_stats())
+    statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
 @periodic_task(run_every=crontab(hour="22", minute="13", day_of_week="*"))
