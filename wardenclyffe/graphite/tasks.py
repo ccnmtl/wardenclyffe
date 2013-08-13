@@ -6,9 +6,7 @@ from socket import socket
 import sys
 from .models import operation_count_by_status
 from .models import operation_count_report
-from .models import tahoe_report
 from .models import tahoe_stats
-from .models import minutes_video_report
 from .models import minutes_video_stats
 
 
@@ -42,13 +40,11 @@ def operations_report():
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def minutes_video():
-    send_to_graphite(minutes_video_report())
     statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
 @periodic_task(run_every=crontab(hour="22", minute="13", day_of_week="*"))
 def nightly_tahoe_report():
-    send_to_graphite(tahoe_report())
     (cnt, total) = tahoe_stats()
     statsd.gauge("tahoe.total", total)
     statsd.gauge("tahoe.cnt", cnt)

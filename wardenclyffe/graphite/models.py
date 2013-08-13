@@ -70,19 +70,6 @@ def tahoe_stats():
     return (cnt, total)
 
 
-def tahoe_report():
-    """ summarize tahoe usage in a message ready to send to graphite """
-
-    (count, total) = tahoe_stats()
-    now = int(time.time())
-    lines = [
-        "%s.tahoe.count %d %d" % (settings.GRAPHITE_PREFIX, count, now),
-        "%s.tahoe.total %d %d" % (settings.GRAPHITE_PREFIX, total, now),
-    ]
-    message = "\n".join(lines) + "\n"
-    return message
-
-
 def minutes_video_stats():
     "return the total number of minutes of video uploaded"
     return sum(
@@ -91,10 +78,3 @@ def minutes_video_stats():
             for m in Metadata.objects.filter(
                 field='ID_LENGTH',
                 file__location_type='none')]) / 60.0
-
-
-def minutes_video_report():
-    minutes = minutes_video_stats()
-    now = int(time.time())
-    return "%s.minutes_video %d %d\n" % (settings.GRAPHITE_PREFIX,
-                                         int(minutes), now)

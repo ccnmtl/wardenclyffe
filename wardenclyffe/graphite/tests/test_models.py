@@ -5,7 +5,6 @@ from wardenclyffe.graphite.models import operation_count_report
 from wardenclyffe.graphite.models import generate_operation_count_report
 from wardenclyffe.graphite.models import tahoe_stats
 from wardenclyffe.graphite.models import minutes_video_stats
-from wardenclyffe.graphite.models import minutes_video_report
 from wardenclyffe.main.tests.factories import OperationFactory, FileFactory
 
 
@@ -92,15 +91,3 @@ class TestMinutesVideoStats(TestCase):
         f.set_metadata('ID_LENGTH', "300")
         result = minutes_video_stats()
         self.assertEqual(result, 5.0)
-
-
-class TestMinutesVideoReport(TestCase):
-    def test_empty(self):
-        result = minutes_video_report()
-        self.assertTrue("minutes_video 0 " in result)
-
-    def test_populated(self):
-        f = FileFactory(location_type="none")
-        f.set_metadata('ID_LENGTH', "300")
-        result = minutes_video_report()
-        self.assertTrue("minutes_video 5 " in result)
