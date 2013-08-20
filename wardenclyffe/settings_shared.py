@@ -167,12 +167,7 @@ STATSD_HOST = 'localhost'
 STATSD_PORT = 8125
 STATSD_PATCHES = ['django_statsd.patches.db', ]
 
-#CELERY_RESULT_BACKEND = "database"
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-#BROKER_USER = "guest"
-#BROKER_PASSWORD = "guest"
-BROKER_VHOST = "/"
+BROKER_URL = "ampq://localhost:5672//"
 CELERYD_CONCURRENCY = 4
 
 THUMBNAIL_SUBDIR = "thumbs"
