@@ -59,11 +59,7 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.CREDENTIALS)
 
     def test_rabbitmq_settings(self):
-        self.assertIsNotNone(settings.BROKER_HOST)
-        self.assertIsNotNone(settings.BROKER_PORT)
-        self.assertIsNotNone(settings.BROKER_USER)
-        self.assertIsNotNone(settings.BROKER_PASSWORD)
-        self.assertIsNotNone(settings.BROKER_VHOST)
+        self.assertIsNotNone(settings.BROKER_URL)
 
     def test_sentry_settings(self):
         if not settings.DEBUG:
