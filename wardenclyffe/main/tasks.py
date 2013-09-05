@@ -8,6 +8,7 @@ from celery.task.schedules import crontab
 from wardenclyffe.main.models import Video, File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
+from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
 import os.path
 import uuid
 import tempfile
@@ -359,5 +360,17 @@ def check_for_slow_operations():
         modified__lt=datetime.now() - timedelta(hours=1)
     ).order_by("-modified")
     if operations.count() > 0:
-        send_slow_operations_email(operations)
+        other_than_submitted = Operation.objects.filter(
+            status__in=["enqueued", "in progress"],
+            modified__lt=datetime.now() - timedelta(hours=1)
+        )
+        if other_than_submitted.count() > 0:
+            # there are operations that are enqueued or in progress
+            # so sysadmins need to know too
+            send_slow_operations_email(operations)
+        else:
+            # it's just 'submitted' operations that are slow
+            # so it's just the video team's problem
+            send_slow_operations_to_videoteam_email(operations)
+
     # else, no slow operations to warn about. excellent.

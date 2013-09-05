@@ -113,6 +113,12 @@ class MailTest(TestCase):
         assert len(mail.outbox) > 0
         self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
 
+    def test_send_slow_operations_to_videoteam_email(self):
+        operations = DummyOperationsSet(1)
+        send_slow_operations_email(operations)
+        assert len(mail.outbox) > 0
+        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
+
     def test_send_failed_operation_mail(self):
         dummy_op = DummyOperation(action="dummy",
                                   video=DummyVideo("dummy video"))

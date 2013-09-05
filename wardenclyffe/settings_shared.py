@@ -177,6 +177,7 @@ SERVER_EMAIL = "wardenclyffe@ccnmtl.columbia.edu"
 # email addresses of video team members how want to
 # be annoyed by lots of status email
 ANNOY_EMAILS = ["jhanford@columbia.edu", "anders@columbia.edu"]
+VIDEO_TEAM_EMAILS = ["jhanford@columbia.edu"]
 
 # WIND settings
 

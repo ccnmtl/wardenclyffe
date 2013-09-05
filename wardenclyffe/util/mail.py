@@ -15,6 +15,21 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
         statsd.incr('event.mail_sent')
 
 
+def send_to_videoteam(subject, body, toaddress, fromaddress):
+    """ send email to the user as well as settings.VIDEO_TEAM_EMAILS
+
+    we do this because a lot of the slow operations reported are just
+    Podcast Producer getting hung. Only the video team can fix those,
+    so they get to be the only ones bothered.
+    """
+    if toaddress:
+        send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
+    statsd.incr('event.mail_sent')
+    for vuser in settings.VIDEO_TEAM_EMAILS:
+        send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
+        statsd.incr('event.mail_sent')
+
+
 def slow_operations_email_body(cnt):
     t = get_template("util/slow_operations_email_body.txt")
     d = Context(dict(cnt=cnt, mcnt=cnt > 1))
@@ -27,6 +42,14 @@ def send_slow_operations_email(operations):
     body = slow_operations_email_body(cnt)
     fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
     send_to_everyone(subject, body, None, fromaddress)
+
+
+def send_slow_operations_to_videoteam_email(operations):
+    cnt = operations.count()
+    subject = "Slow operations detected"
+    body = slow_operations_email_body(cnt)
+    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    send_to_videoteam(subject, body, None, fromaddress)
 
 
 def failed_operation_body(operation, error_message):
