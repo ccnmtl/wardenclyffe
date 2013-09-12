@@ -30,6 +30,7 @@ DATABASES = {
         }
 }
 
+STAGING = True
 STATSD_PREFIX = 'wardenclyffe-staging'
 SENTRY_SITE = 'wardenclyffe-staging'
 SENTRY_SERVERS = ['http://sentry.ccnmtl.columbia.edu/sentry/store/']

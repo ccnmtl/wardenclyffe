@@ -103,5 +103,6 @@ class TahoeTest(SmokeTest):
     """ make sure we can connect to Tahoe and that the
     base CAP looks legit"""
     def test_tahoe(self):
-        response = requests.get(settings.TAHOE_BASE)
-        self.assertEqual(response.status_code, 200)
+        if not settings.STAGING:
+            response = requests.get(settings.TAHOE_BASE)
+            self.assertEqual(response.status_code, 200)

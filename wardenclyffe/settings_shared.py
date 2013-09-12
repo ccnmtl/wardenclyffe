@@ -211,3 +211,4 @@ POSTER_BASE_URL = "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
 DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
     "broadcast/posters/vidthumb_480x360.jpg")
+STAGING = False

@@ -7,6 +7,10 @@ class CUITSFTPTest(SmokeTest):
     def test_connectivity(self):
         """ this will be a good candidate for the @slow decorator
         once that is implemented """
+        if settings.STAGING:
+            # we don't give the staging server access to CUIT credentials
+            # so we need to skip this smoketest in that case
+            return
         sftp_hostname = settings.SFTP_HOSTNAME
         sftp_path = settings.SFTP_PATH
         sftp_user = settings.SFTP_USER
