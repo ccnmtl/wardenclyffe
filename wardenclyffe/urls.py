@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, include
 from django.contrib import admin
 from django.conf import settings
 from wardenclyffe.main.feeds import CollectionFeed
-from django.views.generic.simple import direct_to_template
+from django.views.generic import TemplateView
 import os.path
 admin.autodiscover()
 
@@ -112,9 +112,9 @@ urlpatterns = patterns(
     (r'munin/total_minutes/', 'wardenclyffe.main.views.total_minutes'),
     ('^munin/', include('munin.urls')),
     ('smoketest/', include('smoketest.urls')),
-    ('^stats/$', direct_to_template, {'template': 'main/stats.html'}),
-    ('^stats/auth/$', direct_to_template,
-     {'template': 'main/auth_stats.html'}),
+    (r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),
+    (r'^stats/auth/$',
+     TemplateView.as_view(template_name="main/auth_stats.html")),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',
      {'document_root': site_media_root}),
     (r'^uploads/(?P<path>.*)$',

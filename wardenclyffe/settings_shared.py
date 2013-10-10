@@ -212,3 +212,8 @@ DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
     "broadcast/posters/vidthumb_480x360.jpg")
 STAGING = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+}
