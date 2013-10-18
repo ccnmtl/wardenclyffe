@@ -36,7 +36,7 @@ def mediathread(request):
 
     try:
         user = User.objects.get(username=username)
-    except:
+    except User.DoesNotExist:
         user = User.objects.create(username=username)
         statsd.incr("mediathread.user_created")
 
