@@ -72,6 +72,15 @@ def mediathread_post(request):
         transaction.commit()
         return HttpResponse("post only")
 
+    # we see this now and then, probably due to browser plugins
+    # that provide "privacy" by stripping session cookies off
+    # requests. we really don't have any way of handling
+    # the upload if we can't maintain a session, so bail.
+    if 'username' not in request.session \
+            or 'set_course' not in request.session:
+        transaction.commit()
+        return HttpResponse("invalid session")
+
     tmpfilename = request.POST.get('tmpfilename', '')
     audio = request.POST.get('audio', False)
     audio2 = request.POST.get('audio2', False)

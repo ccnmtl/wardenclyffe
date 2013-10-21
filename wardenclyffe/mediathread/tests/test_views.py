@@ -46,3 +46,16 @@ class SimpleText(TestCase):
         self.assertNotEquals(
             response.content,
             "invalid authentication token")
+
+
+class TestInvalidSessions(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    def test_get(self):
+        r = self.c.get("/mediathread/post/")
+        self.assertEqual(r.content, "post only")
+
+    def test_no_session(self):
+        r = self.c.post("/mediathread/post/", {})
+        self.assertEqual(r.content, "invalid session")
