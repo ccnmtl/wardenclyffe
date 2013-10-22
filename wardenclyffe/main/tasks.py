@@ -149,7 +149,7 @@ def make_images(operation, params):
         pass
     imgs = os.listdir(tmpdir)
     imgs.sort()
-    for img in imgs[settings.MAX_FRAMES]:
+    for img in imgs[:settings.MAX_FRAMES]:
         os.system("mv %s%s %s" % (tmpdir, img, imgdir))
         Image.objects.create(
             video=operation.video,
