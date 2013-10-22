@@ -207,6 +207,8 @@ CUNIX_SECURE_DIRECTORY = "/www/data/ccnmtl/broadcast/secure/"
 CUNIX_H264_DIRECTORY = "/media/h264"
 FLV_STREAM_BASE_URL = "http://ccnmtl.columbia.edu/stream/flv/"
 
+MAX_FRAMES = 50
+
 POSTER_BASE_URL = "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
 DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
