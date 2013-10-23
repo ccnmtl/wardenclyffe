@@ -160,7 +160,7 @@ def make_images(operation, params):
             and len(imgs) > 0:
         # pick a random image out of the set and assign
         # it as the poster on the video
-        r = random.randint(0, len(imgs) - 1)
+        r = random.randint(0, min(len(imgs), 50) - 1)
         image = Image.objects.filter(video=operation.video)[r]
         Poster.objects.create(video=operation.video, image=image)
 
