@@ -4,6 +4,7 @@ from wardenclyffe.main.tasks import slow_operations_other_than_submitted
 from wardenclyffe.main.tasks import image_extract_command
 from wardenclyffe.main.tasks import avi_image_extract_command
 from wardenclyffe.main.tasks import fallback_image_extract_command
+from wardenclyffe.main.tasks import image_extract_command_for_file
 
 
 class SlowOperationsTest(TestCase):
@@ -37,4 +38,15 @@ class ImageExtractCommandTest(TestCase):
                              "-nosound -vo jpeg:outdir=foo -endpos "
                              "03:00:00 -frames 5 -vf framerate=250 "
                              "'baz' 2>/dev/null"))
-    
+
+    def test_image_extract_command_for_file(self):
+        r = image_extract_command_for_file("foo", 5, "baz")
+        self.assertEqual(r, ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
+                             "-nosound -vo jpeg:outdir=foo -endpos "
+                             "03:00:00 -frames 5 -sstep 10 'baz' "
+                             "2>/dev/null"))
+        r = image_extract_command_for_file("foo", 5, "baz.avi")
+        self.assertEqual(r, ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
+                             "-nosound -vo jpeg:outdir=foo -endpos "
+                             "03:00:00 -frames 5 -sstep 10 -correct-pts "
+                             "'baz.avi' 2>/dev/null"))

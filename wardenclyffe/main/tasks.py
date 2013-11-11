@@ -93,6 +93,7 @@ IONICE = "/usr/bin/ionice"
 MPLAYER = "/usr/bin/mplayer"
 MAX_SEEK_POS = "03:00:00"
 
+
 def avi_image_extract_command(tmpdir, frames, tmpfilename):
     return ("%s -c 3 %s -nosound"
             " -vo jpeg:outdir=%s -endpos %s -frames %d"
@@ -116,21 +117,31 @@ def fallback_image_extract_command(tmpdir, frames, tmpfilename):
             % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
 
 
+def honey_badger(f, *args, **kwargs):
+    """ basically apply() wrapped in an exception handler.
+    honey badger don't care if there's an exception"""
+    try:
+        return f(*args, **kwargs)
+    except:
+        pass
+
+
+def image_extract_command_for_file(tmpdir, frames, tmpfilename):
+    if tmpfilename.lower().endswith("avi"):
+        return avi_image_extract_command(tmpdir, frames, tmpfilename)
+    else:
+        return image_extract_command(tmpdir, frames, tmpfilename)
+
+
 def make_images(operation, params):
     statsd.incr("make_images")
     ouuid = operation.uuid
     tmpfilename = params['tmpfilename']
     tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
-    try:
-        os.makedirs(tmpdir)
-    except:
-        pass
+    honey_badger(os.makedirs, tmpdir)
     size = os.stat(tmpfilename)[6] / (1024 * 1024)
     frames = size * 2  # 2 frames per MB at the most
-    if tmpfilename.lower().endswith("avi"):
-        command = avi_image_extract_command(tmpdir, frames, tmpfilename)
-    else:
-        command = image_extract_command(tmpdir, frames, tmpfilename)
+    command = image_extract_command_for_file(tmpdir, frames, tmpfilename)
     os.system(command)
     imgs = os.listdir(tmpdir)
     if len(imgs) == 0:
@@ -138,10 +149,7 @@ def make_images(operation, params):
         os.system(command)
     # TODO: parameterize
     imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % operation.video.id
-    try:
-        os.makedirs(imgdir)
-    except:
-        pass
+    honey_badger(os.makedirs, imgdir)
     imgs = os.listdir(tmpdir)
     imgs.sort()
     for img in imgs[:settings.MAX_FRAMES]:
