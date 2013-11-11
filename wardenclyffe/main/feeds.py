@@ -113,9 +113,6 @@ class CollectionFeed(Feed):
     def item_title(self, item):
         return item.title
 
-    def item_language(self, item):
-        return item.language
-
     def item_pubdate(self, item):
         return item.created
 
