@@ -5,30 +5,6 @@ import os.path
 import os
 from django.conf import settings
 from json import loads
-import paramiko
-
-
-def sftp_get(remote_filename, local_filename):
-    print "sftp_get(%s,%s)" % (remote_filename, local_filename)
-    sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_user = settings.SFTP_USER
-    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
-    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
-    transport = paramiko.Transport((sftp_hostname, 22))
-    transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
-
-    try:
-        sftp.get(remote_filename, local_filename)
-    except Exception, e:
-        print "sftp fetch failed"
-        print str(e)
-        raise
-    else:
-        print "sftp_get succeeded"
-    finally:
-        sftp.close()
-        transport.close()
 
 
 @task(ignore_result=True)
@@ -48,7 +24,7 @@ def import_from_cuit(operation, params):
     filename = f.filename
     extension = os.path.splitext(filename)[1]
     tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
-    sftp_get(filename, tmpfilename)
+    wardenclyffe.main.tasks.sftp_get(filename, tmpfilename)
     operation.log(info="downloaded from CUIT")
 
     wardenclyffe.main.tasks.extract_metadata(
