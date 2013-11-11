@@ -188,15 +188,6 @@ class Video(TimeStampedModel):
             return (0, 0)
         return (t.get_width(), t.get_height())
 
-    def vital_thumb_url(self):
-        r = self.file_set.filter(location_type="vitalthumb")
-        if r.count() > 0:
-            f = r[0]
-            return f.url.replace(
-                settings.CUNIX_BROADCAST_DIRECTORY,
-                settings.CUNIX_BROADCAST_URL)
-        return ""
-
     def cuit_url(self):
         r = self.file_set.filter(location_type="cuit")
         if r.count() > 0:
@@ -266,21 +257,6 @@ class Video(TimeStampedModel):
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
 
-    def is_vital_submit(self):
-        return self.file_set.filter(location_type="vitalsubmit").count() > 0
-
-    def vital_submit(self):
-        r = self.file_set.filter(location_type="vitalsubmit")
-        if r.count() > 0:
-            f = r[0]
-            return (f.get_metadata("set_course"), f.get_metadata("username"),
-                    f.get_metadata("notify_url"))
-        else:
-            return (None, None, None)
-
-    def clear_vital_submit(self):
-        self.file_set.filter(location_type="vitalsubmit").delete()
-
     def cuit_file(self):
         try:
             return self.file_set.filter(location_type="cuit")[0]
@@ -302,17 +278,6 @@ class Video(TimeStampedModel):
             submit_file.set_metadata("audio", "True")
         if audio2:
             submit_file.set_metadata("audio2", "True")
-
-    def make_vital_submit_file(self, filename, user, set_course, redirect_to,
-                               notify_url):
-        submit_file = File.objects.create(video=self,
-                                          label="vital submit",
-                                          filename=filename,
-                                          location_type='vitalsubmit')
-        submit_file.set_metadata("username", user.username)
-        submit_file.set_metadata("set_course", set_course)
-        submit_file.set_metadata("redirect_to", redirect_to)
-        submit_file.set_metadata("notify_url", notify_url)
 
     def make_extract_metadata_operation(self, tmpfilename, source_file, user):
         params = dict(tmpfilename=tmpfilename,

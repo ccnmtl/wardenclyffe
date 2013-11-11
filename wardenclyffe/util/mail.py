@@ -93,48 +93,6 @@ def send_mediathread_uploaded_mail(video_title, uni, url):
     send_to_everyone(subject, body, toaddress, fromaddress)
 
 
-def vital_received_body(video_title, uni):
-    t = get_template("util/vital_received_email_body.txt")
-    d = Context(dict(video_title=video_title, uni=uni))
-    return t.render(d)
-
-
-def send_vital_received_mail(video_title, uni):
-    subject = 'Video submitted to VITAL'
-    body = vital_received_body(video_title, uni)
-    fromaddress = 'ccnmtl-vital@columbia.edu'
-    toaddress = "%s@columbia.edu" % uni
-    send_to_everyone(subject, body, toaddress, fromaddress)
-
-
-def vital_uploaded_body(video_title, uni, course_id):
-    t = get_template("util/vital_uploaded_email_body.txt")
-    d = Context(dict(video_title=video_title, uni=uni, course_id=course_id))
-    return t.render(d)
-
-
-def send_vital_uploaded_mail(video_title, uni, course_id):
-    subject = 'Uploaded video now available in VITAL'
-    body = vital_uploaded_body(video_title, uni, course_id)
-    fromaddress = 'ccnmtl-vital@columbia.edu'
-    toaddress = "%s@columbia.edu" % uni
-    send_to_everyone(subject, body, toaddress, fromaddress)
-
-
-def vital_failed_body(video_title, error_content):
-    t = get_template("util/vital_failed_email_body.txt")
-    d = Context(dict(video_title=video_title, error_content=error_content))
-    return t.render(d)
-
-
-def send_vital_failed_mail(video_title, uni, error_content):
-    subject = 'VITAL video upload failed'
-    body = vital_failed_body(video_title, error_content)
-    fromaddress = 'ccnmtl-vital@columbia.edu'
-    toaddress = "%s@columbia.edu" % uni
-    send_to_everyone(subject, body, toaddress, fromaddress)
-
-
 def youtube_submitted_body(video_title, uni, url):
     t = get_template("util/youtube_submitted_email_body.txt")
     d = Context(dict(video_title=video_title, uni=uni, url=url))

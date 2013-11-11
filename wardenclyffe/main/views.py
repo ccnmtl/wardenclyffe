@@ -27,10 +27,8 @@ from wardenclyffe.main.models import Server, CollectionWorkflow
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
-import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
-from wardenclyffe.util.mail import send_vital_received_mail
 
 
 def is_staff(user):
@@ -89,9 +87,6 @@ def received(request):
             send_mediathread_received_mail(operation.video.title,
                                            operation.owner.username)
 
-        if operation.video.is_vital_submit():
-            send_vital_received_mail(operation.video.title,
-                                     operation.owner.username)
     else:
         statsd.incr('main.received_failure')
 
@@ -575,11 +570,6 @@ def create_operations(request, v, tmpfilename, source_file, filename):
     operations, params = v.make_default_operations(
         tmpfilename, source_file, request.user)
 
-    if request.POST.get("submit_to_vital", False):
-        o, p = v.make_submit_to_podcast_producer_operation(
-            tmpfilename, settings.VITAL_PCP_WORKFLOW, request.user)
-        operations.append(o)
-        params.append(p)
     if request.POST.get("submit_to_youtube", False):
         o, p = v.make_upload_to_youtube_operation(
             tmpfilename, request.user)
@@ -592,16 +582,6 @@ def create_operations(request, v, tmpfilename, source_file, filename):
         operations.append(o)
         params.append(p)
     return operations, params
-
-
-def prep_vital_submit(request, v, source_filename):
-    if request.POST.get('submit_to_vital', False) \
-            and request.POST.get('course_id', False):
-        v.make_vital_submit_file(
-            source_filename, request.user,
-            request.POST['course_id'],
-            "",
-            settings.VITAL_NOTIFY_URL)
 
 
 @transaction.commit_manually
@@ -642,7 +622,6 @@ def upload(request):
         source_file = v.make_source_file(source_filename)
 
         if source_filename:
-            prep_vital_submit(request, v, source_filename)
             operations, params = create_operations(
                 request, v, tmpfilename, source_file, source_filename)
     except:
@@ -701,28 +680,6 @@ def scan_directory(request):
 
 def test_upload(request):
     return HttpResponse("a response")
-
-
-def handle_vital_submit(operation, cunix_path):
-    if operation.video.is_vital_submit():
-        statsd.incr("vital.done")
-        rtsp_url = cunix_path.replace(
-            "/media/qtstreams/projects/",
-            "rtsp://qtss.cc.columbia.edu/projects/")
-        (set_course, username, notify_url) = operation.video.vital_submit()
-        if set_course is not None:
-            user = User.objects.get(username=username)
-            File.objects.create(video=operation.video,
-                                label="Quicktime Streaming Video",
-                                url=rtsp_url,
-                                location_type='rtsp_url')
-            vitaltasks.submit_to_vital.delay(
-                operation.video.id, user,
-                set_course,
-                rtsp_url,
-                settings.VITAL_SECRET,
-                notify_url)
-            operation.video.clear_vital_submit()
 
 
 def handle_mediathread_submit(operation):
@@ -786,7 +743,6 @@ def done(request):
         operation.log(info="PCP completed")
         cunix_path = request.POST.get('movie_destination_path', '')
         make_cunix_file(operation, cunix_path)
-        handle_vital_submit(operation, cunix_path)
         (operations, params) = handle_mediathread_submit(operation)
     except:
         statsd.incr('main.upload.failure')
@@ -818,13 +774,6 @@ def posterdone(request):
                             label="CUIT thumbnail image",
                             url=poster_url,
                             location_type='cuitthumb')
-        if operation.video.is_vital_submit():
-            # vital wants a special one
-            File.objects.create(video=operation.video,
-                                label="vital thumbnail image",
-                                url=poster_url,
-                                location_type='vitalthumb')
-
     return HttpResponse("ok")
 
 

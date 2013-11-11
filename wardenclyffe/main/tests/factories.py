@@ -134,14 +134,6 @@ class MediathreadFileFactory(FileFactory):
     url = "http://mediathread.ccnmtl.columbia.edu/asset/5684/"
 
 
-class VitalThumbnailFileFactory(FileFactory):
-    label = "vital thumbnail image"
-    location_type = "vitalthumb"
-    url = ("http://ccnmtl.columbia.edu/broadcast/projects/vital/"
-           "thumbs/vital/25b0e81e-42b2-11e1-a13d-0017f20ea192-"
-           "Vital_video_uploaded_by_anp8_thumb.png")
-
-
 class OperationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Operation
     video = factory.SubFactory(VideoFactory)

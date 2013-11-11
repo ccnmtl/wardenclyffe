@@ -71,8 +71,6 @@ urlpatterns = patterns(
     (r'^upload/$', 'wardenclyffe.main.views.upload_form'),
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
     (r'^scan_directory/$', 'wardenclyffe.main.views.scan_directory'),
-    (r'^vital/', include('wardenclyffe.vital.urls')),
-    (r'^vitaldrop/$', 'wardenclyffe.vital.views.drop'),
     (r'^mediathread/$', 'wardenclyffe.mediathread.views.mediathread'),
     (r'^mediathread/post/$',
      'wardenclyffe.mediathread.views.mediathread_post'),

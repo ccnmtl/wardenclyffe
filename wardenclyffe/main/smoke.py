@@ -31,11 +31,6 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.PCP_PASSWORD)
         self.assertIsNotNone(settings.PCP_WORKFLOW)
 
-    def test_vital_settings(self):
-        self.assertIsNotNone(settings.VITAL_PCP_WORKFLOW)
-        self.assertIsNotNone(settings.VITAL_COLLECTION_ID)
-        self.assertIsNotNone(settings.VITAL_SECRET)
-
     def test_mediathread_settings(self):
         self.assertIsNotNone(settings.MEDIATHREAD_BASE)
         self.assertIsNotNone(settings.MEDIATHREAD_SECRET)

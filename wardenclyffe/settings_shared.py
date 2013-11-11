@@ -56,7 +56,6 @@ PROJECT_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
     'wardenclyffe.util',
-    'wardenclyffe.vital',
     'wardenclyffe.youtube',
     'wardenclyffe.cuit',
     'wardenclyffe.graphite',
@@ -68,7 +67,7 @@ NOSE_ARGS = [
     "--noexe",
     "--exclude-dir-file=exclude_tests.txt",
     ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
-     'wardenclyffe.vital,wardenclyffe.youtube,'
+     'wardenclyffe.youtube,'
      'wardenclyffe.util,wardenclyffe.graphite'),
 ]
 
@@ -137,7 +136,6 @@ INSTALLED_APPS = [
     'wardenclyffe.util',
     'oembed',
     'taggit',
-    'wardenclyffe.vital',
     'south',
     'django_nose',
     'munin',

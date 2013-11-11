@@ -13,7 +13,6 @@ from factories import SourceFileFactory, TahoeFileFactory
 from factories import MediathreadFileFactory, FileFactory
 from factories import PublicFileFactory, OperationFactory
 from factories import DimensionlessSourceFileFactory
-from factories import VitalThumbnailFileFactory
 from factories import ServerFactory, UserFactory
 
 
@@ -105,9 +104,6 @@ class EmptyVideoTest(TestCase):
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (0, 0)
 
-    def test_vital_thumb_url(self):
-        assert self.video.vital_thumb_url() == ""
-
     def test_cuit_url(self):
         assert self.video.cuit_url() == ""
 
@@ -128,12 +124,6 @@ class EmptyVideoTest(TestCase):
 
     def test_mediathread_submit(self):
         assert self.video.mediathread_submit() == (None, None, None)
-
-    def test_is_vital_submit(self):
-        assert not self.video.is_vital_submit()
-
-    def test_vital_submit(self):
-        assert self.video.vital_submit() == (None, None, None)
 
     def test_poster(self):
         assert self.video.poster().dummy
@@ -230,10 +220,6 @@ class MediathreadVideoTest(TestCase):
         source_file = SourceFileFactory()
         assert source_file.video.get_dimensions() == (704, 480)
 
-    def test_vital_thumb_url(self):
-        f = CUITFLVFileFactory()
-        assert f.video.vital_thumb_url() == ""
-
     def test_cuit_url(self):
         f = CUITFLVFileFactory(
             filename=("/www/data/ccnmtl/broadcast/secure/courses/"
@@ -276,14 +262,6 @@ class MediathreadVideoTest(TestCase):
         f = MediathreadFileFactory()
         assert f.video.mediathread_submit() == (None, None, None)
 
-    def test_is_vital_submit(self):
-        f = CUITFLVFileFactory()
-        assert not f.video.is_vital_submit()
-
-    def test_vital_submit(self):
-        f = CUITFLVFileFactory()
-        assert f.video.vital_submit() == (None, None, None)
-
     def test_poster(self):
         f = CUITFLVFileFactory()
         assert f.video.poster().dummy
@@ -291,109 +269,6 @@ class MediathreadVideoTest(TestCase):
     def test_cuit_file(self):
         f = CUITFLVFileFactory()
         assert f.video.cuit_file() == f
-
-
-class VitalVideoTest(TestCase):
-    """ test the behavior for a video that was uploaded to Vital """
-    def setUp(self):
-        self.source_file = SourceFileFactory()
-        self.video = self.source_file.video
-        self.cuit_file = CUITFLVFileFactory(
-            video=self.video,
-            filename=("/www/data/ccnmtl/broadcast/secure/courses/"
-                      "40e67868-41f1-11e1-aaa7-0017f20ea192-"
-                      "Mediathread_video_uploaded_by_anp8.flv"))
-        self.tahoe_file = TahoeFileFactory(
-            video=self.video,
-            cap=("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-                 "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-                 "3:10:4783186"),
-            filename=("/var/www/wardenclyffe/tmp//"
-                      "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov"))
-
-    def test_extension(self):
-        assert self.video.extension() == ".mov"
-
-    def test_tahoe_file(self):
-        assert self.video.tahoe_file() == self.tahoe_file
-
-    def test_source_file(self):
-        assert self.video.source_file() == self.source_file
-
-    def test_cap(self):
-        assert self.video.cap() == self.tahoe_file.cap
-
-    def test_tahoe_download_url(self):
-        assert self.video.tahoe_download_url() == (
-            "http://tahoe.ccnmtl.columbia.edu/file/"
-            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-            "3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
-            "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov")
-
-    def test_enclosure_url(self):
-        assert self.video.enclosure_url() == (
-            "http://tahoe.ccnmtl.columbia.edu/file/"
-            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-            "3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
-            "5c4aa9a5-0110-4e47-b314-1a89321dbcd9.mov")
-
-    def test_filename(self):
-        assert self.video.filename() == self.source_file.filename
-
-    def test_add_file_form(self):
-        self.video.add_file_form()
-
-    def test_edit_form(self):
-        self.video.edit_form()
-
-    def test_get_dimensions(self):
-        assert self.video.get_dimensions() == (704, 480)
-
-    def test_vital_thumb_url(self):
-        v = VitalThumbnailFileFactory()
-        assert v.video.vital_thumb_url() == v.url
-
-    def test_cuit_url(self):
-        assert self.video.cuit_url() == (
-            "http://ccnmtl.columbia.edu/stream/flv/secure/courses/"
-            "40e67868-41f1-11e1-aaa7-0017f20ea192-"
-            "Mediathread_video_uploaded_by_anp8.flv")
-
-    def test_mediathread_url(self):
-        self.assertEquals(
-            self.video.mediathread_url(),
-            ("http://ccnmtl.columbia.edu/stream/flv/"
-             "4d9a45a17dbcf0c50241d0f5ec2f237d08f38398"
-             "/OPTIONS/secure/courses/40e67868-41f1-11e1-aaa7-0017f20ea192-"
-             "Mediathread_video_uploaded_by_anp8.flv"))
-
-    def test_poster_url(self):
-        assert self.video.poster_url() == (
-            "http://ccnmtl.columbia.edu/broadcast/posters/"
-            "vidthumb_480x360.jpg")
-
-    def test_cuit_poster_url(self):
-        assert self.video.cuit_poster_url() is None
-
-    def test_is_mediathread_submit(self):
-        assert not self.video.is_mediathread_submit()
-
-    def test_mediathread_submit(self):
-        assert self.video.mediathread_submit() == (None, None, None)
-
-    def test_is_vital_submit(self):
-        assert not self.video.is_vital_submit()
-
-    def test_vital_submit(self):
-        assert self.video.vital_submit() == (None, None, None)
-
-    def test_poster(self):
-        assert self.video.poster().dummy
-
-    def test_cuit_file(self):
-        assert self.video.cuit_file() == self.cuit_file
 
 
 class MissingDimensionsTest(TestCase):
@@ -471,20 +346,6 @@ class SubmitFilesTest(TestCase):
         v.clear_mediathread_submit()
         self.assertEquals(
             v.mediathread_submit(),
-            (None, None, None))
-
-    def test_vital_submit(self):
-        v = VideoFactory()
-        u = UserFactory()
-        v.make_vital_submit_file(
-            "file.mp4", u, "course-id",
-            "http://example.com/", "http://example.com/notify/")
-        self.assertEquals(
-            v.vital_submit(),
-            ("course-id", u.username, "http://example.com/notify/"))
-        v.clear_vital_submit()
-        self.assertEquals(
-            v.vital_submit(),
             (None, None, None))
 
 
