@@ -31,7 +31,6 @@ import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
 from wardenclyffe.util.mail import send_vital_received_mail
-from zencoder import Zencoder
 
 
 def is_staff(user):
@@ -1100,25 +1099,6 @@ def bulk_file_operation(request):
         workflows = []
     return dict(files=files, workflows=workflows,
                 kino_base=settings.PCP_BASE_URL)
-
-
-@login_required
-@user_passes_test(is_staff)
-def video_zencoder_submit(request, id):
-    video = get_object_or_404(Video, id=id)
-    if request.method == "POST":
-        statsd.incr('main.zencoder_submit')
-        tahoe_url = video.tahoe_download_url()
-        if not tahoe_url:
-            return HttpResponse("not stored in tahoe")
-        zen = Zencoder(settings.ZENCODER_API_KEY)
-        job = zen.job.create(tahoe_url)
-        File.objects.create(video=video,
-                            label="zencoder file",
-                            url=job.body['outputs'][0]['url'],
-                            location_type='zencoder')
-        return HttpResponseRedirect(video.get_absolute_url())
-    return HttpResponse("POST only")
 
 
 @login_required

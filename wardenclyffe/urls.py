@@ -90,8 +90,6 @@ urlpatterns = patterns(
      'wardenclyffe.main.views.video_pcp_submit'),
     (r'^video/(?P<id>\d+)/mediathread_submit/$',
      'wardenclyffe.mediathread.views.video_mediathread_submit'),
-    (r'^video/(?P<id>\d+)/zencoder_submit/$',
-     'wardenclyffe.main.views.video_zencoder_submit'),
     (r'^video/(?P<id>\d+)/add_file/$',
      'wardenclyffe.main.views.video_add_file'),
     (r'^video/(?P<id>\d+)/select_poster/(?P<image_id>\d+)/$',
