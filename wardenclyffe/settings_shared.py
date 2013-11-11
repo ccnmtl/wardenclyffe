@@ -55,7 +55,6 @@ JENKINS_TASKS = (
 PROJECT_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
-    'wardenclyffe.surelink',
     'wardenclyffe.util',
     'wardenclyffe.vital',
     'wardenclyffe.youtube',
@@ -69,7 +68,7 @@ NOSE_ARGS = [
     "--noexe",
     "--exclude-dir-file=exclude_tests.txt",
     ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
-     'wardenclyffe.vital,wardenclyffe.youtube,wardenclyffe.surelink,'
+     'wardenclyffe.vital,wardenclyffe.youtube,'
      'wardenclyffe.util,wardenclyffe.graphite'),
 ]
 
@@ -139,7 +138,6 @@ INSTALLED_APPS = [
     'oembed',
     'taggit',
     'wardenclyffe.vital',
-    'wardenclyffe.surelink',
     'south',
     'django_nose',
     'munin',

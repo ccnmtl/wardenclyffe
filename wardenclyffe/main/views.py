@@ -24,9 +24,9 @@ from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
-from wardenclyffe.surelink.helpers import PROTECTION_OPTIONS
-from wardenclyffe.surelink.helpers import AUTHTYPE_OPTIONS
-from wardenclyffe.surelink.helpers import SureLink
+from surelink.helpers import PROTECTION_OPTIONS
+from surelink.helpers import AUTHTYPE_OPTIONS
+from surelink import SureLink
 import wardenclyffe.vital.tasks as vitaltasks
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail

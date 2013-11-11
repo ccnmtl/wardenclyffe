@@ -6,9 +6,9 @@ from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
 from south.modelsinspector import add_introspection_rules
-from wardenclyffe.surelink.helpers import SureLink
-from wardenclyffe.surelink.helpers import PROTECTION_OPTIONS
-from wardenclyffe.surelink.helpers import AUTHTYPE_OPTIONS
+from surelink import SureLink
+from surelink.helpers import PROTECTION_OPTIONS
+from surelink.helpers import AUTHTYPE_OPTIONS
 from django.conf import settings
 import os.path
 from wardenclyffe.util.mail import send_failed_operation_mail
