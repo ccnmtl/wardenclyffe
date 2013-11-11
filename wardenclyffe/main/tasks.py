@@ -276,43 +276,36 @@ def sftp_get(remote_filename, local_filename):
         transport.close()
 
 
-@task(ignore_result=True)
-def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
-                                     pcp_username, pcp_password, **kwargs):
+def pull_from_cuit_and_submit_to_pcp(operation, params):
     statsd.incr("pull_from_cuit_and_submit_to_pcp")
     print "pulling from tahoe"
+    params = loads(operation.params)
+    video_id = params['video_id']
+    workflow = params['workflow']
     video = Video.objects.get(id=video_id)
-    args = [workflow, pcp_base_url, pcp_username, pcp_password]
+    if workflow == "":
+        return ("failed", "no workflow specified")
 
-    def _do_pull_from_cuit_and_submit_to_pcp(video, user, operation, workflow,
-                                             pcp_base_url, pcp_username,
-                                             pcp_password, **kwargs):
-        if workflow == "":
-            return ("failed", "no workflow specified")
+    ouuid = operation.uuid
+    cuit_file = video.file_set.filter(video=video, location_type="cuit")[0]
 
-        ouuid = operation.uuid
-        cuit_file = video.file_set.filter(video=video, location_type="cuit")[0]
+    filename = cuit_file.filename
+    extension = os.path.splitext(filename)[1]
+    tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
+    sftp_get(filename, tmpfilename)
+    operation.log(info="downloaded from cuit")
 
-        filename = cuit_file.filename
-        extension = os.path.splitext(filename)[1]
-        tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
-        sftp_get(filename, tmpfilename)
-        operation.log(info="downloaded from cuit")
+    print "submitting to PCP"
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
+    filename = str(ouuid) + extension
+    print "submitted with filename %s" % filename
 
-        print "submitting to PCP"
-        pcp = PCP(pcp_base_url, pcp_username, pcp_password)
-        filename = str(ouuid) + extension
-        print "submitted with filename %s" % filename
-
-        title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-        print "submitted with title %s" % title
-        pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title,
-                        video.description)
-        return ("submitted", "submitted to PCP")
-    with_operation(_do_pull_from_cuit_and_submit_to_pcp, video,
-                   "pull from cuit and submit to pcp",
-                   "workflow: %s" % workflow,
-                   user, args, kwargs)
+    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
+    print "submitted with title %s" % title
+    pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title,
+                    video.description)
+    return ("submitted", "submitted to PCP")
 
 
 def strip_special_characters(title):

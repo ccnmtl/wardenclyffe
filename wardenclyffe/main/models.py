@@ -333,6 +333,18 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
+                                                        workflow, user):
+        params = dict(video_id=video_id, workflow=workflow)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="pull_from_cuit_and_submit_to_pcp",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
     def make_submit_to_podcast_producer_operation(
             self, tmpfilename, workflow, user):
         params = dict(tmpfilename=tmpfilename,
@@ -671,6 +683,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.mediathread.tasks.submit_to_mediathread,
             'pull from tahoe and submit to pcp':
             wardenclyffe.main.tasks.pull_from_tahoe_and_submit_to_pcp,
+            'pull from cuit and submit to pcp':
+            wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp,
         }
         return mapper[self.action]
 
