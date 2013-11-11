@@ -3,18 +3,18 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>{% block title %}{% endblock %} || Wardenclyffe</title>
-		<link rel="stylesheet" href="/site_media/css/main.css?site=wardenclyffe" media="screen" />
-		<link rel="stylesheet" href="/site_media/css/print.css?site=wardenclyffe" media="print" />
+		<link rel="stylesheet" href="{{STATIC_URL}}css/main.css?site=wardenclyffe" media="screen" />
+		<link rel="stylesheet" href="{{STATIC_URL}}css/print.css?site=wardenclyffe" media="print" />
 		<!--[if IE 6]>
-		<link rel="stylesheet" href="/site_media/css/main_ie6_1col.css" media="screen" />
+		<link rel="stylesheet" href="{{STATIC_URL}}css/main_ie6_1col.css" media="screen" />
 		<![endif]-->
-		<link rel="shortcut icon" href="/site_media/img/favicon.png" type="image/x-icon" />
+		<link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.png" type="image/x-icon" />
 		{% block css %}{% endblock %}
 		{% block js %}
 		<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /> 
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" ></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" type="text/javascript"></script>
-		<script src="/site_media/js/jquery.tablesorter.min.js" type="text/javascript"></script>
+		<script src="{{STATIC_URL}}js/jquery.tablesorter.min.js" type="text/javascript"></script>
 		{% endblock %}
 		{% block feeds %}{% endblock %}
 		{% block extra_head %}{% endblock %}
@@ -137,7 +137,7 @@
 {% block footer %}
 	<!-- ###### Footer ###### -->
 	<div id="footer">
-	<p class="printonly"><br /><img src="/site_media/img/logo_ccnmtl_sidebar.gif" class="printonly" /></p>
+	<p class="printonly"><br /><img src="{{STATIC_URL}}img/logo_ccnmtl_sidebar.gif" class="printonly" /></p>
 	</div><!-- id="footer" -->
 {% endblock %}
 

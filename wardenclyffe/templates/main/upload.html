@@ -4,14 +4,14 @@
 {% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 
 {% block extra_head %}
-<script src="/site_media/js/jquery.tagsinput.min.js"></script>
-<script type="text/javascript" src="/site_media/js/jquery.autocomplete.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/site_media/css/jquery.tagsinput.css" />
-<link rel="stylesheet" type="text/css" href="/site_media/css/jquery.autocomplete.css" />
+<script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
 
-<script type="text/javascript" src="/site_media/js/swfobject.js"></script>
-<script src="/site_media/js/jquery.uploadify.v2.1.4.min.js"></script>
-<link rel="stylesheet" href="/site_media/css/uploadify.css"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
+<script src="{{STATIC_URL}}js/jquery.uploadify.v2.1.4.min.js"></script>
+<link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
 
 {% endblock %}
 
@@ -194,9 +194,9 @@ jQuery(document).ready(function()
 {% if scan_directory %}
 {% else %}
     $('#file_upload').uploadify({
-    'uploader'  : '/site_media/swf/uploadify.swf',
+    'uploader'  : '{{STATIC_URL}}swf/uploadify.swf',
     'script'    : '/uploadify/',
-    'cancelImg' : '/site_media/img/pixel.gif',
+    'cancelImg' : '{{STATIC_URL}}img/pixel.gif',
     'folder'    : '/uploads',
     'auto'      : true,
     'fileExt'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
@@ -219,7 +219,7 @@ jQuery(document).ready(function()
 
 </script>
 
-<script src="/site_media/js/help_windows.js" type="text/javascript" language="javascript"></script>
+<script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
 {% else %}
 {% include 'main/maintenance_mode.html' %}
 {% endflag %}

@@ -91,6 +91,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.request',
+    'django.core.context_processors.static',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -122,6 +123,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.flatpages',
     'django.contrib.markup',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'compressor',
     'sorl.thumbnail',
     'django.contrib.admin',
     'tagging',
@@ -214,6 +218,17 @@ DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
     "broadcast/posters/vidthumb_480x360.jpg")
 STAGING = False
+
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), "../media")
+STATICFILES_DIRS = ()
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_URL = "/media/"
+COMPRESS_ROOT = "media/"
 
 LOGGING = {
     'version': 1,
