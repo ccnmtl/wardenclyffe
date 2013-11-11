@@ -89,6 +89,33 @@ def save_file_to_tahoe(operation, params):
     return ("complete", "")
 
 
+IONICE = "/usr/bin/ionice"
+MPLAYER = "/usr/bin/mplayer"
+MAX_SEEK_POS = "03:00:00"
+
+def avi_image_extract_command(tmpdir, frames, tmpfilename):
+    return ("%s -c 3 %s -nosound"
+            " -vo jpeg:outdir=%s -endpos %s -frames %d"
+            " -sstep 10 -correct-pts '%s' 2>/dev/null"
+            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
+
+
+def image_extract_command(tmpdir, frames, tmpfilename):
+    return ("%s -c 3 %s "
+            "-nosound -vo jpeg:outdir=%s "
+            "-endpos %s -frames %d "
+            "-sstep 10 '%s' 2>/dev/null"
+            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
+
+
+def fallback_image_extract_command(tmpdir, frames, tmpfilename):
+    return ("%s -c 3 %s "
+            "-nosound -vo jpeg:outdir=%s "
+            "-endpos %s -frames %d "
+            "-vf framerate=250 '%s' 2>/dev/null"
+            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
+
+
 def make_images(operation, params):
     statsd.incr("make_images")
     ouuid = operation.uuid
@@ -101,24 +128,13 @@ def make_images(operation, params):
     size = os.stat(tmpfilename)[6] / (1024 * 1024)
     frames = size * 2  # 2 frames per MB at the most
     if tmpfilename.lower().endswith("avi"):
-        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer -nosound"
-                   " -vo jpeg:outdir=%s -endpos 03:00:00 -frames %d"
-                   " -sstep 10 -correct-pts '%s' 2>/dev/null"
-                   % (tmpdir, frames, tmpfilename))
+        command = avi_image_extract_command(tmpdir, frames, tmpfilename)
     else:
-        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
-                   "-nosound -vo jpeg:outdir=%s "
-                   "-endpos 03:00:00 -frames %d "
-                   "-sstep 10 '%s' 2>/dev/null"
-                   % (tmpdir, frames, tmpfilename))
+        command = image_extract_command(tmpdir, frames, tmpfilename)
     os.system(command)
     imgs = os.listdir(tmpdir)
     if len(imgs) == 0:
-        command = ("/usr/bin/ionice -c 3 /usr/bin/mplayer "
-                   "-nosound -vo jpeg:outdir=%s "
-                   "-endpos 03:00:00 -frames %d "
-                   "-vf framerate=250 '%s' 2>/dev/null"
-                   % (tmpdir, frames, tmpfilename))
+        command = fallback_image_extract_command(tmpdir, frames, tmpfilename)
         os.system(command)
     # TODO: parameterize
     imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % operation.video.id
@@ -291,21 +307,29 @@ def strip_special_characters(title):
     return re.sub('[\W_]+', '_', title)
 
 
+def slow_operations():
+    status_filters = ["enqueued", "in progress", "submitted"]
+    return Operation.objects.filter(
+        status__in=status_filters,
+        modified__lt=datetime.now() - timedelta(hours=1)
+    ).order_by("-modified")
+
+
+def slow_operations_other_than_submitted():
+    return Operation.objects.filter(
+        status__in=["enqueued", "in progress"],
+        modified__lt=datetime.now() - timedelta(hours=1)
+    )
+
+
 @periodic_task(
     run_every=crontab(
         hour="7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23",
         minute="3", day_of_week="*"))
 def check_for_slow_operations():
-    status_filters = ["enqueued", "in progress", "submitted"]
-    operations = Operation.objects.filter(
-        status__in=status_filters,
-        modified__lt=datetime.now() - timedelta(hours=1)
-    ).order_by("-modified")
+    operations = slow_operations()
     if operations.count() > 0:
-        other_than_submitted = Operation.objects.filter(
-            status__in=["enqueued", "in progress"],
-            modified__lt=datetime.now() - timedelta(hours=1)
-        )
+        other_than_submitted = slow_operations_other_than_submitted()
         if other_than_submitted.count() > 0:
             # there are operations that are enqueued or in progress
             # so sysadmins need to know too
