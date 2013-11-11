@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
 from wardenclyffe.main.models import Video, Operation, File, Server
 from wardenclyffe.main.models import ServerFile, Collection
+from wardenclyffe.main.tasks import process_operation
 import uuid
-import tasks
 import os
 from django.conf import settings
 from django.db import transaction
@@ -58,12 +58,12 @@ def index(request):
 def import_quicktime(request):
     if request.method != "POST":
         return HttpResponseRedirect("/cuit/")
-
+    operations = []
+    params = []
     try:
         s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
         server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
 
-        video_ids = []
         for filename in list_all_cuit_files():
             if not filename.endswith(".mov"):
                 continue
@@ -79,14 +79,16 @@ def import_quicktime(request):
                                             location_type='cuit')
             ServerFile.objects.create(server=server, file=cuit_file)
             v.make_source_file("")
-            video_ids.append(v.id)
+            o, p = v.make_import_from_cuit_operation(v.id, request.user)
+            operations.append(o)
+            params.append(p)
     except:
         transaction.rollback()
         raise
     else:
         transaction.commit()
-        for video_id in video_ids:
-            tasks.import_from_cuit.delay(video_id, request.user)
+        for o, p in zip(operations, params):
+            process_operation.delay(o.id, p)
         return HttpResponse("database entries created. import has begun.")
 
 
@@ -98,8 +100,7 @@ def import_retry(request):
         return dict(failed=failed)
     for operation in failed:
         # try again
-        tasks.import_from_cuit.delay(operation.video.id, request.user)
-        operation.delete()
+        process_operation.delay(operation.id, operation.params)
     return HttpResponse("retry has begun.")
 
 

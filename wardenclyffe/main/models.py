@@ -311,6 +311,16 @@ class Video(TimeStampedModel):
                                      owner=user)
         return o, params
 
+    def make_import_from_cuit_operation(self, video_id, user):
+        params = dict(video_id=video_id)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="import from cuit",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return o, params
+
     def make_submit_to_podcast_producer_operation(
             self, tmpfilename, workflow, user):
         params = dict(tmpfilename=tmpfilename,
@@ -635,11 +645,13 @@ class Operation(TimeStampedModel):
         import wardenclyffe.main.tasks
         import wardenclyffe.youtube.tasks
         import wardenclyffe.mediathread.tasks
+        import wardenclyffe.cuit.tasks
 
         mapper = {
             'extract metadata': wardenclyffe.main.tasks.extract_metadata,
             'save file to tahoe': wardenclyffe.main.tasks.save_file_to_tahoe,
             'make images': wardenclyffe.main.tasks.make_images,
+            'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
             'submit to podcast producer':
             wardenclyffe.main.tasks.submit_to_pcp,
             'upload to youtube': wardenclyffe.youtube.tasks.upload_to_youtube,

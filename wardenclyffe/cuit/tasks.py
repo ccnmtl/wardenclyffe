@@ -1,31 +1,11 @@
 from celery.decorators import task
-from wardenclyffe.main.models import Video, File, Operation
+from wardenclyffe.main.models import Video, File
 import wardenclyffe.main.tasks
 import os.path
 import os
-import uuid
 from django.conf import settings
+from json import loads
 import paramiko
-
-
-# TODO: convert to decorator
-def with_operation(f, video, action, params, user, args, kwargs):
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         action=action,
-                                         status="in progress",
-                                         params=params,
-                                         owner=user,
-                                         uuid=ouuid)
-    try:
-        (success, message) = f(video, user, operation, *args, **kwargs)
-        operation.status = success
-        if operation.status == "failed" or message != "":
-            operation.log(info=message)
-    except Exception, e:
-        operation.status = "failed"
-        operation.log(info=str(e))
-    operation.save()
 
 
 def sftp_get(remote_filename, local_filename):
@@ -57,32 +37,28 @@ def clear_out_tmpfile(tmpfilename):
     os.unlink(tmpfilename)
 
 
-@task(ignore_result=True)
-def import_from_cuit(video_id, user, **kwargs):
+def import_from_cuit(operation, params):
+    params = loads(operation.params)
+    video_id = params['video_id']
     print "importing from cuit (%d)" % video_id
     video = Video.objects.get(id=video_id)
-    args = []
 
-    def _import_from_cuit(video, user, operation, **kwargs):
-        ouuid = operation.uuid
-        f = File.objects.filter(video=video, location_type="cuit")[0]
-        filename = f.filename
-        extension = os.path.splitext(filename)[1]
-        tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
-        sftp_get(filename, tmpfilename)
-        operation.log(info="downloaded from CUIT")
+    ouuid = operation.uuid
+    f = File.objects.filter(video=video, location_type="cuit")[0]
+    filename = f.filename
+    extension = os.path.splitext(filename)[1]
+    tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
+    sftp_get(filename, tmpfilename)
+    operation.log(info="downloaded from CUIT")
 
-        wardenclyffe.main.tasks.extract_metadata(
-            operation,
-            dict(source_file_id=f.id,
-                 tmpfilename=tmpfilename))
-        wardenclyffe.main.tasks.make_images(
-            operation,
-            dict(tmpfilename=tmpfilename))
-        print "calling clear out"
-        clear_out_tmpfile.apply(args=(tmpfilename,))
-        print "done clearing out"
-        return ("complete", "pulled from CUIT")
-    with_operation(_import_from_cuit, video,
-                   "import from CUIT",
-                   "", user, args, kwargs)
+    wardenclyffe.main.tasks.extract_metadata(
+        operation,
+        dict(source_file_id=f.id,
+             tmpfilename=tmpfilename))
+    wardenclyffe.main.tasks.make_images(
+        operation,
+        dict(tmpfilename=tmpfilename))
+    print "calling clear out"
+    clear_out_tmpfile.apply(args=(tmpfilename,))
+    print "done clearing out"
+    return ("complete", "pulled from CUIT")
