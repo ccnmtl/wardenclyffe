@@ -219,45 +219,37 @@ def submit_to_pcp(operation, params):
     return ("submitted", "")
 
 
-@task(ignore_result=True)
-def pull_from_tahoe_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
-                                      pcp_username, pcp_password, **kwargs):
+def pull_from_tahoe_and_submit_to_pcp(operation, params):
     statsd.incr("pull_from_tahoe_and_submit_to_pcp")
     print "pulling from tahoe"
+    params = loads(operation.params)
+    video_id = params['video_id']
+    workflow = params['workflow']
     video = Video.objects.get(id=video_id)
-    args = [workflow, pcp_base_url, pcp_username, pcp_password]
+    ouuid = operation.uuid
+    url = video.tahoe_download_url()
+    if url == "":
+        return ("failed", "does not have a tahoe stored file")
+    if workflow == "":
+        return ("failed", "no workflow specified")
+    filename = video.filename()
+    suffix = video.extension()
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    r = urllib2.urlopen(url)
+    t.write(r.read())
+    t.seek(0)
+    operation.log(info="downloaded from tahoe")
+    # TODO: figure out how to re-use submit_to_pcp()
+    print "submitting to PCP"
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
+    filename = str(ouuid) + suffix
+    print "submitted with filename %s" % filename
 
-    def _do_pull_from_tahoe_and_submit_to_pcp(video, user, operation,
-                                              workflow, pcp_base_url,
-                                              pcp_username, pcp_password,
-                                              **kwargs):
-        ouuid = operation.uuid
-        url = video.tahoe_download_url()
-        if url == "":
-            return ("failed", "does not have a tahoe stored file")
-        if workflow == "":
-            return ("failed", "no workflow specified")
-        filename = video.filename()
-        suffix = video.extension()
-        t = tempfile.NamedTemporaryFile(suffix=suffix)
-        r = urllib2.urlopen(url)
-        t.write(r.read())
-        t.seek(0)
-        operation.log(info="downloaded from tahoe")
-        # TODO: figure out how to re-use submit_to_pcp()
-        print "submitting to PCP"
-        pcp = PCP(pcp_base_url, pcp_username, pcp_password)
-        filename = str(ouuid) + suffix
-        print "submitted with filename %s" % filename
-
-        title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-        print "submitted with title %s" % title
-        pcp.upload_file(t, filename, workflow, title, video.description)
-        return ("submitted", "submitted to PCP")
-    with_operation(_do_pull_from_tahoe_and_submit_to_pcp, video,
-                   "pull from tahoe and submit to pcp",
-                   "workflow: %s" % workflow,
-                   user, args, kwargs)
+    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
+    print "submitted with title %s" % title
+    pcp.upload_file(t, filename, workflow, title, video.description)
+    return ("submitted", "submitted to PCP")
 
 
 def sftp_get(remote_filename, local_filename):

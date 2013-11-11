@@ -905,17 +905,15 @@ def delete_operation(request, id):
 @render_to('main/pcp_submit.html')
 def video_pcp_submit(request, id):
     video = get_object_or_404(Video, id=id)
+    o = None
+    p = None
     if request.method == "POST":
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
-        tasks.pull_from_tahoe_and_submit_to_pcp.delay(
-            video.id,
-            request.user,
-            request.POST.get('workflow',
-                             ''),
-            settings.PCP_BASE_URL,
-            settings.PCP_USERNAME,
-            settings.PCP_PASSWORD)
+        o, p = video.make_pull_from_tahoe_and_submit_to_pcp_operation(
+            video.id, request.POST.get('workflow', ''), request.user)
+        # TODO: manual transaction processing here
+        tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         p = PCP(settings.PCP_BASE_URL,
