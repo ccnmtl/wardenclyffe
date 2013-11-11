@@ -7,6 +7,7 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 from wardenclyffe.main.tasks import strip_special_characters
+from wardenclyffe.main.models import FileType, WrongFileType
 from factories import CollectionFactory, VideoFactory, CUITFLVFileFactory
 from factories import SourceFileFactory, TahoeFileFactory
 from factories import MediathreadFileFactory, FileFactory
@@ -139,6 +140,31 @@ class EmptyVideoTest(TestCase):
 
     def test_cuit_file(self):
         assert self.video.cuit_file() is None
+
+    def test_make_source_file(self):
+        f = self.video.make_source_file("somefile.mpg")
+        self.assertEqual(f.filename, "somefile.mpg")
+
+    def test_upto_hundred_images(self):
+        r = self.video.upto_hundred_images()
+        self.assertEqual(len(r), 0)
+
+
+class FileTest(TestCase):
+    def test_set_metadata(self):
+        f = FileFactory()
+        f.set_metadata("foo", "bar")
+        self.assertEqual(f.get_metadata("foo"), "bar")
+
+    def test_update_metadata(self):
+        f = FileFactory()
+        f.set_metadata("foo", "bar")
+        f.set_metadata("foo", "baz")
+        self.assertEqual(f.get_metadata("foo"), "baz")
+
+    def test_get_absolute_url(self):
+        f = FileFactory()
+        self.assertEqual(f.get_absolute_url(), "/file/%d/" % f.id)
 
 
 class MediathreadVideoTest(TestCase):
@@ -518,3 +544,9 @@ class ServerTest(TestCase):
     def test_url(self):
         s = ServerFactory()
         self.assertEquals(s.get_absolute_url(), "/server/%d/" % s.id)
+
+
+class FileTypeTest(TestCase):
+    def test_tahoe_download_url(self):
+        f = FileType(file="foo")
+        self.assertRaises(WrongFileType, f.tahoe_download_url)
