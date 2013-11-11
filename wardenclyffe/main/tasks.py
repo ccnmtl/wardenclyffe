@@ -10,11 +10,10 @@ from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
 from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
 import os.path
-import uuid
 import tempfile
 import subprocess
 from django.conf import settings
-from simplejson import dumps, loads
+from json import loads
 import paramiko
 import random
 import re
@@ -22,26 +21,6 @@ import shutil
 from django_statsd.clients import statsd
 from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
-
-
-# TODO: convert to decorator
-def with_operation(f, video, action, params, user, args, kwargs):
-    ouuid = uuid.uuid4()
-    operation = Operation.objects.create(video=video,
-                                         action=action,
-                                         status="in progress",
-                                         params=dumps(params),
-                                         owner=user,
-                                         uuid=ouuid)
-    try:
-        (success, message) = f(video, user, operation, *args, **kwargs)
-        operation.status = success
-        if operation.status == "failed" or message != "":
-            operation.log(info=message)
-    except Exception, e:
-        operation.status = "failed"
-        operation.log(info=str(e))
-    operation.save()
 
 
 def split_cap(tahoe_url):
