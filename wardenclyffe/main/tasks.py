@@ -323,28 +323,6 @@ def pull_from_cuit_and_submit_to_pcp(video_id, user, workflow, pcp_base_url,
                    user, args, kwargs)
 
 
-@task(ignore_result=True)
-def flv_encode(video_id, user, basedir, infile, outfile, ffmpeg_path):
-    statsd.incr("flv_encode")
-    print "flv_encode"
-    args = [basedir, infile, outfile, ffmpeg_path]
-
-    def _do_flv_encode(video, user, operation, basedir, infile, outfile,
-                       ffmpeg_path):
-        command = ("""%s -i "%s/%s" -y -f flv -vcodec flv -qmin 1 -b """
-                   """800k -s '480x360' -me_method epzs -r 29.97 -g 100 """
-                   """-qcomp 0.6 -qmax 15 -qdiff 4 -i_qfactor """
-                   """0.71428572 -b_qfactor 0.76923078 -subq 6 """
-                   """-acodec libmp3lame -ab 128k -ar 22050 """
-                   """-ac 2 -benchmark "%s/%s" """
-                   % (ffmpeg_path, basedir, infile, basedir, outfile))
-        os.system(command)
-        return ("complete", "flv encoded")
-
-    with_operation(_do_flv_encode, None, "flv encode",
-                   "", user, args, {})
-
-
 def strip_special_characters(title):
     return re.sub('[\W_]+', '_', title)
 
