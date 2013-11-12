@@ -48,6 +48,12 @@ class SimpleTest(TestCase):
                                {'title': 'some title. not a uuid'})
         assert response.content == "ok"
 
+    def test_received_with_operation(self):
+        o = OperationFactory()
+        response = self.c.post("/received/",
+                               {'title': str(o.uuid)})
+        assert response.content == "ok"
+
     def test_recent_operations(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/recent_operations/")

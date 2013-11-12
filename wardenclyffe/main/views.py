@@ -15,6 +15,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.generic.base import View, TemplateView
 from django_statsd.clients import statsd
 from munin.helpers import muninview
 from simplejson import dumps, loads
@@ -35,14 +37,28 @@ def is_staff(user):
     return user and not user.is_anonymous() and user.is_staff
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/index.html')
-def index(request):
-    return dict(
-        collection=Collection.objects.filter(active=True).order_by("title"),
-        videos=Video.objects.all().order_by("-modified")[:20],
-        operations=Operation.objects.all().order_by("-modified")[:20])
+class AuthMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(AuthMixin, self).dispatch(*args, **kwargs)
+
+
+class StaffMixin(object):
+    @method_decorator(login_required)
+    @method_decorator(user_passes_test(is_staff))
+    def dispatch(self, *args, **kwargs):
+        return super(StaffMixin, self).dispatch(*args, **kwargs)
+
+
+class IndexView(StaffMixin, TemplateView):
+    template_name = 'main/index.html'
+
+    def get_context_data(request):
+        return dict(
+            collection=Collection.objects.filter(
+                active=True).order_by("title"),
+            videos=Video.objects.all().order_by("-modified")[:20],
+            operations=Operation.objects.all().order_by("-modified")[:20])
 
 
 @login_required
@@ -73,24 +89,25 @@ def dashboard(request):
     return d
 
 
-def received(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    statsd.incr('main.received')
-    title = request.POST.get('title', 'no title')
-    ruuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=ruuid)
-    if r.count() == 1:
-        operation = r[0]
+class ReceivedView(View):
+    def post(self, request):
+        if 'title' not in request.POST:
+            return HttpResponse("expecting a title")
+        statsd.incr('main.received')
+        title = request.POST.get('title', 'no title')
+        ruuid = uuidparse(title)
+        r = Operation.objects.filter(uuid=ruuid)
+        if r.count() == 1:
+            operation = r[0]
 
-        if operation.video.is_mediathread_submit():
-            send_mediathread_received_mail(operation.video.title,
-                                           operation.owner.username)
+            if operation.video.is_mediathread_submit():
+                send_mediathread_received_mail(operation.video.title,
+                                               operation.owner.username)
 
-    else:
-        statsd.incr('main.received_failure')
+        else:
+            statsd.incr('main.received_failure')
 
-    return HttpResponse("ok")
+        return HttpResponse("ok")
 
 
 def uploadify(request, *args, **kwargs):
