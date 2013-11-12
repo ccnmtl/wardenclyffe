@@ -37,12 +37,6 @@ def is_staff(user):
     return user and not user.is_anonymous() and user.is_staff
 
 
-class AuthMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(AuthMixin, self).dispatch(*args, **kwargs)
-
-
 class StaffMixin(object):
     @method_decorator(login_required)
     @method_decorator(user_passes_test(is_staff))
