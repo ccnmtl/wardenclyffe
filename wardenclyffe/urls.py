@@ -11,7 +11,7 @@ urlpatterns = patterns(
     ('^$', views.IndexView.as_view()),
     ('^dashboard/', views.DashboardView.as_view()),
     ('^recent_operations/', 'wardenclyffe.main.views.recent_operations'),
-    ('^slow_operations/', 'wardenclyffe.main.views.slow_operations'),
+    ('^slow_operations/', views.SlowOperationsView.as_view()),
     ('^most_recent_operation/',
      'wardenclyffe.main.views.most_recent_operation'),
     ('^accounts/', include('djangowind.urls')),
@@ -40,9 +40,9 @@ urlpatterns = patterns(
     (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',
      'wardenclyffe.main.views.remove_tag_from_video'),
 
-    (r'^server/$', 'wardenclyffe.main.views.servers'),
+    (r'^server/$', views.ServersListView.as_view()),
     (r'^server/add/$', 'wardenclyffe.main.views.add_server'),
-    (r'^server/(?P<id>\d+)/$', 'wardenclyffe.main.views.server'),
+    (r'^server/(?P<pk>\d+)/$', views.ServerView.as_view()),
     (r'^server/(?P<id>\d+)/edit/$', 'wardenclyffe.main.views.edit_server'),
     (r'^server/(?P<id>\d+)/delete/$', 'wardenclyffe.main.views.delete_server'),
 

@@ -17,6 +17,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from munin.helpers import muninview
 from simplejson import dumps, loads
@@ -180,32 +182,28 @@ def most_recent_operation(request):
             mimetype="application/json")
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/slow_operations.html')
-def slow_operations(request):
-    status_filters = ["enqueued", "in progress", "submitted"]
-    operations = Operation.objects.filter(
-        status__in=status_filters,
-        modified__lt=datetime.now() - timedelta(hours=1)
-    ).order_by("-modified")
-    return dict(operations=operations)
+class SlowOperationsView(StaffMixin, TemplateView):
+    template_name = 'main/slow_operations.html'
+
+    def get_context_data(self, *args, **kwargs):
+        status_filters = ["enqueued", "in progress", "submitted"]
+        operations = Operation.objects.filter(
+            status__in=status_filters,
+            modified__lt=datetime.now() - timedelta(hours=1)
+        ).order_by("-modified")
+        return dict(operations=operations)
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/servers.html')
-def servers(request):
-    servers = Server.objects.all()
-    return dict(servers=servers)
+class ServersListView(StaffMixin, ListView):
+    template_name = 'main/servers.html'
+    model = Server
+    context_object_name = "servers"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/server.html')
-def server(request, id):
-    server = get_object_or_404(Server, id=id)
-    return dict(server=server)
+class ServerView(StaffMixin, DetailView):
+    template_name = 'main/server.html'
+    model = Server
+    context_object_name = "server"
 
 
 @login_required
