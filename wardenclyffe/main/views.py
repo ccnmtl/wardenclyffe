@@ -1119,21 +1119,22 @@ class SearchView(StaffMixin, TemplateView):
         return dict(q=q, results=results)
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to("main/uuid_search.html")
-def uuid_search(request):
-    uuid = request.GET.get('uuid', '')
-    results = dict()
-    if uuid:
-        for k, label in [
-                (Collection, "collection"), (Video, "video"),
-                (Operation, "operation")]:
-            r = k.objects.filter(uuid=uuid)
-            if r.count() > 0:
-                results[label] = r[0]
-                break
-    return dict(uuid=uuid, results=results)
+class UUIDSearchView(StaffMixin, TemplateView):
+    template_name = "main/uuid_search.html"
+
+    def get_context_data(self):
+        uuid = self.request.GET.get('uuid', '')
+        results = dict()
+        if uuid:
+            for k, label in [
+                    (Collection, "collection"),
+                    (Video, "video"),
+                    (Operation, "operation")]:
+                r = k.objects.filter(uuid=uuid)
+                if r.count() > 0:
+                    results[label] = r[0]
+                    break
+        return dict(uuid=uuid, results=results)
 
 
 def tag_autocomplete(request):
