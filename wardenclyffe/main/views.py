@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeleteView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from munin.helpers import muninview
@@ -880,16 +881,10 @@ def delete_video(request, id):
         return dict()
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/delete_confirm.html')
-def delete_collection(request, id):
-    s = get_object_or_404(Collection, id=id)
-    if request.method == "POST":
-        s.delete()
-        return HttpResponseRedirect("/")
-    else:
-        return dict()
+class DeleteCollectionView(StaffMixin, DeleteView):
+    template_name = 'main/delete_confirm.html'
+    model = Collection
+    success_url = "/"
 
 
 @login_required

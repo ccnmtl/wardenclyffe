@@ -5,6 +5,7 @@ from factories import OperationFactory
 from factories import ServerFactory
 from factories import UserFactory
 from factories import VideoFactory
+from factories import CollectionFactory
 
 
 class SimpleTest(TestCase):
@@ -303,3 +304,10 @@ class TestStaff(TestCase):
         v = VideoFactory()
         r = self.c.get(v.get_absolute_url())
         self.assertEqual(r.status_code, 200)
+
+    def test_delete_collection(self):
+        c = CollectionFactory()
+        r = self.c.get(c.get_absolute_url() + "delete/")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.post(c.get_absolute_url() + "delete/")
+        self.assertEqual(r.status_code, 302)
