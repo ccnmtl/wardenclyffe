@@ -293,3 +293,7 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(s.name in r.content)
         self.assertTrue(s.hostname in r.content)
+
+    def test_tags(self):
+        r = self.c.get("/tag/")
+        self.assertEqual(r.status_code, 200)

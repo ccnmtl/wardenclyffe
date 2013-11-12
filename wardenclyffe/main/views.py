@@ -435,11 +435,10 @@ def tag(request, tagname):
             tags__name__in=[tagname]).order_by("-modified"))
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/tags.html')
-def tags(request):
-    return dict(tags=Tag.objects.all().order_by("name"))
+class TagsListView(StaffMixin, ListView):
+    template_name = 'main/tags.html'
+    queryset = Tag.objects.all().order_by("name")
+    context_object_name = "tags"
 
 
 @login_required
