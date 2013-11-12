@@ -207,16 +207,10 @@ class ServerView(StaffMixin, DetailView):
     context_object_name = "server"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/delete_confirm.html')
-def delete_server(request, id):
-    s = get_object_or_404(Server, id=id)
-    if request.method == "POST":
-        s.delete()
-        return HttpResponseRedirect("/server/")
-    else:
-        return dict()
+class DeleteServerView(StaffMixin, DeleteView):
+    template_name = 'main/delete_confirm.html'
+    model = Server
+    success_url = "/server/"
 
 
 @login_required
