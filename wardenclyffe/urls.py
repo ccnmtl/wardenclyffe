@@ -96,7 +96,7 @@ urlpatterns = patterns(
     (r'^list_workflows/$', views.ListWorkflowsView.as_view()),
     (r'^search/$', views.SearchView.as_view()),
     (r'^uuid_search/$', views.UUIDSearchView.as_view()),
-    (r'^api/tagautocomplete/$', 'wardenclyffe.main.views.tag_autocomplete'),
+    (r'^api/tagautocomplete/$', views.TagAutocompleteView.as_view()),
     (r'^api/subjectautocomplete/$',
      'wardenclyffe.main.views.subject_autocomplete'),
     (r'^celery/', include('djcelery.urls')),

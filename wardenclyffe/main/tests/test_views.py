@@ -159,6 +159,10 @@ class SimpleTest(TestCase):
         response = self.c.get("/slow_operations/")
         self.assertEquals(response.status_code, 200)
 
+    def test_tagautocomplete(self):
+        response = self.c.get("/api/tagautocomplete/?q=foo")
+        self.assertEquals(response.status_code, 200)
+
 
 class TestSurelink(TestCase):
     def setUp(self):

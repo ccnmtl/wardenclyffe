@@ -1137,10 +1137,11 @@ class UUIDSearchView(StaffMixin, TemplateView):
         return dict(uuid=uuid, results=results)
 
 
-def tag_autocomplete(request):
-    q = request.GET.get('q', '')
-    r = Tag.objects.filter(name__icontains=q)
-    return HttpResponse("\n".join([t.name for t in list(r)]))
+class TagAutocompleteView(View):
+    def get(self, request):
+        q = request.GET.get('q', '')
+        r = Tag.objects.filter(name__icontains=q)
+        return HttpResponse("\n".join([t.name for t in list(r)]))
 
 
 def subject_autocomplete(request):
