@@ -2,14 +2,14 @@ from django.conf.urls.defaults import patterns, include
 from django.contrib import admin
 from django.conf import settings
 from wardenclyffe.main.feeds import CollectionFeed
-from wardenclyffe.main.views import ReceivedView, IndexView
+import wardenclyffe.main.views as views
 from django.views.generic import TemplateView
 admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    ('^$', IndexView.as_view()),
-    ('^dashboard/', 'wardenclyffe.main.views.dashboard'),
+    ('^$', views.IndexView.as_view()),
+    ('^dashboard/', views.DashboardView.as_view()),
     ('^recent_operations/', 'wardenclyffe.main.views.recent_operations'),
     ('^slow_operations/', 'wardenclyffe.main.views.slow_operations'),
     ('^most_recent_operation/',
@@ -81,7 +81,7 @@ urlpatterns = patterns(
     (r'^uploadify/$', 'wardenclyffe.main.views.uploadify'),
     (r'^done/$', 'wardenclyffe.main.views.done'),
     (r'^posterdone/$', 'wardenclyffe.main.views.posterdone'),
-    (r'^received/$', ReceivedView.as_view()),
+    (r'^received/$', views.ReceivedView.as_view()),
     (r'^surelink/$', 'wardenclyffe.main.views.surelink'),
     (r'^video/$', 'wardenclyffe.main.views.video_index'),
     (r'^video/(?P<id>\d+)/$', 'wardenclyffe.main.views.video'),

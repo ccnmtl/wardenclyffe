@@ -47,7 +47,7 @@ class StaffMixin(object):
 class IndexView(StaffMixin, TemplateView):
     template_name = 'main/index.html'
 
-    def get_context_data(request):
+    def get_context_data(self, *args, **kwargs):
         return dict(
             collection=Collection.objects.filter(
                 active=True).order_by("title"),
@@ -55,32 +55,34 @@ class IndexView(StaffMixin, TemplateView):
             operations=Operation.objects.all().order_by("-modified")[:20])
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/dashboard.html')
-def dashboard(request):
-    submitted = request.GET.get('submitted', '') == '1'
-    status_filters = dict()
-    for (status, get_param) in [
-        ("failed", 'status_filter_failed'),
-        ("complete", 'status_filter_complete'),
-        ("submitted", 'status_filter_submitted'),
-        ("inprogress", 'status_filter_inprogress'),
-        ("enqueued", 'status_filter_enqueued'),
-    ]:
-        status_filters[status] = request.GET.get(get_param, not submitted)
+class DashboardView(StaffMixin, TemplateView):
+    template_name = 'main/dashboard.html'
 
-    user_filter = request.GET.get('user', '')
-    collection_filter = int(request.GET.get('collection', False) or '0')
-    d = dict(
-        all_collection=Collection.objects.all().order_by("title"),
-        all_users=User.objects.all(),
-        user_filter=user_filter,
-        collection_filter=collection_filter,
-        submitted=submitted,
-    )
-    d.update(status_filters)
-    return d
+    def get_context_data(self, *args, **kwargs):
+        submitted = self.request.GET.get('submitted', '') == '1'
+        status_filters = dict()
+        for (status, get_param) in [
+            ("failed", 'status_filter_failed'),
+            ("complete", 'status_filter_complete'),
+            ("submitted", 'status_filter_submitted'),
+            ("inprogress", 'status_filter_inprogress'),
+            ("enqueued", 'status_filter_enqueued'),
+        ]:
+            status_filters[status] = self.request.GET.get(
+                get_param, not submitted)
+
+        user_filter = self.request.GET.get('user', '')
+        collection_filter = int(self.request.GET.get('collection',
+                                                     False) or '0')
+        d = dict(
+            all_collection=Collection.objects.all().order_by("title"),
+            all_users=User.objects.all(),
+            user_filter=user_filter,
+            collection_filter=collection_filter,
+            submitted=submitted,
+        )
+        d.update(status_filters)
+        return d
 
 
 class ReceivedView(View):
