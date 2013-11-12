@@ -1069,22 +1069,22 @@ def video_select_poster(request, id, image_id):
     return HttpResponseRedirect(video.get_absolute_url())
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/workflows.html')
-def list_workflows(request):
-    error_message = ""
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except Exception, e:
-        error_message = str(e)
-        workflows = []
-    return dict(workflows=workflows,
-                error_message=error_message,
-                kino_base=settings.PCP_BASE_URL)
+class ListWorkflowsView(StaffMixin, TemplateView):
+    template_name = 'main/workflows.html'
+
+    def get_context_data(self):
+        error_message = ""
+        try:
+            p = PCP(settings.PCP_BASE_URL,
+                    settings.PCP_USERNAME,
+                    settings.PCP_PASSWORD)
+            workflows = p.workflows()
+        except Exception, e:
+            error_message = str(e)
+            workflows = []
+        return dict(workflows=workflows,
+                    error_message=error_message,
+                    kino_base=settings.PCP_BASE_URL)
 
 
 @login_required
