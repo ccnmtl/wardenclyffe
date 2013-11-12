@@ -1089,6 +1089,7 @@ class ListWorkflowsView(StaffMixin, TemplateView):
 
 class SearchView(StaffMixin, TemplateView):
     template_name = "main/search.html"
+
     def get_context_data(self):
         q = self.request.GET.get('q', '')
         results = dict(count=0)
@@ -1144,24 +1145,25 @@ class TagAutocompleteView(View):
         return HttpResponse("\n".join([t.name for t in list(r)]))
 
 
-def subject_autocomplete(request):
-    q = request.GET.get('q', '')
-    q = q.lower()
-    r = Video.objects.filter(subject__icontains=q)
-    all_subjects = dict()
-    for v in r:
-        s = v.subject.lower()
-        for p in s.split(","):
-            p = p.strip()
-            all_subjects[p] = 1
-    r = Collection.objects.filter(subject__icontains=q)
-    for v in r:
-        s = v.subject.lower()
-        for p in s.split(","):
-            p = p.strip()
-            all_subjects[p] = 1
+class SubjectAutocompleteView(View):
+    def get(self, request):
+        q = request.GET.get('q', '')
+        q = q.lower()
+        r = Video.objects.filter(subject__icontains=q)
+        all_subjects = dict()
+        for v in r:
+            s = v.subject.lower()
+            for p in s.split(","):
+                p = p.strip()
+                all_subjects[p] = 1
+        r = Collection.objects.filter(subject__icontains=q)
+        for v in r:
+            s = v.subject.lower()
+            for p in s.split(","):
+                p = p.strip()
+                all_subjects[p] = 1
 
-    return HttpResponse("\n".join(all_subjects.keys()))
+        return HttpResponse("\n".join(all_subjects.keys()))
 
 POSTER_BASE = settings.CUNIX_BROADCAST_URL + "posters/vidthumb"
 POSTER_OPTIONS = [

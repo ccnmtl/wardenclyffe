@@ -163,6 +163,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/api/tagautocomplete/?q=foo")
         self.assertEquals(response.status_code, 200)
 
+    def test_subjectautocomplete(self):
+        VideoFactory(title="thread")
+        response = self.c.get("/api/subjectautocomplete/?q=thread")
+        self.assertEquals(response.status_code, 200)
+
 
 class TestSurelink(TestCase):
     def setUp(self):
