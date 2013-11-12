@@ -1087,37 +1087,36 @@ class ListWorkflowsView(StaffMixin, TemplateView):
                     kino_base=settings.PCP_BASE_URL)
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to("main/search.html")
-def search(request):
-    q = request.GET.get('q', '')
-    results = dict(count=0)
-    if q:
-        r = Collection.objects.filter(
-            Q(title__icontains=q) |
-            Q(creator__icontains=q) |
-            Q(contributor__icontains=q) |
-            Q(language__icontains=q) |
-            Q(description__icontains=q) |
-            Q(subject__icontains=q) |
-            Q(license__icontains=q)
-        )
-        results['count'] += r.count()
-        results['collection'] = r
+class SearchView(StaffMixin, TemplateView):
+    template_name = "main/search.html"
+    def get_context_data(self):
+        q = self.request.GET.get('q', '')
+        results = dict(count=0)
+        if q:
+            r = Collection.objects.filter(
+                Q(title__icontains=q) |
+                Q(creator__icontains=q) |
+                Q(contributor__icontains=q) |
+                Q(language__icontains=q) |
+                Q(description__icontains=q) |
+                Q(subject__icontains=q) |
+                Q(license__icontains=q)
+            )
+            results['count'] += r.count()
+            results['collection'] = r
 
-        r = Video.objects.filter(
-            Q(title__icontains=q) |
-            Q(creator__icontains=q) |
-            Q(language__icontains=q) |
-            Q(description__icontains=q) |
-            Q(subject__icontains=q) |
-            Q(license__icontains=q)
-        )
-        results['count'] += r.count()
-        results['videos'] = r
+            r = Video.objects.filter(
+                Q(title__icontains=q) |
+                Q(creator__icontains=q) |
+                Q(language__icontains=q) |
+                Q(description__icontains=q) |
+                Q(subject__icontains=q) |
+                Q(license__icontains=q)
+            )
+            results['count'] += r.count()
+            results['videos'] = r
 
-    return dict(q=q, results=results)
+        return dict(q=q, results=results)
 
 
 @login_required

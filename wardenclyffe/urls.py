@@ -94,7 +94,7 @@ urlpatterns = patterns(
     (r'^video/(?P<id>\d+)/select_poster/(?P<image_id>\d+)/$',
      'wardenclyffe.main.views.video_select_poster'),
     (r'^list_workflows/$', views.ListWorkflowsView.as_view()),
-    (r'^search/$', 'wardenclyffe.main.views.search'),
+    (r'^search/$', views.SearchView.as_view()),
     (r'^uuid_search/$', 'wardenclyffe.main.views.uuid_search'),
     (r'^api/tagautocomplete/$', 'wardenclyffe.main.views.tag_autocomplete'),
     (r'^api/subjectautocomplete/$',

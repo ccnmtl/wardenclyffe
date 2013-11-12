@@ -98,6 +98,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/search/", dict(q="test"))
         self.assertEquals(response.status_code, 200)
 
+    def test_search_empty(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/search/", dict(q=""))
+        self.assertEquals(response.status_code, 200)
+
     def test_file_filter(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
