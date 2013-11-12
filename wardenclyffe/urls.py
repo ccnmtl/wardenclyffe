@@ -84,7 +84,7 @@ urlpatterns = patterns(
     (r'^received/$', views.ReceivedView.as_view()),
     (r'^surelink/$', 'wardenclyffe.main.views.surelink'),
     (r'^video/$', 'wardenclyffe.main.views.video_index'),
-    (r'^video/(?P<id>\d+)/$', 'wardenclyffe.main.views.video'),
+    (r'^video/(?P<pk>\d+)/$', views.VideoView.as_view()),
     (r'^video/(?P<id>\d+)/pcp_submit/$',
      'wardenclyffe.main.views.video_pcp_submit'),
     (r'^video/(?P<id>\d+)/mediathread_submit/$',

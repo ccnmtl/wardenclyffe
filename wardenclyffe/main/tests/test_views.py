@@ -4,6 +4,7 @@ from factories import FileFactory
 from factories import OperationFactory
 from factories import ServerFactory
 from factories import UserFactory
+from factories import VideoFactory
 
 
 class SimpleTest(TestCase):
@@ -296,4 +297,9 @@ class TestStaff(TestCase):
 
     def test_tags(self):
         r = self.c.get("/tag/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_video(self):
+        v = VideoFactory()
+        r = self.c.get(v.get_absolute_url())
         self.assertEqual(r.status_code, 200)

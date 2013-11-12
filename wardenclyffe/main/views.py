@@ -787,12 +787,10 @@ def posterdone(request):
     return HttpResponse("ok")
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/video.html')
-def video(request, id):
-    v = get_object_or_404(Video, id=id)
-    return dict(video=v)
+class VideoView(StaffMixin, DetailView):
+    template_name = 'main/video.html'
+    model = Video
+    context_object_name = "video"
 
 
 @login_required
