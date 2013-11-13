@@ -40,7 +40,7 @@ urlpatterns = patterns(
      'wardenclyffe.main.views.remove_tag_from_video'),
 
     (r'^server/$', views.ServersListView.as_view()),
-    (r'^server/add/$', 'wardenclyffe.main.views.add_server'),
+    (r'^server/add/$', views.AddServerView.as_view()),
     (r'^server/(?P<pk>\d+)/$', views.ServerView.as_view()),
     (r'^server/(?P<pk>\d+)/edit/$', views.EditServerView.as_view()),
     (r'^server/(?P<pk>\d+)/delete/$', views.DeleteServerView.as_view()),

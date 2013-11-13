@@ -238,11 +238,10 @@ class EditServerView(StaffMixin, UpdateView):
     context_object_name = "server"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/add_server.html')
-def add_server(request):
-    if request.method == "POST":
+class AddServerView(StaffMixin, View):
+    template_name = 'main/add_server.html'
+
+    def post(self, request):
         form = ServerForm(request.POST)
         if form.is_valid():
             suuid = uuid.uuid4()
@@ -251,7 +250,12 @@ def add_server(request):
             s.save()
             form.save_m2m()
             return HttpResponseRedirect(s.get_absolute_url())
-    return dict(form=ServerForm())
+        return render(request, self.template_name,
+                      dict(form=form))
+
+    def get(self, request):
+        return render(request, self.template_name,
+                      dict(form=ServerForm()))
 
 
 class CollectionView(StaffMixin, TemplateView):
@@ -357,7 +361,7 @@ class EditCollectionWorkflowsView(StaffMixin, View):
                     if w.uuid == uuid:
                         label = w.title
                         break
-                cw = CollectionWorkflow.objects.create(
+                CollectionWorkflow.objects.create(
                     collection=collection,
                     workflow=uuid,
                     label=label,

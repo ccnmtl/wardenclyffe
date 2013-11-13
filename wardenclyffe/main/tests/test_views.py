@@ -371,3 +371,19 @@ class TestStaff(TestCase):
         c = CollectionFactory()
         r = self.c.post(c.get_absolute_url() + "workflows/")
         self.assertEqual(r.status_code, 302)
+
+    def test_add_server_form(self):
+        r = self.c.get("/server/add/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_add_server(self):
+        r = self.c.post(
+            "/server/add/",
+            dict(name="foo", hostname="foo", credentials="foo",
+                 description="foo", base_dir="/",
+                 base_url="something", server_type="sftp"))
+        self.assertEqual(r.status_code, 302)
+
+    def test_add_server_invalid(self):
+        r = self.c.post("/server/add/")
+        self.assertEqual(r.status_code, 200)
