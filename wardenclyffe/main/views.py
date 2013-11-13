@@ -272,28 +272,28 @@ class CollectionView(StaffMixin, TemplateView):
                 video__collection__id=pk).order_by("-modified")[:20])
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/all_collection_videos.html')
-def all_collection_videos(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    videos = collection.video_set.all().order_by("title")
-    params = dict(collection=collection)
-    paginator = Paginator(videos, 100)
+class AllCollectionVideosView(StaffMixin, TemplateView):
+    template_name = 'main/all_collection_videos.html'
 
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-    try:
-        videos = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        videos = paginator.page(paginator.num_pages)
+    def get_context_data(self, id):
+        collection = get_object_or_404(Collection, id=id)
+        videos = collection.video_set.all().order_by("title")
+        params = dict(collection=collection)
+        paginator = Paginator(videos, 100)
 
-    for k, v in request.GET.items():
-        params[k] = v
-    params.update(dict(videos=videos))
-    return params
+        try:
+            page = int(self.request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+        try:
+            videos = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            videos = paginator.page(paginator.num_pages)
+
+        for k, v in self.request.GET.items():
+            params[k] = v
+        params.update(dict(videos=videos))
+        return params
 
 
 @login_required
