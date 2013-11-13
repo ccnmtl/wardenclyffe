@@ -15,3 +15,8 @@ class UploadVideoForm(forms.ModelForm):
 class AddServerForm(forms.ModelForm):
     class Meta:
         model = Server
+
+
+class EditCollectionForm(forms.ModelForm):
+    class Meta:
+        model = Collection

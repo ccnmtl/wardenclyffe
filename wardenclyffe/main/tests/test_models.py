@@ -63,9 +63,6 @@ class CollectionTest(TestCase):
         add_form = self.collection.add_video_form()
         assert "id_title" in str(add_form)
         assert 'title' in add_form.fields
-        edit_form = self.collection.edit_form()
-        assert 'title' in edit_form.fields
-        assert self.collection.title in str(edit_form)
 
 
 class EmptyVideoTest(TestCase):

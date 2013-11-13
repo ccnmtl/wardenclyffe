@@ -61,15 +61,6 @@ class Collection(TimeStampedModel):
                 exclude = ('collection')
         return AddVideoForm()
 
-    def edit_form(self, data=None):
-        class EditForm(forms.ModelForm):
-            class Meta:
-                model = Collection
-        if data:
-            return EditForm(data, instance=self)
-        else:
-            return EditForm(instance=self)
-
 
 class CollectionWorkflow(models.Model):
     collection = models.ForeignKey(Collection)

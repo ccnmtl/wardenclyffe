@@ -18,12 +18,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from json import dumps, loads
 from taggit.models import Tag
-from wardenclyffe.main.forms import AddServerForm
+from wardenclyffe.main.forms import AddServerForm, EditCollectionForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
@@ -331,18 +331,11 @@ class UserView(StaffMixin, TemplateView):
                 owner__id=user.id).order_by("-modified")[:20])
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/edit_collection.html')
-def edit_collection(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    if request.method == "POST":
-        form = collection.edit_form(request.POST)
-        if form.is_valid():
-            collection = form.save()
-            return HttpResponseRedirect(collection.get_absolute_url())
-    form = collection.edit_form()
-    return dict(collection=collection, form=form)
+class EditCollectionView(StaffMixin, UpdateView):
+    template_name = 'main/edit_collection.html'
+    model = Collection
+    form_class = EditCollectionForm
+    context_object_name = "collection"
 
 
 @login_required

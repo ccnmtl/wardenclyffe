@@ -341,3 +341,11 @@ class TestStaff(TestCase):
         v = i.video
         r = self.c.get("/video/%d/select_poster/%d/" % (v.id, i.id))
         self.assertEqual(r.status_code, 302)
+
+    def test_edit_collection(self):
+        c = CollectionFactory()
+        r = self.c.get(c.get_absolute_url() + "edit/")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.post(c.get_absolute_url() + "edit/",
+                        data=dict(title="updated title"))
+        self.assertEqual(r.status_code, 302)
