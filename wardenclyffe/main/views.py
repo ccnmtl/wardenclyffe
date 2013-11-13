@@ -5,6 +5,7 @@ import wardenclyffe.main.tasks as tasks
 
 from angeldust import PCP
 from annoying.decorators import render_to
+from django.shortcuts import render
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -346,14 +347,12 @@ class CollectionToggleActiveView(StaffMixin, View):
         return HttpResponseRedirect(collection.get_absolute_url())
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/edit_collection_workflows.html')
-def edit_collection_workflows(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    workflows, pcp_error = get_pcp_workflows()
+class EditCollectionWorkflowsView(StaffMixin, View):
+    template_name = 'main/edit_collection_workflows.html'
 
-    if request.method == 'POST':
+    def post(self, request, id):
+        collection = get_object_or_404(Collection, id=id)
+        workflows, pcp_error = get_pcp_workflows()
         # clear existing ones
         collection.collectionworkflow_set.all().delete()
         # re-add
@@ -372,14 +371,18 @@ def edit_collection_workflows(request, id):
                 )
         return HttpResponseRedirect(collection.get_absolute_url())
 
-    existing_uuids = [str(cw.workflow) for cw in
-                      collection.collectionworkflow_set.all()]
-    for w in workflows:
-        if str(w.uuid) in existing_uuids:
-            w.selected = True
+    def get(self, request, id):
+        collection = get_object_or_404(Collection, id=id)
+        workflows, pcp_error = get_pcp_workflows()
+        existing_uuids = [str(cw.workflow) for cw in
+                          collection.collectionworkflow_set.all()]
+        for w in workflows:
+            if str(w.uuid) in existing_uuids:
+                w.selected = True
 
-    return dict(collection=collection, workflows=workflows,
-                pcp_error=pcp_error)
+        return render(request, self.template_name,
+                      dict(collection=collection, workflows=workflows,
+                           pcp_error=pcp_error))
 
 
 @login_required

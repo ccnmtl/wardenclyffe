@@ -22,7 +22,7 @@ urlpatterns = patterns(
     (r'^collection/(?P<pk>\d+)/videos/$',
      views.AllCollectionVideosView.as_view()),
     (r'^collection/(?P<id>\d+)/workflows/$',
-     'wardenclyffe.main.views.edit_collection_workflows'),
+     views.EditCollectionWorkflowsView.as_view()),
     (r'^collection/(?P<pk>\d+)/operations/$',
      views.AllCollectionOperationsView.as_view()),
     (r'^collection/(?P<pk>\d+)/edit/$',

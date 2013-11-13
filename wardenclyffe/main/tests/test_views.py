@@ -361,3 +361,13 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 302)
         c = Collection.objects.get(id=c.id)
         self.assertTrue(c.active)
+
+    def test_edit_collection_workflows_form(self):
+        c = CollectionFactory()
+        r = self.c.get(c.get_absolute_url() + "workflows/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_edit_collection_workflows(self):
+        c = CollectionFactory()
+        r = self.c.post(c.get_absolute_url() + "workflows/")
+        self.assertEqual(r.status_code, 302)
