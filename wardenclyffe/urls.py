@@ -10,7 +10,7 @@ urlpatterns = patterns(
     '',
     ('^$', views.IndexView.as_view()),
     ('^dashboard/', views.DashboardView.as_view()),
-    ('^recent_operations/', 'wardenclyffe.main.views.recent_operations'),
+    ('^recent_operations/', views.RecentOperationsView.as_view()),
     ('^slow_operations/', views.SlowOperationsView.as_view()),
     ('^most_recent_operation/',
      'wardenclyffe.main.views.most_recent_operation'),

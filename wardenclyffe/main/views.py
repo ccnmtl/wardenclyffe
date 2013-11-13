@@ -156,34 +156,33 @@ class UploadifyView(View):
         return HttpResponse('True')
 
 
-@login_required
-@user_passes_test(is_staff)
-def recent_operations(request):
-    submitted = request.GET.get('submitted', '') == '1'
-    status_filters = []
-    for (status, get_param) in [
-        ("failed", "status_filter_failed"),
-        ("enqueued", "status_filter_enqueued"),
-        ("complete", 'status_filter_complete'),
-        ("in progress", 'status_filter_inprogress'),
-        ("submitted", 'status_filter_submitted'),
-    ]:
-        if request.GET.get(get_param, not submitted):
-            status_filters.append(status)
+class RecentOperationsView(StaffMixin, View):
+    def get(self, request):
+        submitted = request.GET.get('submitted', '') == '1'
+        status_filters = []
+        for (status, get_param) in [
+            ("failed", "status_filter_failed"),
+            ("enqueued", "status_filter_enqueued"),
+            ("complete", 'status_filter_complete'),
+            ("in progress", 'status_filter_inprogress'),
+            ("submitted", 'status_filter_submitted'),
+        ]:
+            if request.GET.get(get_param, not submitted):
+                status_filters.append(status)
 
-    user_filter = request.GET.get('user', '')
-    collection_filter = int(request.GET.get('collection', False) or '0')
+        user_filter = request.GET.get('user', '')
+        collection_filter = int(request.GET.get('collection', False) or '0')
 
-    q = Operation.objects.filter(status__in=status_filters)
-    if collection_filter:
-        q = q.filter(video__collection__id=collection_filter)
-    if user_filter:
-        q = q.filter(video__creator=user_filter)
+        q = Operation.objects.filter(status__in=status_filters)
+        if collection_filter:
+            q = q.filter(video__collection__id=collection_filter)
+        if user_filter:
+            q = q.filter(video__creator=user_filter)
 
-    return HttpResponse(
-        dumps(dict(operations=[o.as_dict() for o
-                               in q.order_by("-modified")[:200]])),
-        mimetype="application/json")
+        return HttpResponse(
+            dumps(dict(operations=[o.as_dict() for o
+                                   in q.order_by("-modified")[:200]])),
+            mimetype="application/json")
 
 
 @login_required
