@@ -18,7 +18,7 @@ urlpatterns = patterns(
     (r'^admin/', include(admin.site.urls)),
     (r'^capture/file_upload', 'wardenclyffe.main.views.test_upload'),
     (r'^add_collection/$', 'wardenclyffe.main.views.add_collection'),
-    (r'^collection/(?P<id>\d+)/$', 'wardenclyffe.main.views.collection'),
+    (r'^collection/(?P<pk>\d+)/$', views.CollectionView.as_view()),
     (r'^collection/(?P<id>\d+)/videos/$',
      'wardenclyffe.main.views.all_collection_videos'),
     (r'^collection/(?P<id>\d+)/workflows/$',

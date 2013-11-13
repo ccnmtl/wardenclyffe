@@ -260,16 +260,16 @@ def add_server(request):
     return dict(form=AddServerForm())
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/collection.html')
-def collection(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    videos = Video.objects.filter(collection=collection).order_by("-modified")
-    return dict(
-        collection=collection, videos=videos[:20],
-        operations=Operation.objects.filter(
-            video__collection__id=id).order_by("-modified")[:20])
+class CollectionView(StaffMixin, TemplateView):
+    template_name = 'main/collection.html'
+
+    def get_context_data(self, pk):
+        collection = get_object_or_404(Collection, pk=pk)
+        videos = Video.objects.filter(collection=collection).order_by("-modified")
+        return dict(
+            collection=collection, videos=videos[:20],
+            operations=Operation.objects.filter(
+                video__collection__id=pk).order_by("-modified")[:20])
 
 
 @login_required
