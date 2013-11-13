@@ -12,7 +12,7 @@ class UploadVideoForm(forms.ModelForm):
         model = Video
 
 
-class AddServerForm(forms.ModelForm):
+class ServerForm(forms.ModelForm):
     class Meta:
         model = Server
 

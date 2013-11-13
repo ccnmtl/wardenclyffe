@@ -24,7 +24,7 @@ from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from json import dumps, loads
 from taggit.models import Tag
-from wardenclyffe.main.forms import AddServerForm, EditCollectionForm
+from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
@@ -231,18 +231,11 @@ class DeleteServerView(StaffMixin, DeleteView):
     success_url = "/server/"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/edit_server.html')
-def edit_server(request, id):
-    server = get_object_or_404(Server, id=id)
-    if request.method == "POST":
-        form = server.edit_form(request.POST)
-        if form.is_valid():
-            server = form.save()
-            return HttpResponseRedirect(server.get_absolute_url())
-    form = server.edit_form()
-    return dict(server=server, form=form)
+class EditServerView(StaffMixin, UpdateView):
+    template_name = 'main/edit_server.html'
+    model = Server
+    form_class = ServerForm
+    context_object_name = "server"
 
 
 @login_required
@@ -250,7 +243,7 @@ def edit_server(request, id):
 @render_to('main/add_server.html')
 def add_server(request):
     if request.method == "POST":
-        form = AddServerForm(request.POST)
+        form = ServerForm(request.POST)
         if form.is_valid():
             suuid = uuid.uuid4()
             s = form.save(commit=False)
@@ -258,7 +251,7 @@ def add_server(request):
             s.save()
             form.save_m2m()
             return HttpResponseRedirect(s.get_absolute_url())
-    return dict(form=AddServerForm())
+    return dict(form=ServerForm())
 
 
 class CollectionView(StaffMixin, TemplateView):

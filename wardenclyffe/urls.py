@@ -42,7 +42,7 @@ urlpatterns = patterns(
     (r'^server/$', views.ServersListView.as_view()),
     (r'^server/add/$', 'wardenclyffe.main.views.add_server'),
     (r'^server/(?P<pk>\d+)/$', views.ServerView.as_view()),
-    (r'^server/(?P<id>\d+)/edit/$', 'wardenclyffe.main.views.edit_server'),
+    (r'^server/(?P<pk>\d+)/edit/$', views.EditServerView.as_view()),
     (r'^server/(?P<pk>\d+)/delete/$', views.DeleteServerView.as_view()),
 
     (r'^file/$', 'wardenclyffe.main.views.file_index'),
