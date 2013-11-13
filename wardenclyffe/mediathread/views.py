@@ -11,11 +11,10 @@ import os
 from django.conf import settings
 from django.db import transaction
 from restclient import GET
-from simplejson import loads
+from json import loads, dumps
 import hmac
 import hashlib
 from django_statsd.clients import statsd
-from simplejson import dumps
 
 
 @render_to('mediathread/mediathread.html')

@@ -21,7 +21,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
-from simplejson import dumps, loads
+from json import dumps, loads
 from taggit.models import Tag
 from wardenclyffe.main.forms import AddServerForm
 from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
