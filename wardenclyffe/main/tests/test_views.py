@@ -181,6 +181,10 @@ class TestSurelink(TestCase):
         response = self.c.get("/surelink/")
         self.assertEquals(response.status_code, 200)
 
+    def test_surelink_with_files(self):
+        response = self.c.get("/surelink/", dict(files="foo.mp4"))
+        self.assertEquals(response.status_code, 200)
+
     def test_file_surelink_form(self):
         f = FileFactory()
         response = self.c.get("/file/%d/" % f.id)
