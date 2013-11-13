@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test.client import Client
+from wardenclyffe.main.models import Collection
 from factories import FileFactory
 from factories import OperationFactory
 from factories import ServerFactory
@@ -349,3 +350,14 @@ class TestStaff(TestCase):
         r = self.c.post(c.get_absolute_url() + "edit/",
                         data=dict(title="updated title"))
         self.assertEqual(r.status_code, 302)
+
+    def test_collection_toggle_active(self):
+        c = CollectionFactory(active=True)
+        r = self.c.post(c.get_absolute_url() + "toggle_active/")
+        c = Collection.objects.get(id=c.id)
+        self.assertEqual(r.status_code, 302)
+        self.assertFalse(c.active)
+        r = self.c.post(c.get_absolute_url() + "toggle_active/")
+        self.assertEqual(r.status_code, 302)
+        c = Collection.objects.get(id=c.id)
+        self.assertTrue(c.active)

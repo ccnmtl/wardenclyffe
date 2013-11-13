@@ -338,14 +338,12 @@ class EditCollectionView(StaffMixin, UpdateView):
     context_object_name = "collection"
 
 
-@login_required
-@user_passes_test(is_staff)
-def collection_toggle_active(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    if request.method == "POST":
+class CollectionToggleActiveView(StaffMixin, View):
+    def post(self, request, pk):
+        collection = get_object_or_404(Collection, id=pk)
         collection.active = not collection.active
         collection.save()
-    return HttpResponseRedirect(collection.get_absolute_url())
+        return HttpResponseRedirect(collection.get_absolute_url())
 
 
 @login_required
