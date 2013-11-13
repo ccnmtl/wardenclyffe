@@ -320,15 +320,15 @@ class AllCollectionOperationsView(StaffMixin, ChildrenView):
             video__collection__id=obj.id).order_by("-modified")
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/user.html')
-def user(request, username):
-    user = get_object_or_404(User, username=username)
-    return dict(
-        viewuser=user,
-        operations=Operation.objects.filter(
-            owner__id=user.id).order_by("-modified")[:20])
+class UserView(StaffMixin, TemplateView):
+    template_name = 'main/user.html'
+
+    def get_context_data(self, username):
+        user = get_object_or_404(User, username=username)
+        return dict(
+            viewuser=user,
+            operations=Operation.objects.filter(
+                owner__id=user.id).order_by("-modified")[:20])
 
 
 @login_required
