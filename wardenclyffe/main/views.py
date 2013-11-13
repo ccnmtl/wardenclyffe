@@ -275,8 +275,8 @@ class CollectionView(StaffMixin, TemplateView):
 class AllCollectionVideosView(StaffMixin, TemplateView):
     template_name = 'main/all_collection_videos.html'
 
-    def get_context_data(self, id):
-        collection = get_object_or_404(Collection, id=id)
+    def get_context_data(self, pk):
+        collection = get_object_or_404(Collection, pk=pk)
         videos = collection.video_set.all().order_by("title")
         params = dict(collection=collection)
         paginator = Paginator(videos, 100)
@@ -296,29 +296,29 @@ class AllCollectionVideosView(StaffMixin, TemplateView):
         return params
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/all_collection_operations.html')
-def all_collection_operations(request, id):
-    collection = get_object_or_404(Collection, id=id)
-    operations = Operation.objects.filter(
-        video__collection__id=id).order_by("-modified")
-    params = dict(collection=collection)
-    paginator = Paginator(operations, 100)
+class AllCollectionOperationsView(StaffMixin, TemplateView):
+    template_name = 'main/all_collection_operations.html'
 
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-    try:
-        operations = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        operations = paginator.page(paginator.num_pages)
+    def get_context_data(self, pk):
+        collection = get_object_or_404(Collection, pk=pk)
+        operations = Operation.objects.filter(
+            video__collection__id=pk).order_by("-modified")
+        params = dict(collection=collection)
+        paginator = Paginator(operations, 100)
 
-    for k, v in request.GET.items():
-        params[k] = v
-    params.update(dict(operations=operations))
-    return params
+        try:
+            page = int(self.request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+        try:
+            operations = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            operations = paginator.page(paginator.num_pages)
+
+        for k, v in self.request.GET.items():
+            params[k] = v
+        params.update(dict(operations=operations))
+        return params
 
 
 @login_required
