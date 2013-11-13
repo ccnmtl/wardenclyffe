@@ -39,6 +39,23 @@ def is_staff(user):
     return user and not user.is_anonymous() and user.is_staff
 
 
+def get_pcp_workflows():
+    """ returns list of workflows and error message.
+
+    if it succeeds, error message will be an empty string
+    if it fails, workflows will be an empty list """
+    error_message = ""
+    try:
+        p = PCP(settings.PCP_BASE_URL,
+                settings.PCP_USERNAME,
+                settings.PCP_PASSWORD)
+        workflows = p.workflows()
+    except Exception, e:
+        error_message = str(e)
+        workflows = []
+    return (workflows, error_message)
+
+
 class StaffMixin(object):
     @method_decorator(login_required)
     @method_decorator(user_passes_test(is_staff))
@@ -343,15 +360,7 @@ def collection_toggle_active(request, id):
 @render_to('main/edit_collection_workflows.html')
 def edit_collection_workflows(request, id):
     collection = get_object_or_404(Collection, id=id)
-
-    workflows = []
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except:
-        workflows = []
+    workflows, pcp_error = get_pcp_workflows()
 
     if request.method == 'POST':
         # clear existing ones
@@ -378,7 +387,8 @@ def edit_collection_workflows(request, id):
         if str(w.uuid) in existing_uuids:
             w.selected = True
 
-    return dict(collection=collection, workflows=workflows)
+    return dict(collection=collection, workflows=workflows,
+                pcp_error=pcp_error)
 
 
 @login_required
@@ -911,14 +921,8 @@ def video_pcp_submit(request, id):
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except:
-        workflows = []
-    return dict(video=video, workflows=workflows,
+    workflows, pcp_error = get_pcp_workflows()
+    return dict(video=video, workflows=workflows, pcp_error=pcp_error,
                 kino_base=settings.PCP_BASE_URL)
 
 
@@ -936,14 +940,8 @@ def file_pcp_submit(request, id):
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except:
-        workflows = []
-    return dict(file=file, workflows=workflows,
+    workflows, pcp_error = get_pcp_workflows()
+    return dict(file=file, workflows=workflows, pcp_error=pcp_error,
                 kino_base=settings.PCP_BASE_URL)
 
 
@@ -1029,14 +1027,8 @@ def bulk_file_operation(request):
         return HttpResponseRedirect("/")
     files = [File.objects.get(id=int(f.split("_")[1]))
              for f in request.GET.keys() if f.startswith("file_")]
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except:
-        workflows = []
-    return dict(files=files, workflows=workflows,
+    workflows, pcp_error = get_pcp_workflows()
+    return dict(files=files, workflows=workflows, pcp_error=pcp_error,
                 kino_base=settings.PCP_BASE_URL)
 
 
@@ -1071,15 +1063,7 @@ class ListWorkflowsView(StaffMixin, TemplateView):
     template_name = 'main/workflows.html'
 
     def get_context_data(self):
-        error_message = ""
-        try:
-            p = PCP(settings.PCP_BASE_URL,
-                    settings.PCP_USERNAME,
-                    settings.PCP_PASSWORD)
-            workflows = p.workflows()
-        except Exception, e:
-            error_message = str(e)
-            workflows = []
+        workflows, error_message = get_pcp_workflows()
         return dict(workflows=workflows,
                     error_message=error_message,
                     kino_base=settings.PCP_BASE_URL)
