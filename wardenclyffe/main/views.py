@@ -125,8 +125,8 @@ class ReceivedView(View):
         return HttpResponse("ok")
 
 
-def uploadify(request, *args, **kwargs):
-    if request.method == 'POST':
+class UploadifyView(View):
+    def post(self, request, *args, **kwargs):
         statsd.incr('main.uploadify_post')
         try:
             if request.FILES:
@@ -150,7 +150,10 @@ def uploadify(request, *args, **kwargs):
             # cancel the upload. Not really our fault and not much
             # we can do about it.
             return HttpResponse('False')
-    return HttpResponse('True')
+        return HttpResponse('True')
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('True')
 
 
 @login_required
