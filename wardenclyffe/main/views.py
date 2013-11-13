@@ -272,53 +272,51 @@ class CollectionView(StaffMixin, TemplateView):
                 video__collection__id=pk).order_by("-modified")[:20])
 
 
-class AllCollectionVideosView(StaffMixin, TemplateView):
+class ChildrenView(TemplateView):
+    """ abstract view for fetching the "children" of an object
+    and paginating. don't instantiate this one directly,
+    subclass it and set the appropriate fields."""
+
+    def get_context_data(self, pk):
+        obj = get_object_or_404(self.model, pk=pk)
+        children = self.get_children_qs(obj)
+        params = {self.context_object_name: obj}
+        paginator = Paginator(children, 100)
+
+        try:
+            page = int(self.request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+        try:
+            children = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            children = paginator.page(paginator.num_pages)
+
+        for k, v in self.request.GET.items():
+            params[k] = v
+        params.update({self.context_children_name: children})
+        return params
+
+
+class AllCollectionVideosView(StaffMixin, ChildrenView):
     template_name = 'main/all_collection_videos.html'
+    model = Collection
+    context_object_name = "collection"
+    context_children_name = "videos"
 
-    def get_context_data(self, pk):
-        collection = get_object_or_404(Collection, pk=pk)
-        videos = collection.video_set.all().order_by("title")
-        params = dict(collection=collection)
-        paginator = Paginator(videos, 100)
-
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-        try:
-            videos = paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            videos = paginator.page(paginator.num_pages)
-
-        for k, v in self.request.GET.items():
-            params[k] = v
-        params.update(dict(videos=videos))
-        return params
+    def get_children_qs(self, obj):
+        return obj.video_set.all().order_by("title")
 
 
-class AllCollectionOperationsView(StaffMixin, TemplateView):
+class AllCollectionOperationsView(StaffMixin, ChildrenView):
     template_name = 'main/all_collection_operations.html'
+    model = Collection
+    context_object_name = "collection"
+    context_children_name = "operations"
 
-    def get_context_data(self, pk):
-        collection = get_object_or_404(Collection, pk=pk)
-        operations = Operation.objects.filter(
-            video__collection__id=pk).order_by("-modified")
-        params = dict(collection=collection)
-        paginator = Paginator(operations, 100)
-
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-        try:
-            operations = paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            operations = paginator.page(paginator.num_pages)
-
-        for k, v in self.request.GET.items():
-            params[k] = v
-        params.update(dict(operations=operations))
-        return params
+    def get_children_qs(self, obj):
+        return Operation.objects.filter(
+            video__collection__id=obj.id).order_by("-modified")
 
 
 @login_required
