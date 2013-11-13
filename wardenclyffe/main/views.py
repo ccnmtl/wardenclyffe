@@ -21,7 +21,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
-from munin.helpers import muninview
 from simplejson import dumps, loads
 from taggit.models import Tag
 from wardenclyffe.main.forms import AddServerForm
@@ -1213,33 +1212,3 @@ class SureLinkView(TemplateView):
             authtype_options=AUTHTYPE_OPTIONS,
             authtype=self.request.GET.get('authtype', ''),
         )
-
-
-@muninview(config="""graph_title Total Videos
-graph_vlabel videos""")
-def total_videos(request):
-    return [("videos", Video.objects.all().count())]
-
-
-@muninview(config="""graph_title Total Files
-graph_vlabel files""")
-def total_files(request):
-    return [("files", File.objects.all().count())]
-
-
-@muninview(config="""graph_title Total Operations
-graph_vlabel operations""")
-def total_operations(request):
-    return [("operations", Operation.objects.all().count())]
-
-
-@muninview(config="""graph_title Total Minutes of video Uploaded
-graph_vlabel minutes""")
-def total_minutes(request):
-    return [
-        ("minutes",
-         sum(
-             [float(str(m.value))
-              for m in Metadata.objects.filter(
-              field='ID_LENGTH',
-              file__location_type='none')]) / 60.0)]

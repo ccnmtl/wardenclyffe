@@ -138,7 +138,6 @@ INSTALLED_APPS = [
     'taggit',
     'south',
     'django_nose',
-    'munin',
     'wardenclyffe.cuit',
     'django_statsd',
     'smoketest',
