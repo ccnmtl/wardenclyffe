@@ -265,7 +265,8 @@ class CollectionView(StaffMixin, TemplateView):
 
     def get_context_data(self, pk):
         collection = get_object_or_404(Collection, pk=pk)
-        videos = Video.objects.filter(collection=collection).order_by("-modified")
+        videos = Video.objects.filter(
+            collection=collection).order_by("-modified")
         return dict(
             collection=collection, videos=videos[:20],
             operations=Operation.objects.filter(
