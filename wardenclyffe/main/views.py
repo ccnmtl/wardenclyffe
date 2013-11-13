@@ -185,20 +185,19 @@ class RecentOperationsView(StaffMixin, View):
             mimetype="application/json")
 
 
-@login_required
-@user_passes_test(is_staff)
-def most_recent_operation(request):
-    qs = Operation.objects.all().order_by("-modified")
-    if qs.count():
-        return HttpResponse(
-            dumps(
-                dict(
-                    modified=str(qs[0].modified)[:19])),
-            mimetype="application/json")
-    else:
-        return HttpResponse(
-            dumps(dict()),
-            mimetype="application/json")
+class MostRecentOperationView(StaffMixin, View):
+    def get(self, request):
+        qs = Operation.objects.all().order_by("-modified")
+        if qs.count():
+            return HttpResponse(
+                dumps(
+                    dict(
+                        modified=str(qs[0].modified)[:19])),
+                mimetype="application/json")
+        else:
+            return HttpResponse(
+                dumps(dict()),
+                mimetype="application/json")
 
 
 class SlowOperationsView(StaffMixin, TemplateView):
