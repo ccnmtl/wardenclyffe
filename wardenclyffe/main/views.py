@@ -1058,15 +1058,14 @@ def video_add_file(request, id):
     return dict(video=video)
 
 
-@login_required
-@user_passes_test(is_staff)
-def video_select_poster(request, id, image_id):
-    video = get_object_or_404(Video, id=id)
-    image = get_object_or_404(Image, id=image_id)
-    # clear any existing ones for the video
-    Poster.objects.filter(video=video).delete()
-    Poster.objects.create(video=video, image=image)
-    return HttpResponseRedirect(video.get_absolute_url())
+class VideoSelectPosterView(StaffMixin, View):
+    def get(self, request, id, image_id):
+        video = get_object_or_404(Video, id=id)
+        image = get_object_or_404(Image, id=image_id)
+        # clear any existing ones for the video
+        Poster.objects.filter(video=video).delete()
+        Poster.objects.create(video=video, image=image)
+        return HttpResponseRedirect(video.get_absolute_url())
 
 
 class ListWorkflowsView(StaffMixin, TemplateView):

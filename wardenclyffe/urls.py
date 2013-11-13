@@ -92,7 +92,7 @@ urlpatterns = patterns(
     (r'^video/(?P<id>\d+)/add_file/$',
      'wardenclyffe.main.views.video_add_file'),
     (r'^video/(?P<id>\d+)/select_poster/(?P<image_id>\d+)/$',
-     'wardenclyffe.main.views.video_select_poster'),
+     views.VideoSelectPosterView.as_view()),
     (r'^list_workflows/$', views.ListWorkflowsView.as_view()),
     (r'^search/$', views.SearchView.as_view()),
     (r'^uuid_search/$', views.UUIDSearchView.as_view()),

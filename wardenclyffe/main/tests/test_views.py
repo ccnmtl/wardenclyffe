@@ -6,6 +6,7 @@ from factories import ServerFactory
 from factories import UserFactory
 from factories import VideoFactory
 from factories import CollectionFactory
+from factories import ImageFactory
 
 
 class SimpleTest(TestCase):
@@ -333,4 +334,10 @@ class TestStaff(TestCase):
         r = self.c.get(c.get_absolute_url() + "delete/")
         self.assertEqual(r.status_code, 200)
         r = self.c.post(c.get_absolute_url() + "delete/")
+        self.assertEqual(r.status_code, 302)
+
+    def test_video_select_poster(self):
+        i = ImageFactory()
+        v = i.video
+        r = self.c.get("/video/%d/select_poster/%d/" % (v.id, i.id))
         self.assertEqual(r.status_code, 302)

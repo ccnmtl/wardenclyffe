@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from wardenclyffe.main.models import Collection, Video, File, Operation
-from wardenclyffe.main.models import Server
+from wardenclyffe.main.models import Server, Image, Poster
 import factory
 import uuid
 
@@ -148,3 +148,15 @@ class ServerFactory(factory.DjangoModelFactory):
     name = "test server"
     hostname = "testserver.ccnmtl.columbia.edu"
     credentials = ""
+
+
+class ImageFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Image
+    video = factory.SubFactory(VideoFactory)
+    image = "images/1234.jpg"
+
+
+class PosterFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Poster
+    video = factory.SubFactory(VideoFactory)
+    image = factory.SubFactory(ImageFactory)
