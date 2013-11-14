@@ -516,3 +516,12 @@ class TestStaff(TestCase):
         response = self.c.post("/video/%d/delete/" % f.id)
         self.assertEqual(response.status_code, 302)
 
+    def test_delete_operation_form(self):
+        f = OperationFactory()
+        response = self.c.get("/operation/%d/delete/" % f.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_operation(self):
+        f = OperationFactory()
+        response = self.c.post("/operation/%d/delete/" % f.id)
+        self.assertEqual(response.status_code, 302)

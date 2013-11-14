@@ -782,7 +782,8 @@ class FileView(StaffMixin, TemplateView):
     def get_context_data(self, id):
         f = get_object_or_404(File, id=id)
         filename = f.filename
-        if filename and filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+        if filename and filename.startswith(
+                settings.CUNIX_BROADCAST_DIRECTORY):
             filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
         if f.is_h264_secure_streamable():
             filename = f.h264_secure_path()
@@ -869,20 +870,20 @@ class DeleteCollectionView(StaffMixin, DeleteView):
     success_url = "/"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/delete_confirm.html')
-def delete_operation(request, id):
-    o = get_object_or_404(Operation, id=id)
-    if request.method == "POST":
+class DeleteOperationView(StaffMixin, View):
+    template_name = 'main/delete_confirm.html'
+
+    def post(self, request, id):
+        o = get_object_or_404(Operation, id=id)
         video = o.video
         o.delete()
         redirect_to = request.META.get(
             'HTTP_REFERER',
             video.get_absolute_url())
         return HttpResponseRedirect(redirect_to)
-    else:
-        return dict()
+
+    def get(self, request, id):
+        return render(request, self.template_name, dict())
 
 
 @login_required
