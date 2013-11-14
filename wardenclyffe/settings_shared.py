@@ -41,6 +41,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
     TMP_DIR = "/tmp"
     PCP_BASE_URL = ""
+    CELERY_ALWAYS_EAGER = True
 
 SOUTH_TESTS_MIGRATE = False
 SOUTH_AUTO_FREEZE_APP = True

@@ -239,6 +239,33 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "ok")
 
+    def test_posterdone_empty(self):
+        response = self.c.post("/posterdone/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "expecting a title")
+
+    def test_posterdone_nonexistant(self):
+        response = self.c.post("/posterdone/", dict(title="some-bad-uuid"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "ok")
+
+    def test_done(self):
+        o = OperationFactory()
+        response = self.c.post("/done/", dict(title=str(o.uuid)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "ok")
+
+    def test_done_no_title(self):
+        response = self.c.post("/done/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "expecting a title")
+
+    def test_done_nonexistant(self):
+        response = self.c.post("/done/", dict(title="some-bad-uuid"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content,
+                         "could not find an operation with that UUID")
+
 
 class TestSurelink(TestCase):
     def setUp(self):
@@ -531,10 +558,20 @@ class TestStaff(TestCase):
         response = self.c.get("/video/%d/pcp_submit/" % v.id)
         self.assertEqual(response.status_code, 200)
 
+    def test_video_pcp_submit(self):
+        v = VideoFactory()
+        response = self.c.post("/video/%d/pcp_submit/" % v.id)
+        self.assertEqual(response.status_code, 302)
+
     def test_file_pcp_submit_form(self):
         v = FileFactory()
         response = self.c.get("/file/%d/submit_to_workflow/" % v.id)
         self.assertEqual(response.status_code, 200)
+
+    def test_file_pcp_submit(self):
+        v = FileFactory()
+        response = self.c.post("/file/%d/submit_to_workflow/" % v.id)
+        self.assertEqual(response.status_code, 302)
 
     def test_bulk_file_operation_form(self):
         response = self.c.get("/bulk_file_operation/")
@@ -547,4 +584,8 @@ class TestStaff(TestCase):
     def test_video_add_file_form(self):
         v = VideoFactory()
         response = self.c.get("/video/%d/add_file/" % v.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_workflows(self):
+        response = self.c.get("/list_workflows/")
         self.assertEqual(response.status_code, 200)
