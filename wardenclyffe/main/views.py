@@ -776,22 +776,22 @@ class VideoView(StaffMixin, DetailView):
     context_object_name = "video"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/file.html')
-def file(request, id):
-    f = get_object_or_404(File, id=id)
-    filename = f.filename
-    if filename and filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
-        filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
-    if f.is_h264_secure_streamable():
-        filename = f.h264_secure_path()
+class FileView(StaffMixin, TemplateView):
+    template_name = 'main/file.html'
 
-    return dict(file=f, filename=filename,
-                poster_options=f.poster_options(POSTER_BASE),
-                protection_options=f.protection_options(),
-                authtype_options=f.authtype_options(),
-                )
+    def get_context_data(self, id):
+        f = get_object_or_404(File, id=id)
+        filename = f.filename
+        if filename and filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+            filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+        if f.is_h264_secure_streamable():
+            filename = f.h264_secure_path()
+
+        return dict(file=f, filename=filename,
+                    poster_options=f.poster_options(POSTER_BASE),
+                    protection_options=f.protection_options(),
+                    authtype_options=f.authtype_options(),
+                    )
 
 
 @login_required

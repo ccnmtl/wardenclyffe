@@ -46,7 +46,7 @@ urlpatterns = patterns(
     (r'^server/(?P<pk>\d+)/delete/$', views.DeleteServerView.as_view()),
 
     (r'^file/$', views.FileIndexView.as_view()),
-    (r'^file/(?P<id>\d+)/$', 'wardenclyffe.main.views.file'),
+    (r'^file/(?P<id>\d+)/$', views.FileView.as_view()),
 
     (r'^file/filter/$', 'wardenclyffe.main.views.file_filter'),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
