@@ -992,11 +992,10 @@ class FileFilterView(StaffMixin, TemplateView):
                     )
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/bulk_file_operation.html')
-def bulk_file_operation(request):
-    if request.method == "POST":
+class BulkFileOperationView(StaffMixin, View):
+    template_name = 'main/bulk_file_operation.html'
+
+    def post(self, request):
         files = [File.objects.get(id=int(f.split("_")[1]))
                  for f in request.POST.keys() if f.startswith("file_")]
         for file in files:
@@ -1012,11 +1011,15 @@ def bulk_file_operation(request):
                 settings.PCP_PASSWORD)
             statsd.incr('main.bulk_file_operation')
         return HttpResponseRedirect("/")
-    files = [File.objects.get(id=int(f.split("_")[1]))
-             for f in request.GET.keys() if f.startswith("file_")]
-    workflows, pcp_error = get_pcp_workflows()
-    return dict(files=files, workflows=workflows, pcp_error=pcp_error,
-                kino_base=settings.PCP_BASE_URL)
+
+    def get(self, request):
+        files = [File.objects.get(id=int(f.split("_")[1]))
+                 for f in request.GET.keys() if f.startswith("file_")]
+        workflows, pcp_error = get_pcp_workflows()
+        return render(request, self.template_name,
+                      dict(files=files, workflows=workflows,
+                           pcp_error=pcp_error,
+                           kino_base=settings.PCP_BASE_URL))
 
 
 @login_required

@@ -535,3 +535,11 @@ class TestStaff(TestCase):
         v = FileFactory()
         response = self.c.get("/file/%d/submit_to_workflow/" % v.id)
         self.assertEqual(response.status_code, 200)
+
+    def test_bulk_file_operation_form(self):
+        response = self.c.get("/bulk_file_operation/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_bulk_file_operation(self):
+        response = self.c.post("/bulk_file_operation/")
+        self.assertEqual(response.status_code, 302)
