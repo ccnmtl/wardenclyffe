@@ -461,31 +461,30 @@ class VideoIndexView(StaffMixin, TemplateView):
         return params
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/file_index.html')
-def file_index(request):
-    files = File.objects.all()
-    params = dict()
-    facets = []
-    for k, v in request.GET.items():
-        params[k] = v
-        metadatas = Metadata.objects.filter(field=k, value=v)
-        files = files.filter(id__in=[m.file_id for m in metadatas])
-        facets.append(dict(field=k, value=v))
-    paginator = Paginator(files.order_by('video__title'), 100)
+class FileIndexView(StaffMixin, TemplateView):
+    template_name = 'main/file_index.html'
+    def get_context_data(self):
+        files = File.objects.all()
+        params = dict()
+        facets = []
+        for k, v in self.request.GET.items():
+            params[k] = v
+            metadatas = Metadata.objects.filter(field=k, value=v)
+            files = files.filter(id__in=[m.file_id for m in metadatas])
+            facets.append(dict(field=k, value=v))
+        paginator = Paginator(files.order_by('video__title'), 100)
 
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
+        try:
+            page = int(self.request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
 
-    try:
-        files = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        files = paginator.page(paginator.num_pages)
-    params.update(dict(files=files, facets=facets))
-    return params
+        try:
+            files = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            files = paginator.page(paginator.num_pages)
+        params.update(dict(files=files, facets=facets))
+        return params
 
 
 @login_required

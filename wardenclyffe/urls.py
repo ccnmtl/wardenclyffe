@@ -45,7 +45,7 @@ urlpatterns = patterns(
     (r'^server/(?P<pk>\d+)/edit/$', views.EditServerView.as_view()),
     (r'^server/(?P<pk>\d+)/delete/$', views.DeleteServerView.as_view()),
 
-    (r'^file/$', 'wardenclyffe.main.views.file_index'),
+    (r'^file/$', views.FileIndexView.as_view()),
     (r'^file/(?P<id>\d+)/$', 'wardenclyffe.main.views.file'),
 
     (r'^file/filter/$', 'wardenclyffe.main.views.file_filter'),

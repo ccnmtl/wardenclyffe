@@ -146,6 +146,21 @@ class SimpleTest(TestCase):
         response = self.c.get("/file/")
         self.assertEquals(response.status_code, 200)
 
+    def test_file_index_nan(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/file/?page=foo")
+        self.assertEquals(response.status_code, 200)
+
+    def test_file_index_offtheend(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/file/?page=200")
+        self.assertEquals(response.status_code, 200)
+
+    def test_file_index_with_params(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/file/?foo=bar")
+        self.assertEquals(response.status_code, 200)
+
     def test_user_page(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/user/%s/" % self.u.username)
