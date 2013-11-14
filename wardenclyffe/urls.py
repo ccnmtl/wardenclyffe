@@ -51,7 +51,7 @@ urlpatterns = patterns(
     (r'^file/filter/$', 'wardenclyffe.main.views.file_filter'),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
       r'[a-z0-9]{4}-[a-z0-9]{12})/info/$'),
-     'wardenclyffe.main.views.operation_info'),
+     views.OperationInfoView.as_view()),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
       r'[a-z0-9]{4}-[a-z0-9]{12})/$'),
      'wardenclyffe.main.views.operation'),

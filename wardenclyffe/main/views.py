@@ -504,10 +504,11 @@ class AddCollectionView(StaffMixin, CreateView):
         return super(AddCollectionView, self).form_valid(form)
 
 
-def operation_info(request, uuid):
-    operation = get_object_or_404(Operation, uuid=uuid)
-    return HttpResponse(dumps(operation.as_dict()),
-                        mimetype="application/json")
+class OperationInfoView(View):
+    def get(self, request, uuid):
+        operation = get_object_or_404(Operation, uuid=uuid)
+        return HttpResponse(dumps(operation.as_dict()),
+                            mimetype="application/json")
 
 
 @login_required

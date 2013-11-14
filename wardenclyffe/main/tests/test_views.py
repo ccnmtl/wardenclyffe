@@ -215,6 +215,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/api/subjectautocomplete/?q=thread")
         self.assertEquals(response.status_code, 200)
 
+    def test_operation_info(self):
+        o = OperationFactory()
+        response = self.c.get("/operation/%s/info/" % o.uuid)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestSurelink(TestCase):
     def setUp(self):
