@@ -423,3 +423,7 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, "ok")
 
+    def test_tag(self):
+        r = self.c.get("/tag/foo/")
+        self.assertEqual(r.status_code, 200)
+

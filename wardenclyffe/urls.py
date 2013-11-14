@@ -67,7 +67,7 @@ urlpatterns = patterns(
     (r'^operation/(?P<operation_id>\d+)/rerun/$',
      'wardenclyffe.main.views.rerun_operation'),
     (r'^tag/$', views.TagsListView.as_view()),
-    (r'^tag/(?P<tagname>\w+)/$', 'wardenclyffe.main.views.tag'),
+    (r'^tag/(?P<tagname>\w+)/$', views.TagView.as_view()),
     (r'^upload/$', 'wardenclyffe.main.views.upload_form'),
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
     (r'^scan_directory/$', 'wardenclyffe.main.views.scan_directory'),

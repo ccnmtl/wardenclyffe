@@ -406,16 +406,16 @@ class RemoveTagFromCollectionView(StaffMixin, RemoveTagView):
     model = Collection
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/tag.html')
-def tag(request, tagname):
-    return dict(
-        tag=tagname,
-        collection=Collection.objects.filter(
-            tags__name__in=[tagname]).order_by("-modified"),
-        videos=Video.objects.filter(
-            tags__name__in=[tagname]).order_by("-modified"))
+class TagView(StaffMixin, TemplateView):
+    template_name = 'main/tag.html'
+
+    def get_context_data(self, tagname):
+        return dict(
+            tag=tagname,
+            collection=Collection.objects.filter(
+                tags__name__in=[tagname]).order_by("-modified"),
+            videos=Video.objects.filter(
+                tags__name__in=[tagname]).order_by("-modified"))
 
 
 class TagsListView(StaffMixin, ListView):
