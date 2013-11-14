@@ -748,25 +748,26 @@ def done(request):
     return HttpResponse("ok")
 
 
-def posterdone(request):
-    if 'title' not in request.POST:
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    uuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=uuid)
-    if r.count() == 1:
-        statsd.incr('main.posterdone')
-        operation = r[0]
-        cunix_path = request.POST.get('image_destination_path', '')
-        poster_url = cunix_path.replace(
-            settings.CUNIX_BROADCAST_DIRECTORY,
-            settings.CUNIX_BROADCAST_URL)
+class PosterDoneView(View):
+    def post(self, request):
+        if 'title' not in request.POST:
+            return HttpResponse("expecting a title")
+        title = request.POST.get('title', 'no title')
+        uuid = uuidparse(title)
+        r = Operation.objects.filter(uuid=uuid)
+        if r.count() == 1:
+            statsd.incr('main.posterdone')
+            operation = r[0]
+            cunix_path = request.POST.get('image_destination_path', '')
+            poster_url = cunix_path.replace(
+                settings.CUNIX_BROADCAST_DIRECTORY,
+                settings.CUNIX_BROADCAST_URL)
 
-        File.objects.create(video=operation.video,
-                            label="CUIT thumbnail image",
-                            url=poster_url,
-                            location_type='cuitthumb')
-    return HttpResponse("ok")
+            File.objects.create(video=operation.video,
+                                label="CUIT thumbnail image",
+                                url=poster_url,
+                                location_type='cuitthumb')
+        return HttpResponse("ok")
 
 
 class VideoView(StaffMixin, DetailView):

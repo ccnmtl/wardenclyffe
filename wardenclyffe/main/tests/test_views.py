@@ -233,6 +233,12 @@ class SimpleTest(TestCase):
         response = self.c.get("/operation/%s/info/" % o.uuid)
         self.assertEqual(response.status_code, 200)
 
+    def test_posterdone(self):
+        o = OperationFactory()
+        response = self.c.post("/posterdone/", dict(title=str(o.uuid)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "ok")
+
 
 class TestSurelink(TestCase):
     def setUp(self):
