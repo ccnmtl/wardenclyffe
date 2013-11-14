@@ -59,7 +59,7 @@ urlpatterns = patterns(
     (r'^bulk_file_operation/$', 'wardenclyffe.main.views.bulk_file_operation'),
     (r'^user/(?P<username>\w+)/', views.UserView.as_view()),
     (r'^file/(?P<id>\d+)/delete/$', 'wardenclyffe.main.views.delete_file'),
-    (r'^file/(?P<id>\d+)/surelink/$', 'wardenclyffe.main.views.file_surelink'),
+    (r'^file/(?P<id>\d+)/surelink/$', views.FileSurelinkView.as_view()),
     (r'^file/(?P<id>\d+)/submit_to_workflow/$',
      'wardenclyffe.main.views.file_pcp_submit'),
     (r'^operation/(?P<id>\d+)/delete/$',

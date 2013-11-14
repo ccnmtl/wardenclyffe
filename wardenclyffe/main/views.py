@@ -794,47 +794,47 @@ class FileView(StaffMixin, TemplateView):
                     )
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to("main/file_surelink.html")
-def file_surelink(request, id):
-    f = get_object_or_404(File, id=id)
-    PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
-    filename = f.filename
-    if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
-        filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
-    if f.is_h264_secure_streamable():
-        filename = f.h264_secure_path()
-    if (request.GET.get('protection', '') == 'mp4_public_stream'
-            and f.is_h264_public_streamable()):
-        filename = f.h264_public_path()
-    s = SureLink(filename,
-                 int(request.GET.get('width', '0')),
-                 int(request.GET.get('height', '0')),
-                 request.GET.get('captions', ''),
-                 request.GET.get('poster', ''),
-                 request.GET.get('protection', ''),
-                 request.GET.get('authtype', ''),
-                 PROTECTION_KEY)
+class FileSurelinkView(StaffMixin, TemplateView):
+    template_name = "main/file_surelink.html"
 
-    return dict(
-        surelink=s,
-        protection=request.GET.get('protection', ''),
-        public=request.GET.get('protection', '').startswith('public'),
-        public_mp4_download=request.GET.get(
-            'protection',
-            '') == "public-mp4-download",
-        width=request.GET.get('width', ''),
-        height=request.GET.get('height', ''),
-        captions=request.GET.get('captions', ''),
-        filename=filename,
-        file=f,
-        poster=request.GET.get('poster', ''),
-        poster_options=POSTER_OPTIONS,
-        protection_options=f.protection_options(),
-        authtype_options=f.authtype_options(),
-        authtype=request.GET.get('authtype', ''),
-    )
+    def get_context_data(self, id):
+        f = get_object_or_404(File, id=id)
+        PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+        filename = f.filename
+        if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+            filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+        if f.is_h264_secure_streamable():
+            filename = f.h264_secure_path()
+        if (self.request.GET.get('protection', '') == 'mp4_public_stream'
+                and f.is_h264_public_streamable()):
+            filename = f.h264_public_path()
+        s = SureLink(filename,
+                     int(self.request.GET.get('width', '0')),
+                     int(self.request.GET.get('height', '0')),
+                     self.request.GET.get('captions', ''),
+                     self.request.GET.get('poster', ''),
+                     self.request.GET.get('protection', ''),
+                     self.request.GET.get('authtype', ''),
+                     PROTECTION_KEY)
+
+        return dict(
+            surelink=s,
+            protection=self.request.GET.get('protection', ''),
+            public=self.request.GET.get('protection', '').startswith('public'),
+            public_mp4_download=self.request.GET.get(
+                'protection',
+                '') == "public-mp4-download",
+            width=self.request.GET.get('width', ''),
+            height=self.request.GET.get('height', ''),
+            captions=self.request.GET.get('captions', ''),
+            filename=filename,
+            file=f,
+            poster=self.request.GET.get('poster', ''),
+            poster_options=POSTER_OPTIONS,
+            protection_options=f.protection_options(),
+            authtype_options=f.authtype_options(),
+            authtype=self.request.GET.get('authtype', ''),
+        )
 
 
 @login_required
