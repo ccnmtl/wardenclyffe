@@ -70,7 +70,7 @@ urlpatterns = patterns(
     (r'^tag/(?P<tagname>\w+)/$', views.TagView.as_view()),
     (r'^upload/$', views.UploadFormView.as_view()),
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
-    (r'^scan_directory/$', 'wardenclyffe.main.views.scan_directory'),
+    (r'^scan_directory/$', views.ScanDirectoryView.as_view()),
     (r'^mediathread/$', 'wardenclyffe.mediathread.views.mediathread'),
     (r'^mediathread/post/$',
      'wardenclyffe.mediathread.views.mediathread_post'),

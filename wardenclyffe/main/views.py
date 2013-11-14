@@ -654,20 +654,20 @@ class UploadFormView(StaffMixin, TemplateView):
         return dict(form=form, collection_id=collection_id)
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/upload.html')
-def scan_directory(request):
-    collection_id = None
-    file_listing = []
-    form = VideoForm()
-    collection_id = request.GET.get('collection', None)
-    if collection_id:
-        collection = get_object_or_404(Collection, id=collection_id)
-        form = collection.add_video_form()
-    file_listing = os.listdir(settings.WATCH_DIRECTORY)
-    return dict(form=form, collection_id=collection_id,
-                file_listing=file_listing, scan_directory=True)
+class ScanDirectoryView(StaffMixin, TemplateView):
+    template_name = 'main/upload.html'
+
+    def get_context_data(self):
+        collection_id = None
+        file_listing = []
+        form = VideoForm()
+        collection_id = self.request.GET.get('collection', None)
+        if collection_id:
+            collection = get_object_or_404(Collection, id=collection_id)
+            form = collection.add_video_form()
+        file_listing = os.listdir(settings.WATCH_DIRECTORY)
+        return dict(form=form, collection_id=collection_id,
+                    file_listing=file_listing, scan_directory=True)
 
 
 def test_upload(request):
