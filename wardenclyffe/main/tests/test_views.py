@@ -531,3 +531,7 @@ class TestStaff(TestCase):
         response = self.c.get("/video/%d/pcp_submit/" % v.id)
         self.assertEqual(response.status_code, 200)
 
+    def test_file_pcp_submit_form(self):
+        v = FileFactory()
+        response = self.c.get("/file/%d/submit_to_workflow/" % v.id)
+        self.assertEqual(response.status_code, 200)

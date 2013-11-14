@@ -61,7 +61,7 @@ urlpatterns = patterns(
     (r'^file/(?P<id>\d+)/delete/$', views.DeleteFileView.as_view()),
     (r'^file/(?P<id>\d+)/surelink/$', views.FileSurelinkView.as_view()),
     (r'^file/(?P<id>\d+)/submit_to_workflow/$',
-     'wardenclyffe.main.views.file_pcp_submit'),
+     views.FilePCPSubmitView.as_view()),
     (r'^operation/(?P<id>\d+)/delete/$', views.DeleteOperationView.as_view()),
     (r'^operation/(?P<operation_id>\d+)/rerun/$',
      views.RerunOperationView.as_view()),

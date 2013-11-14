@@ -904,17 +904,16 @@ class VideoPCPSubmitView(StaffMixin, View):
         video = get_object_or_404(Video, id=id)
         workflows, pcp_error = get_pcp_workflows()
         return render(
-            request, self.template_name, 
+            request, self.template_name,
             dict(video=video, workflows=workflows, pcp_error=pcp_error,
                  kino_base=settings.PCP_BASE_URL))
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/file_pcp_submit.html')
-def file_pcp_submit(request, id):
-    file = get_object_or_404(File, id=id)
-    if request.method == "POST":
+class FilePCPSubmitView(StaffMixin, View):
+    template_name = 'main/file_pcp_submit.html'
+
+    def post(self, request, id):
+        file = get_object_or_404(File, id=id)
         statsd.incr('main.file_pcp_submit')
         video = file.video
         # send to podcast producer
@@ -923,9 +922,13 @@ def file_pcp_submit(request, id):
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
-    workflows, pcp_error = get_pcp_workflows()
-    return dict(file=file, workflows=workflows, pcp_error=pcp_error,
-                kino_base=settings.PCP_BASE_URL)
+
+    def get(self, request, id):
+        file = get_object_or_404(File, id=id)
+        workflows, pcp_error = get_pcp_workflows()
+        return render(request, self.template_name,
+                      dict(file=file, workflows=workflows, pcp_error=pcp_error,
+                           kino_base=settings.PCP_BASE_URL))
 
 
 @login_required
