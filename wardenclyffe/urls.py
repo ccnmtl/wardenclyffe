@@ -48,7 +48,7 @@ urlpatterns = patterns(
     (r'^file/$', views.FileIndexView.as_view()),
     (r'^file/(?P<id>\d+)/$', views.FileView.as_view()),
 
-    (r'^file/filter/$', 'wardenclyffe.main.views.file_filter'),
+    (r'^file/filter/$', views.FileFilterView.as_view()),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
       r'[a-z0-9]{4}-[a-z0-9]{12})/info/$'),
      views.OperationInfoView.as_view()),
