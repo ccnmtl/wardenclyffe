@@ -543,3 +543,8 @@ class TestStaff(TestCase):
     def test_bulk_file_operation(self):
         response = self.c.post("/bulk_file_operation/")
         self.assertEqual(response.status_code, 302)
+
+    def test_video_add_file_form(self):
+        v = VideoFactory()
+        response = self.c.get("/video/%d/add_file/" % v.id)
+        self.assertEqual(response.status_code, 200)

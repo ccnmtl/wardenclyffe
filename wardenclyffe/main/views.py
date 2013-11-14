@@ -4,7 +4,6 @@ import uuid
 import wardenclyffe.main.tasks as tasks
 
 from angeldust import PCP
-from annoying.decorators import render_to
 from django.shortcuts import render
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -1022,21 +1021,21 @@ class BulkFileOperationView(StaffMixin, View):
                            kino_base=settings.PCP_BASE_URL))
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/add_file.html')
-def video_add_file(request, id):
-    video = get_object_or_404(Video, id=id)
-    if request.method == "POST":
+class VideoAddFileView(StaffMixin, View):
+    template_name = 'main/add_file.html'
+
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
         form = video.add_file_form(request.POST)
         if form.is_valid():
             f = form.save(commit=False)
             f.video = video
             f.save()
-        else:
-            pass
         return HttpResponseRedirect(video.get_absolute_url())
-    return dict(video=video)
+
+    def get(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        return render(request, self.template_name, dict(video=video))
 
 
 class VideoSelectPosterView(StaffMixin, View):
