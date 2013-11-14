@@ -495,3 +495,14 @@ class TestStaff(TestCase):
         o = OperationFactory()
         response = self.c.get("/operation/%s/" % o.uuid)
         self.assertEqual(response.status_code, 200)
+
+    def test_delete_file_form(self):
+        f = FileFactory()
+        response = self.c.get("/file/%d/delete/" % f.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_file(self):
+        f = FileFactory()
+        response = self.c.post("/file/%d/delete/" % f.id)
+        self.assertEqual(response.status_code, 302)
+

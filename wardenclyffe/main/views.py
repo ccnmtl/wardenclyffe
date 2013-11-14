@@ -837,17 +837,17 @@ class FileSurelinkView(StaffMixin, TemplateView):
         )
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/delete_confirm.html')
-def delete_file(request, id):
-    f = get_object_or_404(File, id=id)
-    if request.method == "POST":
+class DeleteFileView(StaffMixin, View):
+    template_name = 'main/delete_confirm.html'
+
+    def post(self, request, id):
+        f = get_object_or_404(File, id=id)
         video = f.video
         f.delete()
         return HttpResponseRedirect(video.get_absolute_url())
-    else:
-        return dict()
+
+    def get(self, request, id):
+        return render(request, self.template_name, dict())
 
 
 @login_required
