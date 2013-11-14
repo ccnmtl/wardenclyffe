@@ -886,14 +886,12 @@ class DeleteOperationView(StaffMixin, View):
         return render(request, self.template_name, dict())
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/pcp_submit.html')
-def video_pcp_submit(request, id):
-    video = get_object_or_404(Video, id=id)
-    o = None
-    p = None
-    if request.method == "POST":
+class VideoPCPSubmitView(StaffMixin, View):
+    template_name = 'main/pcp_submit.html'
+
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
+
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
         o, p = video.make_pull_from_tahoe_and_submit_to_pcp_operation(
@@ -901,9 +899,14 @@ def video_pcp_submit(request, id):
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
-    workflows, pcp_error = get_pcp_workflows()
-    return dict(video=video, workflows=workflows, pcp_error=pcp_error,
-                kino_base=settings.PCP_BASE_URL)
+
+    def get(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        workflows, pcp_error = get_pcp_workflows()
+        return render(
+            request, self.template_name, 
+            dict(video=video, workflows=workflows, pcp_error=pcp_error,
+                 kino_base=settings.PCP_BASE_URL))
 
 
 @login_required

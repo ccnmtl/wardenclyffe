@@ -525,3 +525,9 @@ class TestStaff(TestCase):
         f = OperationFactory()
         response = self.c.post("/operation/%d/delete/" % f.id)
         self.assertEqual(response.status_code, 302)
+
+    def test_video_pcp_submit_form(self):
+        v = VideoFactory()
+        response = self.c.get("/video/%d/pcp_submit/" % v.id)
+        self.assertEqual(response.status_code, 200)
+

@@ -84,7 +84,7 @@ urlpatterns = patterns(
     (r'^video/$', views.VideoIndexView.as_view()),
     (r'^video/(?P<pk>\d+)/$', views.VideoView.as_view()),
     (r'^video/(?P<id>\d+)/pcp_submit/$',
-     'wardenclyffe.main.views.video_pcp_submit'),
+     views.VideoPCPSubmitView.as_view()),
     (r'^video/(?P<id>\d+)/mediathread_submit/$',
      'wardenclyffe.mediathread.views.video_mediathread_submit'),
     (r'^video/(?P<id>\d+)/add_file/$',
