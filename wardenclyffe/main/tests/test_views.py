@@ -406,3 +406,20 @@ class TestStaff(TestCase):
         v = VideoFactory()
         r = self.c.get(v.get_absolute_url() + "edit/")
         self.assertEqual(r.status_code, 200)
+
+    def test_remove_tag_from_collection(self):
+        c = CollectionFactory()
+        r = self.c.get(c.get_absolute_url() + "remove_tag/foo/")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.get(c.get_absolute_url() + "remove_tag/foo/?ajax=1")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "ok")
+
+    def test_remove_tag_from_video(self):
+        c = VideoFactory()
+        r = self.c.get(c.get_absolute_url() + "remove_tag/foo/")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.get(c.get_absolute_url() + "remove_tag/foo/?ajax=1")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "ok")
+
