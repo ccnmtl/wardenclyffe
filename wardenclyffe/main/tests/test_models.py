@@ -95,9 +95,6 @@ class EmptyVideoTest(TestCase):
     def test_add_file_form(self):
         self.video.add_file_form()
 
-    def test_edit_form(self):
-        self.video.edit_form()
-
     def test_get_dimensions(self):
         assert self.video.get_dimensions() == (0, 0)
 
@@ -208,10 +205,6 @@ class MediathreadVideoTest(TestCase):
     def test_add_file_form(self):
         f = CUITFLVFileFactory()
         f.video.add_file_form()
-
-    def test_edit_form(self):
-        f = CUITFLVFileFactory()
-        f.video.edit_form()
 
     def test_get_dimensions(self):
         source_file = SourceFileFactory()
