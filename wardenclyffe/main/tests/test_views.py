@@ -125,6 +125,22 @@ class SimpleTest(TestCase):
         response = self.c.get("/video/")
         self.assertEquals(response.status_code, 200)
 
+    def test_video_index_nan(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/video/?page=foo")
+        self.assertEquals(response.status_code, 200)
+
+    def test_video_index_offtheend(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/video/?page=200")
+        self.assertEquals(response.status_code, 200)
+
+    def test_video_index_with_params(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/video/?creator=c&description=d&"
+                              "language=l&subject=s&licence=l")
+        self.assertEquals(response.status_code, 200)
+
     def test_file_index(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/")

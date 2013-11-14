@@ -424,42 +424,41 @@ class TagsListView(StaffMixin, ListView):
     context_object_name = "tags"
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/video_index.html')
-def video_index(request):
-    videos = Video.objects.all()
-    creators = request.GET.getlist('creator')
-    if len(creators) > 0:
-        videos = videos.filter(creator__in=creators)
-    descriptions = request.GET.getlist('description')
-    if len(descriptions) > 0:
-        videos = videos.filter(description__in=descriptions)
-    languages = request.GET.getlist('language')
-    if len(languages) > 0:
-        videos = videos.filter(language__in=languages)
-    subjects = request.GET.getlist('subject')
-    if len(subjects) > 0:
-        videos = videos.filter(subject__in=subjects)
-    licenses = request.GET.getlist('license')
-    if len(licenses) > 0:
-        videos = videos.filter(license__in=licenses)
-    paginator = Paginator(videos.order_by('title'), 100)
+class VideoIndexView(StaffMixin, TemplateView):
+    template_name = 'main/video_index.html'
+    def get_context_data(self):
+        videos = Video.objects.all()
+        creators = self.request.GET.getlist('creator')
+        if len(creators) > 0:
+            videos = videos.filter(creator__in=creators)
+        descriptions = self.request.GET.getlist('description')
+        if len(descriptions) > 0:
+            videos = videos.filter(description__in=descriptions)
+        languages = self.request.GET.getlist('language')
+        if len(languages) > 0:
+            videos = videos.filter(language__in=languages)
+        subjects = self.request.GET.getlist('subject')
+        if len(subjects) > 0:
+            videos = videos.filter(subject__in=subjects)
+        licenses = self.request.GET.getlist('license')
+        if len(licenses) > 0:
+            videos = videos.filter(license__in=licenses)
+        paginator = Paginator(videos.order_by('title'), 100)
 
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
+        try:
+            page = int(self.request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
 
-    try:
-        videos = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        videos = paginator.page(paginator.num_pages)
-    params = dict()
-    for k, v in request.GET.items():
-        params[k] = v
-    params.update(dict(videos=videos))
-    return params
+        try:
+            videos = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            videos = paginator.page(paginator.num_pages)
+        params = dict()
+        for k, v in self.request.GET.items():
+            params[k] = v
+        params.update(dict(videos=videos))
+        return params
 
 
 @login_required
