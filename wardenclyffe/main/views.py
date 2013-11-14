@@ -850,17 +850,17 @@ class DeleteFileView(StaffMixin, View):
         return render(request, self.template_name, dict())
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/delete_confirm.html')
-def delete_video(request, id):
-    v = get_object_or_404(Video, id=id)
-    if request.method == "POST":
+class DeleteVideoView(StaffMixin, View):
+    template_name = 'main/delete_confirm.html'
+
+    def post(self, request, id):
+        v = get_object_or_404(Video, id=id)
         collection = v.collection
         v.delete()
         return HttpResponseRedirect(collection.get_absolute_url())
-    else:
-        return dict()
+
+    def get(self, request, id):
+        return render(request, self.template_name, dict())
 
 
 class DeleteCollectionView(StaffMixin, DeleteView):

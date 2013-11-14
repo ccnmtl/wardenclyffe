@@ -35,7 +35,7 @@ urlpatterns = patterns(
      views.RemoveTagFromCollectionView.as_view()),
     (r'^collection/(?P<id>\d+)/rss/$', CollectionFeed()),
     (r'^video/(?P<pk>\d+)/edit/$', views.EditVideoView.as_view()),
-    (r'^video/(?P<id>\d+)/delete/$', 'wardenclyffe.main.views.delete_video'),
+    (r'^video/(?P<id>\d+)/delete/$', views.DeleteVideoView.as_view()),
     (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',
      views.RemoveTagFromVideoView.as_view()),
 
