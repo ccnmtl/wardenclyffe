@@ -353,7 +353,7 @@ class OperationTest(TestCase):
                           True)
         d = o.as_dict()
         self.assertEquals(d['status'], o.status)
-        self.assertEquals(o.formatted_params(), '')
+        self.assertEquals(o.formatted_params(), '{}')
 
     def test_default_operations_creation(self):
         f = SourceFileFactory()

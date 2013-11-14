@@ -628,31 +628,30 @@ def upload(request):
     return HttpResponseRedirect("/")
 
 
-@login_required
-@user_passes_test(is_staff)
-def rerun_operation(request, operation_id):
-    operation = get_object_or_404(Operation, id=operation_id)
-    if request.method == "POST":
+class RerunOperationView(StaffMixin, View):
+    def post(self, request, operation_id):
+        operation = get_object_or_404(Operation, id=operation_id)
         operation.status = "enqueued"
         operation.save()
         tasks.process_operation.delay(operation_id, loads(operation.params))
-    redirect_to = request.META.get(
-        'HTTP_REFERER',
-        operation.video.get_absolute_url())
-    return HttpResponseRedirect(redirect_to)
+        redirect_to = request.META.get(
+            'HTTP_REFERER',
+            operation.video.get_absolute_url())
+        return HttpResponseRedirect(redirect_to)
 
 
-@render_to('main/upload.html')
-@login_required
-@user_passes_test(is_staff)
-def upload_form(request):
-    form = VideoForm()
-    form.fields["collection"].queryset = Collection.objects.filter(active=True)
-    collection_id = request.GET.get('collection', None)
-    if collection_id:
-        collection = get_object_or_404(Collection, id=collection_id)
-        form = collection.add_video_form()
-    return dict(form=form, collection_id=collection_id)
+class UploadFormView(StaffMixin, TemplateView):
+    template_name = 'main/upload.html'
+
+    def get_context_data(self):
+        form = VideoForm()
+        form.fields["collection"].queryset = Collection.objects.filter(
+            active=True)
+        collection_id = self.request.GET.get('collection', None)
+        if collection_id:
+            collection = get_object_or_404(Collection, id=collection_id)
+            form = collection.add_video_form()
+        return dict(form=form, collection_id=collection_id)
 
 
 @login_required

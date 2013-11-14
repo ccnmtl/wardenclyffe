@@ -140,7 +140,7 @@ class OperationFactory(factory.DjangoModelFactory):
     action = "tahoe"
     owner = factory.SubFactory(UserFactory)
     status = "in progress"
-    params = ""
+    params = "{}"
 
 
 class ServerFactory(factory.DjangoModelFactory):
