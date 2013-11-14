@@ -77,7 +77,7 @@ urlpatterns = patterns(
     (r'^youtube/post/$', 'wardenclyffe.youtube.views.youtube_post'),
     (r'^youtube/done/$', 'wardenclyffe.youtube.views.youtube_done'),
     (r'^uploadify/$', views.UploadifyView.as_view()),
-    (r'^done/$', 'wardenclyffe.main.views.done'),
+    (r'^done/$', views.DoneView.as_view()),
     (r'^posterdone/$', views.PosterDoneView.as_view()),
     (r'^received/$', views.ReceivedView.as_view()),
     (r'^surelink/$', views.SureLinkView.as_view()),

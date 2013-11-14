@@ -712,39 +712,40 @@ def make_cunix_file(operation, cunix_path):
                             )
 
 
-@transaction.commit_manually
-def done(request):
-    if 'title' not in request.POST:
-        transaction.commit()
-        return HttpResponse("expecting a title")
-    title = request.POST.get('title', 'no title')
-    ouuid = uuidparse(title)
-    r = Operation.objects.filter(uuid=ouuid)
-    if r.count() != 1:
-        transaction.commit()
-        return HttpResponse("could not find an operation with that UUID")
+class DoneView(View):
+    @method_decorator(transaction.commit_manually)
+    def post(self, request):
+        if 'title' not in request.POST:
+            transaction.commit()
+            return HttpResponse("expecting a title")
+        title = request.POST.get('title', 'no title')
+        ouuid = uuidparse(title)
+        r = Operation.objects.filter(uuid=ouuid)
+        if r.count() != 1:
+            transaction.commit()
+            return HttpResponse("could not find an operation with that UUID")
 
-    statsd.incr('main.done')
-    operations = []
-    params = dict()
-    try:
-        operation = r[0]
-        operation.status = "complete"
-        operation.save()
-        operation.log(info="PCP completed")
-        cunix_path = request.POST.get('movie_destination_path', '')
-        make_cunix_file(operation, cunix_path)
-        (operations, params) = handle_mediathread_submit(operation)
-    except:
-        statsd.incr('main.upload.failure')
-        transaction.rollback()
-        raise
-    finally:
-        transaction.commit()
-        for o in operations:
-            tasks.process_operation.delay(o, params)
+        statsd.incr('main.done')
+        operations = []
+        params = dict()
+        try:
+            operation = r[0]
+            operation.status = "complete"
+            operation.save()
+            operation.log(info="PCP completed")
+            cunix_path = request.POST.get('movie_destination_path', '')
+            make_cunix_file(operation, cunix_path)
+            (operations, params) = handle_mediathread_submit(operation)
+        except:
+            statsd.incr('main.upload.failure')
+            transaction.rollback()
+            raise
+        finally:
+            transaction.commit()
+            for o in operations:
+                tasks.process_operation.delay(o, params)
 
-    return HttpResponse("ok")
+        return HttpResponse("ok")
 
 
 class PosterDoneView(View):
