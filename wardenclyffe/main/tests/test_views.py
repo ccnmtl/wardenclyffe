@@ -458,3 +458,11 @@ class TestStaff(TestCase):
         r = self.c.get("/tag/foo/")
         self.assertEqual(r.status_code, 200)
 
+    def test_add_collection_form(self):
+        r = self.c.get("/add_collection/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_add_collection(self):
+        r = self.c.post("/add_collection/", dict(title="new collection",
+                                                 active="on"))
+        self.assertEqual(r.status_code, 302)

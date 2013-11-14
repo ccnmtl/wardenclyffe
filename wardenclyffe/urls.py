@@ -17,7 +17,7 @@ urlpatterns = patterns(
     ('^cuit/', include('wardenclyffe.cuit.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^capture/file_upload', 'wardenclyffe.main.views.test_upload'),
-    (r'^add_collection/$', 'wardenclyffe.main.views.add_collection'),
+    (r'^add_collection/$', views.AddCollectionView.as_view()),
     (r'^collection/(?P<pk>\d+)/$', views.CollectionView.as_view()),
     (r'^collection/(?P<pk>\d+)/videos/$',
      views.AllCollectionVideosView.as_view()),

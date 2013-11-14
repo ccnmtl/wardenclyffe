@@ -19,7 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from json import dumps, loads
@@ -398,6 +398,7 @@ class RemoveTagView(View):
             m.tags.remove(tagname)
         return HttpResponse("ok")
 
+
 class RemoveTagFromVideoView(StaffMixin, RemoveTagView):
     model = Video
 
@@ -426,6 +427,7 @@ class TagsListView(StaffMixin, ListView):
 
 class VideoIndexView(StaffMixin, TemplateView):
     template_name = 'main/video_index.html'
+
     def get_context_data(self):
         videos = Video.objects.all()
         creators = self.request.GET.getlist('creator')
@@ -463,6 +465,7 @@ class VideoIndexView(StaffMixin, TemplateView):
 
 class FileIndexView(StaffMixin, TemplateView):
     template_name = 'main/file_index.html'
+
     def get_context_data(self):
         files = File.objects.all()
         params = dict()
@@ -487,20 +490,18 @@ class FileIndexView(StaffMixin, TemplateView):
         return params
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/add_collection.html')
-def add_collection(request):
-    if request.method == "POST":
-        form = AddCollectionForm(request.POST)
-        if form.is_valid():
-            suuid = uuid.uuid4()
-            s = form.save(commit=False)
-            s.uuid = suuid
-            s.save()
-            form.save_m2m()
-            return HttpResponseRedirect(s.get_absolute_url())
-    return dict(form=AddCollectionForm())
+class AddCollectionView(StaffMixin, CreateView):
+    model = Collection
+    form_class = AddCollectionForm
+    template_name = 'main/add_collection.html'
+
+    def form_valid(self, form):
+        suuid = uuid.uuid4()
+        s = form.save(commit=False)
+        s.uuid = suuid
+        s.save()
+        form.save_m2m()
+        return super(AddCollectionView, self).form_valid(form)
 
 
 def operation_info(request, uuid):
