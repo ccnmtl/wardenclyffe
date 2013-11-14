@@ -34,7 +34,7 @@ urlpatterns = patterns(
     (r'^collection/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',
      'wardenclyffe.main.views.remove_tag_from_collection'),
     (r'^collection/(?P<id>\d+)/rss/$', CollectionFeed()),
-    (r'^video/(?P<id>\d+)/edit/$', 'wardenclyffe.main.views.edit_video'),
+    (r'^video/(?P<pk>\d+)/edit/$', views.EditVideoView.as_view()),
     (r'^video/(?P<id>\d+)/delete/$', 'wardenclyffe.main.views.delete_video'),
     (r'^video/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',
      'wardenclyffe.main.views.remove_tag_from_video'),

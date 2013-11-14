@@ -25,7 +25,7 @@ from django_statsd.clients import statsd
 from json import dumps, loads
 from taggit.models import Tag
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
-from wardenclyffe.main.forms import UploadVideoForm, AddCollectionForm
+from wardenclyffe.main.forms import VideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
@@ -382,18 +382,11 @@ class EditCollectionWorkflowsView(StaffMixin, View):
                            pcp_error=pcp_error))
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/edit_video.html')
-def edit_video(request, id):
-    video = get_object_or_404(Video, id=id)
-    if request.method == "POST":
-        form = video.edit_form(request.POST)
-        if form.is_valid():
-            video = form.save()
-            return HttpResponseRedirect(video.get_absolute_url())
-    form = video.edit_form()
-    return dict(video=video, form=form)
+class EditVideoView(StaffMixin, UpdateView):
+    template_name = 'main/edit_video.html'
+    model = Video
+    form_class = VideoForm
+    context_object_name = "video"
 
 
 @login_required
@@ -597,7 +590,7 @@ def upload(request):
         transaction.rollback()
         return HttpResponseRedirect("/upload/")
 
-    form = UploadVideoForm(request.POST, request.FILES)
+    form = VideoForm(request.POST, request.FILES)
     if not form.is_valid():
         # TODO: give the user proper feedback here
         transaction.rollback()
@@ -658,7 +651,7 @@ def rerun_operation(request, operation_id):
 @login_required
 @user_passes_test(is_staff)
 def upload_form(request):
-    form = UploadVideoForm()
+    form = VideoForm()
     form.fields["collection"].queryset = Collection.objects.filter(active=True)
     collection_id = request.GET.get('collection', None)
     if collection_id:
@@ -673,7 +666,7 @@ def upload_form(request):
 def scan_directory(request):
     collection_id = None
     file_listing = []
-    form = UploadVideoForm()
+    form = VideoForm()
     collection_id = request.GET.get('collection', None)
     if collection_id:
         collection = get_object_or_404(Collection, id=collection_id)

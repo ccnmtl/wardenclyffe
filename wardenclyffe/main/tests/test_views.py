@@ -401,3 +401,8 @@ class TestStaff(TestCase):
     def test_add_server_invalid(self):
         r = self.c.post("/server/add/")
         self.assertEqual(r.status_code, 200)
+
+    def test_edit_video_form(self):
+        v = VideoFactory()
+        r = self.c.get(v.get_absolute_url() + "edit/")
+        self.assertEqual(r.status_code, 200)

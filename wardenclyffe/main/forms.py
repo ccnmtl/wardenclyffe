@@ -7,7 +7,7 @@ class AddCollectionForm(forms.ModelForm):
         model = Collection
 
 
-class UploadVideoForm(forms.ModelForm):
+class VideoForm(forms.ModelForm):
     class Meta:
         model = Video
 
