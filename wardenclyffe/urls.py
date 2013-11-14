@@ -54,7 +54,7 @@ urlpatterns = patterns(
      views.OperationInfoView.as_view()),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
       r'[a-z0-9]{4}-[a-z0-9]{12})/$'),
-     'wardenclyffe.main.views.operation'),
+     views.OperationView.as_view()),
 
     (r'^bulk_file_operation/$', 'wardenclyffe.main.views.bulk_file_operation'),
     (r'^user/(?P<username>\w+)/', views.UserView.as_view()),

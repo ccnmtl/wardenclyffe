@@ -511,12 +511,12 @@ class OperationInfoView(View):
                             mimetype="application/json")
 
 
-@login_required
-@user_passes_test(is_staff)
-@render_to('main/operation.html')
-def operation(request, uuid):
-    operation = get_object_or_404(Operation, uuid=uuid)
-    return dict(operation=operation)
+class OperationView(StaffMixin, TemplateView):
+    template_name = 'main/operation.html'
+
+    def get_context_data(self, uuid):
+        operation = get_object_or_404(Operation, uuid=uuid)
+        return dict(operation=operation)
 
 
 def safe_makedirs(d):

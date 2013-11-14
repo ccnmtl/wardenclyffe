@@ -471,3 +471,8 @@ class TestStaff(TestCase):
         r = self.c.post("/add_collection/", dict(title="new collection",
                                                  active="on"))
         self.assertEqual(r.status_code, 302)
+
+    def test_operation(self):
+        o = OperationFactory()
+        response = self.c.get("/operation/%s/" % o.uuid)
+        self.assertEqual(response.status_code, 200)
