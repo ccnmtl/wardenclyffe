@@ -142,6 +142,20 @@ class SimpleTest(TestCase):
             "/collection/%d/videos/" % f.video.collection.id)
         self.assertEquals(response.status_code, 200)
 
+    def test_collection_videos_pagination_nan(self):
+        f = FileFactory()
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get(
+            "/collection/%d/videos/?page=foo" % f.video.collection.id)
+        self.assertEquals(response.status_code, 200)
+
+    def test_collection_videos_pagination_offtheend(self):
+        f = FileFactory()
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get(
+            "/collection/%d/videos/?page=200" % f.video.collection.id)
+        self.assertEquals(response.status_code, 200)
+
     def test_collection_operations(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
