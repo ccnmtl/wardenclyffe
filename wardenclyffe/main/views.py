@@ -389,24 +389,21 @@ class EditVideoView(StaffMixin, UpdateView):
     context_object_name = "video"
 
 
-class RemoveTagFromVideoView(StaffMixin, View):
+class RemoveTagView(View):
     def get(self, request, id, tagname):
-        video = get_object_or_404(Video, id=id)
+        m = get_object_or_404(self.model, id=id)
         if 'ajax' in request.GET:
             # we're not being strict about requiring POST,
             # but let's at least require ajax
-            video.tags.remove(tagname)
+            m.tags.remove(tagname)
         return HttpResponse("ok")
 
+class RemoveTagFromVideoView(StaffMixin, RemoveTagView):
+    model = Video
 
-class RemoveTagFromCollectionView(StaffMixin, View):
-    def get(self, request, id, tagname):
-        collection = get_object_or_404(Collection, id=id)
-        if 'ajax' in request.GET:
-            # we're not being strict about requiring POST,
-            # but let's at least require ajax
-            collection.tags.remove(tagname)
-        return HttpResponse("ok")
+
+class RemoveTagFromCollectionView(StaffMixin, RemoveTagView):
+    model = Collection
 
 
 @login_required
