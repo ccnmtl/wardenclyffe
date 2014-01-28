@@ -309,7 +309,7 @@ class Video(TimeStampedModel):
         o = Operation.objects.create(
             uuid=uuid.uuid4(),
             video=self,
-            action="pull_from_tahoe_and_submit_to_pcp",
+            action="pull from tahoe and submit to pcp",
             status="enqueued",
             params=dumps(params),
             owner=user)
@@ -321,7 +321,7 @@ class Video(TimeStampedModel):
         o = Operation.objects.create(
             uuid=uuid.uuid4(),
             video=self,
-            action="pull_from_cuit_and_submit_to_pcp",
+            action="pull from cuit and submit to pcp",
             status="enqueued",
             params=dumps(params),
             owner=user)
