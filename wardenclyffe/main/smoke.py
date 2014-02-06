@@ -58,9 +58,7 @@ class ExpectedSettings(SmokeTest):
 
     def test_sentry_settings(self):
         if not settings.DEBUG:
-            self.assertIsNotNone(settings.SENTRY_SERVERS)
-            self.assertIsNotNone(settings.SENTRY_SITE)
-            self.assertIsNotNone(settings.SENTRY_KEY)
+            self.assertIsNotNone(settings.RAVEN_CONFIG)
 
     def test_surelink_settings(self):
         self.assertIsNotNone(settings.SURELINK_PROTECTION_KEY)
