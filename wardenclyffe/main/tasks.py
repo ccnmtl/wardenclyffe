@@ -21,6 +21,37 @@ import shutil
 from django_statsd.clients import statsd
 from poster.encode import multipart_encode, MultipartParam
 from poster.streaminghttp import register_openers
+import boto
+from boto.s3.key import Key
+import waffle
+
+
+def save_file_to_s3(operation, params):
+    if not waffle.switch_is_active('enable_s3'):
+        print "S3 uploads are disabled"
+        return ("complete", "S3 uploads temporarily disabled")
+    statsd.incr("save_file_to_s3")
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    k = Key(bucket)
+    # make a YYYY/MM/DD directory to put the file in
+    source_file = open(params['tmpfilename'], "rb")
+
+    n = datetime.now()
+    key = "%04d/%02d/%02d/%s" % (
+        n.year, n.month, n.day,
+        os.path.basename(params['tmpfilename']))
+    k.key = key
+    k.set_contents_from_file(source_file)
+    source_file.close()
+    f = File.objects.create(video=operation.video, url="", cap=key,
+                            location_type="s3",
+                            filename=params['filename'],
+                            label="uploaded source file (S3)")
+    OperationFile.objects.create(operation=operation, file=f)
+    return ("complete", "")
 
 
 def split_cap(tahoe_url):

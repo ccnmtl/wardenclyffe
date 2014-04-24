@@ -47,6 +47,7 @@ logilab-astng==0.24.1
 pylint==0.26.0
 python-ldap==2.4.13
 surelink==1.0.0
+boto==2.9.2
 
 factory_boy==2.1.1
 django-smartif==0.1

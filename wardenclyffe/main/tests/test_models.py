@@ -354,7 +354,7 @@ class OperationTest(TestCase):
         (ops, params) = f.video.make_default_operations(
             "/tmp/file.mov",
             f, u)
-        self.assertEquals(len(ops), 3)
+        self.assertEquals(len(ops), 4)
         # just run these to get the coverage up. don't worry if they fail
         for (o, p) in zip(ops, params):
             o.process(params)
@@ -366,7 +366,7 @@ class OperationTest(TestCase):
         (ops, params) = f.video.make_default_operations(
             "/tmp/file.mov",
             f, u, True, True)
-        self.assertEquals(len(ops), 1)
+        self.assertEquals(len(ops), 2)
         # just run these to get the coverage up. don't worry if they fail
         for (o, p) in zip(ops, params):
             o.process(params)

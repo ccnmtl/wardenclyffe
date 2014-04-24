@@ -283,6 +283,16 @@ class Video(TimeStampedModel):
                                      owner=user)
         return (o, params)
 
+    def make_save_file_to_s3_operation(self, tmpfilename, user):
+        params = dict(tmpfilename=tmpfilename, filename=tmpfilename)
+        o = Operation.objects.create(uuid=uuid.uuid4(),
+                                     video=self,
+                                     action="save file to S3",
+                                     status="enqueued",
+                                     params=dumps(params),
+                                     owner=user)
+        return (o, params)
+
     def make_make_images_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename)
         o = Operation.objects.create(uuid=uuid.uuid4(),
@@ -369,6 +379,12 @@ class Video(TimeStampedModel):
             tmpfilename, user)
         operations.append(o)
         params.append(p)
+
+        o, p = self.make_save_file_to_s3_operation(
+            tmpfilename, user)
+        operations.append(o)
+        params.append(p)
+
         if not audio and not audio2:
             o, p = self.make_make_images_operation(
                 tmpfilename, user)
@@ -413,6 +429,10 @@ class CUITFile(FileType):
     pass
 
 
+class S3File(FileType):
+    pass
+
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256, blank=True, null=True, default="")
@@ -425,12 +445,14 @@ class File(TimeStampedModel):
                                               ('pcp', 'pcp'),
                                               ('cuit', 'cuit'),
                                               ('youtube', 'youtube'),
+                                              ('s3', 's3'),
                                               ('none', 'none')))
 
     def filetype(self):
         tmap = dict(
             tahoe=TahoeFile,
             cuit=CUITFile,
+            s3=S3File,
         )
         return tmap.get(self.location_type, FileType)(self)
 
@@ -656,6 +678,7 @@ class Operation(TimeStampedModel):
         mapper = {
             'extract metadata': wardenclyffe.main.tasks.extract_metadata,
             'save file to tahoe': wardenclyffe.main.tasks.save_file_to_tahoe,
+            'save file to S3': wardenclyffe.main.tasks.save_file_to_s3,
             'make images': wardenclyffe.main.tasks.make_images,
             'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
             'submit to podcast producer':
