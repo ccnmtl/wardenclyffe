@@ -31,6 +31,11 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.PCP_PASSWORD)
         self.assertIsNotNone(settings.PCP_WORKFLOW)
 
+    def test_aws_settings(self):
+        self.assertIsNotNone(settings.AWS_ACCESS_KEY)
+        self.assertIsNotNone(settings.AWS_SECRET_KEY)
+        self.assertIsNotNone(settings.AWS_S3_UPLOAD_BUCKET)
+
     def test_mediathread_settings(self):
         self.assertIsNotNone(settings.MEDIATHREAD_BASE)
         self.assertIsNotNone(settings.MEDIATHREAD_SECRET)
