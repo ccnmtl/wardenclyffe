@@ -286,6 +286,42 @@ def pull_from_tahoe_and_submit_to_pcp(operation, params):
     return ("submitted", "submitted to PCP")
 
 
+def pull_from_s3_and_submit_to_pcp(operation, params):
+    statsd.incr("pull_from_s3_and_submit_to_pcp")
+    print "pulling from S3"
+    params = loads(operation.params)
+    video_id = params['video_id']
+    workflow = params['workflow']
+    video = Video.objects.get(id=video_id)
+    ouuid = operation.uuid
+    filename = video.filename()
+    suffix = video.extension()
+
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    k = Key(bucket)
+    k.key = video.s3_key()
+
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    k.get_contents_to_file(t)
+    t.seek(0)
+
+    operation.log(info="downloaded from S3")
+    # TODO: figure out how to re-use submit_to_pcp()
+    print "submitting to PCP"
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
+    filename = str(ouuid) + suffix
+    print "submitted with filename %s" % filename
+
+    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
+    print "submitted with title %s" % title
+    pcp.upload_file(t, filename, workflow, title, video.description)
+    return ("submitted", "submitted to PCP")
+
+
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)

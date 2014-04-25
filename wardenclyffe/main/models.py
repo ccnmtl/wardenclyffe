@@ -82,9 +82,24 @@ class Video(TimeStampedModel):
     tags = TaggableManager(blank=True)
 
     def tahoe_file(self):
+        # oh, what I would give for a Maybe Monad in python...
         r = self.file_set.filter(location_type='tahoe')
         if r.count():
             return r[0]
+        else:
+            return None
+
+    def s3_file(self):
+        r = self.file_set.filter(location_type='s3')
+        if r.count():
+            return r[0]
+        else:
+            return None
+
+    def s3_key(self):
+        t = self.s3_file()
+        if t:
+            return t.cap
         else:
             return None
 
@@ -320,6 +335,18 @@ class Video(TimeStampedModel):
             uuid=uuid.uuid4(),
             video=self,
             action="pull from tahoe and submit to pcp",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
+    def make_pull_from_s3_and_submit_to_pcp_operation(self, video_id,
+                                                      workflow, user):
+        params = dict(video_id=video_id, workflow=workflow)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="pull from s3 and submit to pcp",
             status="enqueued",
             params=dumps(params),
             owner=user)
@@ -688,6 +715,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.mediathread.tasks.submit_to_mediathread,
             'pull from tahoe and submit to pcp':
             wardenclyffe.main.tasks.pull_from_tahoe_and_submit_to_pcp,
+            'pull from s3 and submit to pcp':
+            wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp,
             'pull from cuit and submit to pcp':
             wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp,
         }

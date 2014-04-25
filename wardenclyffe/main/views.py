@@ -894,8 +894,13 @@ class VideoPCPSubmitView(StaffMixin, View):
 
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
-        o, p = video.make_pull_from_tahoe_and_submit_to_pcp_operation(
-            video.id, request.POST.get('workflow', ''), request.user)
+        (o, p) = (None, None)
+        if video.s3_file():
+            o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+                video.id, request.POST.get('workflow', ''), request.user)
+        else:
+            o, p = video.make_pull_from_tahoe_and_submit_to_pcp_operation(
+                video.id, request.POST.get('workflow', ''), request.user)
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
@@ -917,8 +922,13 @@ class FilePCPSubmitView(StaffMixin, View):
         statsd.incr('main.file_pcp_submit')
         video = file.video
         # send to podcast producer
-        o, p = video.make_pull_from_cuit_and_submit_to_pcp_operation(
-            video.id, request.POST.get('workflow', ''), request.user)
+        (o, p) = (None, None)
+        if video.s3_file():
+            o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+                video.id, request.POST.get('workflow', ''), request.user)
+        else:
+            o, p = video.make_pull_from_cuit_and_submit_to_pcp_operation(
+                video.id, request.POST.get('workflow', ''), request.user)
         # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
