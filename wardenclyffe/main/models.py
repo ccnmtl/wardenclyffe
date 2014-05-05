@@ -58,7 +58,7 @@ class Collection(TimeStampedModel):
         class AddVideoForm(forms.ModelForm):
             class Meta:
                 model = Video
-                exclude = ('collection')
+                exclude = ('collection', )
         return AddVideoForm()
 
 
@@ -173,7 +173,7 @@ class Video(TimeStampedModel):
         class AddFileForm(forms.ModelForm):
             class Meta:
                 model = File
-                exclude = ('video')
+                exclude = ('video', )
         if data:
             return AddFileForm(data)
         else:
