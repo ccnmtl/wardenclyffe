@@ -147,6 +147,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_jenkins',
     'wardenclyffe.graphite',
+    'django_extensions',
 ]
 
 INTERNAL_IPS = ('127.0.0.1', )
