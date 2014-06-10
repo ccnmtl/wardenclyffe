@@ -2,7 +2,7 @@ from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from django_statsd.clients import statsd
 from .models import operation_count_by_status
-from .models import tahoe_stats
+from .models import tahoe_stats, s3_stats
 from .models import minutes_video_stats
 
 
@@ -25,5 +25,12 @@ def minutes_video():
 @periodic_task(run_every=crontab(hour="22", minute="13", day_of_week="*"))
 def nightly_tahoe_report():
     (cnt, total) = tahoe_stats()
+    statsd.gauge("tahoe.total", total)
+    statsd.gauge("tahoe.cnt", cnt)
+
+
+@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
+def hourly_s3_usage_report():
+    (cnt, total) = s3_stats()
     statsd.gauge("tahoe.total", total)
     statsd.gauge("tahoe.cnt", cnt)
