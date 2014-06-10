@@ -231,8 +231,11 @@ def extract_metadata(operation, params):
 @task(ignore_results=True)
 def process_operation(operation_id, params, **kwargs):
     print "process_operation(%s,%s)" % (operation_id, str(params))
-    operation = Operation.objects.get(id=operation_id)
-    operation.process(params)
+    try:
+        operation = Operation.objects.get(id=operation_id)
+        operation.process(params)
+    except Operation.DoesNotExist:
+        print "operation not found (probably deleted)"
 
 
 def submit_to_pcp(operation, params):
