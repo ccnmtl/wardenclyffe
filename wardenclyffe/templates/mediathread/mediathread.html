@@ -19,7 +19,7 @@
     <script src="{{STATIC_URL}}js/jquery.query.js" type="text/javascript"></script>
 
     <script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
-    <script src="{{STATIC_URL}}js/jquery.uploadify.v2.1.4.min.js"></script>
+    <script src="{{STATIC_URL}}js/jquery.uploadify.min.js"></script>
     <link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
 </head>
 <body class="one_column fixed mediathread">
@@ -133,14 +133,15 @@
         jQuery(document).ready(function() {
           
           jQuery('#file_upload').uploadify({
-              'uploader'  : '{{STATIC_URL}}swf/uploadify.swf',
-              'script'    : '/uploadify/',
+              'swf'  : '{{STATIC_URL}}swf/uploadify.swf',
+              'uploader'    : '/uploadify/',
               'cancelImg' : '{{STATIC_URL}}img/pixel.gif',
               'folder'    : '/uploads',
               'auto'      : true,
-              'fileExt'   : {% if audio %}'*.mp3'{% else %}'*.mov;*.avi;*.mp4;*.mp3;*.m4v'{% endif %},
-              'fileDesc'  : '{% if audio %}Audio{% else %}Video{% endif %} Files',
+              'fileTypeExts'   : {% if audio %}'*.mp3'{% else %}'*.mov;*.avi;*.mp4;*.mp3;*.m4v'{% endif %},
+              'fileTypeDesc'  : '{% if audio %}Audio{% else %}Video{% endif %} Files',
               'removeCompleted' : false,
+              'successTimeout': 3000,
               'buttonText' : 'Select File',
               'buttonClass': 'uploadify-button',
               'onUploadError' : function(file, errorCode, errorMsg, errorString) {
@@ -148,12 +149,12 @@
                        "This is usually a temporary issue.\n" +
                        "Please wait a minute or two and try again.");
               },
-              'onComplete'  : function(event, ID, fileObj, response, data) {
+              'onUploadSuccess'  : function(file, data, response) {
                   if (response == "False") {
                      alert("upload failed. probably a bad network connection. please try again.");
 				             return;
                   }
-                  jQuery("#tmpfilename").val(response);
+                  jQuery("#tmpfilename").val(data);
                   var elt = jQuery(".uploadifyQueueItem.completed span.percentage")[0];
                   jQuery(elt).html(" - Ready to upload");
                   jQuery("#submit").removeAttr("disabled");
