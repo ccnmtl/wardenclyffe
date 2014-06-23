@@ -184,11 +184,10 @@ jQuery(document).ready(function()
     'auto'      : true,
     'fileTypeExts'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
     'fileTypeDesc'  : 'Video Files',
-    'requeueErrors': true,
-    'debug': true,
     'removeCompleted' : false,
     'onUploadError': function(file, errorCode, errorMsg, errorString) {
        alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
+       alert('error code ' + errorCode + ' error message was: ' + errorMsg);
     },
     'onUploadComplete'  : function(event, ID, fileObj, response, data) {
       if (response == "False") {
