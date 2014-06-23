@@ -189,12 +189,8 @@ jQuery(document).ready(function()
        alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
        alert('error code ' + errorCode + ' error message was: ' + errorMsg);
     },
-    'onUploadComplete'  : function(event, ID, fileObj, response, data) {
-      if (response == "False") {
-          alert("upload failed. probably a bad network connection. please try again.");
-			    return;
-      }
-      $("#tmpfilename").val(response);
+    'onUploadSuccess'  : function(file, data, response) {
+      $("#tmpfilename").val(data);
       $("#submit").removeAttr("disabled");
       $("#file_uploadUploader").replaceWith();
     },
