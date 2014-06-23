@@ -10,7 +10,7 @@
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
 
 <script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
-<script src="{{STATIC_URL}}js/jquery.uploadify.v2.1.4.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.uploadify.min.js"></script>
 <link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
 
 {% endblock %}
@@ -177,15 +177,20 @@ jQuery(document).ready(function()
 {% if scan_directory %}
 {% else %}
     $('#file_upload').uploadify({
-    'uploader'  : '{{STATIC_URL}}swf/uploadify.swf',
-    'script'    : '/uploadify/',
+    'swf'  : '{{STATIC_URL}}swf/uploadify.swf',
+    'uploader'    : '/uploadify/',
     'cancelImg' : '{{STATIC_URL}}img/pixel.gif',
     'folder'    : '/uploads',
     'auto'      : true,
-    'fileExt'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
-    'fileDesc'  : 'Video Files',
+    'fileTypeExts'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
+    'fileTypeDesc'  : 'Video Files',
+    'requeueErrors': true,
+    'debug': true,
     'removeCompleted' : false,
-    'onComplete'  : function(event, ID, fileObj, response, data) {
+    'onUploadError': function(file, errorCode, errorMsg, errorString) {
+       alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
+    },
+    'onUploadComplete'  : function(event, ID, fileObj, response, data) {
       if (response == "False") {
           alert("upload failed. probably a bad network connection. please try again.");
 			    return;
