@@ -185,6 +185,7 @@ jQuery(document).ready(function()
     'fileTypeExts'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
     'fileTypeDesc'  : 'Video Files',
     'removeCompleted' : false,
+    'successTimeout': 3000,
     'onUploadError': function(file, errorCode, errorMsg, errorString) {
        alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
        alert('error code ' + errorCode + ' error message was: ' + errorMsg);
