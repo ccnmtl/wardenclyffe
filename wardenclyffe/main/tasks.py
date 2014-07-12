@@ -452,10 +452,10 @@ def move_file(file_id):
     k.set_contents_from_file(t)
     t.close()
     print "uploaded"
-    f = File.objects.create(video=video, url="", cap=key,
-                            location_type="s3",
-                            filename=video.filename(),
-                            label="uploaded source file (S3)")
+    File.objects.create(video=video, url="", cap=key,
+                        location_type="s3",
+                        filename=video.filename(),
+                        label="uploaded source file (S3)")
 
     print "remove tahoe file entry"
     f.delete()
