@@ -418,3 +418,44 @@ def check_for_slow_operations():
             send_slow_operations_to_videoteam_email(operations)
 
     # else, no slow operations to warn about. excellent.
+
+
+@task(ignore_results=True)
+def move_file(file_id):
+    f = File.objects.get(id=file_id)
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    video = f.video
+    url = video.tahoe_download_url()
+    if url == "":
+        print "does not have a tahoe stored file"
+        return
+    print "pulling from %s" % url
+    suffix = video.extension()
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    r = urllib2.urlopen(url)
+    t.write(r.read())
+    t.seek(0)
+    print "pulled from tahoe and wrote to temp file"
+    print t.name
+
+    k = Key(bucket)
+    # make a YYYY/MM/DD directory to put the file in
+    n = video.created
+    key = "%04d/%02d/%02d/%s" % (
+        n.year, n.month, n.day,
+        os.path.basename(video.filename()))
+    k.key = key
+    print "uploading to S3 with key %s" % key
+    k.set_contents_from_file(t)
+    t.close()
+    print "uploaded"
+    f = File.objects.create(video=video, url="", cap=key,
+                            location_type="s3",
+                            filename=video.filename(),
+                            label="uploaded source file (S3)")
+
+    print "remove tahoe file entry"
+    f.delete()
