@@ -169,6 +169,27 @@ STATSD_PORT = 8125
 BROKER_URL = "ampq://localhost:5672//"
 CELERYD_CONCURRENCY = 4
 
+
+class MyRouter(object):
+    def route_for_task(self, task, args=None, kwargs=None):
+        if task.startswith('graphite.tasks'):
+            return {
+                'exchange': 'graphite',
+                'exchange_type': 'direct',
+                'routing_key': 'graphite',
+            }
+        if task == 'main.tasks.check_for_slow_operations':
+            return {'exchange': 'short',
+                    'exchange_type': 'direct',
+                    'routing_key': 'short'}
+        if task == 'main.tasks.move_file':
+            return {'exchange': 'batch',
+                    'exchange_type': 'direct',
+                    'routing_key': 'batch'}
+        return None
+
+CELERY_ROUTES = (MyRouter(),)
+
 THUMBNAIL_SUBDIR = "thumbs"
 EMAIL_SUBJECT_PREFIX = "[wardenclyffe] "
 EMAIL_HOST = 'localhost'
