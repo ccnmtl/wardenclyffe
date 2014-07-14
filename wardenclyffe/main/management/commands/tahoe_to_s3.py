@@ -15,7 +15,7 @@ class Command(BaseCommand):
                 i, cnt, f.video.id)
             i += 1
             if File.objects.filter(
-                location_type='s3', video=f.video).exists():
+                    location_type='s3', video=f.video).exists():
                 # if there's already an S3 file, skip this one
                 continue
             move_file.delay(f.id)
