@@ -422,7 +422,7 @@ def check_for_slow_operations():
 
 
 @task(ignore_results=True)
-def move_file(file_id):
+def move_file(file_id, **kwargs):
     f = File.objects.get(id=file_id)
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
@@ -435,14 +435,17 @@ def move_file(file_id):
         return
     print "pulling from %s" % url
     suffix = video.extension()
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    r = requests.get(url, stream=True)
-    for chunk in r.iter_content(chunk_size=1024):
-        if chunk:
-            t.write(chunk)
-            t.flush()
-    t.seek(0)
-    print "pulled from tahoe and wrote to temp file"
+    try:
+        t = tempfile.NamedTemporaryFile(suffix=suffix)
+        r = requests.get(url, stream=True)
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:
+                t.write(chunk)
+                t.flush()
+        t.seek(0)
+        print "pulled from tahoe and wrote to temp file"
+    except Exception, e:
+        move_file.retry(exc=e, kwargs=kwargs)
 
     k = Key(bucket)
     # make a YYYY/MM/DD directory to put the file in
@@ -452,7 +455,11 @@ def move_file(file_id):
         os.path.basename(video.filename()))
     k.key = key
     print "uploading to S3 with key %s" % key
-    k.set_contents_from_file(t)
+    try:
+        k.set_contents_from_file(t)
+    except Exception, e:
+        move_file.retry(exc=e, kwargs=kwargs)
+
     t.close()
     print "uploaded"
     File.objects.create(video=video, url="", cap=key,
