@@ -1,5 +1,6 @@
 import urllib2
 from restclient import GET, POST
+import requests
 from datetime import datetime, timedelta
 from angeldust import PCP
 from celery.decorators import task
@@ -435,8 +436,11 @@ def move_file(file_id):
     print "pulling from %s" % url
     suffix = video.extension()
     t = tempfile.NamedTemporaryFile(suffix=suffix)
-    r = urllib2.urlopen(url)
-    t.write(r.read())
+    r = requests.get(url, stream=True)
+    for chunk in r.iter_content(chunk_size=1024):
+        if chunk:
+            t.write(chunk)
+            t.flush()
     t.seek(0)
     print "pulled from tahoe and wrote to temp file"
 
