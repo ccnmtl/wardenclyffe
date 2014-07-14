@@ -172,17 +172,17 @@ CELERYD_CONCURRENCY = 4
 
 class MyRouter(object):
     def route_for_task(self, task, args=None, kwargs=None):
-        if task.startswith('graphite.tasks'):
+        if task.startswith('wardenclyffe.graphite.tasks'):
             return {
                 'exchange': 'graphite',
                 'exchange_type': 'direct',
                 'routing_key': 'graphite',
             }
-        if task == 'main.tasks.check_for_slow_operations':
+        if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
             return {'exchange': 'short',
                     'exchange_type': 'direct',
                     'routing_key': 'short'}
-        if task == 'main.tasks.move_file':
+        if task == 'wardenclyffe.main.tasks.move_file':
             return {'exchange': 'batch',
                     'exchange_type': 'direct',
                     'routing_key': 'batch'}
