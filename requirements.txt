@@ -49,6 +49,7 @@ surelink==1.0.0
 boto==2.31.1
 ipython==0.13.2
 sqlparse==0.1.11
+filechunkio==1.5
 
 factory_boy==2.1.1
 django-smartif==0.1
