@@ -462,7 +462,7 @@ def move_file(file_id, **kwargs):
         source_path = t.name
         source_size = os.stat(source_path).st_size
         mp = bucket.initiate_multipart_upload(key)
-        chunk_size = 52428800
+        chunk_size = 5242880
         chunk_count = int(math.ceil(source_size / chunk_size))
         for i in range(chunk_count + 1):
             print "uploading chunk [%d/%d]" % (i, chunk_count)
@@ -473,6 +473,8 @@ def move_file(file_id, **kwargs):
                 mp.upload_part_from_file(fp, part_num=i + 1)
         mp.complete_upload()
     except Exception, e:
+        print "Exception: %s" % str(e)
+        print "putting back on the queue to retry"
         move_file.retry(exc=e, kwargs=kwargs)
 
     t.close()
