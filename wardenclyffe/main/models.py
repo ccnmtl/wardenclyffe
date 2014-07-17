@@ -402,10 +402,6 @@ class Video(TimeStampedModel):
                 tmpfilename, source_file, user)
             operations.append(o)
             params.append(p)
-        o, p = self.make_save_file_to_tahoe_operation(
-            tmpfilename, user)
-        operations.append(o)
-        params.append(p)
 
         o, p = self.make_save_file_to_s3_operation(
             tmpfilename, user)
