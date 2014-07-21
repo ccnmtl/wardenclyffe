@@ -124,8 +124,8 @@ def save_file_to_tahoe(operation, params):
     return ("complete", "")
 
 
-IONICE = "/usr/bin/ionice"
-MPLAYER = "/usr/bin/mplayer"
+IONICE = settings.IONICE_PATH
+MPLAYER = settings.MPLAYER_PATH
 MAX_SEEK_POS = "03:00:00"
 
 

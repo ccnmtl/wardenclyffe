@@ -243,6 +243,9 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+IONICE_PATH = "/usr/bin/ionice"
+MPLAYER_PATH = "/usr/bin/mplayer"
+
 COMPRESS_URL = "/media/"
 COMPRESS_ROOT = "media/"
 
