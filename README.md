@@ -29,25 +29,25 @@ currently expects a lot of configuration variables for the various
 services that it talks to. I'm not sure how well it will work without
 working values set for most/all of these:
 
-SENTRY_KEY
-TAHOE_BASE
-TMP_DIR = '/var/tmp/wardenclyffe'
-WATCH_DIRECTORY = "/var/tmp/wardenclyffe/watch_dir/"
-PCP_BASE_URL
-PCP_USERNAME
-PCP_PASSWORD
-PCP_WORKFLOW
-MEDIATHREAD_BASE
-MEDIATHREAD_SECRET
-MEDIATHREAD_POST_URL
-MEDIATHREAD_PCP_WORKFLOW
-ZENCODER_API_KEY
-YOUTUBE_EMAIL
-YOUTUBE_PASSWORD
-YOUTUBE_SOURCE
-YOUTUBE_DEVELOPER_KEY
-YOUTUBE_CLIENT_ID
-VITAL_SECRET
+    SENTRY_KEY
+    TAHOE_BASE
+    TMP_DIR = '/var/tmp/wardenclyffe'
+    WATCH_DIRECTORY = "/var/tmp/wardenclyffe/watch_dir/"
+    PCP_BASE_URL
+    PCP_USERNAME
+    PCP_PASSWORD
+    PCP_WORKFLOW
+    MEDIATHREAD_BASE
+    MEDIATHREAD_SECRET
+    MEDIATHREAD_POST_URL
+    MEDIATHREAD_PCP_WORKFLOW
+    ZENCODER_API_KEY
+    YOUTUBE_EMAIL
+    YOUTUBE_PASSWORD
+    YOUTUBE_SOURCE
+    YOUTUBE_DEVELOPER_KEY
+    YOUTUBE_CLIENT_ID
+    VITAL_SECRET
 
 Certainly those individual parts won't work, but I'm not sure if the
 whole thing will run at all without them at least set to dummy variables.
