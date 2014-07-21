@@ -10,3 +10,5 @@ local_settings.py
 cover/
 reports/
 .DS_Store
+.project
+.pydevproject
