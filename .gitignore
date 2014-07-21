@@ -7,3 +7,4 @@ local_settings.py
 .coverage
 cover/
 reports/
+.DS_Store
