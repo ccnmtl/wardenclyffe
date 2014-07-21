@@ -23,6 +23,8 @@ DATABASES = {
     }
 }
 
+TMP_DIR = "/tmp"
+
 if 'test' in sys.argv or 'jenkins' in sys.argv:
     DATABASES = {
         'default': {
