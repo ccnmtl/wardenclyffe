@@ -17,10 +17,10 @@ Assumptions (how we tend to deploy):
 How to get it running. 
 
     cd /var/www/wardenclyffe/wardenclyffe/
-    ./bootstrap.py      # installs all the required python libraries
-    # create a local_settings.py that overrides database config info, etc.
-    ./manage.py syncdb  # creates database tables
-    ./manage.py runserver # should start up an instance running on http://localhost:8000/
+    # initialize the database
+    make install
+    # run webserver
+    make runserver
     # in another terminal, cd to the same directory and run
     ./manage.py celeryd   # starts up the celery server
 
