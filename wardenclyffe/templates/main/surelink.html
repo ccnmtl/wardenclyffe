@@ -5,16 +5,18 @@
   <script type="text/javascript" src="https://www1.columbia.edu/sec/ccnmtl/remote/jquery-ui/js/jquery-1.4.2.min.js"></script> 
   <script type="text/javascript" src="https://www1.columbia.edu/sec/ccnmtl/remote/jquery-ui/js/jquery-ui-1.8.1.custom.min.js"></script> 
  
+  {% comment %}<style type="text/css"> 
+    body{ font: 72.5% "Trebuchet MS", sans-serif; margin: 50px;}
+  </style> 
+  <!-- i don't know why this is here, I'm commenting this out till something breaks (Zarina) -->
+  {% endcomment %}
+ 
   <script type="text/javascript"> 
      $(function(){
        $('#tabs').tabs();
      });
   </script> 
   
-  <style type="text/css"> 
-    body{ font: 72.5% "Trebuchet MS", sans-serif; margin: 50px;}
-  </style> 
- 
 {% endblock %}
 
 {% block content %}
