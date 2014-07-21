@@ -32,12 +32,18 @@
 {% endif %}
 		<div class="wc_help_button" id="help_video_source">?</div><!-- class="wc_help_button" -->
 	</div><!-- class="form_video_source" -->
-	<div class="form_video_collection">
-		<div class="form_video_collection_title">
-		 <label for="id_collection">Collection:</label>
-		</div>
-		{{ form.collection }}
-	</div><!-- class="form_video_collection" -->
+
+    <div class="form_video_collection">
+        <div class="form_video_collection_title">
+            <label for="id_collection">Collection:</label>
+        </div>
+        {% if form.collection %}
+            {{ form.collection }}
+        {% else %}
+            {{ collection_title }}
+        {% endif %}
+    </div><!-- class="form_video_collection" -->
+
 	<div class="visualclear"></div>
 </div><!-- class="panel_top" -->
 
