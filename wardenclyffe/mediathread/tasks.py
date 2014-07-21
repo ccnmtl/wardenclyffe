@@ -12,10 +12,7 @@ def guess_dimensions(video, audio2):
 
 
 def mp3_url(video):
-    if video.h264_public_stream_url():
-        return video.h264_public_stream_url()
-    else:
-        return video.tahoe_download_url()
+    return video.h264_public_stream_url()
 
 
 def submit_to_mediathread(operation, params):
@@ -44,7 +41,6 @@ def submit_to_mediathread(operation, params):
 
     if audio:
         # default for audio uploads is the public streaming server
-        # but default to tahoe if we don't have that.
         params['mp3'] = mp3_url(video)
     else:
         (width, height) = guess_dimensions(video, audio2)
@@ -52,7 +48,7 @@ def submit_to_mediathread(operation, params):
             statsd.incr(
                 "mediathread.tasks.submit_to_mediathread.failure.dimensions")
             return ("failed", "could not figure out dimensions")
-        if not video.mediathread_url() and not video.tahoe_download_url():
+        if not video.mediathread_url():
             statsd.incr(
                 "mediathread.tasks.submit_to_mediathread.failure.video_url")
             return ("failed", "no video URL")
@@ -70,10 +66,8 @@ def submit_to_mediathread(operation, params):
             params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
         else:
             # eventually we probably also want to try
-            # h264 public streams, but for now, fall back to
-            # tahoe
-            params['mp4'] = video.tahoe_download_url()
-            params["mp4-metadata"] = "w%dh%d" % (width, height)
+            # h264 public streams
+            pass
 
     resp, content = POST(mediathread_base + "/save/",
                          params=params, async=False, resp=True)

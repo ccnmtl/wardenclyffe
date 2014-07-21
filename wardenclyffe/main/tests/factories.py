@@ -118,16 +118,6 @@ class DimensionlessSourceFileFactory(FileFactory):
             self.set_metadata(k, v)
 
 
-class TahoeFileFactory(FileFactory):
-    label = "uploaded source file"
-    location_type = "tahoe"
-    cap = ("URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-           "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa:"
-           "3:10:4783186")
-    filename = ("/var/www/wardenclyffe/tmp//6a0dac24-7982-"
-                "4df3-a1cb-86d52bf4df94.mov")
-
-
 class MediathreadFileFactory(FileFactory):
     label = "mediathread"
     location_type = "mediathread"
@@ -137,7 +127,7 @@ class MediathreadFileFactory(FileFactory):
 class OperationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Operation
     video = factory.SubFactory(VideoFactory)
-    action = "tahoe"
+    action = "s3"
     owner = factory.SubFactory(UserFactory)
     status = "in progress"
     params = "{}"

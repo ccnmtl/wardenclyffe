@@ -36,9 +36,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     }
     SURELINK_PROTECTION_KEY = "test-dummy-key"
     MEDIATHREAD_SECRET = "test-dummy-secret"
-    TAHOE_DOWNLOAD_BASE = "http://tahoe.ccnmtl.columbia.edu/"
     WATCH_DIRECTORY = "/tmp/"
-    TAHOE_BASE = "http://tahoe.ccnmtl.columbia.edu/"
     TMP_DIR = "/tmp"
     PCP_BASE_URL = ""
     CELERY_ALWAYS_EAGER = True

@@ -97,9 +97,6 @@ class CollectionFeed(Feed):
     def items(self, obj):
         return obj.video_set.all().order_by('-created')[:30]
 
-    def item_enclosure_url(self, item):
-        return item.enclosure_url()
-
     def item_link(self, item):
         return item.get_absolute_url()
 

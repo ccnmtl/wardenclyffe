@@ -1,6 +1,3 @@
-import urllib2
-from restclient import GET, POST
-import requests
 from datetime import datetime, timedelta
 from angeldust import PCP
 from celery.decorators import task
@@ -12,7 +9,6 @@ from wardenclyffe.util.mail import send_slow_operations_email
 from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
 import os.path
 import os
-import math
 import tempfile
 import subprocess
 from django.conf import settings
@@ -22,12 +18,9 @@ import random
 import re
 import shutil
 from django_statsd.clients import statsd
-from poster.encode import multipart_encode, MultipartParam
-from poster.streaminghttp import register_openers
 import boto
 from boto.s3.key import Key
 import waffle
-from filechunkio import FileChunkIO
 
 
 def save_file_to_s3(operation, params):
@@ -54,72 +47,6 @@ def save_file_to_s3(operation, params):
                             location_type="s3",
                             filename=params['filename'],
                             label="uploaded source file (S3)")
-    OperationFile.objects.create(operation=operation, file=f)
-    return ("complete", "")
-
-
-def split_cap(tahoe_url):
-    parts = tahoe_url.split('URI:DIR2')
-    return (parts[0], "URI:DIR2" + parts[1])
-
-
-def get_or_create_tahoe_dir(tahoe_base, dirname):
-    base, cap = split_cap(tahoe_base)
-    info = loads(GET(tahoe_base + "?t=json"))
-    dirnode = info[1]
-    children = dirnode['children']
-    if dirname not in children:
-        # need to make it
-        new_cap = POST(
-            tahoe_base,
-            params=dict(
-                t="mkdir",
-                name=dirname), async=False)
-        return base + new_cap + "/"
-    else:
-        new_cap = children[dirname][1]['rw_uri']
-        return base + new_cap + "/"
-
-
-def get_date_dir(tahoe_base):
-    n = datetime.now()
-    year = "%04d" % n.year
-    month = "%02d" % n.month
-    day = "%02d" % n.day
-    year_dir = get_or_create_tahoe_dir(tahoe_base, year)
-    month_dir = get_or_create_tahoe_dir(year_dir, month)
-    day_dir = get_or_create_tahoe_dir(month_dir, day)
-    return day_dir
-
-
-def save_file_to_tahoe(operation, params):
-    statsd.incr("save_file_to_tahoe")
-    # make a YYYY/MM/DD directory to put the file in
-    # instead of dumping everything in one big directory
-    # which is getting slow to update
-    tahoe_base = get_date_dir(settings.TAHOE_BASE)
-    source_file = open(params['tmpfilename'], "rb")
-    register_openers()
-    datagen, headers = multipart_encode(
-        (
-            ("t", "upload"),
-            MultipartParam(name='file', fileobj=source_file,
-                           filename=os.path.basename(params['tmpfilename']))))
-    request = urllib2.Request(tahoe_base, datagen, headers)
-    try:
-        cap = urllib2.urlopen(request).read()
-    except Exception, e:
-        return ("failed", "tahoe gave an error: " + str(e))
-
-    source_file.close()
-    if not cap.startswith('URI'):
-        # looks like we didn't get a response we were expecting from tahoe
-        return ("failed", "upload failed (invalid cap): " + cap)
-
-    f = File.objects.create(video=operation.video, url="", cap=cap,
-                            location_type="tahoe",
-                            filename=params['filename'],
-                            label="uploaded source file")
     OperationFile.objects.create(operation=operation, file=f)
     return ("complete", "")
 
@@ -260,39 +187,6 @@ def submit_to_pcp(operation, params):
     return ("submitted", "")
 
 
-def pull_from_tahoe_and_submit_to_pcp(operation, params):
-    statsd.incr("pull_from_tahoe_and_submit_to_pcp")
-    print "pulling from tahoe"
-    params = loads(operation.params)
-    video_id = params['video_id']
-    workflow = params['workflow']
-    video = Video.objects.get(id=video_id)
-    ouuid = operation.uuid
-    url = video.tahoe_download_url()
-    if url == "":
-        return ("failed", "does not have a tahoe stored file")
-    if workflow == "":
-        return ("failed", "no workflow specified")
-    filename = video.filename()
-    suffix = video.extension()
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    r = urllib2.urlopen(url)
-    t.write(r.read())
-    t.seek(0)
-    operation.log(info="downloaded from tahoe")
-    # TODO: figure out how to re-use submit_to_pcp()
-    print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
-    filename = str(ouuid) + suffix
-    print "submitted with filename %s" % filename
-
-    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-    print "submitted with title %s" % title
-    pcp.upload_file(t, filename, workflow, title, video.description)
-    return ("submitted", "submitted to PCP")
-
-
 def pull_from_s3_and_submit_to_pcp(operation, params):
     statsd.incr("pull_from_s3_and_submit_to_pcp")
     print "pulling from S3"
@@ -355,7 +249,7 @@ def sftp_get(remote_filename, local_filename):
 
 def pull_from_cuit_and_submit_to_pcp(operation, params):
     statsd.incr("pull_from_cuit_and_submit_to_pcp")
-    print "pulling from tahoe"
+    print "pulling from cuit"
     params = loads(operation.params)
     video_id = params['video_id']
     workflow = params['workflow']
@@ -422,67 +316,3 @@ def check_for_slow_operations():
             send_slow_operations_to_videoteam_email(operations)
 
     # else, no slow operations to warn about. excellent.
-
-
-@task(ignore_results=True)
-def move_file(file_id, **kwargs):
-    f = File.objects.get(id=file_id)
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    video = f.video
-    url = video.tahoe_download_url()
-    if url == "":
-        print "does not have a tahoe stored file"
-        return
-    print "pulling from %s" % url
-    suffix = video.extension()
-    try:
-        t = tempfile.NamedTemporaryFile(suffix=suffix)
-        r = requests.get(url, stream=True)
-        for chunk in r.iter_content(chunk_size=1024):
-            if chunk:
-                t.write(chunk)
-                t.flush()
-        t.seek(0)
-        print "pulled from tahoe and wrote to temp file"
-    except Exception, e:
-        move_file.retry(exc=e, kwargs=kwargs)
-
-    k = Key(bucket)
-    # make a YYYY/MM/DD directory to put the file in
-    n = video.created
-    key = "%04d/%02d/%02d/%s" % (
-        n.year, n.month, n.day,
-        os.path.basename(video.filename()))
-    k.key = key
-    print "uploading to S3 with key %s" % key
-    try:
-        source_path = t.name
-        source_size = os.stat(source_path).st_size
-        mp = bucket.initiate_multipart_upload(key)
-        chunk_size = 5242880
-        chunk_count = int(math.ceil(source_size / chunk_size))
-        for i in range(chunk_count + 1):
-            print "uploading chunk [%d/%d]" % (i, chunk_count)
-            offset = chunk_size * i
-            bytes = min(chunk_size, source_size - offset)
-            with FileChunkIO(source_path, 'r', offset=offset,
-                             bytes=bytes) as fp:
-                mp.upload_part_from_file(fp, part_num=i + 1)
-        mp.complete_upload()
-    except Exception, e:
-        print "Exception: %s" % str(e)
-        print "putting back on the queue to retry"
-        move_file.retry(exc=e, kwargs=kwargs)
-
-    t.close()
-    print "uploaded"
-    File.objects.create(video=video, url="", cap=key,
-                        location_type="s3",
-                        filename=video.filename(),
-                        label="uploaded source file (S3)")
-
-    print "remove tahoe file entry"
-    f.delete()
