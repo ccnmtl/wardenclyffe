@@ -29,8 +29,8 @@ currently expects a lot of configuration variables for the various
 services that it talks to. I'm not sure how well it will work without
 working values set for most/all of these:
 
+    BROKER_URL
     SENTRY_KEY
-    TAHOE_BASE
     TMP_DIR = '/var/tmp/wardenclyffe'
     WATCH_DIRECTORY = "/var/tmp/wardenclyffe/watch_dir/"
     PCP_BASE_URL
