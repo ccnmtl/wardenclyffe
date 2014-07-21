@@ -81,14 +81,6 @@ class Video(TimeStampedModel):
 
     tags = TaggableManager(blank=True)
 
-    def tahoe_file(self):
-        # oh, what I would give for a Maybe Monad in python...
-        r = self.file_set.filter(location_type='tahoe')
-        if r.count():
-            return r[0]
-        else:
-            return None
-
     def s3_file(self):
         r = self.file_set.filter(location_type='s3')
         if r.count():
@@ -110,23 +102,6 @@ class Video(TimeStampedModel):
         else:
             return None
 
-    def cap(self):
-        t = self.tahoe_file()
-        if t:
-            return t.cap
-        else:
-            return None
-
-    def tahoe_download_url(self):
-        t = self.tahoe_file()
-        if t:
-            return t.tahoe_download_url()
-        else:
-            return ""
-
-    def enclosure_url(self):
-        return self.tahoe_download_url()
-
     def filename(self):
         r = self.file_set.filter().exclude(filename="").exclude(filename=None)
         if r.count():
@@ -136,12 +111,9 @@ class Video(TimeStampedModel):
 
     def extension(self):
         """ guess at the extension of the video.
-        prefer the source file, but fallback to the tahoe copy if we have one
+        prefer the source file
         otherwise, we'll take *anything* with a filename """
         f = self.source_file()
-        if f is not None:
-            return os.path.splitext(f.filename)[1]
-        f = self.tahoe_file()
         if f is not None:
             return os.path.splitext(f.filename)[1]
         r = self.file_set.filter().exclude(filename="").exclude(filename=None)
@@ -287,17 +259,6 @@ class Video(TimeStampedModel):
                                      owner=user)
         return (o, params)
 
-    def make_save_file_to_tahoe_operation(self, tmpfilename, user):
-        params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
-                      tahoe_base=settings.TAHOE_BASE)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="save file to tahoe",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return (o, params)
-
     def make_save_file_to_s3_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename, filename=tmpfilename)
         o = Operation.objects.create(uuid=uuid.uuid4(),
@@ -326,18 +287,6 @@ class Video(TimeStampedModel):
                                      status="enqueued",
                                      params=dumps(params),
                                      owner=user)
-        return o, params
-
-    def make_pull_from_tahoe_and_submit_to_pcp_operation(self, video_id,
-                                                         workflow, user):
-        params = dict(video_id=video_id, workflow=workflow)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="pull from tahoe and submit to pcp",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
         return o, params
 
     def make_pull_from_s3_and_submit_to_pcp_operation(self, video_id,
@@ -434,19 +383,6 @@ class FileType(object):
     def __init__(self, file):
         self.file = file
 
-    def tahoe_download_url(self):
-        raise WrongFileType
-
-
-class TahoeFile(FileType):
-    def tahoe_download_url(self):
-        return settings.TAHOE_DOWNLOAD_BASE + "file/" + self.file.cap\
-            + "/@@named=" + self.file.filename
-
-    def tahoe_info_url(self):
-        return settings.TAHOE_DOWNLOAD_BASE + "uri/" + self.file.cap\
-            + "?t=json"
-
 
 class CUITFile(FileType):
     pass
@@ -463,9 +399,8 @@ class File(TimeStampedModel):
     cap = models.CharField(max_length=256, default="", blank=True, null=True)
     filename = models.CharField(max_length=256, blank=True, null=True,
                                 default="")
-    location_type = models.CharField(max_length=256, default="tahoe",
-                                     choices=(('tahoe', 'tahoe'),
-                                              ('pcp', 'pcp'),
+    location_type = models.CharField(max_length=256, default="s3",
+                                     choices=(('pcp', 'pcp'),
                                               ('cuit', 'cuit'),
                                               ('youtube', 'youtube'),
                                               ('s3', 's3'),
@@ -473,17 +408,10 @@ class File(TimeStampedModel):
 
     def filetype(self):
         tmap = dict(
-            tahoe=TahoeFile,
             cuit=CUITFile,
             s3=S3File,
         )
         return tmap.get(self.location_type, FileType)(self)
-
-    def tahoe_download_url(self):
-        return self.filetype().tahoe_download_url()
-
-    def tahoe_info_url(self):
-        return self.filetype().tahoe_info_url()
 
     def set_metadata(self, field, value):
         r = Metadata.objects.filter(file=self, field=field)
@@ -700,7 +628,6 @@ class Operation(TimeStampedModel):
 
         mapper = {
             'extract metadata': wardenclyffe.main.tasks.extract_metadata,
-            'save file to tahoe': wardenclyffe.main.tasks.save_file_to_tahoe,
             'save file to S3': wardenclyffe.main.tasks.save_file_to_s3,
             'make images': wardenclyffe.main.tasks.make_images,
             'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
@@ -709,8 +636,6 @@ class Operation(TimeStampedModel):
             'upload to youtube': wardenclyffe.youtube.tasks.upload_to_youtube,
             'submit to mediathread':
             wardenclyffe.mediathread.tasks.submit_to_mediathread,
-            'pull from tahoe and submit to pcp':
-            wardenclyffe.main.tasks.pull_from_tahoe_and_submit_to_pcp,
             'pull from s3 and submit to pcp':
             wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp,
             'pull from cuit and submit to pcp':

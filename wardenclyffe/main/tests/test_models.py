@@ -7,9 +7,8 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 from wardenclyffe.main.tasks import strip_special_characters
-from wardenclyffe.main.models import FileType, WrongFileType
 from factories import CollectionFactory, VideoFactory, CUITFLVFileFactory
-from factories import SourceFileFactory, TahoeFileFactory
+from factories import SourceFileFactory
 from factories import MediathreadFileFactory, FileFactory
 from factories import PublicFileFactory, OperationFactory
 from factories import DimensionlessSourceFileFactory
@@ -28,10 +27,6 @@ class CUITFileTest(TestCase):
 
     def test_surelinkable(self):
         assert self.file.surelinkable()
-
-    def test_tahoe_download_url(self):
-        assert self.file.video.tahoe_file() is None
-        assert self.file.video.cap() is None
 
     def test_mediathread_url(self):
         self.assertEqual(
@@ -74,20 +69,8 @@ class EmptyVideoTest(TestCase):
     def test_extension(self):
         assert self.video.extension() == ""
 
-    def test_tahoe_file(self):
-        assert self.video.tahoe_file() is None
-
     def test_source_file(self):
         assert self.video.source_file() is None
-
-    def test_cap(self):
-        assert self.video.cap() is None
-
-    def test_tahoe_download_url(self):
-        assert self.video.tahoe_download_url() == ""
-
-    def test_enclosure_url(self):
-        assert self.video.enclosure_url() == ""
 
     def test_filename(self):
         assert self.video.filename() == "none"
@@ -154,49 +137,12 @@ class FileTest(TestCase):
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def test_extension(self):
-        tahoe_file = TahoeFileFactory()
         f = CUITFLVFileFactory()
-        self.assertEquals(tahoe_file.video.extension(), ".mov")
         self.assertEquals(f.video.extension(), ".flv")
-
-    def test_tahoe_file(self):
-        tahoe_file = TahoeFileFactory()
-        assert tahoe_file.video.tahoe_file() == tahoe_file
 
     def test_source_file(self):
         source_file = SourceFileFactory()
         assert source_file.video.source_file() == source_file
-
-    def test_cap(self):
-        tahoe_file = TahoeFileFactory()
-        assert tahoe_file.video.cap() == tahoe_file.cap
-
-    def test_tahoe_download_url(self):
-        tahoe_file = TahoeFileFactory()
-        assert tahoe_file.video.tahoe_download_url() == (
-            "http://tahoe.ccnmtl.columbia.edu/file/"
-            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
-            ":3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
-            "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
-
-    def test_enclosure_url(self):
-        tahoe_file = TahoeFileFactory()
-        assert tahoe_file.video.enclosure_url() == (
-            "http://tahoe.ccnmtl.columbia.edu/file/"
-            "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-            "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
-            ":3:10:4783186/@@named=/var/www/wardenclyffe/tmp//"
-            "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov")
-
-    def test_tahoe_info_url(self):
-        tahoe_file = TahoeFileFactory()
-        self.assertEquals(
-            tahoe_file.tahoe_info_url(),
-            ("http://tahoe.ccnmtl.columbia.edu/uri/"
-             "URI:CHK:dzunkd4hgk6zn4eclrxihmpwcq:"
-             "wowscjwczcrih2cjsdgps5igj4ommb43vxsh5m4ludnxrucrbdsa"
-             ":3:10:4783186?t=json"))
 
     def test_filename(self):
         source_file = SourceFileFactory()
@@ -267,7 +213,6 @@ class MissingDimensionsTest(TestCase):
     """
     def test_get_dimensions(self):
         m = MediathreadFileFactory()
-        TahoeFileFactory(video=m.video)
         CUITFLVFileFactory(video=m.video)
         DimensionlessSourceFileFactory(video=m.video)
 
@@ -395,9 +340,3 @@ class ServerTest(TestCase):
     def test_url(self):
         s = ServerFactory()
         self.assertEquals(s.get_absolute_url(), "/server/%d/" % s.id)
-
-
-class FileTypeTest(TestCase):
-    def test_tahoe_download_url(self):
-        f = FileType(file="foo")
-        self.assertRaises(WrongFileType, f.tahoe_download_url)

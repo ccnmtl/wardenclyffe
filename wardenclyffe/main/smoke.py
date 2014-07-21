@@ -3,7 +3,6 @@ from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
 import os.path
-import requests
 
 
 class DBConnectivityTest(SmokeTest):
@@ -17,10 +16,6 @@ class DBConnectivityTest(SmokeTest):
 class ExpectedSettings(SmokeTest):
     """ just make sure that the settings that we expect
     are even set to non-null values."""
-    def test_tahoe_settings(self):
-        self.assertIsNotNone(settings.TAHOE_BASE)
-        self.assertIsNotNone(settings.TAHOE_DOWNLOAD_BASE)
-
     def test_dir_settings(self):
         self.assertIsNotNone(settings.TMP_DIR)
         self.assertIsNotNone(settings.WATCH_DIRECTORY)
@@ -103,12 +98,3 @@ class WatchDirTest(SmokeTest):
     def test_watchdir(self):
         self.assertTrue(os.path.exists(settings.WATCH_DIRECTORY))
         self.assertTrue(os.path.isdir(settings.WATCH_DIRECTORY))
-
-
-class TahoeTest(SmokeTest):
-    """ make sure we can connect to Tahoe and that the
-    base CAP looks legit"""
-    def test_tahoe(self):
-        if not settings.STAGING:
-            response = requests.get(settings.TAHOE_BASE)
-            self.assertEqual(response.status_code, 200)
