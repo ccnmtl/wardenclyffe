@@ -166,7 +166,7 @@ STATSD_HOST = 'localhost'
 STATSD_PORT = 8125
 #STATSD_PATCHES = ['django_statsd.patches.db', ]
 
-BROKER_URL = "ampq://localhost:5672//"
+BROKER_URL = "amqp://localhost:5672//"
 CELERYD_CONCURRENCY = 4
 
 
@@ -211,7 +211,7 @@ WIND_AFFIL_HANDLERS = ['djangowind.auth.AffilGroupMapper',
                        'djangowind.auth.SuperuserMapper']
 WIND_STAFF_MAPPER_GROUPS = ['tlc.cunix.local:columbia.edu']
 WIND_SUPERUSER_MAPPER_GROUPS = ['anp8', 'jb2410', 'zm4', 'egr2107',
-                                'amm8', 'mar227']
+                                'amm8', 'mar227','jed2161']
 
 H264_SECURE_STREAM_DIRECTORY = "/media/h264/ccnmtl/secure/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
