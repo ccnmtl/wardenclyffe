@@ -1,6 +1,8 @@
 ._*
 *~
+*#
 *.pyc
+*.DS_Store
 ve
 pip-log.txt
 local_settings.py
