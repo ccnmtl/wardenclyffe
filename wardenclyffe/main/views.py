@@ -647,10 +647,13 @@ class UploadFormView(StaffMixin, TemplateView):
         form.fields["collection"].queryset = Collection.objects.filter(
             active=True)
         collection_id = self.request.GET.get('collection', None)
+        collection_title = None
         if collection_id:
             collection = get_object_or_404(Collection, id=collection_id)
+            collection_title = collection.title
             form = collection.add_video_form()
-        return dict(form=form, collection_id=collection_id)
+        return dict(form=form, collection_id=collection_id,
+                    collection_title=collection_title)
 
 
 class ScanDirectoryView(StaffMixin, TemplateView):
