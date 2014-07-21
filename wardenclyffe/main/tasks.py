@@ -110,7 +110,7 @@ def make_images(operation, params):
         command = fallback_image_extract_command(tmpdir, frames, tmpfilename)
         os.system(command)
     # TODO: parameterize
-    imgdir = "/var/www/wardenclyffe/uploads/images/%05d/" % operation.video.id
+    imgdir = "%simages/%05d/" % (settings.MEDIA_ROOT, operation.video.id)
     honey_badger(os.makedirs, imgdir)
     imgs = os.listdir(tmpdir)
     imgs.sort()
