@@ -68,6 +68,14 @@ class ExpectedSettings(SmokeTest):
     def test_surelink_settings(self):
         self.assertIsNotNone(settings.SURELINK_PROTECTION_KEY)
 
+    def test_executables(self):
+        self.assertIsNotNone(settings.IONICE_PATH)
+        self.assertIsNotNone(settings.MPLAYER_PATH)
+        self.assertTrue(os.path.exists(settings.IONICE_PATH))
+        self.assertTrue(os.path.exists(settings.MPLAYER_PATH))
+        self.assertTrue(os.path.isfile(settings.IONICE_PATH))
+        self.assertTrue(os.path.isfile(settings.MPLAYER_PATH))
+
 
 class RabbitMQTest(SmokeTest):
     """ make sure we can connect to the RabbitMQ server """
