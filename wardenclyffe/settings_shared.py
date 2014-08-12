@@ -214,6 +214,9 @@ WIND_SUPERUSER_MAPPER_GROUPS = ['anp8', 'jb2410', 'zm4', 'egr2107',
                                 'amm8', 'mar227', 'njn2118', 'jed2161',
                                 'sld2131']
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
 H264_SECURE_STREAM_DIRECTORY = "/media/h264/ccnmtl/secure/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
 H264_SECURE_STREAM_BASE = "http://stream.ccnmtl.columbia.edu/secvideos/"
@@ -230,7 +233,7 @@ FLV_STREAM_BASE_URL = "http://ccnmtl.columbia.edu/stream/flv/"
 
 MAX_FRAMES = 50
 
-POSTER_BASE_URL = "http://wardenclyffe.ccnmtl.columbia.edu/uploads/"
+POSTER_BASE_URL = "https://wardenclyffe.ccnmtl.columbia.edu/uploads/"
 DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
     "broadcast/posters/vidthumb_480x360.jpg")
