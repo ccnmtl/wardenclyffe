@@ -193,10 +193,8 @@ $(document).ready(
                     }
                     return cookieValue;
                 }
-                if (!(/^http:.*/.test(settings.url) || (/^https:.*/.test(settings.url)))) {
-                    // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                }
+                // Only send the token to relative URLs i.e. locally.
+//                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             });
 
             $(document).ready(
