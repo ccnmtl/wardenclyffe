@@ -21,10 +21,13 @@
 <body class="one_column fixed mediathread">
     <div id="container">
         <!-- ###### Site banner ###### -->
-        <div id="header">
-        	<!-- Project title/logo --><h1 id="logo_project"></h1>	
-        	<div id="mediathread_logo"><a href="#" onclick="window.location = jQuery.query.get('redirect_url').split('&')[0];"><img src="{{STATIC_URL}}img/logo_mediathread.png" width="172" height="42" /></a></div>
-        </div><!-- id="header" -->
+		<div id="header">
+			<div id="standardnav_container">   
+				<div id="mediathread_logo">
+					<a href="http://mediathread.ccnmtl.columbia.edu/"><img src="{{STATIC_URL}}img/logo_mediathread_new.png" alt="mediathread logo" width="156" height="45"></a>
+				</div>
+			</div>
+		</div>
 
         <!-- ###### Don't touch this ###### -->
         <div class="visualclear"></div>
@@ -44,10 +47,10 @@
                         <p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
                         {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
                     {% if audio %}
-                        <p>Use this form to upload audio. Mediathread supports audio files that end in <tt>.mp3</tt>. 
+                        <p>Use this form to upload audio. Mediathread supports audio files that end in <b><i>.mp3</i></b>. 
                         Any other audio should be converted to a mp3 before uploading.</p>
                     {% else %}
-                        <p>Use this form to upload a video. Mediathread supports video files that end in .mov, .mp4, or .avi. 
+                        <p>Use this form to upload a video. Mediathread supports video files that end in <b><i>.mov</i></b>, <b><i>.mp4</i></b>, or <b><i>.avi</i></b>. 
                         Any other video should be converted to a Quicktime-compatible format before uploading. Submitted files must be less than 2GB.</p>
                     {% endif %}
                     </div>
@@ -118,11 +121,11 @@
 </div>
 <br />
 <br />
-	<!-- ###### Footer ###### -->
-	<div id="footer_m"><div></div>
 {% else %}
 {% include 'main/maintenance_mode.html' %}
 {% endflag %}
+	<!-- ###### Footer ###### -->
+	<div id="footer_m"><div></div>
 
 </div>
     <script type="text/javascript">

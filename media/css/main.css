@@ -2138,83 +2138,70 @@ body.mediathread input.regButton:active
 
 body.mediathread
 {
+  /*
   margin: 0;
   padding: 0;
   border: 0;
   background-color: #fff;
   font: normal 12px/120% 'lucida grande', arial, verdana, sans-serif;
   color: #000;
+  */
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background-color: #fff;
+	font: .875em/1.5em 'helvetica neue', helvetica, arial, sans-serif !important;
+	color: #383838;
+	width: 100% auto;
 }
 
 body.mediathread h1
 {
-  font-family:'lucida grande', arial, verdana, sans-serif !important;
+  font-family: 'helvetica neue', helvetica, arial, sans-serif !important;
   padding-top: 1em;
 }
 
 body.mediathread #container
 {
-  margin: 0 5px;
+  margin: 0;
   padding: 0;
-  border: 1px solid #999;
-  border-collapse: collapse;
+  border: 0;
   background-color: #fff;
   border-top: none;
 }
+
 body.mediathread #header
 {
-  display: block;
-  width: 100%;
-  height: 74px;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  border: 0;
-    background: #444; /* for non-css3 browsers */
-
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#000000'); /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ccc)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #fff,  #ccc); /* for firefox 3.6+ */
-
+    display: block;
+    overflow: hidden;
+    margin: 0;
+	padding:0;
+	border: 0;
+	width: auto;
+	height: auto;
 }
 
-body.mediathread #header #logo_project
-{
-  display: block;
-  float: left;
-  width: 280px;
-  height: 74px;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  border: 0;
+body.mediathread #standardnav_container {
+    display: block;
+    float: left;
+    margin: 0;
+    width: 100%;
+    padding: 0;
+    background-color: #383838;
 }
 
-body.mediathread #header #logo_project
-{
-  display: block;
-  width: 280px;
-  height: 72px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent url('../img/logo_project_meth.png') left top no-repeat;
-  position:absolute;
-  z-index:100;
+body.mediathread #mediathread_logo {
+    float: left;
+    height: 35px;
+    overflow: hidden;
+    padding: 0 0 0 10px;
+    position: relative;
+    top: -3px;
 }
+
 
 /* ---- Standard navigation block elements ---------- */
 
-body.mediathread #mediathread_logo {
-    display: block;
-    float: right;
-    height: 43px;
-    border-bottom: 1px solid #acacac;
-    border-left:  1px solid #acacac;
-  background-color: #6f6f6f;
-  -moz-border-radius-bottomleft: 10px;
-    -webkit-border-bottom-left-radius: 10px;
-}
 
 body.mediathread #content
 {
@@ -2234,18 +2221,10 @@ body.mediathread #footer_m
   margin: 0;
   padding: 3px 0;
   border: 0;
-  background-color: #444;
+    background: transparent url('../img/logo_ccnmtl_mediathread_bw.gif') 10px top no-repeat;
 }
 
 
-body.mediathread #footer_m div
-{
-  float: right;
-  margin: 0 5px 0 0;
-  height: 33px;
-  width: 200px;
-  background: #444 url('../img/logo_ccnmtl_meth.gif') right center no-repeat;
-}
 
 .uploadifyQueueItem
 {
