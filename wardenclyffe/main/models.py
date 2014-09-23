@@ -232,6 +232,15 @@ class Video(TimeStampedModel):
         except:
             return None
 
+    def is_audio_file(self):
+        """ is this one of the weird mp3s that are
+        uploaded to be converted to mp4s so clipping works?"""
+        try:
+            return self.file_set.filter(
+                location_type='mediathreadsubmit')[0].get_metadata('audio')
+        except:
+            return False
+
     def make_mediathread_submit_file(self, filename, user, set_course,
                                      redirect_to, audio=False,
                                      audio2=False):

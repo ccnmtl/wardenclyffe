@@ -116,6 +116,9 @@ class EmptyVideoTest(TestCase):
         r = self.video.upto_hundred_images()
         self.assertEqual(len(r), 0)
 
+    def test_is_audio_file(self):
+        self.assertFalse(self.video.is_audio_file())
+
 
 class FileTest(TestCase):
     def test_set_metadata(self):
@@ -278,6 +281,7 @@ class SubmitFilesTest(TestCase):
         self.assertEquals(
             v.mediathread_submit(),
             ("course-id", u.username, u'True', u'True'))
+        self.assertTrue(v.is_audio_file())
         v.clear_mediathread_submit()
         self.assertEquals(
             v.mediathread_submit(),

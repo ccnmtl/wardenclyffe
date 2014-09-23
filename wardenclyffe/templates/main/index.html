@@ -64,7 +64,11 @@ jQuery(function($){
 						<div class="video_thumbnail">
 						<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
 						{% if poster.dummy %}
+            {% if video.is_audio_file %}
+						<img src="{{STATIC_URL}}img/musicthumb160.jpg" width="160" height="120" />
+            {% else %}
 						<img src="{{STATIC_URL}}img/vidthumb160.jpg" width="160" height="120" />
+            {% endif %}
 						{% else %}
 						{% thumbnail poster.image.image "160x120" as thmb %}
 						<img src="{{thmb.absolute_url}}" width="160"/>
