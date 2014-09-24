@@ -124,6 +124,12 @@ class MediathreadFileFactory(FileFactory):
     url = "http://mediathread.ccnmtl.columbia.edu/asset/5684/"
 
 
+class S3FileFactory(FileFactory):
+    label = "s3 file"
+    location_type = "s3"
+    cap = "2011/09/28/t6009_005_2011_3_oppenheim_shear_kim1_edit.mov"
+
+
 class OperationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Operation
     video = factory.SubFactory(VideoFactory)

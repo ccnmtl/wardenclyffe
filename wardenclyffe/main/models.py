@@ -14,6 +14,11 @@ import os.path
 from wardenclyffe.util.mail import send_failed_operation_mail
 from django_statsd.clients import statsd
 import uuid
+import time
+import hmac
+import sha
+import urllib
+import base64
 from json import dumps, loads
 
 add_introspection_rules(
@@ -392,13 +397,39 @@ class FileType(object):
     def __init__(self, file):
         self.file = file
 
+    def is_s3(self):
+        return False
+
+    def s3_download_url(self):
+        return None
+
 
 class CUITFile(FileType):
     pass
 
 
 class S3File(FileType):
-    pass
+    def is_s3(self):
+        return True
+
+    def s3_download_url(self):
+        filename = "/" + settings.AWS_S3_UPLOAD_BUCKET + "/" + self.file.cap
+        expiry = str(int(time.time()) + 3600)
+        h = hmac.new(
+            settings.AWS_SECRET_KEY,
+            "".join(["GET\n\n\n", expiry, "\n", filename]),
+            sha)
+        signature = urllib.quote_plus(base64.encodestring(h.digest()).strip())
+        return "".join([
+            "https://s3.amazonaws.com",
+            filename,
+            "?AWSAccessKeyId=",
+            settings.AWS_ACCESS_KEY,
+            "&Expires=",
+            expiry,
+            "&Signature=",
+            signature
+        ])
 
 
 class File(TimeStampedModel):
@@ -421,6 +452,12 @@ class File(TimeStampedModel):
             s3=S3File,
         )
         return tmap.get(self.location_type, FileType)(self)
+
+    def is_s3(self):
+        return self.filetype().is_s3()
+
+    def s3_download_url(self):
+        return self.filetype().s3_download_url()
 
     def set_metadata(self, field, value):
         r = Metadata.objects.filter(file=self, field=field)

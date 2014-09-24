@@ -36,6 +36,14 @@ S3 Key
 {% endif %}
 </th><td>{{file.cap}}</td></tr>{% endif %}
 {% if file.filename %}<tr><th>Filename</th><td>{{file.filename}}</td></tr>{% endif %}
+
+{% if file.is_s3 %}
+<tr>
+<th>Download from S3</th>
+<td><a href="{{file.s3_download_url}}">{{file.s3_download_url}}</a></td>
+</tr>
+{% endif %}
+
 </table>
 
 {% ifequal file.location_type "mediathread" %}

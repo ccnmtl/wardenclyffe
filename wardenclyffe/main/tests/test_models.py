@@ -6,10 +6,11 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from wardenclyffe.main.tasks import strip_special_characters
 from factories import CollectionFactory, VideoFactory, CUITFLVFileFactory
 from factories import SourceFileFactory
-from factories import MediathreadFileFactory, FileFactory
+from factories import (MediathreadFileFactory, S3FileFactory, FileFactory)
 from factories import PublicFileFactory, OperationFactory
 from factories import DimensionlessSourceFileFactory
 from factories import ServerFactory, UserFactory
@@ -135,6 +136,28 @@ class FileTest(TestCase):
     def test_get_absolute_url(self):
         f = FileFactory()
         self.assertEqual(f.get_absolute_url(), "/file/%d/" % f.id)
+
+
+class S3FileTest(TestCase):
+    def test_is_s3(self):
+        f = S3FileFactory()
+        self.assertTrue(f.is_s3())
+
+    @override_settings(AWS_S3_UPLOAD_BUCKET="foo",
+                       AWS_SECRET_KEY="bar",
+                       AWS_ACCESS_KEY="baz")
+    def test_s3_download_url(self):
+        f = S3FileFactory()
+        self.assertTrue(
+            f.s3_download_url().startswith(
+                ("https://s3.amazonaws.com/foo/2011/09/28/"
+                 "t6009_005_2011_3_oppenheim_"
+                 "shear_kim1_edit.mov")))
+
+    def test_non_s3_file(self):
+        f = MediathreadFileFactory()
+        self.assertFalse(f.is_s3())
+        self.assertIsNone(f.s3_download_url())
 
 
 class MediathreadVideoTest(TestCase):
