@@ -159,26 +159,18 @@ class UploadifyView(View):
 class PLUploadifyView(View):
     def post(self, request, *args, **kwargs):
         statsd.incr('main.uploadify_post')
-        print str(request.POST)
         try:
             if request.FILES:
-                print 'has files'
                 # save it locally
                 vuuid = uuid.uuid4()
-                print vuuid
                 safe_makedirs(settings.TMP_DIR)
-                print "made dirs"
-                print str(request.FILES)
                 extension = request.FILES['file'].name.split(".")[-1]
-                print extension
                 tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
                     + extension.lower()
-                print tmpfilename
                 tmpfile = open(tmpfilename, 'wb')
                 for chunk in request.FILES['file'].chunks():
                     tmpfile.write(chunk)
                 tmpfile.close()
-                print "wrote"
                 return HttpResponse(tmpfilename)
             else:
                 statsd.incr('main.uploadify_post_no_file')
@@ -188,7 +180,6 @@ class PLUploadifyView(View):
             # is impatient and hits reload or back, or if they
             # cancel the upload. Not really our fault and not much
             # we can do about it.
-            print "ioerror"
             return HttpResponse('False')
         return HttpResponse('True')
 
@@ -620,57 +611,6 @@ def create_operations(request, v, tmpfilename, source_file, filename):
 @login_required
 @user_passes_test(is_staff)
 def upload(request):
-    if request.method != "POST":
-        transaction.rollback()
-        return HttpResponseRedirect("/upload/")
-
-    form = VideoForm(request.POST, request.FILES)
-    if not form.is_valid():
-        # TODO: give the user proper feedback here
-        transaction.rollback()
-        return HttpResponseRedirect("/upload/")
-
-    collection_id = None
-    operations = []
-    params = []
-    statsd.incr('main.upload')
-
-    # save it locally
-    (source_filename, tmpfilename, vuuid) = save_file_locally(request)
-    # important to note here that we allow an "upload" with no file
-    # so the user can create a placeholder for a later upload,
-    # or to associate existing files/urls with
-
-    # make db entry
-    try:
-        v = form.save(commit=False)
-        v.uuid = vuuid
-        v.creator = request.user.username
-        collection_id = request.GET.get('collection', None)
-        if collection_id:
-            v.collection_id = collection_id
-        v.save()
-        form.save_m2m()
-        source_file = v.make_source_file(source_filename)
-
-        if source_filename:
-            operations, params = create_operations(
-                request, v, tmpfilename, source_file, source_filename)
-    except:
-        statsd.incr('main.upload.failure')
-        transaction.rollback()
-        raise
-    else:
-        transaction.commit()
-        for o, p in zip(operations, params):
-            tasks.process_operation.delay(o.id, p)
-    return HttpResponseRedirect("/")
-
-
-@transaction.commit_manually
-@login_required
-@user_passes_test(is_staff)
-def plupload(request):
     if request.method != "POST":
         transaction.rollback()
         return HttpResponseRedirect("/upload/")

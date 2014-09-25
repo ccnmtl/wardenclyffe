@@ -95,6 +95,7 @@
 			<div class="fieldwrapper">
 				<ul id="filelist"></ul>
 				<a id="browse" href="javascript:;">Select File</a>
+        <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
 
 				<pre id="console"></pre>
 			</div>
@@ -193,7 +194,6 @@ var uploader = new plupload.Uploader({
   silverlight_xap_url: '{{STATIC_URL}}js/Moxie.xap',
   filters: {
     mime_types : [
-      { title : "Image files", extensions : "jpg,gif,png" },
       { title : "Audio files", extensions : "mp3" },
       { title : "Video Files", extensions : "mov,avi,mp4,flv,mpg,wmv,m4v" }
     ]
