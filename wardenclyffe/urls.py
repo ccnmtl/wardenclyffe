@@ -99,6 +99,7 @@ urlpatterns = patterns(
     (r'^uuid_search/$', views.UUIDSearchView.as_view()),
     (r'^api/tagautocomplete/$', views.TagAutocompleteView.as_view()),
     (r'^api/subjectautocomplete/$', views.SubjectAutocompleteView.as_view()),
+    (r'^api/sns/$', views.SNSView.as_view()),
     (r'^celery/', include('djcelery.urls')),
     ('smoketest/', include('smoketest.urls')),
     (r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),

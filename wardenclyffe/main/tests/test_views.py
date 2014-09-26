@@ -8,6 +8,8 @@ from factories import UserFactory
 from factories import VideoFactory
 from factories import CollectionFactory
 from factories import ImageFactory
+from httpretty import HTTPretty, httprettified
+import httpretty
 
 
 class SimpleTest(TestCase):
@@ -589,3 +591,63 @@ class TestStaff(TestCase):
     def test_list_workflows(self):
         response = self.c.get("/list_workflows/")
         self.assertEqual(response.status_code, 200)
+
+confirmation_headers = {
+    'x-amz-sns-message-type': 'SubscriptionConfirmation',
+    'x-amz-sns-message-id': '165545c9-2a5c-472c-8df2-7ff2be2b3b1b',
+    'x-amz-sns-topic-arn': 'arn:aws:sns:us-east-1:123456789012:MyTopic',
+    'content_type': 'text/plain; charset=UTF-8',
+    'User-Agent': 'Amazon Simple Notification Service Agent',
+}
+
+confirmation_body = """
+{
+  "Type" : "SubscriptionConfirmation",
+  "MessageId" : "165545c9-2a5c-472c-8df2-7ff2be2b3b1b",
+  "Token" : "2336412f37fb687f5d51e6e241d09",
+  "TopicArn" : "arn:aws:sns:us-east-1:123456789012:MyTopic",
+  "Message" : "You have chosen to subscribe to the topic arn:aws:sns:",
+  "SubscribeURL" : "http://example.com/?Action=ConfirmSubscription",
+  "Timestamp" : "2012-04-26T20:45:04.751Z",
+  "SignatureVersion" : "1",
+  "Signature" : "EXAMPLEpH+DcEwjAPg8O9mY8dReBSwksfg2S7WKQcikcNK+gLPoBc1Q=",
+  "SigningCertURL" : "https://example.com/SimpleNotificationService.pem"
+  }"""
+
+class SNSTest(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @httprettified
+    def test_subscription_confirmation(self):
+        HTTPretty.register_uri(
+            HTTPretty.GET,
+            "http://example.com/?Action=ConfirmSubscription",
+            body="yes"
+        )
+        r = self.c.post(
+            "/api/sns/",
+            confirmation_body,
+            **confirmation_headers
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "OK")
+        self.assertEqual(httpretty.last_request().method, "GET")
+        self.assertEqual(httpretty.last_request().path,
+                         "/?Action=ConfirmSubscription")
+
+    def test_subscription_confirmation_invalid_json(self):
+        r = self.c.post(
+            "/api/sns/",
+            "{}",
+            **confirmation_headers
+        )
+        self.assertEqual(r.status_code, 400)
+
+    def test_sns_no_message_type(self):
+        r = self.c.post(
+            "/api/sns/",
+            dict(),
+        )
+        self.assertEqual(r.status_code, 400)
+

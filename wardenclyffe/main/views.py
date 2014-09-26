@@ -1,6 +1,7 @@
 # stdlib imports
 import os
 import uuid
+import requests
 import wardenclyffe.main.tasks as tasks
 
 from angeldust import PCP
@@ -33,6 +34,7 @@ from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
+from django.core.mail import send_mail
 
 
 def is_staff(user):
@@ -1242,3 +1244,32 @@ class SureLinkView(TemplateView):
             authtype_options=AUTHTYPE_OPTIONS,
             authtype=self.request.GET.get('authtype', ''),
         )
+
+
+class SNSView(View):
+    def post(self, request):
+        if 'x-amz-sns-message-type' not in self.request.META:
+            return HttpResponse("unknown message type", status=400)
+        if (self.request.META['x-amz-sns-message-type'] ==
+                'SubscriptionConfirmation'):
+            message = loads(request.read())
+            if "SubscribeURL" not in message:
+                return HttpResponse("no subscribe url", status=400)
+            url = message["SubscribeURL"]
+            r = requests.get(url)
+            if r.status_code == 200:
+                return HttpResponse("OK")
+            return HttpResponse("Failed to confirm")
+        if (self.request.META['x-amz-sns-message-type'] ==
+                'Notification'):
+            body = request.read()
+            # send anders the message body.
+            # i need to see a few of these to even figure out
+            # how to parse it.
+            send_mail(
+                "SNS notification", body,
+                "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
+                ["anders@columbia.edu"], fail_silently=False)
+            return HttpResponse("OK")
+            
+        return HttpResponse("unknown message type", status=400)
