@@ -1255,9 +1255,9 @@ class SNSView(View):
             "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
             ["anders@columbia.edu"], fail_silently=False)
 
-        if 'x-amz-sns-message-type' not in self.request.META:
+        if 'HTTP_X_AMZ_SNS_MESSAGE_TYPE' not in self.request.META:
             return HttpResponse("unknown message type", status=400)
-        if (self.request.META['x-amz-sns-message-type'] ==
+        if (self.request.META['HTTP_X_AMZ_SNS_MESSAGE_TYPE'] ==
                 'SubscriptionConfirmation'):
             message = loads(body)
             if "SubscribeURL" not in message:
@@ -1267,7 +1267,7 @@ class SNSView(View):
             if r.status_code == 200:
                 return HttpResponse("OK")
             return HttpResponse("Failed to confirm")
-        if (self.request.META['x-amz-sns-message-type'] ==
+        if (self.request.META['HTTP_X_AMZ_SNS_MESSAGE_TYPE'] ==
                 'Notification'):
             # send anders the message body.
             # i need to see a few of these to even figure out
