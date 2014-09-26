@@ -189,6 +189,7 @@ var uploader = new plupload.Uploader({
   browse_button: 'browse', // this can be an id of a DOM element or the DOM element itself
   url: '/pluploadify/',
   max_retries: 3,
+  multi_selection: false,
   runtimes : 'html5,flash,silverlight',
   flash_swf_url: '{{STATIC_URL}}js/Moxie.swf',
   silverlight_xap_url: '{{STATIC_URL}}js/Moxie.xap',
