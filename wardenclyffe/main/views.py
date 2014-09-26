@@ -1248,11 +1248,18 @@ class SureLinkView(TemplateView):
 
 class SNSView(View):
     def post(self, request):
+        body = request.read()
+        debug = "%s\n\n%s" % (str(request.META), body)
+        send_mail(
+            "SNS notification request", debug,
+            "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
+            ["anders@columbia.edu"], fail_silently=False)
+
         if 'x-amz-sns-message-type' not in self.request.META:
             return HttpResponse("unknown message type", status=400)
         if (self.request.META['x-amz-sns-message-type'] ==
                 'SubscriptionConfirmation'):
-            message = loads(request.read())
+            message = loads(body)
             if "SubscribeURL" not in message:
                 return HttpResponse("no subscribe url", status=400)
             url = message["SubscribeURL"]
@@ -1262,7 +1269,6 @@ class SNSView(View):
             return HttpResponse("Failed to confirm")
         if (self.request.META['x-amz-sns-message-type'] ==
                 'Notification'):
-            body = request.read()
             # send anders the message body.
             # i need to see a few of these to even figure out
             # how to parse it.
