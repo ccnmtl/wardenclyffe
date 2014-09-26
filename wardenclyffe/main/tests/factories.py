@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
-from wardenclyffe.main.models import Collection, Video, File, Operation
-from wardenclyffe.main.models import Server, Image, Poster
+from wardenclyffe.main.models import (
+    Collection, Video, File, Operation,
+    Server, Image, Poster, OperationFile)
 import factory
 import uuid
 
@@ -137,6 +138,12 @@ class OperationFactory(factory.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     status = "in progress"
     params = "{}"
+
+
+class OperationFileFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = OperationFile
+    operation = factory.SubFactory(OperationFactory)
+    file = factory.SubFactory(FileFactory)
 
 
 class ServerFactory(factory.DjangoModelFactory):

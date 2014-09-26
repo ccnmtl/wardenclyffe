@@ -87,8 +87,14 @@ def create_elastic_transcoder_job(operation, params):
         outputs=output_objects)
     job_id = str(job['Job']['Id'])
     print job_id
-
-    return ("complete", "")
+    f = File.objects.create(
+        video=operation.video,
+        cap=job_id,
+        location_type="transcode",
+        filename="",
+        label="transcode")
+    OperationFile.objects.create(operation=operation, file=f)
+    return ("submitted", "")
 
 
 IONICE = settings.IONICE_PATH

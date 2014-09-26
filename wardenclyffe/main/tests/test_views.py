@@ -1,14 +1,13 @@
 from django.test import TestCase
 from django.test.client import Client
-from wardenclyffe.main.models import Collection
-from factories import FileFactory
-from factories import OperationFactory
-from factories import ServerFactory
-from factories import UserFactory
-from factories import VideoFactory
-from factories import CollectionFactory
-from factories import ImageFactory
+from wardenclyffe.main.models import (
+    Collection, Operation, File)
+from factories import (
+    FileFactory, OperationFactory, ServerFactory,
+    UserFactory, VideoFactory, CollectionFactory,
+    ImageFactory, OperationFileFactory)
 from httpretty import HTTPretty, httprettified
+import os.path
 import httpretty
 
 
@@ -614,6 +613,14 @@ confirmation_body = """
   "SigningCertURL" : "https://example.com/SimpleNotificationService.pem"
   }"""
 
+notification_headers = {
+    'HTTP_X_AMZ_SNS_MESSAGE_TYPE': 'Notification',
+    'x-amz-sns-message-id': '165545c9-2a5c-472c-8df2-7ff2be2b3b1b',
+    'x-amz-sns-topic-arn': 'arn:aws:sns:us-east-1:123456789012:MyTopic',
+    'content_type': 'text/plain; charset=UTF-8',
+    'User-Agent': 'Amazon Simple Notification Service Agent',
+}
+
 
 class SNSTest(TestCase):
     def setUp(self):
@@ -651,3 +658,32 @@ class SNSTest(TestCase):
             dict(),
         )
         self.assertEqual(r.status_code, 400)
+
+    def test_sns_success_notification(self):
+        tf = FileFactory(
+            location_type='transcode',
+            cap="1411757335963-fyxugb",
+        )
+        o = OperationFactory(
+            action="elastic transcode job",
+            status="submitted")
+        OperationFileFactory(operation=o, file=tf)
+
+        r = self.c.post(
+            "/api/sns/",
+            open(os.path.join(os.path.dirname(__file__),
+                              "notification_body.json")).read(),
+            **notification_headers
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "OK")
+
+        no = Operation.objects.get(id=o.id)
+        self.assertEqual(no.status, 'completed')
+
+        nf = File.objects.get(
+            location_type='s3',
+            label='transcoded file (S3)')
+        self.assertEqual(
+            nf.cap,
+            "2014/09/26/f3d2831b-11dd-409f-ad94-97a77e98922f.mp4")

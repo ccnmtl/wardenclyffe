@@ -425,7 +425,10 @@ class S3File(FileType):
         return True
 
     def s3_download_url(self):
-        filename = "/" + settings.AWS_S3_UPLOAD_BUCKET + "/" + self.file.cap
+        bucket = settings.AWS_S3_UPLOAD_BUCKET
+        if 'transcode' in self.file.label:
+            bucket = settings.AWS_S3_OUTPUT_BUCKET
+        filename = "/" + bucket + "/" + self.file.cap
         expiry = str(int(time.time()) + 3600)
         h = hmac.new(
             settings.AWS_SECRET_KEY,

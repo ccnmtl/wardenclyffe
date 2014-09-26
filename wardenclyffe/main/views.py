@@ -29,12 +29,12 @@ from wardenclyffe.main.forms import VideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import Server, CollectionWorkflow
+from wardenclyffe.main.models import OperationFile
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
-from django.core.mail import send_mail
 
 
 def is_staff(user):
@@ -1247,34 +1247,64 @@ class SureLinkView(TemplateView):
 
 
 class SNSView(View):
-    def post(self, request):
-        body = request.read()
-        debug = "%s\n\n%s" % (str(request.META), body)
-        send_mail(
-            "SNS notification request", debug,
-            "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
-            ["anders@columbia.edu"], fail_silently=False)
+    def _subscription_confirmation(self, request):
+        message = loads(self.body)
+        if "SubscribeURL" not in message:
+            return HttpResponse("no subscribe url", status=400)
+        url = message["SubscribeURL"]
+        r = requests.get(url)
+        if r.status_code == 200:
+            return HttpResponse("OK")
+        return HttpResponse("Failed to confirm")
 
+    def _notification(self, request):
+        full_message = loads(self.body)
+        ets_message = loads(full_message['Message'])
+        state = ets_message['state']
+        job_id = ets_message['jobId']
+
+        # retrieve matching operation by jobId
+        tf = File.objects.filter(
+            location_type='transcode',
+            cap=job_id,
+        )
+        if not tf.exists():
+            # success report for a non-existent transcoding
+            # job. assume it's a duplicate
+            return HttpResponse("OK")
+        operation = tf[0].operationfile_set.all()[0].operation
+
+        if state == 'COMPLETED':
+            # set it to completed
+            operation.status = "completed"
+            operation.save()
+            tf[0].delete()
+            # add S3 output file record
+            for output in ets_message['outputs']:
+                f = File.objects.create(
+                    video=operation.video,
+                    cap=output['key'],
+                    location_type="s3",
+                    filename=output['key'],
+                    label="transcoded file (S3)")
+                OperationFile.objects.create(
+                    operation=operation, file=f)
+        else:
+            # set it to failed
+            operation.status = "failed"
+            operation.save()
+            tf[0].delete()
+            operation.log(info=self.body)
+        return HttpResponse("OK")
+
+    def post(self, request):
+        self.body = request.read()
         if 'HTTP_X_AMZ_SNS_MESSAGE_TYPE' not in self.request.META:
             return HttpResponse("unknown message type", status=400)
         if (self.request.META['HTTP_X_AMZ_SNS_MESSAGE_TYPE'] ==
                 'SubscriptionConfirmation'):
-            message = loads(body)
-            if "SubscribeURL" not in message:
-                return HttpResponse("no subscribe url", status=400)
-            url = message["SubscribeURL"]
-            r = requests.get(url)
-            if r.status_code == 200:
-                return HttpResponse("OK")
-            return HttpResponse("Failed to confirm")
+            return self._subscription_confirmation(request)
         if (self.request.META['HTTP_X_AMZ_SNS_MESSAGE_TYPE'] ==
                 'Notification'):
-            # send anders the message body.
-            # i need to see a few of these to even figure out
-            # how to parse it.
-            send_mail(
-                "SNS notification", body,
-                "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
-                ["anders@columbia.edu"], fail_silently=False)
-            return HttpResponse("OK")
+            return self._notification(request)
         return HttpResponse("unknown message type", status=400)
