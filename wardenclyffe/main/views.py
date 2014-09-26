@@ -1276,7 +1276,7 @@ class SNSView(View):
 
         if state == 'COMPLETED':
             # set it to completed
-            operation.status = "completed"
+            operation.status = "complete"
             operation.save()
             tf[0].delete()
             # add S3 output file record

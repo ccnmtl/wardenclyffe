@@ -679,7 +679,7 @@ class SNSTest(TestCase):
         self.assertEqual(r.content, "OK")
 
         no = Operation.objects.get(id=o.id)
-        self.assertEqual(no.status, 'completed')
+        self.assertEqual(no.status, 'complete')
 
         nf = File.objects.get(
             location_type='s3',
