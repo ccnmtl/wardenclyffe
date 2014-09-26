@@ -340,6 +340,18 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_create_elastic_transcoder_job_operation(
+            self, key, user):
+        params = dict(key=key)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="create elastic transcoder job",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
     def make_upload_to_youtube_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename)
         o = Operation.objects.create(uuid=uuid.uuid4(),
@@ -686,6 +698,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp,
             'pull from cuit and submit to pcp':
             wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp,
+            'create elastic transcoder job':
+            wardenclyffe.main.tasks.create_elastic_transcoder_job,
         }
         return mapper[self.action]
 

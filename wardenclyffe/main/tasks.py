@@ -19,8 +19,10 @@ import re
 import shutil
 from django_statsd.clients import statsd
 import boto
+import boto.elastictranscoder
 from boto.s3.key import Key
 import waffle
+import uuid
 
 
 def save_file_to_s3(operation, params):
@@ -48,6 +50,44 @@ def save_file_to_s3(operation, params):
                             filename=params['filename'],
                             label="uploaded source file (S3)")
     OperationFile.objects.create(operation=operation, file=f)
+
+    o, p = operation.video.make_create_elastic_transcoder_job_operation(
+        key=key, user=operation.owner)
+    process_operation.delay(o.id, p)
+    return ("complete", "")
+
+
+def create_elastic_transcoder_job(operation, params):
+    statsd.incr('create_transcoder_job')
+    et = boto.elastictranscoder.connect_to_region(
+        settings.AWS_ET_REGION,
+        aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+
+    n = datetime.now()
+    output_key = "%04d/%02d/%02d/%s.mp4" % (
+        n.year, n.month, n.day, str(uuid.uuid4()))
+
+    input_object = {
+        'Key': params['key'],
+        'FrameRate': 'auto',
+        'Resolution': 'auto',
+        'Interlaced': 'auto'
+    }
+    output_objects = [
+        {
+            'Key': output_key,
+            'Rotate': 'auto',
+            'PresetId': settings.AWS_ET_MP4_PRESET,
+        }
+    ]
+    job = et.create_job(
+        settings.AWS_ET_PIPELINE_ID,
+        input_name=input_object,
+        outputs=output_objects)
+    job_id = str(job['Job']['Id'])
+    print job_id
+
     return ("complete", "")
 
 
