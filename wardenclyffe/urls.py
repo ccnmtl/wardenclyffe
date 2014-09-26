@@ -101,6 +101,7 @@ urlpatterns = patterns(
     (r'^api/subjectautocomplete/$', views.SubjectAutocompleteView.as_view()),
     (r'^api/sns/$', views.SNSView.as_view()),
     (r'^api/sns2/$', views.SNSView.as_view()),
+    (r'^api/sns3/$', views.SNSView.as_view()),
     (r'^celery/', include('djcelery.urls')),
     ('smoketest/', include('smoketest.urls')),
     (r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),
