@@ -614,6 +614,7 @@ confirmation_body = """
   "SigningCertURL" : "https://example.com/SimpleNotificationService.pem"
   }"""
 
+
 class SNSTest(TestCase):
     def setUp(self):
         self.c = Client()
@@ -650,4 +651,3 @@ class SNSTest(TestCase):
             dict(),
         )
         self.assertEqual(r.status_code, 400)
-

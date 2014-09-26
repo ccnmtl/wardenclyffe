@@ -1271,5 +1271,4 @@ class SNSView(View):
                 "wardenclyffe@wardenclyffe.ccnmtl.columbia.edu",
                 ["anders@columbia.edu"], fail_silently=False)
             return HttpResponse("OK")
-            
         return HttpResponse("unknown message type", status=400)
