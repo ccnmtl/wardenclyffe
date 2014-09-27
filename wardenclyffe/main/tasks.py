@@ -65,7 +65,7 @@ def create_elastic_transcoder_job(operation, params):
         aws_secret_access_key=settings.AWS_SECRET_KEY)
 
     n = datetime.now()
-    output_key = "%04d/%02d/%02d/%s.mp4" % (
+    output_base = "%04d/%02d/%02d/%s" % (
         n.year, n.month, n.day, str(uuid.uuid4()))
 
     input_object = {
@@ -76,9 +76,14 @@ def create_elastic_transcoder_job(operation, params):
     }
     output_objects = [
         {
-            'Key': output_key,
+            'Key': output_base + "_480.mp4",
             'Rotate': 'auto',
             'PresetId': settings.AWS_ET_MP4_PRESET,
+        },
+        {
+            'Key': output_base + "_720.mp4",
+            'Rotate': 'auto',
+            'PresetId': settings.AWS_ET_720_PRESET,
         }
     ]
     job = et.create_job(

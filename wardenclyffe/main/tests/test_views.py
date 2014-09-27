@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.test.client import Client
 from wardenclyffe.main.models import (
     Collection, Operation, File)
@@ -659,6 +660,7 @@ class SNSTest(TestCase):
         )
         self.assertEqual(r.status_code, 400)
 
+    @override_settings(AWS_ET_720_PRESET="foo")
     def test_sns_success_notification(self):
         tf = FileFactory(
             location_type='transcode',
@@ -683,7 +685,7 @@ class SNSTest(TestCase):
 
         nf = File.objects.get(
             location_type='s3',
-            label='transcoded file (S3)')
+            label='transcoded 480p file (S3)')
         self.assertEqual(
             nf.cap,
-            "2014/09/26/f3d2831b-11dd-409f-ad94-97a77e98922f.mp4")
+            "2014/09/26/f3d2831b-11dd-409f-ad94-97a77e98922f_480.mp4")

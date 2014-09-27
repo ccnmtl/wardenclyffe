@@ -1281,12 +1281,15 @@ class SNSView(View):
             tf[0].delete()
             # add S3 output file record
             for output in ets_message['outputs']:
+                label = "transcoded 480p file (S3)"
+                if output['presetId'] == settings.AWS_ET_720_PRESET:
+                    label = "transcoded 720p file (S3)"
                 f = File.objects.create(
                     video=operation.video,
                     cap=output['key'],
                     location_type="s3",
                     filename=output['key'],
-                    label="transcoded file (S3)")
+                    label=label)
                 OperationFile.objects.create(
                     operation=operation, file=f)
         else:
