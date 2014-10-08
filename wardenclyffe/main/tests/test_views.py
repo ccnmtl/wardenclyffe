@@ -73,6 +73,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/scan_directory/")
         self.assertEquals(response.status_code, 200)
 
+    def test_batch_upload_form(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/upload/batch/")
+        self.assertEquals(response.status_code, 200)
+
     def test_upload_form_for_collection(self):
         c = CollectionFactory()
         self.c.login(username=self.u.username, password="bar")
@@ -98,6 +103,20 @@ class SimpleTest(TestCase):
 
         # invalid form
         response = self.c.post("/upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+    def test_batch_upload_errors(self):
+        # if we try to post without logging in, should get redirected
+        response = self.c.post("/upload/batch/post/")
+        self.assertEquals(response.status_code, 302)
+
+        self.c.login(username=self.u.username, password="bar")
+        # GET should not work
+        response = self.c.get("/upload/batch/post/")
+        self.assertEquals(response.status_code, 302)
+
+        # invalid form
+        response = self.c.post("/upload/batch/post/")
         self.assertEquals(response.status_code, 302)
 
     def test_subject_autocomplete(self):

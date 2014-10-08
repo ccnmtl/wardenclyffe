@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load waffle_tags %}
+{% block title %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+{% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+
+{% block extra_head %}
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+
+<script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+{% flag allow_uploads %}
+<form action="/upload/batch/post/" method="post" enctype="multipart/form-data">
+
+<div class="panel_top">
+
+    <div class="form_video_collection">
+        <div class="form_video_collection_title">
+            <label for="id_collection">Collection:</label>
+        </div>
+        {% if form.collection %}
+            {{ form.collection }}
+        {% else %}
+            {{ collection_title }}
+        {% endif %}
+    </div><!-- class="form_video_collection" -->
+
+	<div class="visualclear"></div>
+</div><!-- class="panel_top" -->
+
+
+<script>
+window.copyDown = function(base, idx) {
+  var source = $("#" + base + idx);
+  var value = source.val();
+  console.log(base, idx, value);
+  $(":input").each(function () {
+     if (this.id.indexOf(base) == 0) {
+        var rest = this.id.substring(base.length);
+        if (rest > idx) {
+           $(this).val(value);
+        }
+     }
+   }
+  );
+}
+</script>
+
+{% with idx=1 %}
+{% include 'main/single_upload.html' %}
+{% endwith %}
+
+{% with idx=2 %}
+{% include 'main/single_upload.html' %}
+{% endwith %}
+
+{% with idx=3 %}
+{% include 'main/single_upload.html' %}
+{% endwith %}
+
+{% with idx=4 %}
+{% include 'main/single_upload.html' %}
+{% endwith %}
+
+{% with idx=5 %}
+{% include 'main/single_upload.html' %}
+{% endwith %}
+
+
+<div class="panel_bottom">
+	{% if collection_id %}
+	<input type="hidden" name="collection" value="{{collection_id}}" />
+	{% endif %}
+	<input type="submit" id="submit" value="upload" class="regbutton
+	floatleft" style="margin-left: 515px;" 
+{% if scan_directory %}
+{% else %}
+ disabled="disabled"
+{% endif %}
+/>
+	<div class="visualclear"></div>
+</div><!-- class="panel_bottom" -->
+
+		
+</form>
+
+
+{% include "flatpages/help_windows.html" %}
+
+<script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
+{% else %}
+{% include 'main/maintenance_mode.html' %}
+{% endflag %}
+{% endblock %}
+<!--  -->

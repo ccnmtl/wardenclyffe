@@ -591,11 +591,11 @@ def save_file_locally(request):
     return (source_filename, tmpfilename, vuuid)
 
 
-def create_operations(request, v, tmpfilename, source_file, filename):
+def create_operations(request, v, tmpfilename, source_file, filename, idx=''):
     operations, params = v.make_default_operations(
         tmpfilename, source_file, request.user)
 
-    if request.POST.get("submit_to_youtube", False):
+    if request.POST.get("submit_to_youtube" + idx, False):
         o, p = v.make_upload_to_youtube_operation(
             tmpfilename, request.user)
         operations.append(o)
@@ -660,6 +660,62 @@ def upload(request):
     return HttpResponseRedirect("/")
 
 
+@transaction.commit_manually
+@login_required
+@user_passes_test(is_staff)
+def batch_upload(request):
+    if request.method != "POST":
+        transaction.rollback()
+        return HttpResponseRedirect("/upload/batch/")
+
+    collection_id = None
+    operations = []
+    params = []
+    statsd.incr('main.batch_upload')
+    collection_id = request.POST.get('collection', None)
+
+    # make db entry
+    try:
+        for k in request.POST.keys():
+            if not k.startswith('tmpfilename_'):
+                continue
+            if request.POST[k] == "":
+                continue
+            (_base, idx) = k.split('_')
+
+            # only works with plupload for now
+            tmpfilename = request.POST[k]
+            filename = os.path.basename(tmpfilename)
+            vuuid = os.path.splitext(filename)[0]
+
+            v = Video.objects.create(
+                uuid=vuuid,
+                collection_id=collection_id,
+                creator=request.user.username,
+                title=request.POST.get('title_' + idx, filename),
+                description=request.POST.get('description_' + idx, ""),
+                subject=request.POST.get('subject_' + idx, ""),
+                license=request.POST.get('license_' + idx, ""),
+                language=request.POST.get('language_' + idx, ""),
+            )
+            source_file = v.make_source_file(tmpfilename)
+
+            v_operations, v_params = create_operations(
+                request, v, tmpfilename, source_file, tmpfilename,
+                '_' + idx)
+            operations.extend(v_operations)
+            params.extend(v_params)
+    except:
+        statsd.incr('main.batch_upload.failure')
+        transaction.rollback()
+        raise
+    else:
+        transaction.commit()
+        for o, p in zip(operations, params):
+            tasks.process_operation.delay(o.id, p)
+    return HttpResponseRedirect("/")
+
+
 class RerunOperationView(StaffMixin, View):
     def post(self, request, operation_id):
         operation = get_object_or_404(Operation, id=operation_id)
@@ -691,6 +747,23 @@ class UploadFormView(StaffMixin, TemplateView):
 
 class PLUploadFormView(StaffMixin, TemplateView):
     template_name = 'main/plupload.html'
+
+    def get_context_data(self):
+        form = VideoForm()
+        form.fields["collection"].queryset = Collection.objects.filter(
+            active=True)
+        collection_id = self.request.GET.get('collection', None)
+        collection_title = None
+        if collection_id:
+            collection = get_object_or_404(Collection, id=collection_id)
+            collection_title = collection.title
+            form = collection.add_video_form()
+        return dict(form=form, collection_id=collection_id,
+                    collection_title=collection_title)
+
+
+class BatchUploadFormView(StaffMixin, TemplateView):
+    template_name = 'main/batch_upload.html'
 
     def get_context_data(self):
         form = VideoForm()

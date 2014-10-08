@@ -1,0 +1,121 @@
+<div class="panel_middle">
+	<div class="leftcol">
+		<div class="sectionbox">
+			<div class="fieldwrapper">
+				<label for="id_title_{{idx}}">Title:</label>
+				<input id="id_title_{{idx}}" maxlength="256" name="title_{{idx}}"
+							 onblur="copyDown('id_title_', {{idx}})"
+							 type="text">
+			</div>
+		
+			<div class="fieldwrapper">
+			<label for="id_description_{{idx}}">Description:</label>
+			<textarea cols="40" id="id_description_{{idx}}"
+								name="description_{{idx}}" rows="10"
+								onblur="copyDown('id_description_', {{idx}})"></textarea>
+			</div>
+
+		</div><!-- class="sectionbox" -->
+	</div><!--  class="leftcol" -->
+	<div class="rightcol">
+		<div class="sectionbox">
+			<div class="section-header">
+			Video file 
+			</div>
+			<div class="fieldwrapper">
+				<ul id="filelist_{{idx}}"></ul>
+				<a id="browse_{{idx}}" href="javascript:;">Select File</a>
+        <input type="hidden" name="tmpfilename_{{idx}}" id="tmpfilename_{{idx}}" value="" />
+
+				<pre id="console_{{idx}}"></pre>
+			</div>
+
+<script type="text/javascript">
+</script>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_creator_{{idx}}">Creator:</label>
+			<input id="id_creator_{{idx}}" maxlength="256" name="creator_{{idx}}"
+						 type="text"
+						 onblur="copyDown('id_creator_', {{idx}})">
+			</div>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_language_{{idx}}">Language:</label>
+			<input id="id_language_{{idx}}" maxlength="256" name="language_{{idx}}"
+						 type="text"
+						 onblur="copyDown('id_language_', {{idx}})">
+			</div>
+		
+			<div class="fieldwrapper inlinewrapper">
+			<label for="id_license_{{idx}}">License:</label>
+			<input id="id_license_{{idx}}" maxlength="256" name="license_{{idx}}"
+						 type="text"
+						 onblur="copyDown('id_license_', {{idx}})">
+			</div>
+		
+		</div><!-- class="sectionbox" -->
+
+
+		<div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box_{{idx}}">
+		  <div class="section-header">Extra Fields</div>
+		</div>
+
+	</div><!-- class="rightcol" -->
+	<div class="visualclear"></div>
+</div><!-- class="panel_middle" -->
+
+
+<script type="text/javascript">
+jQuery(document).ready(function() 
+    { 
+
+var uploader_{{idx}} = new plupload.Uploader({
+	  browse_button: 'browse_{{idx}}', // this can be an id of a DOM element or the DOM element itself
+  	url: '/pluploadify/',
+	  max_retries: 3,
+  	multi_selection: false,
+  	runtimes : 'html5,flash,silverlight',
+  	flash_swf_url: '{{STATIC_URL}}js/Moxie.swf',
+  	silverlight_xap_url: '{{STATIC_URL}}js/Moxie.xap',
+    filters: {
+		mime_types : [
+  		{ title : "Audio files", extensions : "mp3" },
+  		{ title : "Video Files", extensions : "mov,avi,mp4,flv,mpg,wmv,m4v" }
+		]
+	}
+});
+
+uploader_{{idx}}.bind('FilesAdded', function(up, files) {
+    console.log("files added");
+    var html = '';
+		plupload.each(files, function(file) {
+		    html += '<li id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></li>';
+		});
+		document.getElementById('filelist_{{idx}}').innerHTML += html;
+   // only allow one file at a time, and start uploading automatically
+   $("#browse_{{idx}}").replaceWith();
+	up.start();
+});
+
+uploader_{{idx}}.bind('UploadProgress', function(up, file) {
+	document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+});
+
+uploader_{{idx}}.bind('Error', function(up, err) {
+	console.log(err);
+	document.getElementById('console_{{idx}}').innerHTML += "\nError #" + err.code + ": " + err.message;
+});
+
+uploader_{{idx}}.bind('FileUploaded', function(up, data, r) {
+	console.log(r.response);
+	$("#tmpfilename_{{idx}}").val(r.response);
+	$("#submit").removeAttr("disabled");
+});
+
+uploader_{{idx}}.init();
+
+   }
+);
+
+</script>

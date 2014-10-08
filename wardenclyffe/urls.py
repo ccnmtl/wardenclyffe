@@ -72,6 +72,9 @@ urlpatterns = patterns(
 
     (r'^plupload/$', views.PLUploadFormView.as_view()),
 
+    (r'^upload/batch/$', views.BatchUploadFormView.as_view()),
+    (r'^upload/batch/post/$', 'wardenclyffe.main.views.batch_upload'),
+
     (r'^scan_directory/$', views.ScanDirectoryView.as_view()),
     (r'^mediathread/$', 'wardenclyffe.mediathread.views.mediathread'),
     (r'^mediathread/post/$',
