@@ -87,7 +87,8 @@ class Video(TimeStampedModel):
     tags = TaggableManager(blank=True)
 
     def s3_file(self):
-        r = self.file_set.filter(location_type='s3')
+        r = self.file_set.filter(
+            location_type='s3', label="uploaded source file (S3)")
         if r.count():
             return r[0]
         else:

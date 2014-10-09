@@ -159,6 +159,15 @@ class S3FileTest(TestCase):
         self.assertFalse(f.is_s3())
         self.assertIsNone(f.s3_download_url())
 
+    def test_default_to_source_File(self):
+        source = S3FileFactory()
+        S3FileFactory(video=source.video,
+                      label="transcoded 480p file (S3)")
+        S3FileFactory(video=source.video,
+                      label="transcoded 720p file (S3)")
+        f = source.video.s3_file()
+        self.assertEqual(f, source)
+
 
 class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """

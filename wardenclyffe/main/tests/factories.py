@@ -126,7 +126,7 @@ class MediathreadFileFactory(FileFactory):
 
 
 class S3FileFactory(FileFactory):
-    label = "s3 file"
+    label = "uploaded source file (S3)"
     location_type = "s3"
     cap = "2011/09/28/t6009_005_2011_3_oppenheim_shear_kim1_edit.mov"
 
