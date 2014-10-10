@@ -316,6 +316,17 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_copy_from_s3_to_cunix_operation(self, file_id, user):
+        params = dict(file_id=file_id)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="copy from s3 to cunix",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
     def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
                                                         workflow, user):
         params = dict(video_id=video_id, workflow=workflow)
@@ -704,6 +715,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp,
             'create elastic transcoder job':
             wardenclyffe.main.tasks.create_elastic_transcoder_job,
+            'copy from s3 to cunix':
+            wardenclyffe.main.tasks.copy_from_s3_to_cunix,
         }
         return mapper[self.action]
 

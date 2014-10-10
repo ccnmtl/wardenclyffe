@@ -1330,6 +1330,7 @@ class SNSView(View):
             return HttpResponse("OK")
         return HttpResponse("Failed to confirm")
 
+    @method_decorator(transaction.commit_manually)
     def _notification(self, request):
         full_message = loads(self.body)
         ets_message = loads(full_message['Message'])
@@ -1344,14 +1345,18 @@ class SNSView(View):
         if not tf.exists():
             # success report for a non-existent transcoding
             # job. assume it's a duplicate
+            transaction.commit()
             return HttpResponse("OK")
         operation = tf[0].operationfile_set.all()[0].operation
+
+        operations = []
 
         if state == 'COMPLETED':
             # set it to completed
             operation.status = "complete"
             operation.save()
             tf[0].delete()
+
             # add S3 output file record
             for output in ets_message['outputs']:
                 label = "transcoded 480p file (S3)"
@@ -1363,14 +1368,21 @@ class SNSView(View):
                     location_type="s3",
                     filename=output['key'],
                     label=label)
-                OperationFile.objects.create(
-                    operation=operation, file=f)
+                OperationFile.objects.create(operation=operation, file=f)
+                (o, p) = operation.video.make_copy_from_s3_to_cunix_operation(
+                    f.id, operation.owner)
+                operations.append((o, p))
         else:
             # set it to failed
             operation.status = "failed"
             operation.save()
             tf[0].delete()
             operation.log(info=self.body)
+
+        transaction.commit()
+        for o, p in operations:
+            tasks.process_operation.delay(o, p)
+
         return HttpResponse("OK")
 
     def post(self, request):

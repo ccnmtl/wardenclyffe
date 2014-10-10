@@ -274,6 +274,70 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     return ("submitted", "submitted to PCP")
 
 
+def copy_from_s3_to_cunix(operation, params):
+    statsd.incr("copy_from_s3_to_cunix")
+    print "pulling from S3"
+    params = loads(operation.params)
+
+    file_id = params['file_id']
+    f = File.objects.get(id=file_id)
+    assert f.is_s3()
+
+    resolution = 480
+    if "720" in f.label:
+        resolution = 720
+
+    video = f.video
+    filename = os.path.basename(f.cap)
+    suffix = video.extension()
+
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_OUTPUT_BUCKET)
+    k = Key(bucket)
+    k.key = f.cap
+
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    k.get_contents_to_file(t)
+    t.seek(0)
+    operation.log(info="downloaded from S3")
+
+    sftp_hostname = settings.SFTP_HOSTNAME
+    sftp_user = settings.SFTP_USER
+    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
+    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
+    transport = paramiko.Transport((sftp_hostname, 22))
+    transport.connect(username=sftp_user, pkey=mykey)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    remote_filename = filename.replace(suffix, "_et" + suffix)
+    remote_path = os.path.join(
+        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
+        remote_filename)
+
+    try:
+        sftp.putfo(t, remote_path)
+        File.objects.create(video=video,
+                            label="CUIT H264 %d" % resolution,
+                            filename=remote_path,
+                            location_type='cuit',
+                            )
+    except Exception, e:
+        print "sftp put failed"
+        operation.log(info=str(e))
+        print str(e)
+        return ("failed", "could not upload")
+    else:
+        print "sftp_get succeeded"
+        operation.log(info="sftp put succeeded")
+    finally:
+        sftp.close()
+        transport.close()
+
+    return ("submitted", "uploaded to cunix")
+
+
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)
