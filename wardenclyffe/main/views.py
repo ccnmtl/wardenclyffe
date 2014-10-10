@@ -1381,7 +1381,7 @@ class SNSView(View):
 
         transaction.commit()
         for o, p in operations:
-            tasks.process_operation.delay(o, p)
+            tasks.process_operation.delay(o.id, p)
 
         return HttpResponse("OK")
 
