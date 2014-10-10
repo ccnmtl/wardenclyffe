@@ -329,13 +329,13 @@ def copy_from_s3_to_cunix(operation, params):
         print str(e)
         return ("failed", "could not upload")
     else:
-        print "sftp_get succeeded"
+        print "sftp_put succeeded"
         operation.log(info="sftp put succeeded")
     finally:
         sftp.close()
         transport.close()
 
-    return ("submitted", "uploaded to cunix")
+    return ("complete", "")
 
 
 def sftp_get(remote_filename, local_filename):
