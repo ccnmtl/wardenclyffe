@@ -67,10 +67,9 @@ urlpatterns = patterns(
      views.RerunOperationView.as_view()),
     (r'^tag/$', views.TagsListView.as_view()),
     (r'^tag/(?P<tagname>\w+)/$', views.TagView.as_view()),
-    (r'^upload/$', views.UploadFormView.as_view()),
-    (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
 
-    (r'^plupload/$', views.PLUploadFormView.as_view()),
+    (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
+    (r'^upload/$', views.PLUploadFormView.as_view()),
 
     (r'^upload/batch/$', views.BatchUploadFormView.as_view()),
     (r'^upload/batch/post/$', 'wardenclyffe.main.views.batch_upload'),
