@@ -29,6 +29,8 @@ urlpatterns = patterns(
      views.EditCollectionView.as_view()),
     (r'^collection/(?P<pk>\d+)/toggle_active/$',
      views.CollectionToggleActiveView.as_view()),
+    (r'^collection/(?P<pk>\d+)/mediathread_submit/$',
+     'wardenclyffe.mediathread.views.collection_mediathread_submit'),
     (r'^collection/(?P<pk>\d+)/delete/$',
      views.DeleteCollectionView.as_view()),
     (r'^collection/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',

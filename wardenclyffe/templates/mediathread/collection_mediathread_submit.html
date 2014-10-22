@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load markup %}
+
+{% block content %}
+
+{% if courses %}
+<form action="." method="post">
+<p>Import all videos in <tt>{{collection.title}}</tt> to Mediathread Course:<br />
+<select name="course">
+<option value="">select course</option>
+{% for course in courses %}
+<option value="{{course.id}}">{{course.title}}</option>
+{% endfor %}
+</select>
+<br />
+<input type="submit" value="submit" />
+</form>
+
+{% else %}
+<p>Can't get a list of courses. Is Mediathread up at <a href="{{mediathread_base}}">{{mediathread_base}}</a>?</p>
+{% endif %}
+
+{% endblock %}

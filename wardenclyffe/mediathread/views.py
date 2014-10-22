@@ -162,3 +162,38 @@ def video_mediathread_submit(request, id):
         courses = []
     return dict(video=video, courses=courses,
                 mediathread_base=settings.MEDIATHREAD_BASE)
+
+
+@login_required
+@render_to('mediathread/collection_mediathread_submit.html')
+def collection_mediathread_submit(request, pk):
+    collection = get_object_or_404(Collection, id=pk)
+    if request.method == "POST":
+        for video in collection.video_set.all():
+            statsd.incr("mediathread.submit")
+            params = dict(set_course=request.POST.get('course', ''))
+            o = Operation.objects.create(uuid=uuid.uuid4(),
+                                         video=video,
+                                         action="submit to mediathread",
+                                         status="enqueued",
+                                         params=dumps(params),
+                                         owner=request.user,
+                                         )
+            maintasks.process_operation.delay(o.id, params)
+            o.video.clear_mediathread_submit()
+        return HttpResponseRedirect(video.get_absolute_url())
+    try:
+        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret="
+               + settings.MEDIATHREAD_SECRET + "&user="
+               + request.user.username)
+        credentials = None
+        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
+            credentials = settings.MEDIATHREAD_CREDENTIALS
+        response = GET(url, credentials=credentials)
+        courses = loads(response)['courses']
+        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
+        courses.sort(key=lambda x: x['title'].lower())
+    except:
+        courses = []
+    return dict(collection=collection, courses=courses,
+                mediathread_base=settings.MEDIATHREAD_BASE)
