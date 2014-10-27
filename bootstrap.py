@@ -7,6 +7,9 @@ import shutil
 pwd = os.path.abspath(os.path.dirname(__file__))
 vedir = os.path.abspath(os.path.join(pwd, "ve"))
 
+if len(sys.argv) > 1:
+    vedir = sys.argv[1]
+
 if os.path.exists(vedir):
     shutil.rmtree(vedir)
 
