@@ -45,7 +45,7 @@ logilab-common==0.59.0
 logilab-astng==0.24.1
 pylint==0.26.0
 python-ldap==2.4.13
-surelink==1.0.0
+surelink==1.0.1
 boto==2.31.1
 ipython==0.13.2
 sqlparse==0.1.11
