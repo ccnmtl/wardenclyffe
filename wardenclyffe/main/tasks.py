@@ -104,6 +104,7 @@ def create_elastic_transcoder_job(operation, params):
 
 IONICE = settings.IONICE_PATH
 MPLAYER = settings.MPLAYER_PATH
+FFMPEG = settings.FFMPEG_PATH
 MAX_SEEK_POS = "03:00:00"
 
 
@@ -128,6 +129,12 @@ def fallback_image_extract_command(tmpdir, frames, tmpfilename):
             "-endpos %s -frames %d "
             "-vf framerate=250 '%s' 2>/dev/null"
             % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
+
+
+def audio_encode_command(image, tmpfilename, outputfilename):
+    return ("%s -loop 1 -i %s -i %s -c:v libx264 -c:a aac "
+            "-strict experimental -b:a 192k -shortest %s" % (
+                FFMPEG, image, tmpfilename, outputfilename))
 
 
 def honey_badger(f, *args, **kwargs):
