@@ -250,6 +250,10 @@ IONICE_PATH = "/usr/bin/ionice"
 MPLAYER_PATH = "/usr/bin/mplayer"
 FFMPEG_PATH = "/usr/bin/ffmpeg"
 
+AUDIO_POSTER_IMAGE = os.path.join(
+    os.path.dirname(__file__),
+    "../media/img/audiothumb.jpg")
+
 COMPRESS_URL = "/media/"
 COMPRESS_ROOT = "media/"
 

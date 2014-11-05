@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include
+from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
 from wardenclyffe.main.feeds import CollectionFeed
@@ -49,6 +49,8 @@ urlpatterns = patterns(
 
     (r'^file/$', views.FileIndexView.as_view()),
     (r'^file/(?P<id>\d+)/$', views.FileView.as_view()),
+    url(r'^file/(?P<pk>\d+)/audio/$', views.AudioEncodeFileView.as_view(),
+        name='audio_encode_file'),
 
     (r'^file/filter/$', views.FileFilterView.as_view()),
     ((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'

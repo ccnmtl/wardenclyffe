@@ -42,6 +42,16 @@ S3 Key
 <th>Download from S3</th>
 <td><a href="{{file.s3_download_url}}">{{file.s3_download_url}}</a></td>
 </tr>
+{% if file.is_audio %}
+<tr>
+<th>WC Audio Encode</th>
+<td>
+<form action="{% url 'audio_encode_file' file.id %}" method="post">
+<input type="submit" value="MP3 -> MP4" />
+</form>
+</td>
+</tr>
+{% endif %}
 {% endif %}
 
 </table>

@@ -1063,6 +1063,14 @@ class FilePCPSubmitView(StaffMixin, View):
                            kino_base=settings.PCP_BASE_URL))
 
 
+class AudioEncodeFileView(StaffMixin, View):
+    def post(self, request, pk):
+        f = get_object_or_404(File, pk=pk)
+        o, p = f.video.make_audio_encode_operation(f.id, request.user)
+        tasks.process_operation.delay(o.id, p)
+        return HttpResponse(f.video.get_absolute_url())
+
+
 class FileFilterView(StaffMixin, TemplateView):
     template_name = 'main/file_filter.html'
 
