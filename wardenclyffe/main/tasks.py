@@ -79,13 +79,16 @@ def create_elastic_transcoder_job(operation, params):
             'Key': output_base + "_480.mp4",
             'Rotate': 'auto',
             'PresetId': settings.AWS_ET_MP4_PRESET,
-        },
-        {
-            'Key': output_base + "_720.mp4",
-            'Rotate': 'auto',
-            'PresetId': settings.AWS_ET_720_PRESET,
         }
     ]
+    if waffle.switch_is_active('enable_720p'):
+        output_objects.append(
+            {
+                'Key': output_base + "_720.mp4",
+                'Rotate': 'auto',
+                'PresetId': settings.AWS_ET_720_PRESET,
+            }
+        )
     job = et.create_job(
         settings.AWS_ET_PIPELINE_ID,
         input_name=input_object,
