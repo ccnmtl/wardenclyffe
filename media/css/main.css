@@ -1317,14 +1317,24 @@ background-color: #8dbdd8;
   width: 75px;
 }
 
+
 .dashboard div.add_new
+{
+  font-weight: normal;
+  font-size: 11px;
+  background: url('../img/icon_more.gif') left center no-repeat;
+  line-height: 26px;
+  width: 80px;
+}
+
+/*.dashboard div.add_new
 {
   font-weight: normal;
   font-size: 11px;
   background: url('../img/icon_add.gif') left center no-repeat;
   line-height: 26px;
   width: 65px;
-}
+}*/
 
 .see_more a, .add_new a
 {
