@@ -327,6 +327,26 @@ class Video(TimeStampedModel):
             owner=user)
         return o, params
 
+    def make_audio_encode_operation(self, file_id, user):
+        """ pull the file down from S3
+        run it through the audio encode job
+        then upload it to cunix.
+
+        right now, this is just for testing the
+        audio encoding stuff to make sure it works
+        as promised. once we are confident with it
+        it will probably go off the locally cached
+        version of the file instead of pulling from s3"""
+        params = dict(file_id=file_id)
+        o = Operation.objects.create(
+            uuid=uuid.uuid4(),
+            video=self,
+            action="audio encode",
+            status="enqueued",
+            params=dumps(params),
+            owner=user)
+        return o, params
+
     def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
                                                         workflow, user):
         params = dict(video_id=video_id, workflow=workflow)
@@ -457,6 +477,9 @@ class S3File(FileType):
             "&Signature=",
             signature
         ])
+
+    def is_audio(self):
+        return self.file.cap.lower().endswith("mp3")
 
 
 class File(TimeStampedModel):
@@ -717,6 +740,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.main.tasks.create_elastic_transcoder_job,
             'copy from s3 to cunix':
             wardenclyffe.main.tasks.copy_from_s3_to_cunix,
+            "audio encode":
+            wardenclyffe.main.tasks.audio_encode,
         }
         return mapper[self.action]
 

@@ -107,6 +107,7 @@ def create_elastic_transcoder_job(operation, params):
 
 IONICE = settings.IONICE_PATH
 MPLAYER = settings.MPLAYER_PATH
+FFMPEG = settings.FFMPEG_PATH
 MAX_SEEK_POS = "03:00:00"
 
 
@@ -131,6 +132,12 @@ def fallback_image_extract_command(tmpdir, frames, tmpfilename):
             "-endpos %s -frames %d "
             "-vf framerate=250 '%s' 2>/dev/null"
             % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
+
+
+def audio_encode_command(image, tmpfilename, outputfilename):
+    return ("%s -loop 1 -i %s -i %s -c:v libx264 -c:a aac "
+            "-strict experimental -b:a 192k -shortest %s" % (
+                FFMPEG, image, tmpfilename, outputfilename))
 
 
 def honey_badger(f, *args, **kwargs):
@@ -275,6 +282,71 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     print "submitted with title %s" % title
     pcp.upload_file(t, filename, workflow, title, video.description)
     return ("submitted", "submitted to PCP")
+
+
+def audio_encode(operation, params):
+    statsd.incr("audio_encode")
+    params = loads(operation.params)
+    file_id = params['file_id']
+    f = File.objects.get(id=file_id)
+    assert f.is_s3()
+    assert f.is_audio()
+    video = f.video
+    filename = os.path.basename(f.cap)
+    suffix = video.extension()
+
+    print "pulling from s3"
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    k = Key(bucket)
+    k.key = f.cap
+
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    k.get_contents_to_file(t)
+    t.seek(0)
+    operation.log(info="downloaded from S3")
+    print "encoding mp3 to mp4"
+    tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
+    image_path = settings.AUDIO_POSTER_IMAGE
+    command = audio_encode_command(image_path, t.name, tout)
+    os.system(command)
+
+    print "uploading to CUIT"
+    sftp_hostname = settings.SFTP_HOSTNAME
+    sftp_user = settings.SFTP_USER
+    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
+    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
+    transport = paramiko.Transport((sftp_hostname, 22))
+    transport.connect(username=sftp_user, pkey=mykey)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    remote_filename = filename.replace(suffix, "_et" + suffix)
+    remote_path = os.path.join(
+        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
+        remote_filename)
+
+    try:
+        sftp.putfo(open(tout, "rb"), remote_path)
+        File.objects.create(video=video,
+                            label="CUIT H264",
+                            filename=remote_path,
+                            location_type='cuit',
+                            )
+    except Exception, e:
+        print "sftp put failed"
+        operation.log(info=str(e))
+        print str(e)
+        return ("failed", "could not upload")
+    else:
+        print "sftp_put succeeded"
+        operation.log(info="sftp put succeeded")
+    finally:
+        sftp.close()
+        transport.close()
+
+    return ("complete", "")
 
 
 def copy_from_s3_to_cunix(operation, params):

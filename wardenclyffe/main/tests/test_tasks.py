@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.test import TestCase
-from wardenclyffe.main.tasks import slow_operations
-from wardenclyffe.main.tasks import slow_operations_other_than_submitted
-from wardenclyffe.main.tasks import image_extract_command
-from wardenclyffe.main.tasks import avi_image_extract_command
-from wardenclyffe.main.tasks import fallback_image_extract_command
-from wardenclyffe.main.tasks import image_extract_command_for_file
+from wardenclyffe.main.tasks import (
+    slow_operations, slow_operations_other_than_submitted,
+    image_extract_command, avi_image_extract_command,
+    fallback_image_extract_command, image_extract_command_for_file,
+    audio_encode_command)
 
 
 class SlowOperationsTest(TestCase):
@@ -63,3 +62,14 @@ class ImageExtractCommandTest(TestCase):
                 "03:00:00 -frames 5 -sstep 10 -correct-pts "
                 "'baz.avi' 2>/dev/null" % (
                     settings.IONICE_PATH, settings.MPLAYER_PATH)))
+
+
+class AudioEncodeCommandTest(TestCase):
+    def test_basics(self):
+        r = audio_encode_command("foo.jpg", "bar.mp3", "baz.mp4")
+        self.assertEqual(
+            r,
+            (
+                "%s -loop 1 -i foo.jpg -i bar.mp3 -c:v "
+                "libx264 -c:a aac -strict experimental "
+                "-b:a 192k -shortest baz.mp4" % settings.FFMPEG_PATH))
