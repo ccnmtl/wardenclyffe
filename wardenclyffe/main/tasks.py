@@ -185,15 +185,19 @@ def make_images(operation, params):
     honey_badger(os.makedirs, imgdir)
     imgs = os.listdir(tmpdir)
     imgs.sort()
-    for img in imgs[:settings.MAX_FRAMES]:
-        os.system("mv %s%s %s" % (tmpdir, img, imgdir))
-        Image.objects.create(
-            video=operation.video,
-            image="images/%05d/%s" % (operation.video.id, img))
-        statsd.incr("image_created")
+    make_image_objects(operation.video, imgs, tmpdir, imgdir)
     shutil.rmtree(tmpdir)
     set_poster(operation.video, imgs)
     return ("complete", "created %d images" % len(imgs))
+
+
+def make_image_objects(video, imgs, tmpdir, imgdir):
+    for img in imgs[:settings.MAX_FRAMES]:
+        os.system("mv %s%s %s" % (tmpdir, img, imgdir))
+        Image.objects.create(
+            video=video,
+            image="images/%05d/%s" % (video.id, img))
+        statsd.incr("image_created")
 
 
 def set_poster(video, imgs):
