@@ -192,15 +192,18 @@ def make_images(operation, params):
             image="images/%05d/%s" % (operation.video.id, img))
         statsd.incr("image_created")
     shutil.rmtree(tmpdir)
-    if Poster.objects.filter(video=operation.video).count() == 0\
+    set_poster(operation.video, imgs)
+    return ("complete", "created %d images" % len(imgs))
+
+
+def set_poster(video, imgs):
+    if Poster.objects.filter(video=video).count() == 0\
             and len(imgs) > 0:
         # pick a random image out of the set and assign
         # it as the poster on the video
         r = random.randint(0, min(len(imgs), 50) - 1)
-        image = Image.objects.filter(video=operation.video)[r]
-        Poster.objects.create(video=operation.video, image=image)
-
-    return ("complete", "created %d images" % len(imgs))
+        image = Image.objects.filter(video=video)[r]
+        Poster.objects.create(video=video, image=image)
 
 
 def extract_metadata(operation, params):
