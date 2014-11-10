@@ -230,21 +230,25 @@ def extract_metadata(operation, params):
     return ("complete", "")
 
 
+def pcp_upload(filename, fileobj, ouuid, operation, workflow, description):
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
+    title = "%s-%s" % (str(ouuid),
+                       strip_special_characters(operation.video.title))
+    pcp.upload_file(fileobj, filename, workflow, title, description)
+
+
 def submit_to_pcp(operation, params):
     statsd.incr("submit_to_pcp")
     ouuid = operation.uuid
 
     # ignore the passed in params and use the ones from the operation object
     params = loads(operation.params)
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
-    # TODO: probably don't always want it to be .mp4
     filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
-    title = "%s-%s" % (str(ouuid),
-                       strip_special_characters(operation.video.title))
-    pcp.upload_file(fileobj, filename, params['pcp_workflow'], title,
-                    operation.video.description)
+    pcp_upload(filename, fileobj, ouuid, operation,
+               params['pcp_workflow'],
+               operation.video.description)
     return ("submitted", "")
 
 
@@ -271,16 +275,9 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     t.seek(0)
 
     operation.log(info="downloaded from S3")
-    # TODO: figure out how to re-use submit_to_pcp()
     print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
     filename = str(ouuid) + suffix
-    print "submitted with filename %s" % filename
-
-    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-    print "submitted with title %s" % title
-    pcp.upload_file(t, filename, workflow, title, video.description)
+    pcp_upload(filename, t, ouuid, operation, workflow, video.description)
     return ("submitted", "submitted to PCP")
 
 
@@ -457,15 +454,9 @@ def pull_from_cuit_and_submit_to_pcp(operation, params):
     operation.log(info="downloaded from cuit")
 
     print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
     filename = str(ouuid) + extension
-    print "submitted with filename %s" % filename
-
-    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-    print "submitted with title %s" % title
-    pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title,
-                    video.description)
+    pcp_upload(filename, open(tmpfilename, "r"), ouuid, operation,
+               workflow, video.description)
     return ("submitted", "submitted to PCP")
 
 
