@@ -309,6 +309,11 @@ def audio_encode(operation, params):
     os.system(command)
 
     print "uploading to CUIT"
+    sftp_put(filename, suffix, open(tout, "rb"), video)
+    return ("complete", "")
+
+
+def sftp_put(filename, suffix, fileobj, video):
     sftp_hostname = settings.SFTP_HOSTNAME
     sftp_user = settings.SFTP_USER
     sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
@@ -323,7 +328,7 @@ def audio_encode(operation, params):
         remote_filename)
 
     try:
-        sftp.putfo(open(tout, "rb"), remote_path)
+        sftp.putfo(fileobj, remote_path)
         File.objects.create(video=video,
                             label="CUIT H264",
                             filename=remote_path,
@@ -331,17 +336,12 @@ def audio_encode(operation, params):
                             )
     except Exception, e:
         print "sftp put failed"
-        operation.log(info=str(e))
         print str(e)
-        return ("failed", "could not upload")
     else:
         print "sftp_put succeeded"
-        operation.log(info="sftp put succeeded")
     finally:
         sftp.close()
         transport.close()
-
-    return ("complete", "")
 
 
 def copy_from_s3_to_cunix(operation, params):
