@@ -212,19 +212,21 @@ def set_poster(video, imgs):
     Poster.objects.create(video=video, image=image)
 
 
+def midentify_path():
+    pwd = os.path.dirname(__file__)
+    script_dir = os.path.join(pwd, "../../scripts/")
+    return os.path.join(script_dir, "midentify.sh")
+
+
 def extract_metadata(operation, params):
     statsd.incr("extract_metadata")
     source_file = File.objects.get(id=params['source_file_id'])
-    # warning: for now we're expecting the midentify script
-    # to be relatively located to this file. this ought to
-    # be a bit more configurable
-    pwd = os.path.dirname(__file__)
-    script_dir = os.path.join(pwd, "../../scripts/")
-    output = unicode(subprocess.Popen([os.path.join(script_dir,
-                                                    "midentify.sh"),
-                                       params['tmpfilename']],
-                                      stdout=subprocess.PIPE).communicate()[0],
-                     errors='replace')
+    output = unicode(
+        subprocess.Popen(
+            [midentify_path(),
+             params['tmpfilename']],
+            stdout=subprocess.PIPE).communicate()[0],
+        errors='replace')
     for f, v in parse_metadata(output):
         source_file.set_metadata(f, v)
     return ("complete", "")
