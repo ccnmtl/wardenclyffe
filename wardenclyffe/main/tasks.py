@@ -313,15 +313,18 @@ def audio_encode(operation, params):
     return ("complete", "")
 
 
-def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
+def sftp_client():
     sftp_hostname = settings.SFTP_HOSTNAME
     sftp_user = settings.SFTP_USER
     sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
     mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    return (paramiko.SFTPClient.from_transport(transport), transport)
 
+
+def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
+    sftp, transport = sftp_client()
     remote_filename = filename.replace(suffix, "_et" + suffix)
     remote_path = os.path.join(
         settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
@@ -370,13 +373,7 @@ def copy_from_s3_to_cunix(operation, params):
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)
-    sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_user = settings.SFTP_USER
-    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
-    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
-    transport = paramiko.Transport((sftp_hostname, 22))
-    transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp, transport = sftp_client()
 
     try:
         sftp.get(remote_filename, local_filename)
