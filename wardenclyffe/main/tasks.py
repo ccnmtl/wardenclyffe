@@ -252,17 +252,7 @@ def submit_to_pcp(operation, params):
     return ("submitted", "")
 
 
-def pull_from_s3_and_submit_to_pcp(operation, params):
-    statsd.incr("pull_from_s3_and_submit_to_pcp")
-    print "pulling from S3"
-    params = loads(operation.params)
-    video_id = params['video_id']
-    workflow = params['workflow']
-    video = Video.objects.get(id=video_id)
-    ouuid = operation.uuid
-    filename = video.filename()
-    suffix = video.extension()
-
+def pull_from_s3(video, suffix):
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
         settings.AWS_SECRET_KEY)
@@ -273,6 +263,20 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     t = tempfile.NamedTemporaryFile(suffix=suffix)
     k.get_contents_to_file(t)
     t.seek(0)
+    return t
+
+
+def pull_from_s3_and_submit_to_pcp(operation, params):
+    statsd.incr("pull_from_s3_and_submit_to_pcp")
+    print "pulling from S3"
+    params = loads(operation.params)
+    video_id = params['video_id']
+    workflow = params['workflow']
+    video = Video.objects.get(id=video_id)
+    ouuid = operation.uuid
+    filename = video.filename()
+    suffix = video.extension()
+    t = pull_from_s3(video, suffix)
 
     operation.log(info="downloaded from S3")
     print "submitting to PCP"
@@ -293,17 +297,9 @@ def audio_encode(operation, params):
     suffix = video.extension()
 
     print "pulling from s3"
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    k = Key(bucket)
-    k.key = f.cap
-
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
-    t.seek(0)
+    t = pull_from_s3(video, suffix)
     operation.log(info="downloaded from S3")
+
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
     image_path = settings.AUDIO_POSTER_IMAGE
