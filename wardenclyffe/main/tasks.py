@@ -252,13 +252,13 @@ def submit_to_pcp(operation, params):
     return ("submitted", "")
 
 
-def pull_from_s3(video, suffix, bucket_name):
+def pull_from_s3(suffix, bucket_name, key):
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
         settings.AWS_SECRET_KEY)
     bucket = conn.get_bucket(bucket_name)
     k = Key(bucket)
-    k.key = video.s3_key()
+    k.key = key
 
     t = tempfile.NamedTemporaryFile(suffix=suffix)
     k.get_contents_to_file(t)
@@ -276,7 +276,8 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     ouuid = operation.uuid
     filename = video.filename()
     suffix = video.extension()
-    t = pull_from_s3(video, suffix, settings.AWS_S3_UPLOAD_BUCKET)
+    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
+                     video.s3_key())
 
     operation.log(info="downloaded from S3")
     print "submitting to PCP"
@@ -297,7 +298,8 @@ def audio_encode(operation, params):
     suffix = video.extension()
 
     print "pulling from s3"
-    t = pull_from_s3(video, suffix, settings.AWS_S3_UPLOAD_BUCKET)
+    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
+                     video.s3_key())
     operation.log(info="downloaded from S3")
 
     print "encoding mp3 to mp4"
