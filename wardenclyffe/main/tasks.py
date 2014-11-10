@@ -197,13 +197,15 @@ def make_images(operation, params):
 
 
 def set_poster(video, imgs):
-    if Poster.objects.filter(video=video).count() == 0\
-            and len(imgs) > 0:
-        # pick a random image out of the set and assign
-        # it as the poster on the video
-        r = random.randint(0, min(len(imgs), 50) - 1)
-        image = Image.objects.filter(video=video)[r]
-        Poster.objects.create(video=video, image=image)
+    if len(imgs) == 0:
+        return
+    if Poster.objects.filter(video=video).count() > 0:
+        return
+    # pick a random image out of the set and assign
+    # it as the poster on the video
+    r = random.randint(0, min(len(imgs), 50) - 1)
+    image = Image.objects.filter(video=video)[r]
+    Poster.objects.create(video=video, image=image)
 
 
 def extract_metadata(operation, params):
