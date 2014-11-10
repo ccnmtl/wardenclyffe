@@ -216,18 +216,23 @@ def extract_metadata(operation, params):
                                        params['tmpfilename']],
                                       stdout=subprocess.PIPE).communicate()[0],
                      errors='replace')
+    for f, v in parse_metadata(output):
+        source_file.set_metadata(f, v)
+    return ("complete", "")
+
+
+def parse_metadata(output):
     for line in output.split("\n"):
         try:
             line = line.strip()
             if "=" not in line:
                 continue
             (f, v) = line.split("=")
-            source_file.set_metadata(f, v)
+            yield f, v
         except Exception, e:
             # just ignore any parsing issues
             print "exception in extract_metadata: " + str(e)
             print line
-    return ("complete", "")
 
 
 def pcp_upload(filename, fileobj, ouuid, operation, workflow, description):

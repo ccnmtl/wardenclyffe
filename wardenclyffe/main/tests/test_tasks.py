@@ -4,7 +4,7 @@ from wardenclyffe.main.tasks import (
     slow_operations, slow_operations_other_than_submitted,
     image_extract_command, avi_image_extract_command,
     fallback_image_extract_command, image_extract_command_for_file,
-    audio_encode_command)
+    audio_encode_command, parse_metadata)
 
 
 class SlowOperationsTest(TestCase):
@@ -73,3 +73,17 @@ class AudioEncodeCommandTest(TestCase):
                 "%s -loop 1 -i foo.jpg -i bar.mp3 -c:v "
                 "libx264 -c:a aac -strict experimental "
                 "-b:a 192k -shortest baz.mp4" % settings.FFMPEG_PATH))
+
+
+class MetaDataParseTest(TestCase):
+    def test_basics(self):
+        r = list(parse_metadata("foo=bar"))
+        self.assertEqual(r, [('foo', 'bar')])
+
+    def test_line_without_equals(self):
+        r = list(parse_metadata("bar"))
+        self.assertEqual(r, [])
+
+    def test_invalid_line(self):
+        r = list(parse_metadata("bar=bar=bar"))
+        self.assertEqual(r, [])
