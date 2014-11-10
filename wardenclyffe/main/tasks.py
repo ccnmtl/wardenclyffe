@@ -25,6 +25,16 @@ import waffle
 import uuid
 
 
+@task(ignore_results=True)
+def process_operation(operation_id, params, **kwargs):
+    print "process_operation(%s,%s)" % (operation_id, str(params))
+    try:
+        operation = Operation.objects.get(id=operation_id)
+        operation.process(params)
+    except Operation.DoesNotExist:
+        print "operation not found (probably deleted)"
+
+
 def save_file_to_s3(operation, params):
     if not waffle.switch_is_active('enable_s3'):
         print "S3 uploads are disabled"
@@ -218,16 +228,6 @@ def extract_metadata(operation, params):
             print "exception in extract_metadata: " + str(e)
             print line
     return ("complete", "")
-
-
-@task(ignore_results=True)
-def process_operation(operation_id, params, **kwargs):
-    print "process_operation(%s,%s)" % (operation_id, str(params))
-    try:
-        operation = Operation.objects.get(id=operation_id)
-        operation.process(params)
-    except Operation.DoesNotExist:
-        print "operation not found (probably deleted)"
 
 
 def submit_to_pcp(operation, params):
