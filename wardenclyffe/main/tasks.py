@@ -203,7 +203,7 @@ def set_poster(video, imgs):
         return
     # pick a random image out of the set and assign
     # it as the poster on the video
-    r = random.randint(0, min(len(imgs), 50) - 1)
+    r = random.randint(0, min(len(imgs), settings.MAX_FRAMES) - 1)
     image = Image.objects.filter(video=video)[r]
     Poster.objects.create(video=video, image=image)
 
