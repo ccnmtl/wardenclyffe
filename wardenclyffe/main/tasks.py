@@ -313,7 +313,7 @@ def audio_encode(operation, params):
     return ("complete", "")
 
 
-def sftp_put(filename, suffix, fileobj, video):
+def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
     sftp_hostname = settings.SFTP_HOSTNAME
     sftp_user = settings.SFTP_USER
     sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
@@ -330,7 +330,7 @@ def sftp_put(filename, suffix, fileobj, video):
     try:
         sftp.putfo(fileobj, remote_path)
         File.objects.create(video=video,
-                            label="CUIT H264",
+                            label=file_label,
                             filename=remote_path,
                             location_type='cuit',
                             )
@@ -363,39 +363,7 @@ def copy_from_s3_to_cunix(operation, params):
     t = pull_from_s3(suffix, settings.AWS_S3_OUTPUT_BUCKET,
                      f.cap)
     operation.log(info="downloaded from S3")
-
-    sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_user = settings.SFTP_USER
-    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
-    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
-    transport = paramiko.Transport((sftp_hostname, 22))
-    transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
-
-    remote_filename = filename.replace(suffix, "_et" + suffix)
-    remote_path = os.path.join(
-        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
-        remote_filename)
-
-    try:
-        sftp.putfo(t, remote_path)
-        File.objects.create(video=video,
-                            label="CUIT H264 %d" % resolution,
-                            filename=remote_path,
-                            location_type='cuit',
-                            )
-    except Exception, e:
-        print "sftp put failed"
-        operation.log(info=str(e))
-        print str(e)
-        return ("failed", "could not upload")
-    else:
-        print "sftp_put succeeded"
-        operation.log(info="sftp put succeeded")
-    finally:
-        sftp.close()
-        transport.close()
-
+    sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution)
     return ("complete", "")
 
 
