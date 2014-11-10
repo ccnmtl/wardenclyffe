@@ -360,17 +360,8 @@ def copy_from_s3_to_cunix(operation, params):
     video = f.video
     filename = os.path.basename(f.cap)
     suffix = video.extension()
-
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_OUTPUT_BUCKET)
-    k = Key(bucket)
-    k.key = f.cap
-
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
-    t.seek(0)
+    t = pull_from_s3(suffix, settings.AWS_S3_OUTPUT_BUCKET,
+                     f.cap)
     operation.log(info="downloaded from S3")
 
     sftp_hostname = settings.SFTP_HOSTNAME
