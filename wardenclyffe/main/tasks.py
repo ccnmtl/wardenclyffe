@@ -25,6 +25,16 @@ import waffle
 import uuid
 
 
+@task(ignore_results=True)
+def process_operation(operation_id, params, **kwargs):
+    print "process_operation(%s,%s)" % (operation_id, str(params))
+    try:
+        operation = Operation.objects.get(id=operation_id)
+        operation.process(params)
+    except Operation.DoesNotExist:
+        print "operation not found (probably deleted)"
+
+
 def save_file_to_s3(operation, params):
     if not waffle.switch_is_active('enable_s3'):
         print "S3 uploads are disabled"
@@ -175,59 +185,73 @@ def make_images(operation, params):
     honey_badger(os.makedirs, imgdir)
     imgs = os.listdir(tmpdir)
     imgs.sort()
+    make_image_objects(operation.video, imgs, tmpdir, imgdir)
+    shutil.rmtree(tmpdir)
+    set_poster(operation.video, imgs)
+    return ("complete", "created %d images" % len(imgs))
+
+
+def make_image_objects(video, imgs, tmpdir, imgdir):
     for img in imgs[:settings.MAX_FRAMES]:
         os.system("mv %s%s %s" % (tmpdir, img, imgdir))
         Image.objects.create(
-            video=operation.video,
-            image="images/%05d/%s" % (operation.video.id, img))
+            video=video,
+            image="images/%05d/%s" % (video.id, img))
         statsd.incr("image_created")
-    shutil.rmtree(tmpdir)
-    if Poster.objects.filter(video=operation.video).count() == 0\
-            and len(imgs) > 0:
-        # pick a random image out of the set and assign
-        # it as the poster on the video
-        r = random.randint(0, min(len(imgs), 50) - 1)
-        image = Image.objects.filter(video=operation.video)[r]
-        Poster.objects.create(video=operation.video, image=image)
 
-    return ("complete", "created %d images" % len(imgs))
+
+def set_poster(video, imgs):
+    if len(imgs) == 0:
+        return
+    if Poster.objects.filter(video=video).count() > 0:
+        return
+    # pick a random image out of the set and assign
+    # it as the poster on the video
+    r = random.randint(0, min(len(imgs), settings.MAX_FRAMES) - 1)
+    image = Image.objects.filter(video=video)[r]
+    Poster.objects.create(video=video, image=image)
+
+
+def midentify_path():
+    pwd = os.path.dirname(__file__)
+    script_dir = os.path.join(pwd, "../../scripts/")
+    return os.path.join(script_dir, "midentify.sh")
 
 
 def extract_metadata(operation, params):
     statsd.incr("extract_metadata")
     source_file = File.objects.get(id=params['source_file_id'])
-    # warning: for now we're expecting the midentify script
-    # to be relatively located to this file. this ought to
-    # be a bit more configurable
-    pwd = os.path.dirname(__file__)
-    script_dir = os.path.join(pwd, "../../scripts/")
-    output = unicode(subprocess.Popen([os.path.join(script_dir,
-                                                    "midentify.sh"),
-                                       params['tmpfilename']],
-                                      stdout=subprocess.PIPE).communicate()[0],
-                     errors='replace')
+    output = unicode(
+        subprocess.Popen(
+            [midentify_path(),
+             params['tmpfilename']],
+            stdout=subprocess.PIPE).communicate()[0],
+        errors='replace')
+    for f, v in parse_metadata(output):
+        source_file.set_metadata(f, v)
+    return ("complete", "")
+
+
+def parse_metadata(output):
     for line in output.split("\n"):
         try:
             line = line.strip()
             if "=" not in line:
                 continue
             (f, v) = line.split("=")
-            source_file.set_metadata(f, v)
+            yield f, v
         except Exception, e:
             # just ignore any parsing issues
             print "exception in extract_metadata: " + str(e)
             print line
-    return ("complete", "")
 
 
-@task(ignore_results=True)
-def process_operation(operation_id, params, **kwargs):
-    print "process_operation(%s,%s)" % (operation_id, str(params))
-    try:
-        operation = Operation.objects.get(id=operation_id)
-        operation.process(params)
-    except Operation.DoesNotExist:
-        print "operation not found (probably deleted)"
+def pcp_upload(filename, fileobj, ouuid, operation, workflow, description):
+    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
+              settings.PCP_PASSWORD)
+    title = "%s-%s" % (str(ouuid),
+                       strip_special_characters(operation.video.title))
+    pcp.upload_file(fileobj, filename, workflow, title, description)
 
 
 def submit_to_pcp(operation, params):
@@ -236,16 +260,26 @@ def submit_to_pcp(operation, params):
 
     # ignore the passed in params and use the ones from the operation object
     params = loads(operation.params)
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
-    # TODO: probably don't always want it to be .mp4
     filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
-    title = "%s-%s" % (str(ouuid),
-                       strip_special_characters(operation.video.title))
-    pcp.upload_file(fileobj, filename, params['pcp_workflow'], title,
-                    operation.video.description)
+    pcp_upload(filename, fileobj, ouuid, operation,
+               params['pcp_workflow'],
+               operation.video.description)
     return ("submitted", "")
+
+
+def pull_from_s3(suffix, bucket_name, key):
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(bucket_name)
+    k = Key(bucket)
+    k.key = key
+
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    k.get_contents_to_file(t)
+    t.seek(0)
+    return t
 
 
 def pull_from_s3_and_submit_to_pcp(operation, params):
@@ -258,29 +292,13 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     ouuid = operation.uuid
     filename = video.filename()
     suffix = video.extension()
-
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    k = Key(bucket)
-    k.key = video.s3_key()
-
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
-    t.seek(0)
+    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
+                     video.s3_key())
 
     operation.log(info="downloaded from S3")
-    # TODO: figure out how to re-use submit_to_pcp()
     print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
     filename = str(ouuid) + suffix
-    print "submitted with filename %s" % filename
-
-    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-    print "submitted with title %s" % title
-    pcp.upload_file(t, filename, workflow, title, video.description)
+    pcp_upload(filename, t, ouuid, operation, workflow, video.description)
     return ("submitted", "submitted to PCP")
 
 
@@ -296,17 +314,10 @@ def audio_encode(operation, params):
     suffix = video.extension()
 
     print "pulling from s3"
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    k = Key(bucket)
-    k.key = f.cap
-
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
-    t.seek(0)
+    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
+                     video.s3_key())
     operation.log(info="downloaded from S3")
+
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
     image_path = settings.AUDIO_POSTER_IMAGE
@@ -314,39 +325,42 @@ def audio_encode(operation, params):
     os.system(command)
 
     print "uploading to CUIT"
+    sftp_put(filename, suffix, open(tout, "rb"), video)
+    return ("complete", "")
+
+
+def sftp_client():
     sftp_hostname = settings.SFTP_HOSTNAME
     sftp_user = settings.SFTP_USER
     sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
     mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    return (paramiko.SFTPClient.from_transport(transport), transport)
 
+
+def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
+    sftp, transport = sftp_client()
     remote_filename = filename.replace(suffix, "_et" + suffix)
     remote_path = os.path.join(
         settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
         remote_filename)
 
     try:
-        sftp.putfo(open(tout, "rb"), remote_path)
+        sftp.putfo(fileobj, remote_path)
         File.objects.create(video=video,
-                            label="CUIT H264",
+                            label=file_label,
                             filename=remote_path,
                             location_type='cuit',
                             )
     except Exception, e:
         print "sftp put failed"
-        operation.log(info=str(e))
         print str(e)
-        return ("failed", "could not upload")
     else:
         print "sftp_put succeeded"
-        operation.log(info="sftp put succeeded")
     finally:
         sftp.close()
         transport.close()
-
-    return ("complete", "")
 
 
 def copy_from_s3_to_cunix(operation, params):
@@ -365,64 +379,17 @@ def copy_from_s3_to_cunix(operation, params):
     video = f.video
     filename = os.path.basename(f.cap)
     suffix = video.extension()
-
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_OUTPUT_BUCKET)
-    k = Key(bucket)
-    k.key = f.cap
-
-    t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
-    t.seek(0)
+    t = pull_from_s3(suffix, settings.AWS_S3_OUTPUT_BUCKET,
+                     f.cap)
     operation.log(info="downloaded from S3")
-
-    sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_user = settings.SFTP_USER
-    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
-    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
-    transport = paramiko.Transport((sftp_hostname, 22))
-    transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
-
-    remote_filename = filename.replace(suffix, "_et" + suffix)
-    remote_path = os.path.join(
-        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
-        remote_filename)
-
-    try:
-        sftp.putfo(t, remote_path)
-        File.objects.create(video=video,
-                            label="CUIT H264 %d" % resolution,
-                            filename=remote_path,
-                            location_type='cuit',
-                            )
-    except Exception, e:
-        print "sftp put failed"
-        operation.log(info=str(e))
-        print str(e)
-        return ("failed", "could not upload")
-    else:
-        print "sftp_put succeeded"
-        operation.log(info="sftp put succeeded")
-    finally:
-        sftp.close()
-        transport.close()
-
+    sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution)
     return ("complete", "")
 
 
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)
-    sftp_hostname = settings.SFTP_HOSTNAME
-    sftp_user = settings.SFTP_USER
-    sftp_private_key_path = settings.SSH_PRIVATE_KEY_PATH
-    mykey = paramiko.RSAKey.from_private_key_file(sftp_private_key_path)
-    transport = paramiko.Transport((sftp_hostname, 22))
-    transport.connect(username=sftp_user, pkey=mykey)
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp, transport = sftp_client()
 
     try:
         sftp.get(remote_filename, local_filename)
@@ -457,15 +424,9 @@ def pull_from_cuit_and_submit_to_pcp(operation, params):
     operation.log(info="downloaded from cuit")
 
     print "submitting to PCP"
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
     filename = str(ouuid) + extension
-    print "submitted with filename %s" % filename
-
-    title = "%s-%s" % (str(ouuid), strip_special_characters(video.title))
-    print "submitted with title %s" % title
-    pcp.upload_file(open(tmpfilename, "r"), filename, workflow, title,
-                    video.description)
+    pcp_upload(filename, open(tmpfilename, "r"), ouuid, operation,
+               workflow, video.description)
     return ("submitted", "submitted to PCP")
 
 
