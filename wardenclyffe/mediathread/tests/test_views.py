@@ -74,4 +74,4 @@ class TestSelectWorkflow(TestCase):
 
     @override_settings(MEDIATHREAD_PCP_WORKFLOW="foo3")
     def test_default(self):
-        self.assertEqual(select_workflow(False, False), "foo3")
+        self.assertEqual(select_workflow(False, False), None)
