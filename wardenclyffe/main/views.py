@@ -800,30 +800,6 @@ def test_upload(request):
     return HttpResponse("a response")
 
 
-def handle_mediathread_submit(operation):
-    params = dict()
-    if operation.video.is_mediathread_submit():
-        statsd.incr('main.upload.mediathread')
-        (set_course, username,
-         audio, audio2) = operation.video.mediathread_submit()
-        if set_course is not None:
-            user = User.objects.get(username=username)
-            params['set_course'] = set_course
-            params['audio'] = audio
-            params['audio2'] = audio2
-            o = Operation.objects.create(
-                uuid=uuid.uuid4(),
-                video=operation.video,
-                action="submit to mediathread",
-                status="enqueued",
-                params=dumps(params),
-                owner=user
-            )
-            o.video.clear_mediathread_submit()
-            return ([o.id, ], params)
-    return ([], dict())
-
-
 def make_cunix_file(operation, cunix_path):
     if cunix_path.startswith(settings.CUNIX_SECURE_DIRECTORY):
         File.objects.create(video=operation.video,
@@ -862,7 +838,7 @@ class DoneView(View):
             operation.log(info="PCP completed")
             cunix_path = request.POST.get('movie_destination_path', '')
             make_cunix_file(operation, cunix_path)
-            (operations, params) = handle_mediathread_submit(operation)
+            (operations, params) = operation.video.handle_mediathread_submit()
         except:
             statsd.incr('main.upload.failure')
             transaction.rollback()

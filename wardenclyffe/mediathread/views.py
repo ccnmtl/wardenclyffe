@@ -59,9 +59,6 @@ def select_workflow(audio, audio2):
     if audio2:
         if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW2'):
             return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2
-    else:
-        if hasattr(settings, 'MEDIATHREAD_PCP_WORKFLOW'):
-            return settings.MEDIATHREAD_PCP_WORKFLOW
     return None
 
 

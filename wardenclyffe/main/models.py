@@ -232,6 +232,29 @@ class Video(TimeStampedModel):
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
 
+    def handle_mediathread_submit(self):
+        params = dict()
+        if self.is_mediathread_submit():
+            statsd.incr('main.upload.mediathread')
+            (set_course, username,
+             audio, audio2) = self.mediathread_submit()
+            if set_course is not None:
+                user = User.objects.get(username=username)
+                params['set_course'] = set_course
+                params['audio'] = audio
+                params['audio2'] = audio2
+                o = Operation.objects.create(
+                    uuid=uuid.uuid4(),
+                    video=self,
+                    action="submit to mediathread",
+                    status="enqueued",
+                    params=dumps(params),
+                    owner=user
+                )
+                self.clear_mediathread_submit()
+                return ([o.id, ], params)
+        return ([], dict())
+
     def cuit_file(self):
         try:
             return self.file_set.filter(location_type="cuit")[0]

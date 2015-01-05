@@ -383,6 +383,9 @@ def copy_from_s3_to_cunix(operation, params):
                      f.cap)
     operation.log(info="downloaded from S3")
     sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution)
+    (operations, params) = video.handle_mediathread_submit()
+    for o in operations:
+        process_operation.delay(o, params)
     return ("complete", "")
 
 
