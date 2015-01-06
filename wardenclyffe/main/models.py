@@ -243,14 +243,8 @@ class Video(TimeStampedModel):
                 params['set_course'] = set_course
                 params['audio'] = audio
                 params['audio2'] = audio2
-                o = Operation.objects.create(
-                    uuid=uuid.uuid4(),
-                    video=self,
-                    action="submit to mediathread",
-                    status="enqueued",
-                    params=dumps(params),
-                    owner=user
-                )
+                o, params = self.make_op(
+                    user, params, action="submit to mediathread")
                 self.clear_mediathread_submit()
                 return ([o.id, ], params)
         return ([], dict())
@@ -286,69 +280,41 @@ class Video(TimeStampedModel):
         if audio2:
             submit_file.set_metadata("audio2", "True")
 
+    def make_op(self, user, params, **oparams):
+        oparams['video'] = self
+        oparams['uuid'] = uuid.uuid4()
+        oparams['params'] = dumps(params)
+        oparams['owner'] = user
+        oparams['status'] = "enqueued"
+        o = Operation.objects.create(**oparams)
+        return (o, params)
+
     def make_extract_metadata_operation(self, tmpfilename, source_file, user):
         params = dict(tmpfilename=tmpfilename,
                       source_file_id=source_file.id)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="extract metadata",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return (o, params)
+        return self.make_op(user, params, action="extract metadata")
 
     def make_save_file_to_s3_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename, filename=tmpfilename)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="save file to S3",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return (o, params)
+        return self.make_op(user, params, action="save file to S3")
 
     def make_make_images_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="make images",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return o, params
+        return self.make_op(user, params, action="make images")
 
     def make_import_from_cuit_operation(self, video_id, user):
         params = dict(video_id=video_id)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="import from cuit",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return o, params
+        return self.make_op(user, params, action="import from cuit")
 
     def make_pull_from_s3_and_submit_to_pcp_operation(self, video_id,
                                                       workflow, user):
         params = dict(video_id=video_id, workflow=workflow)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="pull from s3 and submit to pcp",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params,
+                            action="pull from s3 and submit to pcp")
 
     def make_copy_from_s3_to_cunix_operation(self, file_id, user):
         params = dict(file_id=file_id)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="copy from s3 to cunix",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params, action="copy from s3 to cunix")
 
     def make_audio_encode_operation(self, file_id, user):
         """ pull the file down from S3
@@ -361,61 +327,29 @@ class Video(TimeStampedModel):
         it will probably go off the locally cached
         version of the file instead of pulling from s3"""
         params = dict(file_id=file_id)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="audio encode",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params, action="audio encode")
 
     def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
                                                         workflow, user):
         params = dict(video_id=video_id, workflow=workflow)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="pull from cuit and submit to pcp",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params,
+                            action="pull from cuit and submit to pcp")
 
     def make_submit_to_podcast_producer_operation(
             self, tmpfilename, workflow, user):
         params = dict(tmpfilename=tmpfilename,
                       pcp_workflow=workflow)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="submit to podcast producer",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params, action="submit to podcast producer")
 
     def make_create_elastic_transcoder_job_operation(
             self, key, user):
         params = dict(key=key)
-        o = Operation.objects.create(
-            uuid=uuid.uuid4(),
-            video=self,
-            action="create elastic transcoder job",
-            status="enqueued",
-            params=dumps(params),
-            owner=user)
-        return o, params
+        return self.make_op(user, params,
+                            action="create elastic transcoder job")
 
     def make_upload_to_youtube_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename)
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=self,
-                                     action="upload to youtube",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=user)
-        return o, params
+        return self.make_op(user, params, action="upload to youtube")
 
     def make_source_file(self, filename):
         return File.objects.create(video=self,

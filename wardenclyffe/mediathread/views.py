@@ -3,15 +3,14 @@ from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
-from wardenclyffe.main.models import Video, Operation, Collection
+from wardenclyffe.main.models import Video, Collection
 from django.contrib.auth.models import User
-import uuid
 import wardenclyffe.main.tasks as maintasks
 import os
 from django.conf import settings
 from django.db import transaction
 from restclient import GET
-from json import loads, dumps
+from json import loads
 import hmac
 import hashlib
 from django_statsd.clients import statsd
@@ -135,13 +134,8 @@ def video_mediathread_submit(request, id):
     if request.method == "POST":
         statsd.incr("mediathread.submit")
         params = dict(set_course=request.POST.get('course', ''))
-        o = Operation.objects.create(uuid=uuid.uuid4(),
-                                     video=video,
-                                     action="submit to mediathread",
-                                     status="enqueued",
-                                     params=dumps(params),
-                                     owner=request.user,
-                                     )
+        o, params = video.make_op(request.user, params,
+                                  action="submit to mediathread")
         maintasks.process_operation.delay(o.id, params)
         o.video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
@@ -170,13 +164,8 @@ def collection_mediathread_submit(request, pk):
         for video in collection.video_set.all():
             statsd.incr("mediathread.submit")
             params = dict(set_course=request.POST.get('course', ''))
-            o = Operation.objects.create(uuid=uuid.uuid4(),
-                                         video=video,
-                                         action="submit to mediathread",
-                                         status="enqueued",
-                                         params=dumps(params),
-                                         owner=request.user,
-                                         )
+            o, params = video.make_op(request.user, params,
+                                      action="submit to mediathread")
             maintasks.process_operation.delay(o.id, params)
             o.video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
