@@ -53,10 +53,12 @@ def index(request):
     return dict(dirs=[f for f in all_files if f.endswith(".mov")])
 
 
-@transaction.commit_manually
+@transaction.atomic()
 @login_required
 def import_quicktime(request):
+    sp = transaction.savepoint()
     if request.method != "POST":
+        transaction.savepoint_rollback(sp)
         return HttpResponseRedirect("/cuit/")
     operations = []
     params = []
@@ -83,10 +85,10 @@ def import_quicktime(request):
             operations.append(o)
             params.append(p)
     except:
-        transaction.rollback()
+        transaction.savepoint_rollback(sp)
         raise
     else:
-        transaction.commit()
+        transaction.savepoint_commit(sp)
         for o, p in zip(operations, params):
             process_operation.delay(o.id, p)
         return HttpResponse("database entries created. import has begun.")
