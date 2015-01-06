@@ -10,5 +10,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'wardenclyffe.settings_production'
 os.environ["CELERY_LOADER"] = "django"
 
 import django.core.handlers.wsgi
-
+import django
+django.setup()
 application = django.core.handlers.wsgi.WSGIHandler()
