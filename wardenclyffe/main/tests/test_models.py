@@ -367,6 +367,29 @@ class OperationTest(TestCase):
         o.process(p)
         o.post_process()
 
+    def test_make_import_from_cuit_operation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        o, p = f.video.make_import_from_cuit_operation(f.video.id, u)
+        self.assertTrue('video_id' in p)
+        self.assertEqual(o.action, "import from cuit")
+
+    def test_make_audio_encode_operation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        o, p = f.video.make_audio_encode_operation(f.id, u)
+        self.assertTrue('file_id' in p)
+        self.assertEqual(o.action, "audio encode")
+
+    def test_elastic_transcoder_job_operation(self):
+        f = SourceFileFactory()
+        u = UserFactory()
+        o, p = f.video.make_create_elastic_transcoder_job_operation(
+            "some key", u)
+        self.assertTrue('key' in p)
+        self.assertEqual(p['key'], "some key")
+        self.assertEqual(o.action, "create elastic transcoder job")
+
 
 class ServerTest(TestCase):
     def test_unicode(self):
