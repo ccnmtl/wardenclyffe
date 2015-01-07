@@ -43,8 +43,6 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     PCP_BASE_URL = ""
     CELERY_ALWAYS_EAGER = True
 
-SOUTH_TESTS_MIGRATE = False
-SOUTH_AUTO_FREEZE_APP = True
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 JENKINS_TASKS = (
@@ -136,7 +134,6 @@ INSTALLED_APPS = [
     'wardenclyffe.util',
     'oembed',
     'taggit',
-    'south',
     'django_nose',
     'wardenclyffe.cuit',
     'django_statsd',

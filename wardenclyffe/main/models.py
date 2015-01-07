@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
-from south.modelsinspector import add_introspection_rules
 from surelink import SureLink
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
@@ -20,13 +19,6 @@ import sha
 import urllib
 import base64
 from json import dumps, loads
-
-add_introspection_rules(
-    [],
-    ["^django_extensions\.db\.fields\.CreationDateTimeField",
-     "django_extensions.db.fields.ModificationDateTimeField",
-     "sorl.thumbnail.fields.ImageWithThumbnailsField",
-     "django_extensions.db.fields.UUIDField"])
 
 
 class Collection(TimeStampedModel):

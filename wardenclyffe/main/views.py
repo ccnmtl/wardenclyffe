@@ -216,7 +216,7 @@ class RecentOperationsView(StaffMixin, View):
         return HttpResponse(
             dumps(dict(operations=[o.as_dict() for o
                                    in q.order_by("-modified")[:200]])),
-            mimetype="application/json")
+            content_type="application/json")
 
 
 class MostRecentOperationView(StaffMixin, View):
@@ -227,11 +227,11 @@ class MostRecentOperationView(StaffMixin, View):
                 dumps(
                     dict(
                         modified=str(qs[0].modified)[:19])),
-                mimetype="application/json")
+                content_type="application/json")
         else:
             return HttpResponse(
                 dumps(dict()),
-                mimetype="application/json")
+                content_type="application/json")
 
 
 class SlowOperationsView(StaffMixin, TemplateView):
@@ -541,7 +541,7 @@ class OperationInfoView(View):
     def get(self, request, uuid):
         operation = get_object_or_404(Operation, uuid=uuid)
         return HttpResponse(dumps(operation.as_dict()),
-                            mimetype="application/json")
+                            content_type="application/json")
 
 
 class OperationView(StaffMixin, TemplateView):
