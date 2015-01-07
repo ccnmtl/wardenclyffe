@@ -293,11 +293,10 @@ class SubmitFilesTest(TestCase):
         u = UserFactory()
         v.make_mediathread_submit_file(
             "file.mp4", u, "course-id",
-            "http://example.com/", audio=False,
-            audio2=False)
+            "http://example.com/", audio=False)
         self.assertEquals(
             v.mediathread_submit(),
-            ("course-id", u.username, None, None))
+            ("course-id", u.username, None))
         v.clear_mediathread_submit()
         self.assertEquals(
             v.mediathread_submit(),
@@ -308,11 +307,10 @@ class SubmitFilesTest(TestCase):
         u = UserFactory()
         v.make_mediathread_submit_file(
             "file.mp4", u, "course-id",
-            "http://example.com/", audio=True,
-            audio2=True)
+            "http://example.com/", audio=True)
         self.assertEquals(
             v.mediathread_submit(),
-            ("course-id", u.username, u'True', u'True'))
+            ("course-id", u.username, u'True'))
         self.assertTrue(v.is_audio_file())
         v.clear_mediathread_submit()
         self.assertEquals(
@@ -346,7 +344,7 @@ class OperationTest(TestCase):
         u = UserFactory()
         (ops, params) = f.video.make_default_operations(
             "/tmp/file.mov",
-            f, u, True, True)
+            f, u, True)
         self.assertEquals(len(ops), 1)
         # just run these to get the coverage up. don't worry if they fail
         for (o, p) in zip(ops, params):

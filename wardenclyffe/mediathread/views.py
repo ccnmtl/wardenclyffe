@@ -43,21 +43,19 @@ def mediathread(request):
     request.session['nonce'] = nonce
     request.session['redirect_to'] = redirect_to
     request.session['hmac'] = hmc
-    audio = request.GET.get('audio', False)
+    # either 'audio' or 'audio2' are accepted for now
+    # for backwards-compatibility. going forward,
+    # 'audio2' will be deprecated
     audio2 = request.GET.get('audio2', False)
+    audio = request.GET.get('audio', False) or audio2
     return dict(username=username, user=user,
-                audio=audio or audio2,
-                audio2=audio2,
+                audio=audio,
                 )
 
 
-def select_workflow(audio, audio2):
-    if audio:
-        if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW'):
-            return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW
-    if audio2:
-        if hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW2'):
-            return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2
+def select_workflow(audio):
+    if audio and hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW2'):
+        return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2
     return None
 
 
@@ -78,8 +76,9 @@ def mediathread_post(request):
         return HttpResponse("invalid session")
 
     tmpfilename = request.POST.get('tmpfilename', '')
-    audio = request.POST.get('audio', False)
+    # backwards compatibility: allow 'audio' or 'audio2'
     audio2 = request.POST.get('audio2', False)
+    audio = request.POST.get('audio', False) or audio2
     operations = []
     params = []
     if tmpfilename.startswith(settings.TMP_DIR):
@@ -102,13 +101,12 @@ def mediathread_post(request):
             v.make_mediathread_submit_file(
                 filename, user, request.session['set_course'],
                 request.session['redirect_to'], audio=audio,
-                audio2=audio2
             )
 
             operations, params = v.make_default_operations(
-                tmpfilename, source_file, user, audio=audio, audio2=audio2)
+                tmpfilename, source_file, user, audio=audio)
 
-            workflow = select_workflow(audio, audio2)
+            workflow = select_workflow(audio)
             if workflow:
                 o, p = v.make_submit_to_podcast_producer_operation(
                     tmpfilename, workflow, user)

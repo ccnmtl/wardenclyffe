@@ -57,11 +57,7 @@
             
                     <form action="post/" method="post" enctype="multipart/form-data">
 {% if audio %}
-  {% if audio2 %}
-                    <input type="hidden" name="audio2" value="True" />
-  {% else %}
                     <input type="hidden" name="audio" value="True" />
-  {% endif %}
 {% endif %}
                     <div id="vitaldropform" class="adminformcontainer">
                         <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
