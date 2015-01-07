@@ -5,8 +5,8 @@ from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
 
 
-def guess_dimensions(video, audio2):
-    if audio2:
+def guess_dimensions(video, audio):
+    if audio:
         return 160, 120
     return video.get_dimensions()
 
@@ -21,7 +21,6 @@ def submit_to_mediathread(operation, params):
     user = operation.owner
     course_id = params['set_course']
     audio = params['audio']
-    audio2 = params['audio2']
     mediathread_secret = settings.MEDIATHREAD_SECRET
     mediathread_base = settings.MEDIATHREAD_BASE
     params = {
@@ -43,7 +42,7 @@ def submit_to_mediathread(operation, params):
         # default for audio uploads is the public streaming server
         params['mp3'] = mp3_url(video)
     else:
-        (width, height) = guess_dimensions(video, audio2)
+        (width, height) = guess_dimensions(video, audio)
         if not width or not height:
             statsd.incr(
                 "mediathread.tasks.submit_to_mediathread.failure.dimensions")
@@ -55,10 +54,8 @@ def submit_to_mediathread(operation, params):
         params['thumb'] = video.cuit_poster_url() or video.poster_url()
         if video.h264_secure_stream_url():
             # prefer h264 secure pseudo stream
-            if audio2:
+            if audio:
                 params['mp4_audio'] = video.h264_secure_stream_url()
-            else:
-                params['mp4_pseudo'] = video.h264_secure_stream_url()
             params["mp4-metadata"] = "w%dh%d" % (width, height)
         elif video.mediathread_url():
             # try flv pseudo stream as a fallback

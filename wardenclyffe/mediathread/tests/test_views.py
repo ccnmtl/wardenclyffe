@@ -64,14 +64,10 @@ class TestInvalidSessions(TestCase):
 
 
 class TestSelectWorkflow(TestCase):
-    @override_settings(MEDIATHREAD_AUDIO_PCP_WORKFLOW="foo1")
+    @override_settings(MEDIATHREAD_AUDIO_PCP_WORKFLOW2="foo1")
     def test_audio(self):
-        self.assertEqual(select_workflow(True, False), "foo1")
+        self.assertEqual(select_workflow(True), "foo1")
 
-    @override_settings(MEDIATHREAD_AUDIO_PCP_WORKFLOW2="foo2")
-    def test_audio2(self):
-        self.assertEqual(select_workflow(False, True), "foo2")
-
-    @override_settings(MEDIATHREAD_PCP_WORKFLOW="foo3")
+    @override_settings(MEDIATHREAD_PCP_WORKFLOW2="foo3")
     def test_default(self):
-        self.assertEqual(select_workflow(False, False), None)
+        self.assertEqual(select_workflow(False), None)
