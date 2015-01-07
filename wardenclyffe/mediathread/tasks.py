@@ -38,33 +38,29 @@ def submit_to_mediathread(operation, params):
         "metadata-tag": "upload",
     }
 
-    if audio:
-        # default for audio uploads is the public streaming server
-        params['mp3'] = mp3_url(video)
+    (width, height) = guess_dimensions(video, audio)
+    if not width or not height:
+        statsd.incr(
+            "mediathread.tasks.submit_to_mediathread.failure.dimensions")
+        return ("failed", "could not figure out dimensions")
+    if not video.mediathread_url():
+        statsd.incr(
+            "mediathread.tasks.submit_to_mediathread.failure.video_url")
+        return ("failed", "no video URL")
+    params['thumb'] = video.cuit_poster_url() or video.poster_url()
+    if video.h264_secure_stream_url():
+        # prefer h264 secure pseudo stream
+        if audio:
+            params['mp4_audio'] = video.h264_secure_stream_url()
+        params["mp4-metadata"] = "w%dh%d" % (width, height)
+    elif video.mediathread_url():
+        # try flv pseudo stream as a fallback
+        params['flv_pseudo'] = video.mediathread_url()
+        params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
     else:
-        (width, height) = guess_dimensions(video, audio)
-        if not width or not height:
-            statsd.incr(
-                "mediathread.tasks.submit_to_mediathread.failure.dimensions")
-            return ("failed", "could not figure out dimensions")
-        if not video.mediathread_url():
-            statsd.incr(
-                "mediathread.tasks.submit_to_mediathread.failure.video_url")
-            return ("failed", "no video URL")
-        params['thumb'] = video.cuit_poster_url() or video.poster_url()
-        if video.h264_secure_stream_url():
-            # prefer h264 secure pseudo stream
-            if audio:
-                params['mp4_audio'] = video.h264_secure_stream_url()
-            params["mp4-metadata"] = "w%dh%d" % (width, height)
-        elif video.mediathread_url():
-            # try flv pseudo stream as a fallback
-            params['flv_pseudo'] = video.mediathread_url()
-            params['flv_pseudo-metadata'] = "w%dh%d" % (width, height)
-        else:
-            # eventually we probably also want to try
-            # h264 public streams
-            pass
+        # eventually we probably also want to try
+        # h264 public streams
+        pass
 
     resp, content = POST(mediathread_base + "/save/",
                          params=params, async=False, resp=True)
