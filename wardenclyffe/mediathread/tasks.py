@@ -62,6 +62,8 @@ def submit_to_mediathread(operation, params):
         # h264 public streams
         pass
 
+    operation.log("submitting to " + mediathread_base + "/save/")
+    operation.log("with params: " + str(params))
     resp, content = POST(mediathread_base + "/save/",
                          params=params, async=False, resp=True)
     if resp.status == 302:
