@@ -71,6 +71,7 @@ def submit_to_mediathread(operation, params):
 
     params = mediathread_submit_params(
         video, course_id, user.username, mediathread_secret,
+        audio, width, height
     )
 
     resp, content = POST(mediathread_base + "/save/",
