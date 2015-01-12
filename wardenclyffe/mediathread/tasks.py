@@ -52,6 +52,8 @@ def submit_to_mediathread(operation, params):
         # prefer h264 secure pseudo stream
         if audio:
             params['mp4_audio'] = video.h264_secure_stream_url()
+        else:
+            params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
     elif video.mediathread_url():
         # try flv pseudo stream as a fallback
