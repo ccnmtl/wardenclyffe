@@ -38,6 +38,12 @@ class PublicFileFactory(FileFactory):
                 "-Mediathread_video_uploaded_by_mlp55.mp4")
 
 
+class SecureFileFactory(FileFactory):
+    filename = ("/media/h264/ccnmtl/secure/"
+                "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                "-Mediathread_video_uploaded_by_mlp55.mp4")
+
+
 class CUITFLVFileFactory(FileFactory):
     filename = ("/www/data/ccnmtl/broadcast/secure/"
                 "courses/56d27944-4131-11e1-8164-0017f20ea192"
@@ -103,6 +109,18 @@ class SourceFileFactory(FileFactory):
             line = line.strip()
             (k, v) = line.split(",")
             self.set_metadata(k, v)
+
+
+class MediathreadSubmitFileFactory(FileFactory):
+    FACTORY_FOR = File
+    label = "mediathread submit"
+    location_type = "mediathreadsubmit"
+
+    @factory.post_generation
+    def init_metadata(self, *args):
+        self.set_metadata("set_course", "a course")
+        self.set_metadata("username", "anp8")
+        self.set_metadata("audio", None)
 
 
 class DimensionlessSourceFileFactory(FileFactory):
