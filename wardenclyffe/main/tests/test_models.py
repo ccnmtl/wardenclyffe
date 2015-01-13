@@ -8,12 +8,13 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from django.test.utils import override_settings
 from wardenclyffe.main.tasks import strip_special_characters
-from factories import CollectionFactory, VideoFactory, CUITFLVFileFactory
-from factories import SourceFileFactory
-from factories import (MediathreadFileFactory, S3FileFactory, FileFactory)
-from factories import PublicFileFactory, OperationFactory
-from factories import DimensionlessSourceFileFactory
-from factories import ServerFactory, UserFactory
+from factories import (
+    CollectionFactory, VideoFactory, CUITFLVFileFactory,
+    SourceFileFactory, MediathreadFileFactory, S3FileFactory, FileFactory,
+    PublicFileFactory, OperationFactory, DimensionlessSourceFileFactory,
+    ServerFactory, UserFactory, SecureFileFactory, PosterFactory,
+    MediathreadSubmitFileFactory,
+)
 
 
 class CUITFileTest(TestCase):
@@ -70,6 +71,14 @@ class EmptyVideoTest(TestCase):
     def test_extension(self):
         assert self.video.extension() == ""
 
+    def test_extension_non_source(self):
+        f = PublicFileFactory()
+        self.assertEqual(f.video.extension(), ".mp4")
+
+    def test_extension_with_source(self):
+        f = SourceFileFactory()
+        self.assertEqual(f.video.extension(), ".mov")
+
     def test_source_file(self):
         assert self.video.source_file() is None
 
@@ -94,6 +103,10 @@ class EmptyVideoTest(TestCase):
             ("http://ccnmtl.columbia.edu/broadcast/posters/"
              "vidthumb_480x360.jpg"))
 
+    def test_poster(self):
+        p = PosterFactory()
+        self.assertEqual(p.video.poster(), p)
+
     def test_cuit_poster_url(self):
         assert self.video.cuit_poster_url() is None
 
@@ -103,7 +116,7 @@ class EmptyVideoTest(TestCase):
     def test_mediathread_submit(self):
         assert self.video.mediathread_submit() == (None, None, None)
 
-    def test_poster(self):
+    def test_poster_dummy(self):
         assert self.video.poster().dummy
 
     def test_cuit_file(self):
@@ -119,6 +132,30 @@ class EmptyVideoTest(TestCase):
 
     def test_is_audio_file(self):
         self.assertFalse(self.video.is_audio_file())
+
+    def test_s3_key(self):
+        source = S3FileFactory()
+        k = source.video.s3_key()
+        self.assertTrue(k.endswith("oppenheim_shear_kim1_edit.mov"))
+
+    def test_s3_key_non_s3(self):
+        source = FileFactory()
+        k = source.video.s3_key()
+        self.assertEqual(k, None)
+
+    def test_handle_mediathread_submit(self):
+        f = MediathreadSubmitFileFactory()
+        UserFactory(username=f.get_metadata("username"))
+        (ops, params) = f.video.handle_mediathread_submit()
+        self.assertEqual(len(ops), 1)
+        self.assertEqual(params['set_course'], "a course")
+
+    def test_handle_mediathread_submit_no_course(self):
+        f = MediathreadSubmitFileFactory()
+        f.set_metadata("set_course", None)
+        (ops, params) = f.video.handle_mediathread_submit()
+        self.assertEqual(len(ops), 0)
+        self.assertEqual(params, dict())
 
 
 class FileTest(TestCase):
@@ -154,6 +191,20 @@ class S3FileTest(TestCase):
                  "t6009_005_2011_3_oppenheim_"
                  "shear_kim1_edit.mov")))
 
+    @override_settings(AWS_S3_UPLOAD_BUCKET="foo",
+                       AWS_S3_OUTPUT_BUCKET="out",
+                       AWS_SECRET_KEY="bar",
+                       AWS_ACCESS_KEY="baz")
+    def test_s3_download_url_transcode(self):
+        f = S3FileFactory()
+        f.label = "label has transcode"
+        f.save()
+        self.assertTrue(
+            f.s3_download_url().startswith(
+                ("https://s3.amazonaws.com/out/2011/09/28/"
+                 "t6009_005_2011_3_oppenheim_"
+                 "shear_kim1_edit.mov")))
+
     def test_non_s3_file(self):
         f = MediathreadFileFactory()
         self.assertFalse(f.is_s3())
@@ -167,6 +218,10 @@ class S3FileTest(TestCase):
                       label="transcoded 720p file (S3)")
         f = source.video.s3_file()
         self.assertEqual(f, source)
+
+    def test_is_audio(self):
+        f = S3FileFactory()
+        self.assertFalse(f.filetype().is_audio())
 
 
 class MediathreadVideoTest(TestCase):
@@ -190,6 +245,16 @@ class MediathreadVideoTest(TestCase):
     def test_get_dimensions(self):
         source_file = SourceFileFactory()
         assert source_file.video.get_dimensions() == (704, 480)
+
+    def test_guess_width(self):
+        s = SourceFileFactory()
+        s.set_metadata("ID_VIDEO_WIDTH", 100)
+        self.assertEqual(s.guess_width(), 100)
+
+    def test_guess_height(self):
+        s = SourceFileFactory()
+        s.set_metadata("ID_VIDEO_HEIGHT", 100)
+        self.assertEqual(s.guess_height(), 100)
 
     def test_cuit_url(self):
         f = CUITFLVFileFactory(
@@ -285,6 +350,14 @@ class H264PublicStreamFileTest(TestCase):
         self.assertEquals(f.h264_public_path(),
                           ("/courses/56d27944-4131-11e1-8164-0017f20ea192-"
                            "Mediathread_video_uploaded_by_mlp55.mp4"))
+
+    def test_h264_public_stream_url_non_cuit(self):
+        f = SourceFileFactory()
+        self.assertEqual(f.video.h264_public_stream_url(), "")
+
+    def test_h264_public_stream_url_secure(self):
+        f = SecureFileFactory()
+        self.assertEqual(f.video.h264_public_stream_url(), "")
 
 
 class SubmitFilesTest(TestCase):
