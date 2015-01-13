@@ -15,17 +15,11 @@ def mp3_url(video):
     return video.h264_public_stream_url()
 
 
-def submit_to_mediathread(operation, params):
-    statsd.incr("mediathread.tasks.submit_to_mediathread")
-    video = operation.video
-    user = operation.owner
-    course_id = params['set_course']
-    audio = params['audio']
-    mediathread_secret = settings.MEDIATHREAD_SECRET
-    mediathread_base = settings.MEDIATHREAD_BASE
+def mediathread_submit_params(video, course_id, username, mediathread_secret,
+                              audio, width, height):
     params = {
         'set_course': course_id,
-        'as': user.username,
+        'as': username,
         'secret': mediathread_secret,
         'title': video.title,
         "metadata-creator": video.creator,
@@ -37,16 +31,6 @@ def submit_to_mediathread(operation, params):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "upload",
     }
-
-    (width, height) = guess_dimensions(video, audio)
-    if not width or not height:
-        statsd.incr(
-            "mediathread.tasks.submit_to_mediathread.failure.dimensions")
-        return ("failed", "could not figure out dimensions")
-    if not video.mediathread_url():
-        statsd.incr(
-            "mediathread.tasks.submit_to_mediathread.failure.video_url")
-        return ("failed", "no video URL")
     params['thumb'] = video.cuit_poster_url() or video.poster_url()
     if video.h264_secure_stream_url():
         # prefer h264 secure pseudo stream
@@ -63,6 +47,32 @@ def submit_to_mediathread(operation, params):
         # eventually we probably also want to try
         # h264 public streams
         pass
+    return params
+
+
+def submit_to_mediathread(operation, params):
+    statsd.incr("mediathread.tasks.submit_to_mediathread")
+    video = operation.video
+    user = operation.owner
+    course_id = params['set_course']
+    audio = params['audio']
+    mediathread_secret = settings.MEDIATHREAD_SECRET
+    mediathread_base = settings.MEDIATHREAD_BASE
+
+    (width, height) = guess_dimensions(video, audio)
+    if not width or not height:
+        statsd.incr(
+            "mediathread.tasks.submit_to_mediathread.failure.dimensions")
+        return ("failed", "could not figure out dimensions")
+    if not video.mediathread_url():
+        statsd.incr(
+            "mediathread.tasks.submit_to_mediathread.failure.video_url")
+        return ("failed", "no video URL")
+
+    params = mediathread_submit_params(
+        video, course_id, user.username, mediathread_secret,
+        audio, width, height
+    )
 
     resp, content = POST(mediathread_base + "/save/",
                          params=params, async=False, resp=True)
