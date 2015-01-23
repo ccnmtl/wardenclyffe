@@ -1318,7 +1318,6 @@ class SNSView(View):
             return HttpResponse("OK")
         return HttpResponse("Failed to confirm")
 
-    @transaction.atomic()
     def _notification(self, request):
         sp = transaction.savepoint()
         full_message = loads(self.body)
@@ -1376,6 +1375,7 @@ class SNSView(View):
 
         return HttpResponse("OK")
 
+    @transaction.atomic()
     def post(self, request):
         self.body = request.read()
         if 'HTTP_X_AMZ_SNS_MESSAGE_TYPE' not in self.request.META:
