@@ -53,45 +53,39 @@ def index(request):
     return dict(dirs=[f for f in all_files if f.endswith(".mov")])
 
 
-@transaction.atomic()
+@transaction.non_atomic_requests()
 @login_required
 def import_quicktime(request):
-    sp = transaction.savepoint()
     if request.method != "POST":
-        transaction.savepoint_rollback(sp)
         return HttpResponseRedirect("/cuit/")
     operations = []
     params = []
-    try:
-        s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
-        server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
 
-        for filename in list_all_cuit_files():
-            if not filename.endswith(".mov"):
-                continue
-            vuuid = uuid.uuid4()
-            # make db entry
-            v = Video.objects.create(collection=s,
-                                     title=os.path.basename(filename),
-                                     creator=request.user.username,
-                                     uuid=vuuid)
-            cuit_file = File.objects.create(video=v,
-                                            label="cuit file",
-                                            filename=filename,
-                                            location_type='cuit')
-            ServerFile.objects.create(server=server, file=cuit_file)
-            v.make_source_file("")
-            o, p = v.make_import_from_cuit_operation(v.id, request.user)
-            operations.append(o)
-            params.append(p)
-    except:
-        transaction.savepoint_rollback(sp)
-        raise
-    else:
-        transaction.savepoint_commit(sp)
-        for o, p in zip(operations, params):
-            process_operation.delay(o.id, p)
-        return HttpResponse("database entries created. import has begun.")
+    s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
+    server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
+
+    for filename in list_all_cuit_files():
+        if not filename.endswith(".mov"):
+            continue
+        vuuid = uuid.uuid4()
+        # make db entry
+        v = Video.objects.create(collection=s,
+                                 title=os.path.basename(filename),
+                                 creator=request.user.username,
+                                 uuid=vuuid)
+        cuit_file = File.objects.create(video=v,
+                                        label="cuit file",
+                                        filename=filename,
+                                        location_type='cuit')
+        ServerFile.objects.create(server=server, file=cuit_file)
+        v.make_source_file("")
+        o, p = v.make_import_from_cuit_operation(v.id, request.user)
+        operations.append(o)
+        params.append(p)
+
+    for o, p in zip(operations, params):
+        process_operation.delay(o.id, p)
+    return HttpResponse("database entries created. import has begun.")
 
 
 @render_to("cuit/retry.html")

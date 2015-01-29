@@ -27,6 +27,7 @@ DATABASES = {
         'PORT': 6432,  # 6432 = pgbouncer
         'USER': '',
         'PASSWORD': '',
+        'ATOMIC_REQUESTS': True,
         }
 }
 

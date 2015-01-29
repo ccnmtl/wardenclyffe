@@ -610,19 +610,16 @@ def create_operations(request, v, tmpfilename, source_file, filename, idx=''):
     return operations, params
 
 
-@transaction.atomic()
+@transaction.non_atomic_requests
 @login_required
 @user_passes_test(is_staff)
 def upload(request):
-    sp = transaction.savepoint()
     if request.method != "POST":
-        transaction.savepoint_rollback(sp)
         return HttpResponseRedirect("/upload/")
 
     form = VideoForm(request.POST, request.FILES)
     if not form.is_valid():
         # TODO: give the user proper feedback here
-        transaction.savepoint_rollback(sp)
         return HttpResponseRedirect("/upload/")
 
     collection_id = None
@@ -653,22 +650,18 @@ def upload(request):
                 request, v, tmpfilename, source_file, source_filename)
     except:
         statsd.incr('main.upload.failure')
-        transaction.savepoint_rollback(sp)
         raise
     else:
-        transaction.savepoint_commit(sp)
         for o, p in zip(operations, params):
             tasks.process_operation.delay(o.id, p)
     return HttpResponseRedirect("/")
 
 
-@transaction.atomic()
+@transaction.non_atomic_requests()
 @login_required
 @user_passes_test(is_staff)
 def batch_upload(request):
-    sp = transaction.savepoint()
     if request.method != "POST":
-        transaction.savepoint_rollback(sp)
         return HttpResponseRedirect("/upload/batch/")
 
     collection_id = None
@@ -710,10 +703,8 @@ def batch_upload(request):
             params.extend(v_params)
     except:
         statsd.incr('main.batch_upload.failure')
-        transaction.savepoint_rollback(sp)
         raise
     else:
-        transaction.savepoint_commit(sp)
         for o, p in zip(operations, params):
             tasks.process_operation.delay(o.id, p)
     return HttpResponseRedirect("/")
@@ -818,17 +809,14 @@ def make_cunix_file(operation, cunix_path):
 
 
 class DoneView(View):
-    @transaction.atomic()
+    @transaction.non_atomic_requests()
     def post(self, request):
-        sp = transaction.savepoint()
         if 'title' not in request.POST:
-            transaction.savepoint_rollback(sp)
             return HttpResponse("expecting a title")
         title = request.POST.get('title', 'no title')
         ouuid = uuidparse(title)
         r = Operation.objects.filter(uuid=ouuid)
         if r.count() != 1:
-            transaction.savepoint_rollback(sp)
             return HttpResponse("could not find an operation with that UUID")
 
         statsd.incr('main.done')
@@ -844,10 +832,8 @@ class DoneView(View):
             (operations, params) = operation.video.handle_mediathread_submit()
         except:
             statsd.incr('main.upload.failure')
-            transaction.savepoint_rollback(sp)
             raise
         finally:
-            transaction.savepoint_commit(sp)
             for o in operations:
                 tasks.process_operation.delay(o, params)
 
@@ -1002,7 +988,6 @@ class VideoPCPSubmitView(StaffMixin, View):
         # send to podcast producer
         o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
             video.id, request.POST.get('workflow', ''), request.user)
-        # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
 
@@ -1030,7 +1015,6 @@ class FilePCPSubmitView(StaffMixin, View):
         else:
             o, p = video.make_pull_from_cuit_and_submit_to_pcp_operation(
                 video.id, request.POST.get('workflow', ''), request.user)
-        # TODO: manual transaction processing here
         tasks.process_operation.delay(o.id, p)
         return HttpResponseRedirect(video.get_absolute_url())
 
@@ -1319,7 +1303,6 @@ class SNSView(View):
         return HttpResponse("Failed to confirm")
 
     def _notification(self, request):
-        sp = transaction.savepoint()
         full_message = loads(self.body)
         ets_message = loads(full_message['Message'])
         state = ets_message['state']
@@ -1333,7 +1316,6 @@ class SNSView(View):
         if not tf.exists():
             # success report for a non-existent transcoding
             # job. assume it's a duplicate
-            transaction.savepoint_rollback(sp)
             return HttpResponse("OK")
         operation = tf[0].operationfile_set.all()[0].operation
 
@@ -1369,13 +1351,12 @@ class SNSView(View):
             tf[0].delete()
             operation.log(info=self.body)
 
-        transaction.savepoint_commit(sp)
         for o, p in operations:
             tasks.process_operation.delay(o.id, p)
 
         return HttpResponse("OK")
 
-    @transaction.atomic()
+    @transaction.non_atomic_requests()
     def post(self, request):
         self.body = request.read()
         if 'HTTP_X_AMZ_SNS_MESSAGE_TYPE' not in self.request.META:
