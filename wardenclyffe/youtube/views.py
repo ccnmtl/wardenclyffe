@@ -16,10 +16,9 @@ def youtube(request):
     return dict()
 
 
-@transaction.atomic()
+@transaction.non_atomic_requests()
 @login_required
 def youtube_post(request):
-    sp = transaction.savepoint()
     statsd.incr("youtube.youtube")
     tmpfilename = request.POST.get('tmpfilename', '')
     operations = []
@@ -49,15 +48,12 @@ def youtube_post(request):
             params.append(p)
         except:
             statsd.incr("youtube.youtube.failure")
-            transaction.savepoint_rollback(sp)
             raise
         else:
-            transaction.savepoint_commit(sp)
             for o, p in zip(operations, params):
                 wardenclyffe.main.tasks.process_operation.delay(o.id, p)
             return HttpResponseRedirect("/youtube/done/")
     else:
-        transaction.savepoint_rollback(sp)
         return HttpResponse("no tmpfilename parameter set")
 
 

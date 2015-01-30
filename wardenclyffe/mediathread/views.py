@@ -59,11 +59,9 @@ def select_workflow(audio):
     return None
 
 
-@transaction.atomic()
+@transaction.non_atomic_requests
 def mediathread_post(request):
-    sp = transaction.savepoint()
     if request.method != "POST":
-        transaction.savepoint_rollback(sp)
         return HttpResponse("post only")
 
     # we see this now and then, probably due to browser plugins
@@ -72,7 +70,6 @@ def mediathread_post(request):
     # the upload if we can't maintain a session, so bail.
     if 'username' not in request.session \
             or 'set_course' not in request.session:
-        transaction.savepoint_rollback(sp)
         return HttpResponse("invalid session")
 
     tmpfilename = request.POST.get('tmpfilename', '')
@@ -115,10 +112,8 @@ def mediathread_post(request):
 
         except:
             statsd.incr("mediathread.mediathread.failure")
-            transaction.savepoint_rollback(sp)
             raise
         else:
-            transaction.savepoint_commit(sp)
             # hand operations off to celery
             for o, p in zip(operations, params):
                 maintasks.process_operation.delay(o.id, p)
