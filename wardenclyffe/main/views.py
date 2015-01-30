@@ -809,7 +809,10 @@ def make_cunix_file(operation, cunix_path):
 
 
 class DoneView(View):
-    @transaction.non_atomic_requests()
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(DoneView, self).dispatch(*args, **kwargs)
+
     def post(self, request):
         if 'title' not in request.POST:
             return HttpResponse("expecting a title")
@@ -833,10 +836,9 @@ class DoneView(View):
         except:
             statsd.incr('main.upload.failure')
             raise
-        finally:
+        else:
             for o in operations:
                 tasks.process_operation.delay(o, params)
-
         return HttpResponse("ok")
 
 
@@ -1320,7 +1322,6 @@ class SNSView(View):
         operation = tf[0].operationfile_set.all()[0].operation
 
         operations = []
-
         if state == 'COMPLETED':
             # set it to completed
             operation.status = "complete"
@@ -1350,13 +1351,14 @@ class SNSView(View):
             operation.save()
             tf[0].delete()
             operation.log(info=self.body)
-
         for o, p in operations:
             tasks.process_operation.delay(o.id, p)
-
         return HttpResponse("OK")
 
-    @transaction.non_atomic_requests()
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(SNSView, self).dispatch(*args, **kwargs)
+
     def post(self, request):
         self.body = request.read()
         if 'HTTP_X_AMZ_SNS_MESSAGE_TYPE' not in self.request.META:

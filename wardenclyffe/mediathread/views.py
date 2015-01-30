@@ -109,7 +109,6 @@ def mediathread_post(request):
                     tmpfilename, workflow, user)
                 operations.append(o)
                 params.append(p)
-
         except:
             statsd.incr("mediathread.mediathread.failure")
             raise
