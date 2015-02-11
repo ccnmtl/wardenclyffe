@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -1097,34 +1098,77 @@ class FileFilterView(StaffMixin, TemplateView):
                     )
 
 
-class BulkFileOperationView(StaffMixin, View):
-    template_name = 'main/bulk_file_operation.html'
+class BulkSurelinkView(StaffMixin, TemplateView):
+    template_name = "main/bulk_surelink.html"
+
+    def _videos(self, request):
+        r = request.POST if request.method == "POST" else request.GET
+        return [get_object_or_404(Video, id=int(f.split("_")[1]))
+                for f in r.keys() if f.startswith("video_")]
+
+    def get_context_data(self):
+        surelinks = []
+        for v in self._videos(self.request):
+            f = v.h264_secure_stream_file()
+            if f is None:
+                continue
+            PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+            filename = f.filename
+            if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+                filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+            if f.is_h264_secure_streamable():
+                filename = f.h264_secure_path()
+            if (self.request.GET.get('protection', '') == 'mp4_public_stream'
+                    and f.is_h264_public_streamable()):
+                filename = f.h264_public_path()
+            s = SureLink(filename,
+                         int(self.request.GET.get('width', f.get_width())),
+                         int(self.request.GET.get('height', f.get_height())),
+                         '',
+                         v.poster_url(),
+                         'mp4_secure_stream',
+                         self.request.GET.get('authtype', 'wind'),
+                         PROTECTION_KEY)
+            surelinks.append(s)
+        return dict(
+            videos=self._videos(self.request),
+            surelinks=surelinks,
+            rows=len(surelinks),
+        )
+
+
+class BulkOperationView(StaffMixin, View):
+    template_name = 'main/bulk_operation.html'
+
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(BulkOperationView, self).dispatch(*args, **kwargs)
+
+    def _videos(self, request):
+        r = request.POST if request.method == "POST" else request.GET
+        return [get_object_or_404(Video, id=int(f.split("_")[1]))
+                for f in r.keys() if f.startswith("video_")]
 
     def post(self, request):
-        files = [File.objects.get(id=int(f.split("_")[1]))
-                 for f in request.POST.keys() if f.startswith("file_")]
-        for file in files:
-            video = file.video
-            # send to podcast producer
-            tasks.pull_from_cuit_and_submit_to_pcp.delay(
-                video.id,
-                request.user,
-                request.POST.get('workflow',
-                                 ''),
-                settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-            statsd.incr('main.bulk_file_operation')
-        return HttpResponseRedirect("/")
+        if request.POST.get('submit-to-pcp', False):
+            for video in self._videos(request):
+                o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+                    video.id, request.POST.get('workflow', ''), request.user)
+                tasks.process_operation.delay(o.id, p)
+                statsd.incr('main.bulk_file_operation')
+            return HttpResponseRedirect("/")
+        if request.POST.get('surelink', False):
+            query_string = "&".join(
+                "video_%d=on" % v.id for v in self._videos(request))
+            return HttpResponseRedirect(
+                reverse("bulk-surelink") + "?" + query_string)
+        return HttpResponse("Unknown action", status=400)
 
     def get(self, request):
-        files = [File.objects.get(id=int(f.split("_")[1]))
-                 for f in request.GET.keys() if f.startswith("file_")]
         workflows, pcp_error = get_pcp_workflows()
-        return render(request, self.template_name,
-                      dict(files=files, workflows=workflows,
-                           pcp_error=pcp_error,
-                           kino_base=settings.PCP_BASE_URL))
+        return render(request, self.template_name, dict(
+            videos=self._videos(request), workflows=workflows,
+            pcp_error=pcp_error))
 
 
 class VideoAddFileView(StaffMixin, View):

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load markup %}
+{% load thumbnail %}
+
+{% block content %}
+
+{% if videos %}
+<h2>Bulk Operation with the following Videos:</h2>
+
+
+<form action="." method="post">
+
+{% for video in videos %}
+<input type="hidden" name="video_{{video.id}}" value="on" />
+{% endfor %}
+
+<table style="width: 100%" id="recent-videos" class="tablesorter"> 
+<thead>
+  <tr>
+    <th colspan="2">video</th>
+    <th>collection</th>
+    <th>uploaded</th>
+    <th>modified</th>
+  </tr>
+</thead>
+<tbody>
+{% for video in videos %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td>
+<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     width="160" height="120" />
+{% else %}
+{% thumbnail poster.image "160x120" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}</a>
+</td>
+<td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+<td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
+<td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
+<td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h3>Submit to PCP</h3>
+{% if workflows %}
+<p>Submit videos to workflow:<br />
+<select name="workflow">
+<option value="">select workflow</option>
+{% for workflow in workflows %}
+<option value="{{workflow.uuid}}">{{workflow.title}}</option>
+{% endfor %}
+</select>
+<br />
+<input type="submit" value="Submit Videos to PCP" />
+{% else %}
+<p>Can't get a list of workflows. PCP Submission not available.</p>
+<input disabled="disabled" type="submit" name="submit-to-pcp" value="Submit Videos to PCP" />
+{% endif %}
+
+<h3>Surelink</h3>
+<p>Get surelink embed codes for all selected videos.</p>
+<input type="submit" value="Surelink" name="surelink" />
+
+</form>
+{% else %}
+<p>No videos selected.</p>
+{% endif %}
+
+{% endblock %}
