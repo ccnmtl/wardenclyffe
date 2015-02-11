@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
@@ -596,12 +597,12 @@ class TestStaff(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_bulk_file_operation_form(self):
-        response = self.c.get("/bulk_file_operation/")
+        response = self.c.get(reverse('bulk-operation'))
         self.assertEqual(response.status_code, 200)
 
     def test_bulk_file_operation_submit_to_pcp(self):
         response = self.c.post(
-            "/bulk_file_operation/",
+            reverse('bulk-operation'),
             {'submit-to-pcp': 'yes'})
         self.assertEqual(response.status_code, 302)
 

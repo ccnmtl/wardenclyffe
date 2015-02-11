@@ -75,7 +75,7 @@ var deselectAll = function() {
     </td>
   </tr>
 </form>
-  <form action="/bulk_file_operation/" method="get">
+  <form action="{% url 'bulk-operation' %}" method="get">
     {% for file in files %}
     <tr class="{% cycle 'odd' 'even' %}">
       <td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>

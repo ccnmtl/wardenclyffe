@@ -20,7 +20,7 @@ var deselectAll = function() {
 
 {% block content %}
 
-<form action="/bulk_file_operation/" method="get">
+<form action="{% url 'bulk-operation' %}" method="get">
 
 <table>
 <tr>
