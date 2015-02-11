@@ -596,15 +596,54 @@ class TestStaff(TestCase):
         response = self.c.post("/file/%d/submit_to_workflow/" % v.id)
         self.assertEqual(response.status_code, 302)
 
-    def test_bulk_file_operation_form(self):
+    def test_bulk_file_operation_form_empty(self):
         response = self.c.get(reverse('bulk-operation'))
         self.assertEqual(response.status_code, 200)
 
-    def test_bulk_file_operation_submit_to_pcp(self):
+    def test_bulk_file_operation_form(self):
+        v = VideoFactory()
+        response = self.c.get(
+            reverse('bulk-operation') + "?video_%d=on" % v.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_bulk_file_operation_submit_to_pcp_empty(self):
         response = self.c.post(
             reverse('bulk-operation'),
             {'submit-to-pcp': 'yes'})
         self.assertEqual(response.status_code, 302)
+
+    def test_bulk_file_operation_submit_to_pcp(self):
+        v = VideoFactory()
+        response = self.c.post(
+            reverse('bulk-operation') + "?video_%d=on" % v.id,
+            {'submit-to-pcp': 'yes'})
+        self.assertEqual(response.status_code, 302)
+
+    def test_bulk_file_operation_surelink_empty(self):
+        response = self.c.post(
+            reverse('bulk-operation'),
+            {'surelink': 'yes'})
+        self.assertRedirects(response, reverse('bulk-surelink'))
+
+    def test_bulk_file_operation_invalid(self):
+        response = self.c.post(
+            reverse('bulk-operation'))
+        self.assertEquals(response.status_code, 400)
+
+    def test_bulk_surelink_empty(self):
+        r = self.c.get(reverse('bulk-surelink'))
+        self.assertEqual(r.status_code, 200)
+
+    def test_bulk_surelink_video_not_surelinkable(self):
+        v = VideoFactory()
+        r = self.c.get(reverse('bulk-surelink') + "?video_%d=on" % v.id)
+        self.assertEqual(r.status_code, 200)
+
+    def test_bulk_surelink_video_surelinkable(self):
+        f = FileFactory()
+        v = f.video
+        r = self.c.get(reverse('bulk-surelink') + "?video_%d=on" % v.id)
+        self.assertEqual(r.status_code, 200)
 
     def test_video_add_file_form(self):
         v = VideoFactory()

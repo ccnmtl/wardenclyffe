@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+
+{% block js %}
+  {% include 'main/jquery.html' %}
+ 
+  <script type="text/javascript"> 
+     $(function(){
+       $('#tabs').tabs();
+     });
+  </script> 
+  
+  <style type="text/css"> 
+    body{ font: 72.5% "Trebuchet MS", sans-serif; margin: 50px;}
+  </style> 
+ 
+{% endblock %}
+
+
+{% block content %}
+
+<h2>Surelink for multiple videos</h2>
+<form action="." method="get">
+
+{% for video in videos %}
+<input type="hidden" name="video_{{video.id}}" value="on" />
+{% endfor %}
+
+<table style="width: 100%" id="recent-videos" class="tablesorter"> 
+<thead>
+  <tr>
+    <th colspan="2">video</th>
+    <th>collection</th>
+    <th>uploaded</th>
+    <th>modified</th>
+  </tr>
+</thead>
+<tbody>
+{% for video in videos %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td>
+<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
+{% if poster.dummy %}
+<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
+     width="160" height="120" />
+{% else %}
+{% thumbnail poster.image "160x120" as thmb %}
+<img src="{{thmb.absolute_url}}" />
+{% endif %}
+{% endwith %}</a>
+</td>
+<td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+<td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
+<td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
+<td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+
+{% if surelinks %}
+
+<div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
+  
+<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+<li class="ui-state-default ui-corner-top"><a href="#tabs-2a">Better Iframe Embed</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-3">Drupal *5* at ccnmtl</a></li>
+<li class="ui-state-default ui-corner-top"><a href="#tabs-4">GlobalMDP Study Embed</a></li>
+</ul>
+
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide" id="tabs-2a">
+  <textarea rows="{{rows}}" 
+  cols="100" style="width:100%">{% for surelink in surelinks %}{{surelink.iframe_embed}}
+{% endfor %}
+</textarea></div>
+
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom
+	    ui-tabs-hide" id="tabs-3">
+
+<textarea rows="{{rows}}" cols="100" 
+style="width:100%">{% for surelink in surelinks %}{{surelink.drupal_embed}}
+{% endfor %}
+</textarea></div>
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom
+	    ui-tabs-hide" id="tabs-4">
+<textarea rows="{{rows}}" cols="100" style="width:100%">
+{% for surelink in surelinks %}{{surelink.mdp_embed}}
+{% endfor %}</textarea>
+</div>
+</div>
+
+
+{% else %}
+<p>No surelinkable videos</p>
+{% endif %}
+
+
+
+
+{% endblock %}

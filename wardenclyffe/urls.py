@@ -62,6 +62,8 @@ urlpatterns = patterns(
 
     url(r'^bulk_operation/$', views.BulkOperationView.as_view(),
         name="bulk-operation"),
+    url(r'^bulk_surelink/$', views.BulkSurelinkView.as_view(),
+        name="bulk-surelink"),
     (r'^user/(?P<username>\w+)/', views.UserView.as_view()),
     (r'^file/(?P<id>\d+)/delete/$', views.DeleteFileView.as_view()),
     (r'^file/(?P<id>\d+)/surelink/$', views.FileSurelinkView.as_view()),

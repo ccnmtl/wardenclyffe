@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -1097,6 +1098,45 @@ class FileFilterView(StaffMixin, TemplateView):
                     )
 
 
+class BulkSurelinkView(StaffMixin, TemplateView):
+    template_name = "main/bulk_surelink.html"
+
+    def _videos(self, request):
+        r = request.POST if request.method == "POST" else request.GET
+        return [get_object_or_404(Video, id=int(f.split("_")[1]))
+                for f in r.keys() if f.startswith("video_")]
+
+    def get_context_data(self):
+        surelinks = []
+        for v in self._videos(self.request):
+            f = v.h264_secure_stream_file()
+            if f is None:
+                continue
+            PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+            filename = f.filename
+            if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+                filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+            if f.is_h264_secure_streamable():
+                filename = f.h264_secure_path()
+            if (self.request.GET.get('protection', '') == 'mp4_public_stream'
+                    and f.is_h264_public_streamable()):
+                filename = f.h264_public_path()
+            s = SureLink(filename,
+                         int(self.request.GET.get('width', f.get_width())),
+                         int(self.request.GET.get('height', f.get_height())),
+                         '',
+                         v.poster_url(),
+                         'mp4_secure_stream',
+                         self.request.GET.get('authtype', 'wind'),
+                         PROTECTION_KEY)
+            surelinks.append(s)
+        return dict(
+            videos=self._videos(self.request),
+            surelinks=surelinks,
+            rows=len(surelinks),
+        )
+
+
 class BulkOperationView(StaffMixin, View):
     template_name = 'main/bulk_operation.html'
 
@@ -1106,7 +1146,7 @@ class BulkOperationView(StaffMixin, View):
 
     def _videos(self, request):
         r = request.POST if request.method == "POST" else request.GET
-        return [Video.objects.get(id=int(f.split("_")[1]))
+        return [get_object_or_404(Video, id=int(f.split("_")[1]))
                 for f in r.keys() if f.startswith("video_")]
 
     def post(self, request):
@@ -1118,8 +1158,11 @@ class BulkOperationView(StaffMixin, View):
                 statsd.incr('main.bulk_file_operation')
             return HttpResponseRedirect("/")
         if request.POST.get('surelink', False):
-            return HttpResponse("not implemented yet")
-        return HttpResponse("Unknown action")
+            query_string = "&".join(
+                "video_%d=on" % v.id for v in self._videos(request))
+            return HttpResponseRedirect(
+                reverse("bulk-surelink") + "?" + query_string)
+        return HttpResponse("Unknown action", status=400)
 
     def get(self, request):
         workflows, pcp_error = get_pcp_workflows()
