@@ -1105,8 +1105,9 @@ class BulkOperationView(StaffMixin, View):
         return super(BulkOperationView, self).dispatch(*args, **kwargs)
 
     def _videos(self, request):
+        r = request.POST if request.method == "POST" else request.GET
         return [Video.objects.get(id=int(f.split("_")[1]))
-                for f in request.POST.keys() if f.startswith("video_")]
+                for f in r.keys() if f.startswith("video_")]
 
     def post(self, request):
         if request.POST.get('submit-to-pcp', False):
