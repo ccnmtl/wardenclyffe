@@ -3,25 +3,25 @@
 
 {% block content %}
 
-{% if files %}
-<h2>Bulk Operation with the following Files:</h2>
+{% if videos %}
+<h2>Bulk Operation with the following Videos:</h2>
 
 
 <form action="." method="post">
 
-{% for file in files %}
-<input type="hidden" name="file_{{file.id}}" value="on" />
+{% for video in videos %}
+<input type="hidden" name="video_{{video.id}}" value="on" />
 {% endfor %}
 
 <table>
-{% for file in files %}
-<tr><td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></td><td><a href="{{file.get_absolute_url}}">{{file.label}}</a></td></tr>
+{% for video in videos %}
+<tr><td><a href="{{video.get_absolute_url}}">{{video.title}}</a></td></tr>
 {% endfor %}
 </table>
 
 <h3>Submit to PCP</h3>
 {% if workflows %}
-<p>Submit <tt>{{file.video.title}}</tt> to workflow:<br />
+<p>Submit videos to workflow:<br />
 <select name="workflow">
 <option value="">select workflow</option>
 {% for workflow in workflows %}
@@ -29,10 +29,10 @@
 {% endfor %}
 </select>
 <br />
-<input type="submit" value="Submit Files to PCP" />
+<input type="submit" value="Submit Videos to PCP" />
 {% else %}
 <p>Can't get a list of workflows. PCP Submission not available.</p>
-<input disabled="disabled" type="submit" name="submit-to-pcp" value="Submit Files to PCP" />
+<input disabled="disabled" type="submit" name="submit-to-pcp" value="Submit Videos to PCP" />
 {% endif %}
 
 <h3>Surelink</h3>
@@ -41,7 +41,7 @@
 
 </form>
 {% else %}
-<p>No files selected.</p>
+<p>No videos selected.</p>
 {% endif %}
 
 {% endblock %}

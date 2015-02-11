@@ -7,10 +7,10 @@
 <script type="text/javascript">
 
 var selectAll = function()   {
-   $(".file_checkbox").attr('checked','checked');
+   $(".video_checkbox").attr('checked','checked');
 };
 var deselectAll = function() {
-   $(".file_checkbox").attr('checked','');
+   $(".video_checkbox").attr('checked','');
 };
 
 </script>
@@ -78,7 +78,7 @@ var deselectAll = function() {
   <form action="{% url 'bulk-operation' %}" method="get">
     {% for file in files %}
     <tr class="{% cycle 'odd' 'even' %}">
-      <td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>
+      <td><input class="video_checkbox" type="checkbox" name="video_{{file.video.id}}" /></td>
       <td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a> <a href="{{file.get_absolute_url}}">{{file.label}}</a></td>
       <td><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a></td>
       <td>{{file.location_type}}</td>

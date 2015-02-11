@@ -60,7 +60,7 @@ urlpatterns = patterns(
       r'[a-z0-9]{4}-[a-z0-9]{12})/$'),
      views.OperationView.as_view()),
 
-    url(r'^bulk_file_operation/$', views.BulkFileOperationView.as_view(),
+    url(r'^bulk_operation/$', views.BulkOperationView.as_view(),
         name="bulk-operation"),
     (r'^user/(?P<username>\w+)/', views.UserView.as_view()),
     (r'^file/(?P<id>\d+)/delete/$', views.DeleteFileView.as_view()),

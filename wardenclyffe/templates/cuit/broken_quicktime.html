@@ -7,10 +7,10 @@
 <script type="text/javascript">
 
 var selectAll = function()   {
-   $(".file_checkbox").attr('checked','checked');
+   $(".video_checkbox").attr('checked','checked');
 };
 var deselectAll = function() {
-   $(".file_checkbox").attr('checked','');
+   $(".video_checkbox").attr('checked','');
 };
 
 </script>
@@ -31,7 +31,7 @@ var deselectAll = function() {
 </tr>
 {% for file in broken_files %}
 <tr>
-<td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td>
+<td><input class="video_checkbox" type="checkbox" name="video_{{file.video.id}}" /></td>
 <td><a href="{{file.get_absolute_url}}">{{file.filename}}</a></td>
 <td>{% if file.audio_format %}{{file.audio_format}}{% endif %}</td>
 <td>{% if file.video_format %}{{file.video_format}}{% endif %}</td>

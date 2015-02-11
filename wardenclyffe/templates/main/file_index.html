@@ -12,10 +12,10 @@ jQuery(document).ready(function()
     } 
 ); 
 var selectAll = function()   {
-   $(".file_checkbox").attr('checked','checked');
+   $(".video_checkbox").attr('checked','checked');
 };
 var deselectAll = function() {
-   $(".file_checkbox").attr('checked','');
+   $(".video_checkbox").attr('checked','');
 };
 
 </script>
@@ -60,7 +60,7 @@ var deselectAll = function() {
 <tbody>
 {% for file in files.object_list %}
 <tr class="{% cycle 'odd' 'even' %}">
-<td><input class="file_checkbox" type="checkbox" name="file_{{file.id}}" /></td><th align="left"><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>
+<td><input class="video_checkbox" type="checkbox" name="video_{{file.video.id}}" /></td><th align="left"><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>
   / <a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a>
   / <a href="{{file.get_absolute_url}}">{{file.label}}</a></th>
 <td><i>{{file.created|date:"M d, Y H:i:s"}}</i></td>

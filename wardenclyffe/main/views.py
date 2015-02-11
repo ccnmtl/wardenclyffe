@@ -1097,19 +1097,20 @@ class FileFilterView(StaffMixin, TemplateView):
                     )
 
 
-class BulkFileOperationView(StaffMixin, View):
-    template_name = 'main/bulk_file_operation.html'
+class BulkOperationView(StaffMixin, View):
+    template_name = 'main/bulk_operation.html'
 
     @method_decorator(transaction.non_atomic_requests)
     def dispatch(self, *args, **kwargs):
-        return super(BulkFileOperationView, self).dispatch(*args, **kwargs)
+        return super(BulkOperationView, self).dispatch(*args, **kwargs)
+
+    def _videos(self, request):
+        return [Video.objects.get(id=int(f.split("_")[1]))
+                for f in request.POST.keys() if f.startswith("video_")]
 
     def post(self, request):
-        files = [File.objects.get(id=int(f.split("_")[1]))
-                 for f in request.POST.keys() if f.startswith("file_")]
         if request.POST.get('submit-to-pcp', False):
-            for file in files:
-                video = file.video
+            for video in self._videos(request):
                 o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
                     video.id, request.POST.get('workflow', ''), request.user)
                 tasks.process_operation.delay(o.id, p)
@@ -1120,11 +1121,9 @@ class BulkFileOperationView(StaffMixin, View):
         return HttpResponse("Unknown action")
 
     def get(self, request):
-        files = [File.objects.get(id=int(f.split("_")[1]))
-                 for f in request.GET.keys() if f.startswith("file_")]
         workflows, pcp_error = get_pcp_workflows()
         return render(request, self.template_name, dict(
-            files=files, workflows=workflows,
+            videos=self._videos(request), workflows=workflows,
             pcp_error=pcp_error))
 
 
