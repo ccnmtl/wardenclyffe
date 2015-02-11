@@ -377,7 +377,9 @@ def copy_from_s3_to_cunix(operation, params):
         resolution = 720
 
     video = f.video
-    filename = os.path.basename(f.cap)
+    (base, ext) = os.path.splitext(os.path.basename(f.cap))
+    filename = (
+        base + "-" + strip_special_characters(operation.video.title) + ext)
     suffix = video.extension()
     t = pull_from_s3(suffix, settings.AWS_S3_OUTPUT_BUCKET,
                      f.cap)
