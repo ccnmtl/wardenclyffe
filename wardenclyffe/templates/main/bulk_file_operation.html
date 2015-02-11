@@ -2,19 +2,25 @@
 {% load markup %}
 
 {% block content %}
-<ul>
-{% for file in files %}
-<li>{{file.video.title}} {{file.label}}</li>
-{% endfor %}
-</ul>
+
+{% if files %}
+<h2>Bulk Operation with the following Files:</h2>
 
 
-
-{% if workflows %}
 <form action="." method="post">
+
 {% for file in files %}
 <input type="hidden" name="file_{{file.id}}" value="on" />
 {% endfor %}
+
+<table>
+{% for file in files %}
+<tr><td><a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></td><td><a href="{{file.get_absolute_url}}">{{file.label}}</a></td></tr>
+{% endfor %}
+</table>
+
+<h3>Submit to PCP</h3>
+{% if workflows %}
 <p>Submit <tt>{{file.video.title}}</tt> to workflow:<br />
 <select name="workflow">
 <option value="">select workflow</option>
@@ -23,11 +29,19 @@
 {% endfor %}
 </select>
 <br />
-<input type="submit" value="submit" />
-</form>
-
+<input type="submit" value="Submit Files to PCP" />
 {% else %}
-<p>Can't get a list of workflows. Is Kino up at <a href="{{kino_base}}">{{kino_base}}</a>?</p>
+<p>Can't get a list of workflows. PCP Submission not available.</p>
+<input disabled="disabled" type="submit" name="submit-to-pcp" value="Submit Files to PCP" />
+{% endif %}
+
+<h3>Surelink</h3>
+<p>Get surelink embed codes for all selected videos.</p>
+<input type="submit" value="Surelink" name="surelink" />
+
+</form>
+{% else %}
+<p>No files selected.</p>
 {% endif %}
 
 {% endblock %}

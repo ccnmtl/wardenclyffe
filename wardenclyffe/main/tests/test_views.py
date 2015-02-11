@@ -599,8 +599,10 @@ class TestStaff(TestCase):
         response = self.c.get("/bulk_file_operation/")
         self.assertEqual(response.status_code, 200)
 
-    def test_bulk_file_operation(self):
-        response = self.c.post("/bulk_file_operation/")
+    def test_bulk_file_operation_submit_to_pcp(self):
+        response = self.c.post(
+            "/bulk_file_operation/",
+            {'submit-to-pcp': 'yes'})
         self.assertEqual(response.status_code, 302)
 
     def test_video_add_file_form(self):

@@ -1100,31 +1100,32 @@ class FileFilterView(StaffMixin, TemplateView):
 class BulkFileOperationView(StaffMixin, View):
     template_name = 'main/bulk_file_operation.html'
 
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(BulkFileOperationView, self).dispatch(*args, **kwargs)
+
     def post(self, request):
         files = [File.objects.get(id=int(f.split("_")[1]))
                  for f in request.POST.keys() if f.startswith("file_")]
-        for file in files:
-            video = file.video
-            # send to podcast producer
-            tasks.pull_from_cuit_and_submit_to_pcp.delay(
-                video.id,
-                request.user,
-                request.POST.get('workflow',
-                                 ''),
-                settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-            statsd.incr('main.bulk_file_operation')
-        return HttpResponseRedirect("/")
+        if request.POST.get('submit-to-pcp', False):
+            for file in files:
+                video = file.video
+                o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+                    video.id, request.POST.get('workflow', ''), request.user)
+                tasks.process_operation.delay(o.id, p)
+                statsd.incr('main.bulk_file_operation')
+            return HttpResponseRedirect("/")
+        if request.POST.get('surelink', False):
+            return HttpResponse("not implemented yet")
+        return HttpResponse("Unknown action")
 
     def get(self, request):
         files = [File.objects.get(id=int(f.split("_")[1]))
                  for f in request.GET.keys() if f.startswith("file_")]
         workflows, pcp_error = get_pcp_workflows()
-        return render(request, self.template_name,
-                      dict(files=files, workflows=workflows,
-                           pcp_error=pcp_error,
-                           kino_base=settings.PCP_BASE_URL))
+        return render(request, self.template_name, dict(
+            files=files, workflows=workflows,
+            pcp_error=pcp_error))
 
 
 class VideoAddFileView(StaffMixin, View):
