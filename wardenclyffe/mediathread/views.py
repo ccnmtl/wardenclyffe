@@ -120,16 +120,21 @@ def mediathread_post(request):
 
 
 @login_required
+@transaction.non_atomic_requests
 @render_to('mediathread/mediathread_submit.html')
 def video_mediathread_submit(request, id):
     video = get_object_or_404(Video, id=id)
     if request.method == "POST":
         statsd.incr("mediathread.submit")
-        params = dict(set_course=request.POST.get('course', ''))
-        o, params = video.make_op(request.user, params,
-                                  action="submit to mediathread")
-        maintasks.process_operation.delay(o.id, params)
-        o.video.clear_mediathread_submit()
+        video.make_mediathread_submit_file(
+            video.filename(), request.user,
+            request.POST.get('course', ''),
+            redirect_to="",
+            audio=video.is_audio_file())
+        (operations, params) = video.handle_mediathread_submit()
+        for o in operations:
+            maintasks.process_operation.delay(o, params)
+        video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret="
@@ -149,17 +154,22 @@ def video_mediathread_submit(request, id):
 
 
 @login_required
+@transaction.non_atomic_requests
 @render_to('mediathread/collection_mediathread_submit.html')
 def collection_mediathread_submit(request, pk):
     collection = get_object_or_404(Collection, id=pk)
     if request.method == "POST":
         for video in collection.video_set.all():
             statsd.incr("mediathread.submit")
-            params = dict(set_course=request.POST.get('course', ''))
-            o, params = video.make_op(request.user, params,
-                                      action="submit to mediathread")
-            maintasks.process_operation.delay(o.id, params)
-            o.video.clear_mediathread_submit()
+            video.make_mediathread_submit_file(
+                video.filename(), request.user,
+                request.POST.get('course', ''),
+                redirect_to="",
+                audio=video.is_audio_file())
+            (operations, params) = video.handle_mediathread_submit()
+            for o in operations:
+                maintasks.process_operation.delay(o, params)
+            video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
         url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret="
