@@ -36,7 +36,7 @@ paramiko==1.15.1
 raven==4.0.3
 statsd==2.1.2
 requests==2.3.0
-coverage==3.5.3
+coverage==3.7.1
 nose-exclude==0.1.5
 pep8==1.4
 pyflakes==0.5.0
