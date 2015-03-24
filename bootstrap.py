@@ -7,9 +7,6 @@ import shutil
 pwd = os.path.abspath(os.path.dirname(__file__))
 vedir = os.path.abspath(os.path.join(pwd, "ve"))
 
-if len(sys.argv) > 1:
-    vedir = sys.argv[1]
-
 if os.path.exists(vedir):
     shutil.rmtree(vedir)
 
@@ -26,18 +23,17 @@ if ret:
 
 ret = subprocess.call(
     [os.path.join(vedir, 'bin', 'pip'), "install",
-     "--index-url=http://pypi.ccnmtl.columbia.edu/",
-     "wheel==0.21.0"])
+     "--index-url=https://pypi.ccnmtl.columbia.edu/",
+     "wheel==0.24.0"])
 
 if ret:
     exit(ret)
 
-#exit(0)
-
 ret = subprocess.call(
-    [os.path.join(vedir, 'bin', 'pip'), "install", 
+    [os.path.join(vedir, 'bin', 'pip'), "install",
      "--use-wheel",
-     "--index-url=http://pypi.ccnmtl.columbia.edu/",
+     "--no-deps",
+     "--index-url=https://pypi.ccnmtl.columbia.edu/",
      "--requirement", os.path.join(pwd, "requirements.txt")])
 
 if ret:

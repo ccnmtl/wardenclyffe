@@ -9,7 +9,7 @@ from factories import (
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
 from httpretty import HTTPretty, httprettified
-from waffle import Flag
+from waffle.models import Flag
 import os.path
 import httpretty
 
