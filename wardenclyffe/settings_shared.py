@@ -160,7 +160,6 @@ STATSD_CLIENT = 'statsd.client'
 STATSD_PREFIX = 'wardenclyffe'
 STATSD_HOST = 'localhost'
 STATSD_PORT = 8125
-#STATSD_PATCHES = ['django_statsd.patches.db', ]
 
 BROKER_URL = "amqp://localhost:5672//"
 CELERYD_CONCURRENCY = 4

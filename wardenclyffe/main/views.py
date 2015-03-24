@@ -462,6 +462,12 @@ class TagsListView(StaffMixin, ListView):
 class VideoIndexView(StaffMixin, TemplateView):
     template_name = 'main/video_index.html'
 
+    def get_params(self):
+        params = dict()
+        for k, v in self.request.GET.items():
+            params[k] = v
+        return params
+
     def get_context_data(self):
         videos = Video.objects.all()
         creators = self.request.GET.getlist('creator')
@@ -490,9 +496,7 @@ class VideoIndexView(StaffMixin, TemplateView):
             videos = paginator.page(page)
         except (EmptyPage, InvalidPage):
             videos = paginator.page(paginator.num_pages)
-        params = dict()
-        for k, v in self.request.GET.items():
-            params[k] = v
+        params = self.get_params()
         params.update(dict(videos=videos))
         return params
 
