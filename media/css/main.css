@@ -1282,7 +1282,7 @@ background-color: #8dbdd8;
   float: left;
 }
 
-.recent_collection
+.all_collections
 {
   margin: 0 0 0 20px;
   padding: 0;
@@ -1346,7 +1346,7 @@ background-color: #8dbdd8;
   width: 465px;
 }
 
-.recent_collection .table-header .table_title
+.all_collections .table-header .table_title
 {
   width: 150px;
 }

@@ -107,14 +107,14 @@ jQuery(function($){
 
 
 
-<div class="dashboard recent_collection">
+<div class="dashboard all_collections">
 	<div class="table-header">
-		<div class="table_title">Recent collections</div><!-- class="table_title" -->
+		<div class="table_title">All collections</div><!-- class="table_title" -->
 		<div class="add_new"><a href="/add_collection/">add new</a></div><!-- class="add_new" -->
 	</div><!--  class="table-header -->
 	<table>
 		<tbody>
-			{% for collection in collection %}
+			{% for collection in collections %}
 			<tr class="{% cycle 'odd' 'even' %}">
 				<td><a href="{{collection.get_absolute_url}}">{{collection.title}}</a></td>
 			</tr>
@@ -126,6 +126,6 @@ jQuery(function($){
 		</tfoot>
 		</tbody>
 	</table>
-</div><!-- class="dashboard recent_collection" -->
+</div><!-- class="dashboard all_collections" -->
 
 {% endblock %}

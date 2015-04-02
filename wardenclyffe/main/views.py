@@ -72,7 +72,7 @@ class IndexView(StaffMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         return dict(
-            collection=Collection.objects.filter(
+            collections=Collection.objects.filter(
                 active=True).order_by("title"),
             videos=Video.objects.all().order_by("-modified")[:20],
             operations=Operation.objects.all().order_by("-modified")[:20])
