@@ -1,11 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 import hmac
 import hashlib
 from django.conf import settings
-from wardenclyffe.mediathread.views import select_workflow
+from wardenclyffe.mediathread.views import select_workflow, mediathread_post
 
 
 class SimpleText(TestCase):
@@ -48,6 +48,20 @@ class SimpleText(TestCase):
         self.assertNotEquals(
             response.content,
             "invalid authentication token")
+
+
+class TestInvalidUpload(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_bad_upload(self):
+        request = self.factory.post(
+            "/mediathread/post",
+            dict(tmpfilename=''))
+        request.session = dict(username='foo', set_course='bar')
+        response = mediathread_post(request)
+        self.assertEqual(response.content,
+                         "Bad file upload. Please try again.")
 
 
 class TestInvalidSessions(TestCase):

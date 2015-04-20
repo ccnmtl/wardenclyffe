@@ -117,6 +117,7 @@ def mediathread_post(request):
             for o, p in zip(operations, params):
                 maintasks.process_operation.delay(o.id, p)
             return HttpResponseRedirect(request.session['redirect_to'])
+    return HttpResponse("Bad file upload. Please try again.")
 
 
 @login_required
