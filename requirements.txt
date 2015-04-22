@@ -67,7 +67,7 @@ django-waffle==0.10.1
 django-debug-toolbar==1.2.2
 django-jenkins==0.16.3
 django-appconf==0.6
-django_compressor==1.4
+django-compressor==1.5
 django-extensions==1.4.9
 django-markwhat==2014.9.20
 tornado==3.1.1
