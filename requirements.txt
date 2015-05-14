@@ -20,7 +20,7 @@ six==1.9.0
 pytz==2014.7
 python-dateutil==2.4.0
 librabbitmq==1.6.1
-celery==3.1.16
+celery==3.1.18
 zencoder==0.2
 gdata==2.0.14
 pycrypto==2.6.1
