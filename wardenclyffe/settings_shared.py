@@ -45,7 +45,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     PCP_BASE_URL = ""
     CELERY_ALWAYS_EAGER = True
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 JENKINS_TASKS = (
     'django_jenkins.tasks.run_pep8',
@@ -59,17 +59,6 @@ PROJECT_APPS = [
     'wardenclyffe.cuit',
     'wardenclyffe.graphite',
 ]
-
-NOSE_ARGS = [
-    '--with-coverage',
-    "--with-doctest",
-    "--noexe",
-    "--exclude-dir-file=exclude_tests.txt",
-    ('--cover-package=wardenclyffe.main,wardenclyffe.mediathread,'
-     'wardenclyffe.youtube,'
-     'wardenclyffe.util,wardenclyffe.graphite'),
-]
-
 
 TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
@@ -133,7 +122,6 @@ INSTALLED_APPS = [
     'wardenclyffe.util',
     'oembed',
     'taggit',
-    'django_nose',
     'wardenclyffe.cuit',
     'django_statsd',
     'smoketest',
