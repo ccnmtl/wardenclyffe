@@ -104,7 +104,7 @@ def mediathread_post(request):
             audio_flag = waffle.flag_is_active(request, 'encode_audio')
             operations, params = v.make_default_operations(
                 tmpfilename, source_file, user, audio=audio,
-                encode_audio=audio_flag)
+                audio_flag=audio_flag)
 
             if not audio_flag:
                 # fallback to PCP version instead of encoding it locally
