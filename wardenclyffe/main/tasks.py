@@ -302,6 +302,12 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     return ("submitted", "submitted to PCP")
 
 
+def do_audio_encode(input_filename, tout):
+    image_path = settings.AUDIO_POSTER_IMAGE
+    command = audio_encode_command(image_path, input_filename, tout)
+    os.system(command)
+
+
 def audio_encode(operation, params):
     statsd.incr("audio_encode")
     params = loads(operation.params)
@@ -320,12 +326,30 @@ def audio_encode(operation, params):
 
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
-    image_path = settings.AUDIO_POSTER_IMAGE
-    command = audio_encode_command(image_path, t.name, tout)
-    os.system(command)
+    do_audio_encode(t.name, tout)
 
     print "uploading to CUIT"
     sftp_put(filename, suffix, open(tout, "rb"), video)
+    return ("complete", "")
+
+
+def local_audio_encode(operation, params):
+    statsd.incr("audio_encode")
+    params = loads(operation.params)
+    file_id = params['file_id']
+    f = File.objects.get(id=file_id)
+    assert f.is_audio()
+    video = f.video
+    suffix = video.extension()
+
+    print "encoding mp3 to mp4"
+    tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
+    do_audio_encode(params['tmpfilename'], tout)
+
+    # now we can send it off on the AWS pipeline
+    o, p = video.make_save_file_to_s3_operation(
+        tout, operation.user)
+    process_operation.delay(o.id, p)
     return ("complete", "")
 
 

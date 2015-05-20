@@ -14,6 +14,7 @@ from json import loads
 import hmac
 import hashlib
 from django_statsd.clients import statsd
+import waffle
 
 
 @render_to('mediathread/mediathread.html')
@@ -100,15 +101,19 @@ def mediathread_post(request):
                 request.session['redirect_to'], audio=audio,
             )
 
+            audio_flag = waffle.flag_is_active(request, 'encode_audio')
             operations, params = v.make_default_operations(
-                tmpfilename, source_file, user, audio=audio)
+                tmpfilename, source_file, user, audio=audio,
+                encode_audio=audio_flag)
 
-            workflow = select_workflow(audio)
-            if workflow:
-                o, p = v.make_submit_to_podcast_producer_operation(
-                    tmpfilename, workflow, user)
-                operations.append(o)
-                params.append(p)
+            if not audio_flag:
+                # fallback to PCP version instead of encoding it locally
+                workflow = select_workflow(audio)
+                if workflow:
+                    o, p = v.make_submit_to_podcast_producer_operation(
+                        tmpfilename, workflow, user)
+                    operations.append(o)
+                    params.append(p)
         except:
             statsd.incr("mediathread.mediathread.failure")
             raise

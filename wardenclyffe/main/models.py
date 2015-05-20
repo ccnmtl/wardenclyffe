@@ -322,6 +322,13 @@ class Video(TimeStampedModel):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="audio encode")
 
+    def make_local_audio_encode_operation(self, tmpfilename, file, user):
+        """ run it through the audio encode job
+        then upload it to s3. """
+        params = dict(tmpfilename=tmpfilename,
+                      file_id=file.id)
+        return self.make_op(user, params, action="local audio encode")
+
     def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
                                                         workflow, user):
         params = dict(video_id=video_id, workflow=workflow)
@@ -351,21 +358,26 @@ class Video(TimeStampedModel):
                                    location_type='none')
 
     def make_default_operations(self, tmpfilename, source_file, user,
-                                audio=False):
+                                audio=False, audio_flag=True):
         operations = []
         params = []
-        if not audio:
+        if audio:
+            if audio_flag:
+                o, p = self.make_local_audio_encode_operation(
+                    tmpfilename, source_file, user)
+                operations.append(o)
+                params.append(p)
+        else:
             o, p = self.make_extract_metadata_operation(
                 tmpfilename, source_file, user)
             operations.append(o)
             params.append(p)
 
-        o, p = self.make_save_file_to_s3_operation(
-            tmpfilename, user)
-        operations.append(o)
-        params.append(p)
+            o, p = self.make_save_file_to_s3_operation(
+                tmpfilename, user)
+            operations.append(o)
+            params.append(p)
 
-        if not audio:
             o, p = self.make_make_images_operation(
                 tmpfilename, user)
             operations.append(o)
@@ -692,6 +704,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.main.tasks.copy_from_s3_to_cunix,
             "audio encode":
             wardenclyffe.main.tasks.audio_encode,
+            "local audio encode":
+            wardenclyffe.main.tasks.local_audio_encode,
         }
         return mapper[self.action]
 
