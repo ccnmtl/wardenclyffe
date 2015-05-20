@@ -145,6 +145,7 @@ def fallback_image_extract_command(tmpdir, frames, tmpfilename):
 
 
 def audio_encode_command(image, tmpfilename, outputfilename):
+    image = os.path.normpath(image)
     return ("%s -loop 1 -i %s -i %s -c:v libx264 -c:a aac "
             "-strict experimental -b:a 192k -shortest %s" % (
                 FFMPEG, image, tmpfilename, outputfilename))
@@ -325,7 +326,7 @@ def audio_encode(operation, params):
     operation.log(info="downloaded from S3")
 
     print "encoding mp3 to mp4"
-    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + suffix)
+    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(t.name, tout)
 
     print "uploading to CUIT"
@@ -343,7 +344,7 @@ def local_audio_encode(operation, params):
     suffix = video.extension()
 
     print "encoding mp3 to mp4"
-    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + suffix)
+    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(params['tmpfilename'], tout)
 
     # now we can send it off on the AWS pipeline
