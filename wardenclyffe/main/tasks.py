@@ -341,7 +341,6 @@ def local_audio_encode(operation, params):
     f = File.objects.get(id=file_id)
     assert f.video.is_audio_file()
     video = f.video
-    suffix = video.extension()
 
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
