@@ -348,7 +348,7 @@ def local_audio_encode(operation, params):
 
     # now we can send it off on the AWS pipeline
     o, p = video.make_save_file_to_s3_operation(
-        tout, operation.user)
+        tout, operation.owner)
     process_operation.delay(o.id, p)
     return ("complete", "")
 
