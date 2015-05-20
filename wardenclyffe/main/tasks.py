@@ -325,7 +325,7 @@ def audio_encode(operation, params):
     operation.log(info="downloaded from S3")
 
     print "encoding mp3 to mp4"
-    tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
+    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + suffix)
     do_audio_encode(t.name, tout)
 
     print "uploading to CUIT"
@@ -343,7 +343,7 @@ def local_audio_encode(operation, params):
     suffix = video.extension()
 
     print "encoding mp3 to mp4"
-    tout = os.path.join(settings.TMP_DIR, str(operation.ouuid) + suffix)
+    tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + suffix)
     do_audio_encode(params['tmpfilename'], tout)
 
     # now we can send it off on the AWS pipeline
