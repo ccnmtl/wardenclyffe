@@ -338,7 +338,7 @@ def local_audio_encode(operation, params):
     params = loads(operation.params)
     file_id = params['file_id']
     f = File.objects.get(id=file_id)
-    assert f.is_audio()
+    assert f.video.is_audio_file()
     video = f.video
     suffix = video.extension()
 
