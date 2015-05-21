@@ -3,6 +3,7 @@ from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
 import os.path
+import subprocess
 
 
 class DBConnectivityTest(SmokeTest):
@@ -98,3 +99,31 @@ class WatchDirTest(SmokeTest):
     def test_watchdir(self):
         self.assertTrue(os.path.exists(settings.WATCH_DIRECTORY))
         self.assertTrue(os.path.isdir(settings.WATCH_DIRECTORY))
+
+
+class FFMPEGTest(SmokeTest):
+    def test_existence(self):
+        self.assertTrue(os.path.exists(settings.FFMPEG_PATH))
+        self.assertTrue(os.path.isfile(settings.FFMPEG_PATH))
+
+    def test_notavconv(self):
+        """ the audio conversion step relies on the ffmpeg
+        binary being the *real* ffmpeg, not avconv's
+        "compatible" version.
+
+        We test by running 'ffmpeg -version' and looking at the output.
+
+        avconv's output will contain the string:
+
+            Copyright (c) 2000-2014 the Libav developers
+
+        while ffmpeg's has either:
+
+            Copyright (c) 2000-2015 the FFmpeg developers
+
+        (on 2.6+) or no copyright string on older versions.
+        """
+        output = subprocess.Popen(
+            [settings.FFMPEG_PATH, "-version"],
+            stdout=subprocess.PIPE).communicate()[0]
+        self.assertFalse("the Libav developers" in output)
