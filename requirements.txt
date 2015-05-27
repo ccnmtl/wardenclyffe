@@ -28,7 +28,7 @@ ecdsa==0.11
 paramiko==1.15.2
 raven==5.2.0
 requests==2.6.0
-statsd==3.0.1
+statsd==3.1
 coverage==3.7.1
 pep8==1.5.7
 pyflakes==0.8.1
