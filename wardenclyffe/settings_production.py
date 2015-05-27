@@ -33,6 +33,8 @@ DATABASES = {
 
 FFMPEG_PATH = "/usr/local/bin/ffmpeg"
 
+IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-prod"
+
 if 'migrate' not in sys.argv:
     INSTALLED_APPS.append('raven.contrib.django.raven_compat')
 

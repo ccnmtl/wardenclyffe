@@ -240,6 +240,8 @@ AUDIO_POSTER_IMAGE = os.path.join(
 COMPRESS_URL = "/media/"
 COMPRESS_ROOT = "media/"
 
+IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-dev"
+
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }
