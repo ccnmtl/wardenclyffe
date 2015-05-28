@@ -778,14 +778,19 @@ class Image(TimeStampedModel):
     class Meta:
         order_with_respect_to = "video"
 
+    def src(self):
+        return (
+            "https://s3.amazonaws.com/"
+            + settings.IMAGES_BUCKET + "/"
+            + str(self.image))
+
 
 class Poster(models.Model):
     video = models.ForeignKey(Video)
     image = models.ForeignKey(Image)
 
     def url(self):
-        return (settings.POSTER_BASE_URL
-                + str(self.image.image))
+        return self.image.src()
 
 
 class DummyPoster:

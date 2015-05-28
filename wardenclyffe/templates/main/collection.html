@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load markup %}
-{% load thumbnail %}
 
 {% block js %}
 {{block.super}}
@@ -99,8 +98,7 @@ jQuery(document).ready(function()
 <img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
      width="160" height="120" />
 {% else %}
-{% thumbnail poster.image "160x120" as thmb %}
-<img src="{{thmb.absolute_url}}" />
+<img src="{{poster.image.src}}" width="160"/>
 {% endif %}
 {% endwith %}</a>
 </td>

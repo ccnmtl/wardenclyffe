@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load waffle_tags %}
 {% load markup %}
-{% load thumbnail %}
 {% load oembed_tags %}
 
 {% block js %}
@@ -48,8 +47,7 @@ var removeTag = function(tagName,tagId) {
 <img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
      />
 {% else %}
-{% thumbnail poster.image "480x360" as thmb %}
-<img src="{{thmb.absolute_url}}" />
+<img src="{{poster.image.src}}" width="480" />
 {% endif %}
 {% endwith %}
 </td>
@@ -86,8 +84,8 @@ var removeTag = function(tagName,tagId) {
 <div id="frames">
 {% if video.image_set.count %}
 {% for image in video.upto_hundred_images %}
-{% thumbnail image.image "200x200" as thmb %}
-<div style="float: left; width: 200px"><img src="{{thmb.absolute_url}}" /><br />
+<div style="float: left; width: 200px"><img src="{{image.src}}"
+																						width="200" /><br />
 <a href="select_poster/{{image.id}}/">make poster</a></div>
 {% endfor %}
 <br style="clear:both" />

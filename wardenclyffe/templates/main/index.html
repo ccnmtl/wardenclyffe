@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load markup %}
-{% load thumbnail %}
 {% block title %}Dashboard{% endblock %}
 {% block pagetitle %}Dashboard{% endblock %}
 {% block js %}
@@ -37,7 +36,7 @@ jQuery(function($){
     <div class="table-header">
 		<div class="table_title">Recent videos and operations</div><!-- class="table_title" -->
 		<div class="add_new"><a href="/upload/">add video</a></div><!-- class="add_new" -->
-	</div><!--  class="table-header -->
+	</div><!--  class="table-header" -->
 	
 	{% if videos %}
 	<table>
@@ -69,8 +68,7 @@ jQuery(function($){
 						<img src="{{STATIC_URL}}img/vidthumb160.jpg" width="160" height="120" />
             {% endif %}
 						{% else %}
-						{% thumbnail poster.image.image "160x120" as thmb %}
-						<img src="{{thmb.absolute_url}}" width="160"/>
+						<img src="{{poster.image.src}}" width="160"/>
 						{% endif %}
 						{% endwith %}</a>
 						</div><!-- class="video_thumbnail" -->

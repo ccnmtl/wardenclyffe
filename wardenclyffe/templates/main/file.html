@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load markup %}
+{% load oembed_tags %}
 
 {% block js %}
   {% include 'main/jquery.html' %}
@@ -17,9 +19,6 @@
 
 {% endblock %}
 
-{% load markup %}
-{% load thumbnail %}
-{% load oembed_tags %}
 {% block content %}
 <p><a href="{{file.video.collection.get_absolute_url}}">{{file.video.collection.title}}</a>/<a href="{{file.video.get_absolute_url}}">{{file.video.title}}</a></p>
 <h1>File: {{file.label}}</h1>
