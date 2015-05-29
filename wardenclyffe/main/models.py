@@ -779,10 +779,7 @@ class Image(TimeStampedModel):
         order_with_respect_to = "video"
 
     def src(self):
-        return (
-            "https://s3.amazonaws.com/"
-            + settings.IMAGES_BUCKET + "/"
-            + str(self.image))
+        return settings.IMAGES_URL_BASE + str(self.image)
 
 
 class Poster(models.Model):
