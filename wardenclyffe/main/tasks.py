@@ -91,6 +91,9 @@ def create_elastic_transcoder_job(operation, params):
             'PresetId': settings.AWS_ET_MP4_PRESET,
         }
     ]
+    if waffle.switch_is_active('enable_et_thumbs'):
+        output_objects[0]['ThumbnailPattern'] = (
+            "thumbs/" + output_base + "-{count}")
     if waffle.switch_is_active('enable_720p'):
         output_objects.append(
             {
