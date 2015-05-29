@@ -241,6 +241,7 @@ COMPRESS_URL = "/media/"
 COMPRESS_ROOT = "media/"
 
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-dev"
+IMAGES_URL_BASE = "https://s3.amazonaws.com/" + IMAGES_BUCKET + "/"
 
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
