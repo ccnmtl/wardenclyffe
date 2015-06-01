@@ -1393,6 +1393,10 @@ class SNSView(View):
                     label=label)
                 OperationFile.objects.create(operation=operation, file=f)
                 v = operation.video
+                if 'thumbnailPattern' in output:
+                    (o, p) = v.make_pull_thumbs_from_s3_operation(
+                        output['thumbnailPattern'], operation.owner)
+                    operations.append((o, p))
                 (o, p) = v.make_copy_from_s3_to_cunix_operation(
                     f.id, operation.owner)
                 operations.append((o, p))
