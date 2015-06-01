@@ -205,6 +205,36 @@ def make_image_objects(video, imgs, tmpdir, imgdir):
         copy_image_to_s3.delay("images/%05d/%s" % (video.id, img))
 
 
+def pull_thumbs_from_s3(operation, params):
+    """ given the thumbnail pattern that we get back from
+    elastic transcoder, we look through the images
+    bucket for images that match the pattern,
+    and create Image objects to correspond to them """
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.IMAGES_BUCKET)
+
+    # will be something like:
+    #  "thumbs/2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9-{count}"
+    # where {count} is zero-padded to 5 digits, starts at 1
+    pattern = params['pattern']
+    extension = ".jpg"
+
+    cnt = 0
+    for i in range(1, settings.MAX_FRAMES + 1):
+        path = pattern.replace("{count}", "%05d" % i) + extension
+        r = bucket.get_key(path)
+        if r is None:
+            break
+        cnt += 1
+        Image.objects.create(
+            video=operation.video,
+            image=path)
+
+    return ("complete", "pulled %d thumbs" % cnt)
+
+
 @task(ignore_results=True)
 def copy_image_to_s3(path):
     # path should be relative to MEDIA_ROOT

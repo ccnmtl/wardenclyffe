@@ -1,0 +1,12 @@
+{
+		"SignatureVersion": "1",
+		"Timestamp": "2015-05-29T14:40:31.611Z",
+		"Signature": "eJ2Do1qbkStOfP/Y3eCyHyNkHs+AuSELbc96rsNQ+Q4VR8bbACtLAdEU6evbnqeDOsY8y36XVq2HwoqdvHwTyGrhfu0nymyxdcA6zmQDfHp5fa7UArveXTqbvAEtSJC3q5niRnVYggZyGEL4eRK2Al2KajLnkY2+eFb3P6+vNN99SVSC0HCZwdU6yWXGTqx5k+yeHQgt2Q8nTR4kVW4FSz8bWYqLbr5QZ0IYpZbbzEJrC2jmnVM0Co9LKxvtHOXWut69TDCQAFC3x8ETsrt6Jk9qN94QmBmMaHYGaGtLBqtWN/pdSUvUKi7OaCbHb/plNvn3qPlvQ1NzmzAyPYhgMA==",
+		"SigningCertURL": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-d6d679a1d18e95c2f9ffcf11f4f9e198.pem",
+		"MessageId": "72354795-1d8a-5c7d-b984-0a7761152144",
+		"Message": "{\n \"state\" : \"COMPLETED\",\n \"version\" : \"2012-09-25\",\n \"jobId\" : \"1432910411000-tfe2a2\",\n \"pipelineId\" : \"1411726625254-3hgwum\",\n \"input\" : {\n \"key\" : \"2015/05/29/f39f7a39-0fb7-4d78-8a17-f6fb92845770.mp4\",\n \"frameRate\" : \"auto\",\n \"resolution\" : \"auto\",\n \"interlaced\" : \"auto\"\n },\n \"outputs\" : [ {\n \"id\" : \"1\",\n \"presetId\" : \"1432897202697-8e0zgo\",\n \"key\" : \"2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9_480.mp4\",\n \"thumbnailPattern\" : \"thumbs/2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9-{count}\",\n \"rotate\" : \"auto\",\n \"status\" : \"Complete\",\n \"duration\" : 71,\n \"width\" : 640,\n \"height\" : 360\n } ]\n}",
+		"UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:051882422638:ccnmtl-wardenclyffe-sns-prod:de64c5c9-0a0c-46a7-9aa3-80d13746005f",
+		"Type": "Notification",
+		"TopicArn": "arn:aws:sns:us-east-1:051882422638:ccnmtl-wardenclyffe-sns-prod",
+		"Subject": "Amazon Elastic Transcoder has finished transcoding job 1432910411000-tfe2a2."
+}

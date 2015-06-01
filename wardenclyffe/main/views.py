@@ -36,7 +36,6 @@ from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
 from wardenclyffe.util import uuidparse
 from wardenclyffe.util.mail import send_mediathread_received_mail
-import waffle
 
 
 def is_staff(user):
@@ -1381,23 +1380,26 @@ class SNSView(View):
             # use to give us the paths for thumbs
             operation.log(full_message)
 
-            if waffle.flag_is_active(request, 's3_to_cunix'):
-                # add S3 output file record
-                for output in ets_message['outputs']:
-                    label = "transcoded 480p file (S3)"
-                    if output['presetId'] == settings.AWS_ET_720_PRESET:
-                        label = "transcoded 720p file (S3)"
-                    f = File.objects.create(
-                        video=operation.video,
-                        cap=output['key'],
-                        location_type="s3",
-                        filename=output['key'],
-                        label=label)
-                    OperationFile.objects.create(operation=operation, file=f)
-                    v = operation.video
-                    (o, p) = v.make_copy_from_s3_to_cunix_operation(
-                        f.id, operation.owner)
+            # add S3 output file record
+            for output in ets_message['outputs']:
+                label = "transcoded 480p file (S3)"
+                if output['presetId'] == settings.AWS_ET_720_PRESET:
+                    label = "transcoded 720p file (S3)"
+                f = File.objects.create(
+                    video=operation.video,
+                    cap=output['key'],
+                    location_type="s3",
+                    filename=output['key'],
+                    label=label)
+                OperationFile.objects.create(operation=operation, file=f)
+                v = operation.video
+                if 'thumbnailPattern' in output:
+                    (o, p) = v.make_pull_thumbs_from_s3_operation(
+                        output['thumbnailPattern'], operation.owner)
                     operations.append((o, p))
+                (o, p) = v.make_copy_from_s3_to_cunix_operation(
+                    f.id, operation.owner)
+                operations.append((o, p))
         else:
             # set it to failed
             operation.status = "failed"

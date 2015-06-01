@@ -309,6 +309,10 @@ class Video(TimeStampedModel):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
 
+    def make_pull_thumbs_from_s3_operation(self, pattern, user):
+        params = dict(pattern=pattern)
+        return self.make_op(user, params, action="pull thumbs from s3")
+
     def make_audio_encode_operation(self, file_id, user):
         """ pull the file down from S3
         run it through the audio encode job
@@ -706,6 +710,8 @@ class Operation(TimeStampedModel):
             wardenclyffe.main.tasks.audio_encode,
             "local audio encode":
             wardenclyffe.main.tasks.local_audio_encode,
+            "pull thumbs from s3":
+            wardenclyffe.main.tasks.pull_thumbs_from_s3,
         }
         return mapper[self.action]
 
