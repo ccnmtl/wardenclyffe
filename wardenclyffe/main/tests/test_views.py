@@ -752,3 +752,33 @@ class SNSTest(TestCase):
         self.assertEqual(
             nf.cap,
             "2014/09/26/f3d2831b-11dd-409f-ad94-97a77e98922f_480.mp4")
+
+    @override_settings(AWS_ET_720_PRESET="foo")
+    def test_sns_success_notification_thumbnails(self):
+        tf = FileFactory(
+            location_type='transcode',
+            cap="1432910411000-tfe2a2",
+        )
+        o = OperationFactory(
+            action="elastic transcode job",
+            status="submitted")
+        OperationFileFactory(operation=o, file=tf)
+
+        r = self.c.post(
+            "/api/sns/",
+            open(os.path.join(os.path.dirname(__file__),
+                              "thumbnail_pattern.json")).read(),
+            **notification_headers
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "OK")
+
+        no = Operation.objects.get(id=o.id)
+        self.assertEqual(no.status, 'complete')
+
+        nf = File.objects.get(
+            location_type='s3',
+            label='transcoded 480p file (S3)')
+        self.assertEqual(
+            nf.cap,
+            "2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9_480.mp4")
