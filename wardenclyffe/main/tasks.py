@@ -61,6 +61,9 @@ def save_file_to_s3(operation, params):
                             label="uploaded source file (S3)")
     OperationFile.objects.create(operation=operation, file=f)
 
+    o, p = operation.video.make_pull_from_s3_and_extract_metadata_operation(
+        key=key, user=operation.owner)
+    process_operation.delay(o.id, p)
     o, p = operation.video.make_create_elastic_transcoder_job_operation(
         key=key, user=operation.owner)
     process_operation.delay(o.id, p)
@@ -275,18 +278,34 @@ def midentify_path():
     return os.path.join(script_dir, "midentify.sh")
 
 
+def pull_from_s3_and_extract_metadata(operation, params):
+    statsd.incr("pull_from_s3_and_extract_metadata")
+    print "pulling from S3"
+    video = operation.video
+    suffix = video.extension()
+    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
+                     params['key'])
+    do_extract_metadata(video.source_file(), t.name)
+    # clean up
+    t.close()
+    return ("complete", "")
+
+
 def extract_metadata(operation, params):
-    statsd.incr("extract_metadata")
     source_file = File.objects.get(id=params['source_file_id'])
+    do_extract_metadata(source_file, params['tmpfilename'])
+    return ("complete", "")
+
+
+def do_extract_metadata(source_file, filename):
+    statsd.incr("extract_metadata")
     output = unicode(
         subprocess.Popen(
-            [midentify_path(),
-             params['tmpfilename']],
+            [midentify_path(), filename],
             stdout=subprocess.PIPE).communicate()[0],
         errors='replace')
     for f, v in parse_metadata(output):
         source_file.set_metadata(f, v)
-    return ("complete", "")
 
 
 def parse_metadata(output):
@@ -356,6 +375,7 @@ def pull_from_s3_and_submit_to_pcp(operation, params):
     print "submitting to PCP"
     filename = str(ouuid) + suffix
     pcp_upload(filename, t, ouuid, operation, workflow, video.description)
+    t.close()
     return ("submitted", "submitted to PCP")
 
 

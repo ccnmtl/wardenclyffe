@@ -287,6 +287,10 @@ class Video(TimeStampedModel):
                       source_file_id=source_file.id)
         return self.make_op(user, params, action="extract metadata")
 
+    def make_pull_from_s3_and_extract_metadata_operation(self, key, user):
+        return self.make_op(user, dict(key=key),
+                            action="pull from s3 and extract metadata")
+
     def make_save_file_to_s3_operation(self, tmpfilename, user):
         params = dict(tmpfilename=tmpfilename, filename=tmpfilename)
         return self.make_op(user, params, action="save file to S3")
@@ -372,11 +376,6 @@ class Video(TimeStampedModel):
                 operations.append(o)
                 params.append(p)
         else:
-            o, p = self.make_extract_metadata_operation(
-                tmpfilename, source_file, user)
-            operations.append(o)
-            params.append(p)
-
             o, p = self.make_save_file_to_s3_operation(
                 tmpfilename, user)
             operations.append(o)
@@ -686,6 +685,8 @@ class Operation(TimeStampedModel):
 
         mapper = {
             'extract metadata': wardenclyffe.main.tasks.extract_metadata,
+            'pull from s3 and extract metadata':
+            wardenclyffe.main.tasks.extract_metadata,
             'save file to S3': wardenclyffe.main.tasks.save_file_to_s3,
             'make images': wardenclyffe.main.tasks.make_images,
             'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
