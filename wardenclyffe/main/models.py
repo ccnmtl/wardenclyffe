@@ -381,10 +381,6 @@ class Video(TimeStampedModel):
             operations.append(o)
             params.append(p)
 
-            o, p = self.make_make_images_operation(
-                tmpfilename, user)
-            operations.append(o)
-            params.append(p)
         return operations, params
 
     def upto_hundred_images(self):

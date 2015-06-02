@@ -194,7 +194,7 @@ def make_images(operation, params):
     imgs.sort()
     make_image_objects(operation.video, imgs, tmpdir, imgdir)
     shutil.rmtree(tmpdir)
-    set_poster(operation.video, imgs)
+    set_poster(operation.video, len(imgs))
     return ("complete", "created %d images" % len(imgs))
 
 
@@ -235,6 +235,8 @@ def pull_thumbs_from_s3(operation, params):
             video=operation.video,
             image=path)
 
+    if cnt > 0:
+        set_poster(operation.video, cnt)
     return ("complete", "pulled %d thumbs" % cnt)
 
 
@@ -259,13 +261,13 @@ def copy_image_to_s3(path):
 
 
 def set_poster(video, imgs):
-    if len(imgs) == 0:
+    if imgs == 0:
         return
     if Poster.objects.filter(video=video).count() > 0:
         return
     # pick a random image out of the set and assign
     # it as the poster on the video
-    r = random.randint(0, min(len(imgs), settings.MAX_FRAMES) - 1)
+    r = random.randint(0, min(imgs, settings.MAX_FRAMES) - 1)
     image = Image.objects.filter(video=video)[r]
     Poster.objects.create(video=video, image=image)
 

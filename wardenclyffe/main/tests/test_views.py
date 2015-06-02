@@ -9,7 +9,6 @@ from factories import (
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
 from httpretty import HTTPretty, httprettified
-from waffle.models import Flag
 import os.path
 import httpretty
 
@@ -688,7 +687,6 @@ notification_headers = {
 class SNSTest(TestCase):
     def setUp(self):
         self.c = Client()
-        Flag.objects.create(name='s3_to_cunix', everyone=True)
 
     @httprettified
     def test_subscription_confirmation(self):
