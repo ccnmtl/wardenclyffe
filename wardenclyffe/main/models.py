@@ -686,7 +686,7 @@ class Operation(TimeStampedModel):
         mapper = {
             'extract metadata': wardenclyffe.main.tasks.extract_metadata,
             'pull from s3 and extract metadata':
-            wardenclyffe.main.tasks.extract_metadata,
+            wardenclyffe.main.tasks.pull_from_s3_and_extract_metadata,
             'save file to S3': wardenclyffe.main.tasks.save_file_to_s3,
             'make images': wardenclyffe.main.tasks.make_images,
             'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
