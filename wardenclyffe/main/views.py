@@ -1375,11 +1375,6 @@ class SNSView(View):
             operation.save()
             tf[0].delete()
 
-            # log the full response so I can look at it
-            # and figure out what format they are going to
-            # use to give us the paths for thumbs
-            operation.log(full_message)
-
             # add S3 output file record
             for output in ets_message['outputs']:
                 label = "transcoded 480p file (S3)"
