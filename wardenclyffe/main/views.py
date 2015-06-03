@@ -597,21 +597,19 @@ def save_file_locally(request):
 
 
 def create_operations(request, v, tmpfilename, source_file, filename, idx=''):
-    operations, params = v.make_default_operations(
+    operations = v.make_default_operations(
         tmpfilename, source_file, request.user)
 
     if request.POST.get("submit_to_youtube" + idx, False):
-        o, p = v.make_upload_to_youtube_operation(
+        o = v.make_upload_to_youtube_operation(
             tmpfilename, request.user)
         operations.append(o)
-        params.append(p)
     # run collection's default workflow(s)
     for cw in v.collection.collectionworkflow_set.all():
-        o, p = v.make_submit_to_podcast_producer_operation(
+        o = v.make_submit_to_podcast_producer_operation(
             tmpfilename, cw.workflow, request.user)
         operations.append(o)
-        params.append(p)
-    return operations, params
+    return operations
 
 
 @transaction.non_atomic_requests
@@ -628,7 +626,6 @@ def upload(request):
 
     collection_id = None
     operations = []
-    params = []
     statsd.incr('main.upload')
 
     # save it locally
@@ -650,14 +647,14 @@ def upload(request):
         source_file = v.make_source_file(source_filename)
 
         if source_filename:
-            operations, params = create_operations(
+            operations = create_operations(
                 request, v, tmpfilename, source_file, source_filename)
     except:
         statsd.incr('main.upload.failure')
         raise
     else:
-        for o, p in zip(operations, params):
-            tasks.process_operation.delay(o.id, p)
+        for o in operations:
+            tasks.process_operation.delay(o.id)
     return HttpResponseRedirect("/")
 
 
@@ -670,7 +667,6 @@ def batch_upload(request):
 
     collection_id = None
     operations = []
-    params = []
     statsd.incr('main.batch_upload')
     collection_id = request.POST.get('collection', None)
 
@@ -700,17 +696,16 @@ def batch_upload(request):
             )
             source_file = v.make_source_file(tmpfilename)
 
-            v_operations, v_params = create_operations(
+            v_operations = create_operations(
                 request, v, tmpfilename, source_file, tmpfilename,
                 '_' + idx)
             operations.extend(v_operations)
-            params.extend(v_params)
     except:
         statsd.incr('main.batch_upload.failure')
         raise
     else:
-        for o, p in zip(operations, params):
-            tasks.process_operation.delay(o.id, p)
+        for o in operations:
+            tasks.process_operation.delay(o.id)
     return HttpResponseRedirect("/")
 
 
@@ -719,7 +714,7 @@ class RerunOperationView(StaffMixin, View):
         operation = get_object_or_404(Operation, id=operation_id)
         operation.status = "enqueued"
         operation.save()
-        tasks.process_operation.delay(operation_id, loads(operation.params))
+        tasks.process_operation.delay(operation_id)
         redirect_to = request.META.get(
             'HTTP_REFERER',
             operation.video.get_absolute_url())
@@ -828,7 +823,6 @@ class DoneView(View):
 
         statsd.incr('main.done')
         operations = []
-        params = dict()
         try:
             operation = r[0]
             operation.status = "complete"
@@ -836,13 +830,13 @@ class DoneView(View):
             operation.log(info="PCP completed")
             cunix_path = request.POST.get('movie_destination_path', '')
             make_cunix_file(operation, cunix_path)
-            (operations, params) = operation.video.handle_mediathread_submit()
+            operations = operation.video.handle_mediathread_submit()
         except:
             statsd.incr('main.upload.failure')
             raise
         else:
             for o in operations:
-                tasks.process_operation.delay(o, params)
+                tasks.process_operation.delay(o)
         return HttpResponse("ok")
 
 
@@ -992,9 +986,9 @@ class VideoPCPSubmitView(StaffMixin, View):
 
         statsd.incr('main.video_pcp_submit')
         # send to podcast producer
-        o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+        o = video.make_pull_from_s3_and_submit_to_pcp_operation(
             video.id, request.POST.get('workflow', ''), request.user)
-        tasks.process_operation.delay(o.id, p)
+        tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(video.get_absolute_url())
 
     def get(self, request, id):
@@ -1014,14 +1008,14 @@ class FilePCPSubmitView(StaffMixin, View):
         statsd.incr('main.file_pcp_submit')
         video = file.video
         # send to podcast producer
-        (o, p) = (None, None)
+        o = None
         if video.s3_file():
-            o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+            o = video.make_pull_from_s3_and_submit_to_pcp_operation(
                 video.id, request.POST.get('workflow', ''), request.user)
         else:
-            o, p = video.make_pull_from_cuit_and_submit_to_pcp_operation(
+            o = video.make_pull_from_cuit_and_submit_to_pcp_operation(
                 video.id, request.POST.get('workflow', ''), request.user)
-        tasks.process_operation.delay(o.id, p)
+        tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(video.get_absolute_url())
 
     def get(self, request, id):
@@ -1035,8 +1029,8 @@ class FilePCPSubmitView(StaffMixin, View):
 class AudioEncodeFileView(StaffMixin, View):
     def post(self, request, pk):
         f = get_object_or_404(File, pk=pk)
-        o, p = f.video.make_audio_encode_operation(f.id, request.user)
-        tasks.process_operation.delay(o.id, p)
+        o = f.video.make_audio_encode_operation(f.id, request.user)
+        tasks.process_operation.delay(o.id)
         return HttpResponse(f.video.get_absolute_url())
 
 
@@ -1155,9 +1149,9 @@ class BulkOperationView(StaffMixin, View):
     def post(self, request):
         if request.POST.get('submit-to-pcp', False):
             for video in self._videos(request):
-                o, p = video.make_pull_from_s3_and_submit_to_pcp_operation(
+                o = video.make_pull_from_s3_and_submit_to_pcp_operation(
                     video.id, request.POST.get('workflow', ''), request.user)
-                tasks.process_operation.delay(o.id, p)
+                tasks.process_operation.delay(o.id)
                 statsd.incr('main.bulk_file_operation')
             return HttpResponseRedirect("/")
         if request.POST.get('surelink', False):
@@ -1389,20 +1383,20 @@ class SNSView(View):
                 OperationFile.objects.create(operation=operation, file=f)
                 v = operation.video
                 if 'thumbnailPattern' in output:
-                    (o, p) = v.make_pull_thumbs_from_s3_operation(
+                    o = v.make_pull_thumbs_from_s3_operation(
                         output['thumbnailPattern'], operation.owner)
-                    operations.append((o, p))
-                (o, p) = v.make_copy_from_s3_to_cunix_operation(
+                    operations.append(o)
+                o = v.make_copy_from_s3_to_cunix_operation(
                     f.id, operation.owner)
-                operations.append((o, p))
+                operations.append(o)
         else:
             # set it to failed
             operation.status = "failed"
             operation.save()
             tf[0].delete()
             operation.log(info=self.body)
-        for o, p in operations:
-            tasks.process_operation.delay(o.id, p)
+        for o in operations:
+            tasks.process_operation.delay(o.id)
         return HttpResponse("OK")
 
     @method_decorator(transaction.non_atomic_requests)

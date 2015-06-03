@@ -26,20 +26,21 @@ import uuid
 
 
 @task(ignore_results=True)
-def process_operation(operation_id, params, **kwargs):
-    print "process_operation(%s,%s)" % (operation_id, str(params))
+def process_operation(operation_id, **kwargs):
+    print "process_operation(%s)" % (operation_id)
     try:
         operation = Operation.objects.get(id=operation_id)
-        operation.process(params)
+        operation.process()
     except Operation.DoesNotExist:
         print "operation not found (probably deleted)"
 
 
-def save_file_to_s3(operation, params):
+def save_file_to_s3(operation):
     if not waffle.switch_is_active('enable_s3'):
         print "S3 uploads are disabled"
         return ("complete", "S3 uploads temporarily disabled")
     statsd.incr("save_file_to_s3")
+    params = loads(operation.params)
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
         settings.AWS_SECRET_KEY)
@@ -61,17 +62,18 @@ def save_file_to_s3(operation, params):
                             label="uploaded source file (S3)")
     OperationFile.objects.create(operation=operation, file=f)
 
-    o, p = operation.video.make_pull_from_s3_and_extract_metadata_operation(
+    o = operation.video.make_pull_from_s3_and_extract_metadata_operation(
         key=key, user=operation.owner)
-    process_operation.delay(o.id, p)
-    o, p = operation.video.make_create_elastic_transcoder_job_operation(
+    process_operation.delay(o.id)
+    o = operation.video.make_create_elastic_transcoder_job_operation(
         key=key, user=operation.owner)
-    process_operation.delay(o.id, p)
+    process_operation.delay(o.id)
     return ("complete", "")
 
 
-def create_elastic_transcoder_job(operation, params):
+def create_elastic_transcoder_job(operation):
     statsd.incr('create_transcoder_job')
+    params = loads(operation.params)
     et = boto.elastictranscoder.connect_to_region(
         settings.AWS_ET_REGION,
         aws_access_key_id=settings.AWS_ACCESS_KEY,
@@ -173,8 +175,9 @@ def image_extract_command_for_file(tmpdir, frames, tmpfilename):
         return image_extract_command(tmpdir, frames, tmpfilename)
 
 
-def make_images(operation, params):
+def make_images(operation):
     statsd.incr("make_images")
+    params = loads(operation.params)
     ouuid = operation.uuid
     tmpfilename = params['tmpfilename']
     tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
@@ -208,11 +211,12 @@ def make_image_objects(video, imgs, tmpdir, imgdir):
         copy_image_to_s3.delay("images/%05d/%s" % (video.id, img))
 
 
-def pull_thumbs_from_s3(operation, params):
+def pull_thumbs_from_s3(operation):
     """ given the thumbnail pattern that we get back from
     elastic transcoder, we look through the images
     bucket for images that match the pattern,
     and create Image objects to correspond to them """
+    params = loads(operation.params)
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
         settings.AWS_SECRET_KEY)
@@ -278,9 +282,10 @@ def midentify_path():
     return os.path.join(script_dir, "midentify.sh")
 
 
-def pull_from_s3_and_extract_metadata(operation, params):
+def pull_from_s3_and_extract_metadata(operation):
     statsd.incr("pull_from_s3_and_extract_metadata")
     print "pulling from S3"
+    params = loads(operation.params)
     video = operation.video
     suffix = video.extension()
     t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
@@ -291,7 +296,8 @@ def pull_from_s3_and_extract_metadata(operation, params):
     return ("complete", "")
 
 
-def extract_metadata(operation, params):
+def extract_metadata(operation):
+    params = loads(operation.params)
     source_file = File.objects.get(id=params['source_file_id'])
     do_extract_metadata(source_file, params['tmpfilename'])
     return ("complete", "")
@@ -330,11 +336,9 @@ def pcp_upload(filename, fileobj, ouuid, operation, workflow, description):
     pcp.upload_file(fileobj, filename, workflow, title, description)
 
 
-def submit_to_pcp(operation, params):
+def submit_to_pcp(operation):
     statsd.incr("submit_to_pcp")
     ouuid = operation.uuid
-
-    # ignore the passed in params and use the ones from the operation object
     params = loads(operation.params)
     filename = str(ouuid) + (operation.video.filename() or ".mp4")
     fileobj = open(params['tmpfilename'])
@@ -358,7 +362,7 @@ def pull_from_s3(suffix, bucket_name, key):
     return t
 
 
-def pull_from_s3_and_submit_to_pcp(operation, params):
+def pull_from_s3_and_submit_to_pcp(operation):
     statsd.incr("pull_from_s3_and_submit_to_pcp")
     print "pulling from S3"
     params = loads(operation.params)
@@ -385,7 +389,7 @@ def do_audio_encode(input_filename, tout):
     os.system(command)
 
 
-def audio_encode(operation, params):
+def audio_encode(operation):
     statsd.incr("audio_encode")
     params = loads(operation.params)
     file_id = params['file_id']
@@ -410,7 +414,7 @@ def audio_encode(operation, params):
     return ("complete", "")
 
 
-def local_audio_encode(operation, params):
+def local_audio_encode(operation):
     statsd.incr("audio_encode")
     params = loads(operation.params)
     file_id = params['file_id']
@@ -423,9 +427,9 @@ def local_audio_encode(operation, params):
     do_audio_encode(params['tmpfilename'], tout)
 
     # now we can send it off on the AWS pipeline
-    o, p = video.make_save_file_to_s3_operation(
+    o = video.make_save_file_to_s3_operation(
         tout, operation.owner)
-    process_operation.delay(o.id, p)
+    process_operation.delay(o.id)
     return ("complete", "")
 
 
@@ -463,7 +467,7 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
         transport.close()
 
 
-def copy_from_s3_to_cunix(operation, params):
+def copy_from_s3_to_cunix(operation):
     statsd.incr("copy_from_s3_to_cunix")
     print "pulling from S3"
     params = loads(operation.params)
@@ -485,9 +489,9 @@ def copy_from_s3_to_cunix(operation, params):
                      f.cap)
     operation.log(info="downloaded from S3")
     sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution)
-    (operations, params) = video.handle_mediathread_submit()
+    operations = video.handle_mediathread_submit()
     for o in operations:
-        process_operation.delay(o, params)
+        process_operation.delay(o)
     return ("complete", "")
 
 
@@ -509,7 +513,7 @@ def sftp_get(remote_filename, local_filename):
         transport.close()
 
 
-def pull_from_cuit_and_submit_to_pcp(operation, params):
+def pull_from_cuit_and_submit_to_pcp(operation):
     statsd.incr("pull_from_cuit_and_submit_to_pcp")
     print "pulling from cuit"
     params = loads(operation.params)

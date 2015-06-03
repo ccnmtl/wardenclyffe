@@ -8,6 +8,7 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from django.test.utils import override_settings
 from wardenclyffe.main.tasks import strip_special_characters
+from wardenclyffe.main.models import Operation
 from factories import (
     CollectionFactory, VideoFactory, CUITFLVFileFactory,
     SourceFileFactory, MediathreadFileFactory, S3FileFactory, FileFactory,
@@ -15,6 +16,7 @@ from factories import (
     ServerFactory, UserFactory, SecureFileFactory, PosterFactory,
     MediathreadSubmitFileFactory,
 )
+from json import loads
 
 
 class CUITFileTest(TestCase):
@@ -146,16 +148,16 @@ class EmptyVideoTest(TestCase):
     def test_handle_mediathread_submit(self):
         f = MediathreadSubmitFileFactory()
         UserFactory(username=f.get_metadata("username"))
-        (ops, params) = f.video.handle_mediathread_submit()
+        ops = f.video.handle_mediathread_submit()
         self.assertEqual(len(ops), 1)
-        self.assertEqual(params['set_course'], "a course")
+        op = Operation.objects.get(id=ops[0])
+        self.assertEqual(loads(op.params)['set_course'], "a course")
 
     def test_handle_mediathread_submit_no_course(self):
         f = MediathreadSubmitFileFactory()
         f.set_metadata("set_course", None)
-        (ops, params) = f.video.handle_mediathread_submit()
+        ops = f.video.handle_mediathread_submit()
         self.assertEqual(len(ops), 0)
-        self.assertEqual(params, dict())
 
 
 class FileTest(TestCase):
@@ -403,30 +405,30 @@ class OperationTest(TestCase):
     def test_default_operations_creation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        (ops, params) = f.video.make_default_operations(
+        ops = f.video.make_default_operations(
             "/tmp/file.mov",
             f, u)
         self.assertEquals(len(ops), 1)
         # just run these to get the coverage up. don't worry if they fail
-        for (o, p) in zip(ops, params):
-            o.process(params)
+        for o in ops:
+            o.process()
             o.post_process()
 
     def test_audio_default_operations_creation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        (ops, params) = f.video.make_default_operations(
+        ops = f.video.make_default_operations(
             "/tmp/file.mov",
             f, u, True)
         self.assertEquals(len(ops), 1)
         # just run these to get the coverage up. don't worry if they fail
-        for (o, p) in zip(ops, params):
-            o.process(params)
+        for o in ops:
+            o.process()
 
     def test_audio_default_operations_creation_no_encode(self):
         f = SourceFileFactory()
         u = UserFactory()
-        (ops, params) = f.video.make_default_operations(
+        ops = f.video.make_default_operations(
             "/tmp/file.mov",
             f, u, True, audio_flag=False)
         self.assertEquals(len(ops), 0)
@@ -434,39 +436,39 @@ class OperationTest(TestCase):
     def test_submit_to_pcp_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o, p = f.video.make_submit_to_podcast_producer_operation(
+        o = f.video.make_submit_to_podcast_producer_operation(
             "/tmp/file.mov", "SOMEWORKFLOW", u)
-        o.process(p)
+        o.process()
         o.post_process()
 
     def test_make_upload_to_youtube_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o, p = f.video.make_upload_to_youtube_operation("/tmp/file.mov", u)
-        o.process(p)
+        o = f.video.make_upload_to_youtube_operation("/tmp/file.mov", u)
+        o.process()
         o.post_process()
 
     def test_make_import_from_cuit_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o, p = f.video.make_import_from_cuit_operation(f.video.id, u)
-        self.assertTrue('video_id' in p)
+        o = f.video.make_import_from_cuit_operation(f.video.id, u)
+        self.assertTrue('video_id' in loads(o.params))
         self.assertEqual(o.action, "import from cuit")
 
     def test_make_audio_encode_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o, p = f.video.make_audio_encode_operation(f.id, u)
-        self.assertTrue('file_id' in p)
+        o = f.video.make_audio_encode_operation(f.id, u)
+        self.assertTrue('file_id' in loads(o.params))
         self.assertEqual(o.action, "audio encode")
 
     def test_elastic_transcoder_job_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o, p = f.video.make_create_elastic_transcoder_job_operation(
+        o = f.video.make_create_elastic_transcoder_job_operation(
             "some key", u)
-        self.assertTrue('key' in p)
-        self.assertEqual(p['key'], "some key")
+        self.assertTrue('key' in loads(o.params))
+        self.assertEqual(loads(o.params)['key'], "some key")
         self.assertEqual(o.action, "create elastic transcoder job")
 
 

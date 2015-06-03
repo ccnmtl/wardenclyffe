@@ -1,12 +1,14 @@
 import wardenclyffe.main.models
 from django.conf import settings
+from json import loads
 import httplib
 import gdata.youtube
 import gdata.youtube.service
 from wardenclyffe.util.mail import send_youtube_submitted_mail
 
 
-def upload_to_youtube(operation, params):
+def upload_to_youtube(operation):
+    params = loads(operation.params)
     video = operation.video
     user = operation.owner
     tmpfilename = params['tmpfilename']

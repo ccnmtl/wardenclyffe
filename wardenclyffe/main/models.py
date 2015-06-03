@@ -230,20 +230,20 @@ class Video(TimeStampedModel):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
 
     def handle_mediathread_submit(self):
-        params = dict()
         if self.is_mediathread_submit():
             statsd.incr('main.upload.mediathread')
             (set_course, username,
              audio) = self.mediathread_submit()
             if set_course is not None:
                 user = User.objects.get(username=username)
+                params = dict()
                 params['set_course'] = set_course
                 params['audio'] = audio
-                o, params = self.make_op(
+                o = self.make_op(
                     user, params, action="submit to mediathread")
                 self.clear_mediathread_submit()
-                return ([o.id, ], params)
-        return ([], dict())
+                return [o.id]
+        return []
 
     def cuit_file(self):
         try:
@@ -279,8 +279,7 @@ class Video(TimeStampedModel):
         oparams['params'] = dumps(params)
         oparams['owner'] = user
         oparams['status'] = "enqueued"
-        o = Operation.objects.create(**oparams)
-        return (o, params)
+        return Operation.objects.create(**oparams)
 
     def make_extract_metadata_operation(self, tmpfilename, source_file, user):
         params = dict(tmpfilename=tmpfilename,
@@ -368,20 +367,17 @@ class Video(TimeStampedModel):
     def make_default_operations(self, tmpfilename, source_file, user,
                                 audio=False, audio_flag=True):
         operations = []
-        params = []
         if audio:
             if audio_flag:
-                o, p = self.make_local_audio_encode_operation(
+                o = self.make_local_audio_encode_operation(
                     tmpfilename, source_file, user)
                 operations.append(o)
-                params.append(p)
         else:
-            o, p = self.make_save_file_to_s3_operation(
+            o = self.make_save_file_to_s3_operation(
                 tmpfilename, user)
             operations.append(o)
-            params.append(p)
 
-        return operations, params
+        return operations
 
     def upto_hundred_images(self):
         """ return the first 100 frames for the video
@@ -712,14 +708,14 @@ class Operation(TimeStampedModel):
         }
         return mapper[self.action]
 
-    def process(self, args):
+    def process(self):
         statsd.incr("main.process_task")
         self.status = "in progress"
         self.save()
         f = self.get_task()
         error_message = ""
         try:
-            (success, message) = f(self, args)
+            (success, message) = f(self)
             self.status = success
             if self.status == "failed" or message != "":
                 self.log(info=message)

@@ -13,7 +13,7 @@ def clear_out_tmpfile(tmpfilename):
     os.unlink(tmpfilename)
 
 
-def import_from_cuit(operation, params):
+def import_from_cuit(operation):
     params = loads(operation.params)
     video_id = params['video_id']
     print "importing from cuit (%d)" % video_id
