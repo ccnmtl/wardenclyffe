@@ -444,14 +444,14 @@ def sftp_client():
 
 
 def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
-             remote_path=None):
+             remote_base=None):
     sftp, transport = sftp_client()
     remote_filename = filename.replace(suffix, "_et" + suffix)
-    if remote_path is None:
+    if remote_base is None:
         # default to secure directory if not otherwise specified
-        remote_path = os.path.join(
-            settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
-            remote_filename)
+        remote_base = os.path.join(
+            settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure")
+    remote_path = os.path.join(remote_base, remote_filename)
 
     try:
         sftp.putfo(fileobj, remote_path)
@@ -491,8 +491,17 @@ def copy_from_s3_to_cunix(operation):
     t = pull_from_s3(suffix, settings.AWS_S3_OUTPUT_BUCKET,
                      f.cap)
     operation.log(info="downloaded from S3")
-    sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution)
+
+    remote_base = os.path.join(
+        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure")
+    if video.collection.is_public():
+        remote_base = os.path.join(
+            settings.CUNIX_H264_DIRECTORY, "ccnmtl", "public")
+
+    sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution,
+             remote_base)
     operations = video.handle_mediathread_submit()
+
     for o in operations:
         process_operation.delay(o)
     return ("complete", "")
