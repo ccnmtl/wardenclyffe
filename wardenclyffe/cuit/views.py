@@ -59,7 +59,6 @@ def import_quicktime(request):
     if request.method != "POST":
         return HttpResponseRedirect("/cuit/")
     operations = []
-    params = []
 
     s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
     server = Server.objects.get(id=settings.QUICKTIME_IMPORT_SERVER_ID)
@@ -79,12 +78,11 @@ def import_quicktime(request):
                                         location_type='cuit')
         ServerFile.objects.create(server=server, file=cuit_file)
         v.make_source_file("")
-        o, p = v.make_import_from_cuit_operation(v.id, request.user)
+        o = v.make_import_from_cuit_operation(v.id, request.user)
         operations.append(o)
-        params.append(p)
 
-    for o, p in zip(operations, params):
-        process_operation.delay(o.id, p)
+    for o in operations:
+        process_operation.delay(o.id)
     return HttpResponse("database entries created. import has begun.")
 
 
@@ -96,7 +94,7 @@ def import_retry(request):
         return dict(failed=failed)
     for operation in failed:
         # try again
-        process_operation.delay(operation.id, operation.params)
+        process_operation.delay(operation.id)
     return HttpResponse("retry has begun.")
 
 

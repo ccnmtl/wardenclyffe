@@ -78,7 +78,6 @@ def mediathread_post(request):
     audio2 = request.POST.get('audio2', False)
     audio = request.POST.get('audio', False) or audio2
     operations = []
-    params = []
     if tmpfilename.startswith(settings.TMP_DIR):
         statsd.incr("mediathread.mediathread")
         filename = os.path.basename(tmpfilename)
@@ -102,7 +101,7 @@ def mediathread_post(request):
             )
 
             audio_flag = waffle.flag_is_active(request, 'encode_audio')
-            operations, params = v.make_default_operations(
+            operations = v.make_default_operations(
                 tmpfilename, source_file, user, audio=audio,
                 audio_flag=audio_flag)
 
@@ -110,17 +109,16 @@ def mediathread_post(request):
                 # fallback to PCP version instead of encoding it locally
                 workflow = select_workflow(audio)
                 if workflow:
-                    o, p = v.make_submit_to_podcast_producer_operation(
+                    o = v.make_submit_to_podcast_producer_operation(
                         tmpfilename, workflow, user)
                     operations.append(o)
-                    params.append(p)
         except:
             statsd.incr("mediathread.mediathread.failure")
             raise
         else:
             # hand operations off to celery
-            for o, p in zip(operations, params):
-                maintasks.process_operation.delay(o.id, p)
+            for o in operations:
+                maintasks.process_operation.delay(o.id)
             return HttpResponseRedirect(request.session['redirect_to'])
     return HttpResponse("Bad file upload. Please try again.")
 
@@ -137,9 +135,9 @@ def video_mediathread_submit(request, id):
             request.POST.get('course', ''),
             redirect_to="",
             audio=video.is_audio_file())
-        (operations, params) = video.handle_mediathread_submit()
+        operations = video.handle_mediathread_submit()
         for o in operations:
-            maintasks.process_operation.delay(o, params)
+            maintasks.process_operation.delay(o)
         video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
@@ -172,9 +170,9 @@ def collection_mediathread_submit(request, pk):
                 request.POST.get('course', ''),
                 redirect_to="",
                 audio=video.is_audio_file())
-            (operations, params) = video.handle_mediathread_submit()
+            operations = video.handle_mediathread_submit()
             for o in operations:
-                maintasks.process_operation.delay(o, params)
+                maintasks.process_operation.delay(o)
             video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:

@@ -22,7 +22,6 @@ def youtube_post(request):
     statsd.incr("youtube.youtube")
     tmpfilename = request.POST.get('tmpfilename', '')
     operations = []
-    params = []
     if tmpfilename.startswith(settings.TMP_DIR):
         # make db entry
         filename = os.path.basename(tmpfilename)
@@ -39,19 +38,18 @@ def youtube_post(request):
                 description=request.POST.get("description", ""),
                 uuid=vuuid)
             source_file = v.make_source_file(filename)
-            operations, params = v.make_default_operations(
+            operations = v.make_default_operations(
                 tmpfilename, source_file, request.user)
 
-            o, p = v.make_upload_to_youtube_operation(
+            o = v.make_upload_to_youtube_operation(
                 tmpfilename, request.user)
             operations.append(o)
-            params.append(p)
         except:
             statsd.incr("youtube.youtube.failure")
             raise
         else:
-            for o, p in zip(operations, params):
-                wardenclyffe.main.tasks.process_operation.delay(o.id, p)
+            for o in operations:
+                wardenclyffe.main.tasks.process_operation.delay(o.id)
             return HttpResponseRedirect("/youtube/done/")
     else:
         return HttpResponse("no tmpfilename parameter set")

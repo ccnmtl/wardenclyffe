@@ -1,5 +1,6 @@
 import wardenclyffe.main.models
 from django.conf import settings
+from json import loads
 from restclient import POST
 from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
@@ -50,8 +51,9 @@ def mediathread_submit_params(video, course_id, username, mediathread_secret,
     return params
 
 
-def submit_to_mediathread(operation, params):
+def submit_to_mediathread(operation):
     statsd.incr("mediathread.tasks.submit_to_mediathread")
+    params = loads(operation.params)
     video = operation.video
     user = operation.owner
     course_id = params['set_course']
