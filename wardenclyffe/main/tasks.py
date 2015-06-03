@@ -443,12 +443,15 @@ def sftp_client():
     return (paramiko.SFTPClient.from_transport(transport), transport)
 
 
-def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264"):
+def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
+             remote_path=None):
     sftp, transport = sftp_client()
     remote_filename = filename.replace(suffix, "_et" + suffix)
-    remote_path = os.path.join(
-        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
-        remote_filename)
+    if remote_path is None:
+        # default to secure directory if not otherwise specified
+        remote_path = os.path.join(
+            settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure",
+            remote_filename)
 
     try:
         sftp.putfo(fileobj, remote_path)
