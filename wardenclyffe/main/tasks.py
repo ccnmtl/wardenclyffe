@@ -12,7 +12,7 @@ import os
 import tempfile
 import subprocess
 from django.conf import settings
-from json import loads
+from json import loads, dumps
 import paramiko
 import random
 import re
@@ -61,13 +61,10 @@ def save_file_to_s3(operation):
                             filename=params['filename'],
                             label="uploaded source file (S3)")
     OperationFile.objects.create(operation=operation, file=f)
-
-    o = operation.video.make_pull_from_s3_and_extract_metadata_operation(
-        key=key, user=operation.owner)
-    process_operation.delay(o.id)
-    o = operation.video.make_create_elastic_transcoder_job_operation(
-        key=key, user=operation.owner)
-    process_operation.delay(o.id)
+    # stash the s3 key back in params
+    params['s3_key'] = key
+    operation.params = dumps(params)
+    operation.save()
     return ("complete", "")
 
 
@@ -420,16 +417,15 @@ def local_audio_encode(operation):
     file_id = params['file_id']
     f = File.objects.get(id=file_id)
     assert f.video.is_audio_file()
-    video = f.video
 
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(params['tmpfilename'], tout)
 
-    # now we can send it off on the AWS pipeline
-    o = video.make_save_file_to_s3_operation(
-        tout, operation.owner)
-    process_operation.delay(o.id)
+    # stash the s3 key back in params
+    params['mp4_tmpfilename'] = tout
+    operation.params = dumps(params)
+    operation.save()
     return ("complete", "")
 
 
@@ -500,10 +496,6 @@ def copy_from_s3_to_cunix(operation):
 
     sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution,
              remote_base)
-    operations = video.handle_mediathread_submit()
-
-    for o in operations:
-        process_operation.delay(o)
     return ("complete", "")
 
 

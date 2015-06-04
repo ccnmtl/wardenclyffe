@@ -678,40 +678,12 @@ class Operation(TimeStampedModel):
         except:
             return self.params
 
-    def get_task(self):
-        import wardenclyffe.main.tasks
-        import wardenclyffe.youtube.tasks
-        import wardenclyffe.mediathread.tasks
-        import wardenclyffe.cuit.tasks
+    def operation_type(self):
+        """ factory for the correct OperationType class"""
+        return OPERATION_TYPE_MAPPER[self.action](self)
 
-        mapper = {
-            'extract metadata': wardenclyffe.main.tasks.extract_metadata,
-            'pull from s3 and extract metadata':
-            wardenclyffe.main.tasks.pull_from_s3_and_extract_metadata,
-            'save file to S3': wardenclyffe.main.tasks.save_file_to_s3,
-            'make images': wardenclyffe.main.tasks.make_images,
-            'import from cuit': wardenclyffe.cuit.tasks.import_from_cuit,
-            'submit to podcast producer':
-            wardenclyffe.main.tasks.submit_to_pcp,
-            'upload to youtube': wardenclyffe.youtube.tasks.upload_to_youtube,
-            'submit to mediathread':
-            wardenclyffe.mediathread.tasks.submit_to_mediathread,
-            'pull from s3 and submit to pcp':
-            wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp,
-            'pull from cuit and submit to pcp':
-            wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp,
-            'create elastic transcoder job':
-            wardenclyffe.main.tasks.create_elastic_transcoder_job,
-            'copy from s3 to cunix':
-            wardenclyffe.main.tasks.copy_from_s3_to_cunix,
-            "audio encode":
-            wardenclyffe.main.tasks.audio_encode,
-            "local audio encode":
-            wardenclyffe.main.tasks.local_audio_encode,
-            "pull thumbs from s3":
-            wardenclyffe.main.tasks.pull_thumbs_from_s3,
-        }
-        return mapper[self.action]
+    def get_task(self):
+        return self.operation_type().get_task()
 
     def process(self):
         statsd.incr("main.process_task")
@@ -736,32 +708,168 @@ class Operation(TimeStampedModel):
             send_failed_operation_mail(self, error_message)
 
     def post_process(self):
-        """ the operation has completed, now we have a chance
-        to do additional work. Generally, this is for
-        a submit to PCP operation and we want to create
-        a derived File to track where the result ended up"""
-        if self.action == "submit to podcast producer":
-            # see if the workflow has a post_process hook
-            p = loads(self.params)
-            if 'pcp_workflow' not in p:
-                # what? how could that happen?
-                return
-            workflow = p['pcp_workflow']
-            if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
-                # no hooks configured
-                return
-            if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
-                # no hooks registered for this workflow
-                return
-            for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
-                if not hasattr(self, hook):
-                    continue
-                f = getattr(self, hook)
-                f()
+        import wardenclyffe.main.tasks as tasks
+        operations = self.operation_type().post_process()
+        for o in operations:
+            tasks.process_operation.delay(o.id)
 
     def log(self, info=""):
         OperationLog.objects.create(operation=self,
                                     info=info)
+
+
+class OperationType(object):
+    """ abstract base class for operation types """
+    def __init__(self, operation):
+        self.operation = operation
+
+    def get_task(self):
+        """ must override this """
+        raise NotImplementedError
+
+    def post_process(self):
+        """ steps to run after operation has completed.
+
+        optional. Expectation is that it will do what it
+        needs to do and possibly return a list of
+        operations for further processing """
+        return []
+
+
+class ExtractMetadataOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.extract_metadata
+
+
+class PullFromS3AndExtractMetadataOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.pull_from_s3_and_extract_metadata
+
+
+class SaveFileToS3Operation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.save_file_to_s3
+
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 's3_key' not in params:
+            return []
+        key = params['s3_key']
+        return [
+            operation.video.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=operation.owner),
+            operation.video.make_create_elastic_transcoder_job_operation(
+                key=key, user=operation.owner)]
+
+
+class MakeImagesOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.make_images
+
+
+class ImportFromCUITOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.cuit.tasks
+        return wardenclyffe.cuit.tasks.import_from_cuit
+
+
+class SubmitToPCPOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.submit_to_pcp
+
+
+class UploadToYoutubeOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.youtube.tasks
+        return wardenclyffe.youtube.tasks.upload_to_youtube,
+
+
+class SubmitToMediathreadOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.mediathread.tasks
+        return wardenclyffe.mediathread.tasks.submit_to_mediathread
+
+
+class PullFromS3AndSubmitToPCPOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp
+
+
+class PullFromCUITAndSubmitToPCPOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp
+
+
+class CreateElasticTranscoderJobOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.create_elastic_transcoder_job
+
+
+class CopyFromS3ToCunixOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.copy_from_s3_to_cunix
+
+    def post_process(self):
+        return self.operation.video.handle_mediathread_submit()
+
+
+class AudioEncodeOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.audio_encode
+
+
+class LocalAudioEncodeOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.local_audio_encode
+
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 'mp4_tmpfilename' not in params:
+            return []
+        tmpfilename = params['mp4_tmpfilename']
+
+        # now we can send it off on the AWS pipeline
+        return [operation.video.make_save_file_to_s3_operation(
+            tmpfilename, operation.owner)]
+
+
+class PullThumbsFromS3Operation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.pull_thumbs_from_s3
+
+
+# map actions to OperationTypes
+OPERATION_TYPE_MAPPER = {
+    'extract metadata': ExtractMetadataOperation,
+    'pull from s3 and extract metadata': PullFromS3AndExtractMetadataOperation,
+    'save file to S3': SaveFileToS3Operation,
+    'make images': MakeImagesOperation,
+    'import from cuit': ImportFromCUITOperation,
+    'submit to podcast producer': SubmitToPCPOperation,
+    'upload to youtube': UploadToYoutubeOperation,
+    'submit to mediathread': SubmitToMediathreadOperation,
+    'pull from s3 and submit to pcp': PullFromS3AndSubmitToPCPOperation,
+    'pull from cuit and submit to pcp': PullFromCUITAndSubmitToPCPOperation,
+    'create elastic transcoder job': CreateElasticTranscoderJobOperation,
+    'copy from s3 to cunix': CopyFromS3ToCunixOperation,
+    "audio encode": AudioEncodeOperation,
+    "local audio encode": LocalAudioEncodeOperation,
+    "pull thumbs from s3": PullThumbsFromS3Operation,
+}
 
 
 class OperationFile(models.Model):
