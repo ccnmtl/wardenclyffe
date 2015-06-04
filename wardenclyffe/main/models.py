@@ -680,28 +680,7 @@ class Operation(TimeStampedModel):
 
     def operation_type(self):
         """ factory for the correct OperationType class"""
-        mapper = {
-            'extract metadata': ExtractMetadataOperation,
-            'pull from s3 and extract metadata':
-            PullFromS3AndExtractMetadataOperation,
-            'save file to S3': SaveFileToS3Operation,
-            'make images': MakeImagesOperation,
-            'import from cuit': ImportFromCUITOperation,
-            'submit to podcast producer': SubmitToPCPOperation,
-            'upload to youtube': UploadToYoutubeOperation,
-            'submit to mediathread': SubmitToMediathreadOperation,
-            'pull from s3 and submit to pcp':
-            PullFromS3AndSubmitToPCPOperation,
-            'pull from cuit and submit to pcp':
-            PullFromCUITAndSubmitToPCPOperation,
-            'create elastic transcoder job':
-            CreateElasticTranscoderJobOperation,
-            'copy from s3 to cunix': CopyFromS3ToCunixOperation,
-            "audio encode": AudioEncodeOperation,
-            "local audio encode": LocalAudioEncodeOperation,
-            "pull thumbs from s3": PullThumbsFromS3Operation,
-        }
-        return mapper[self.action](self)
+        return OPERATION_TYPE_MAPPER[self.action](self)
 
     def get_task(self):
         return self.operation_type().get_task()
@@ -856,6 +835,26 @@ class PullThumbsFromS3Operation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.pull_thumbs_from_s3
+
+
+# map actions to OperationTypes
+OPERATION_TYPE_MAPPER = {
+    'extract metadata': ExtractMetadataOperation,
+    'pull from s3 and extract metadata': PullFromS3AndExtractMetadataOperation,
+    'save file to S3': SaveFileToS3Operation,
+    'make images': MakeImagesOperation,
+    'import from cuit': ImportFromCUITOperation,
+    'submit to podcast producer': SubmitToPCPOperation,
+    'upload to youtube': UploadToYoutubeOperation,
+    'submit to mediathread': SubmitToMediathreadOperation,
+    'pull from s3 and submit to pcp': PullFromS3AndSubmitToPCPOperation,
+    'pull from cuit and submit to pcp': PullFromCUITAndSubmitToPCPOperation,
+    'create elastic transcoder job': CreateElasticTranscoderJobOperation,
+    'copy from s3 to cunix': CopyFromS3ToCunixOperation,
+    "audio encode": AudioEncodeOperation,
+    "local audio encode": LocalAudioEncodeOperation,
+    "pull thumbs from s3": PullThumbsFromS3Operation,
+}
 
 
 class OperationFile(models.Model):
