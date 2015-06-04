@@ -783,26 +783,6 @@ class SubmitToPCPOperation(OperationType):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.submit_to_pcp
 
-    def post_process(self):
-        # see if the workflow has a post_process hook
-        p = loads(self.operation.params)
-        if 'pcp_workflow' not in p:
-            # what? how could that happen?
-            return []
-        workflow = p['pcp_workflow']
-        if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
-            # no hooks configured
-            return []
-        if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
-            # no hooks registered for this workflow
-            return []
-        for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
-            if not hasattr(self.operation, hook):
-                continue
-            f = getattr(self.operation, hook)
-            f()
-        return []
-
 
 class UploadToYoutubeOperation(OperationType):
     def get_task(self):
