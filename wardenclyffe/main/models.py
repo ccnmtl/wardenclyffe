@@ -708,29 +708,7 @@ class Operation(TimeStampedModel):
             send_failed_operation_mail(self, error_message)
 
     def post_process(self):
-        """ the operation has completed, now we have a chance
-        to do additional work. Generally, this is for
-        a submit to PCP operation and we want to create
-        a derived File to track where the result ended up"""
-
-        if self.action == "submit to podcast producer":
-            # see if the workflow has a post_process hook
-            p = loads(self.params)
-            if 'pcp_workflow' not in p:
-                # what? how could that happen?
-                return
-            workflow = p['pcp_workflow']
-            if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
-                # no hooks configured
-                return
-            if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
-                # no hooks registered for this workflow
-                return
-            for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
-                if not hasattr(self, hook):
-                    continue
-                f = getattr(self, hook)
-                f()
+        self.operation_type().post_process()
 
     def log(self, info=""):
         OperationLog.objects.create(operation=self,
@@ -745,6 +723,10 @@ class OperationType(object):
     # must override this:
     def get_task(self):
         raise NotImplementedError
+
+    # optional
+    def post_process(self):
+        pass
 
 
 class ExtractMetadataOperation(OperationType):
@@ -781,6 +763,25 @@ class SubmitToPCPOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.submit_to_pcp
+
+    def post_process(self):
+        # see if the workflow has a post_process hook
+        p = loads(self.operation.params)
+        if 'pcp_workflow' not in p:
+            # what? how could that happen?
+            return
+        workflow = p['pcp_workflow']
+        if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
+            # no hooks configured
+            return
+        if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
+            # no hooks registered for this workflow
+            return
+        for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
+            if not hasattr(self.operation, hook):
+                continue
+            f = getattr(self.operation, hook)
+            f()
 
 
 class UploadToYoutubeOperation(OperationType):
