@@ -2,7 +2,6 @@ from django.db import models
 from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import User
-from sorl.thumbnail.fields import ImageWithThumbnailsField
 from django import forms
 from taggit.managers import TaggableManager
 from surelink import SureLink
@@ -777,8 +776,7 @@ class OperationLog(TimeStampedModel):
 
 class Image(TimeStampedModel):
     video = models.ForeignKey(Video)
-    image = ImageWithThumbnailsField(upload_to="images",
-                                     thumbnail={'size': (100, 100)})
+    image = models.CharField(max_length=100)
 
     class Meta:
         order_with_respect_to = "video"
