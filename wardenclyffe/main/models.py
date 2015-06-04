@@ -247,7 +247,7 @@ class Video(TimeStampedModel):
                 o = self.make_op(
                     user, params, action="submit to mediathread")
                 self.clear_mediathread_submit()
-                return [o.id]
+                return [o]
         return []
 
     def cuit_file(self):
@@ -710,7 +710,6 @@ class Operation(TimeStampedModel):
             self.post_process()
 
     def post_process(self):
-        print("post processing")
         import wardenclyffe.main.tasks as tasks
         operations = self.operation_type().post_process()
         for o in operations:
@@ -760,7 +759,6 @@ class SaveFileToS3Operation(OperationType):
         operation = self.operation
         params = loads(operation.params)
         if 's3_key' not in params:
-            print(str(params))
             return []
         key = params['s3_key']
         return [

@@ -8,7 +8,6 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from django.test.utils import override_settings
 from wardenclyffe.main.tasks import strip_special_characters
-from wardenclyffe.main.models import Operation
 from factories import (
     CollectionFactory, VideoFactory, CUITFLVFileFactory,
     SourceFileFactory, MediathreadFileFactory, S3FileFactory, FileFactory,
@@ -150,7 +149,7 @@ class EmptyVideoTest(TestCase):
         UserFactory(username=f.get_metadata("username"))
         ops = f.video.handle_mediathread_submit()
         self.assertEqual(len(ops), 1)
-        op = Operation.objects.get(id=ops[0])
+        op = ops[0]
         self.assertEqual(loads(op.params)['set_course'], "a course")
 
     def test_handle_mediathread_submit_no_course(self):
