@@ -708,7 +708,10 @@ class Operation(TimeStampedModel):
             send_failed_operation_mail(self, error_message)
 
     def post_process(self):
-        self.operation_type().post_process()
+        import wardenclyffe.main.tasks as tasks
+        operations = self.operation_type().post_process()
+        for o in operations:
+            tasks.process_operation.delay(o.id)
 
     def log(self, info=""):
         OperationLog.objects.create(operation=self,
@@ -720,13 +723,17 @@ class OperationType(object):
     def __init__(self, operation):
         self.operation = operation
 
-    # must override this:
     def get_task(self):
+        """ must override this """
         raise NotImplementedError
 
-    # optional
     def post_process(self):
-        pass
+        """ steps to run after operation has completed.
+
+        optional. Expectation is that it will do what it
+        needs to do and possibly return a list of
+        operations for further processing """
+        return []
 
 
 class ExtractMetadataOperation(OperationType):
@@ -745,6 +752,18 @@ class SaveFileToS3Operation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.save_file_to_s3
+
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 's3_key' not in params:
+            return []
+        key = params['s3_key']
+        return [
+            operation.video.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=operation.owner),
+            operation.video.make_create_elastic_transcoder_job_operation(
+                key=key, user=operation.owner)]
 
 
 class MakeImagesOperation(OperationType):
@@ -769,19 +788,20 @@ class SubmitToPCPOperation(OperationType):
         p = loads(self.operation.params)
         if 'pcp_workflow' not in p:
             # what? how could that happen?
-            return
+            return []
         workflow = p['pcp_workflow']
         if not hasattr(settings, 'WORKFLOW_POSTPROCESS_HOOKS'):
             # no hooks configured
-            return
+            return []
         if workflow not in settings.WORKFLOW_POSTPROCESS_HOOKS:
             # no hooks registered for this workflow
-            return
+            return []
         for hook in settings.WORKFLOW_POSTPROCESS_HOOKS[workflow]:
             if not hasattr(self.operation, hook):
                 continue
             f = getattr(self.operation, hook)
             f()
+        return []
 
 
 class UploadToYoutubeOperation(OperationType):
@@ -819,6 +839,9 @@ class CopyFromS3ToCunixOperation(OperationType):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.copy_from_s3_to_cunix
 
+    def post_process(self):
+        return self.operation.video.handle_mediathread_submit()
+
 
 class AudioEncodeOperation(OperationType):
     def get_task(self):
@@ -830,6 +853,17 @@ class LocalAudioEncodeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.local_audio_encode
+
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 'mp4_tmpfilename' not in params:
+            return []
+        tmpfilename = params['mp4_tmpfilename']
+
+        # now we can send it off on the AWS pipeline
+        return [operation.video.make_save_file_to_s3_operation(
+            tmpfilename, operation.owner)]
 
 
 class PullThumbsFromS3Operation(OperationType):
