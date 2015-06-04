@@ -58,6 +58,12 @@ class Collection(TimeStampedModel):
                 exclude = ('collection', )
         return AddVideoForm()
 
+    def is_public(self):
+        """ is this the h264 Public collection? """
+        # TODO: make this a user-editable attribute
+        # rather than having it hard-coded here.
+        return self.title == "h264 Public"
+
 
 class CollectionWorkflow(models.Model):
     collection = models.ForeignKey(Collection)
