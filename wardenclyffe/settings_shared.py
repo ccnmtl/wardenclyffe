@@ -110,7 +110,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
-    'sorl.thumbnail',
     'django.contrib.admin',
     'tagging',
     'smartif',
