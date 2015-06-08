@@ -220,8 +220,8 @@ DEFAULT_POSTER_URL = (
     "broadcast/posters/vidthumb_480x360.jpg")
 STAGING = False
 
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), "../media")
-STATICFILES_DIRS = ()
+STATIC_ROOT = '/tmp/wardenclyffe/static'
+STATICFILES_DIRS = ('media/',)
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
