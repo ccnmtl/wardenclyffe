@@ -1,9 +1,10 @@
 # flake8: noqa
 from settings_shared import *
 import sys
+import os
 
 TEMPLATE_DIRS = (
-    "/var/www/wardenclyffe/wardenclyffe/wardenclyffe/templates",
+    os.path.join(os.path.dirname(__file__), "templates"),
 )
 
 MEDIA_ROOT = '/var/www/wardenclyffe/uploads/'
@@ -39,6 +40,19 @@ FFMPEG_PATH = "/usr/local/bin/ffmpeg"
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-stage"
 IMAGES_URL_BASE = "https://s3.amazonaws.com/" + IMAGES_BUCKET + "/"
 
+AWS_S3_CUSTOM_DOMAIN = "d1ta430vcju3u4.cloudfront.net"
+AWS_STORAGE_BUCKET_NAME = "ccnmtl-wardenclyffe-static-stage"
+AWS_PRELOAD_METADATA = True
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+S3_URL = 'https://%s/' % AWS_S3_CUSTOM_DOMAIN
+# static data, e.g. css, js, etc.
+STATICFILES_STORAGE = 'cacheds3storage.CompressorS3BotoStorage'
+STATIC_URL = 'https://%s/media/' % AWS_S3_CUSTOM_DOMAIN
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+COMPRESS_ROOT = STATIC_ROOT
+COMPRESS_URL = STATIC_URL
+COMPRESS_STORAGE = 'cacheds3storage.CompressorS3BotoStorage'
 
 if 'migrate' not in sys.argv:
     INSTALLED_APPS.append('raven.contrib.django.raven_compat')
