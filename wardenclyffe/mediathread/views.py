@@ -49,6 +49,8 @@ def mediathread(request):
     audio2 = request.GET.get('audio2', False)
     audio = request.GET.get('audio', False) or audio2
     template = 'mediathread/mediathread.html'
+    if waffle.flag_is_active(request, 'plupload'):
+        template = 'mediathread/mediathread_plupload.html'
     return render(
         request, template,
         dict(username=username, user=user, audio=audio))
