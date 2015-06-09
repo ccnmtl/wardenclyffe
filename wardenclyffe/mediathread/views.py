@@ -1,7 +1,7 @@
 # Create your views here.
 from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from wardenclyffe.main.models import Video, Collection
 from django.contrib.auth.models import User
@@ -17,7 +17,6 @@ from django_statsd.clients import statsd
 import waffle
 
 
-@render_to('mediathread/mediathread.html')
 def mediathread(request):
     # check their credentials
     nonce = request.GET.get('nonce', '')
@@ -49,9 +48,12 @@ def mediathread(request):
     # 'audio2' will be deprecated
     audio2 = request.GET.get('audio2', False)
     audio = request.GET.get('audio', False) or audio2
-    return dict(username=username, user=user,
-                audio=audio,
-                )
+    template = 'mediathread/mediathread.html'
+    if waffle.flag_is_active(request, 'plupload'):
+        template = 'mediathread/mediathread_plupload.html'
+    return render(
+        request, template,
+        dict(username=username, user=user, audio=audio))
 
 
 def select_workflow(audio):
