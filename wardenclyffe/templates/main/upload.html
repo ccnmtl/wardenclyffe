@@ -1,17 +1,22 @@
 {% extends 'base.html' %}
 {% load waffle_tags %}
+{% load compress %}
 {% block title %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 {% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 
 {% block extra_head %}
+{% compress js %}
 <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-
 <script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
 <script src="{{STATIC_URL}}js/jquery.uploadify.min.js"></script>
+{% endcompress %}
+
+{% compress css %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
 <link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
+{% endcompress %}
 
 {% endblock %}
 

@@ -1,24 +1,30 @@
 {% load waffle_tags %}
+{% load compress %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
+{% compress css %}
 	<link rel="stylesheet" href="{{STATIC_URL}}css/main.css?v=1" media="screen" />
 	<link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
+{% endcompress %}
 	<!--[if IE 6]>
+{% compress css %}
 	<link rel="stylesheet" href="{{STATIC_URL}}css/main_ie6_1col.css" media="screen" />
+{% endcompress %}
 	<![endif]-->
 	<link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
 
     {% include 'main/jquery.html' %}
 
+{% compress js %}
 <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-
 <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+{% endcompress %}
 
 </head>
 <body class="one_column fixed mediathread">
