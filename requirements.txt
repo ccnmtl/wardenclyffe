@@ -44,7 +44,7 @@ ipython==3.0.0
 sqlparse==0.1.14
 filechunkio==1.5
 urllib3==1.7.1
-httpretty==0.8.8
+httpretty==0.8.10
 simplejson==3.6.5
 
 factory_boy==2.4.1
