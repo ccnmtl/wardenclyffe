@@ -24,7 +24,7 @@ celery==3.1.18
 zencoder==0.2
 gdata==2.0.14
 pycrypto==2.6.1
-ecdsa==0.11
+ecdsa==0.13
 paramiko==1.15.2
 raven==5.2.0
 requests==2.6.0
