@@ -1,4 +1,3 @@
-from angeldust import PCP
 from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
@@ -77,21 +76,6 @@ class RabbitMQTest(SmokeTest):
     """ make sure we can connect to the RabbitMQ server """
     def test_rabbitmq_connection(self):
         pass
-
-
-class KinoTest(SmokeTest):
-    """ make sure the Kino server is up and we can connect
-    with the username/password we have """
-    def test_kino_connection(self):
-        workflows = []
-        try:
-            p = PCP(settings.PCP_BASE_URL,
-                    settings.PCP_USERNAME,
-                    settings.PCP_PASSWORD)
-            workflows = p.workflows()
-        except:
-            workflows = []
-        self.assertTrue(len(workflows) > 0)
 
 
 class WatchDirTest(SmokeTest):
