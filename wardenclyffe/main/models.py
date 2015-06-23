@@ -295,8 +295,9 @@ class Video(TimeStampedModel):
         return self.make_op(user, dict(key=key),
                             action="pull from s3 and extract metadata")
 
-    def make_save_file_to_s3_operation(self, tmpfilename, user):
-        params = dict(tmpfilename=tmpfilename, filename=tmpfilename)
+    def make_save_file_to_s3_operation(self, tmpfilename, user, audio=None):
+        params = dict(tmpfilename=tmpfilename, filename=tmpfilename,
+                      audio=audio)
         return self.make_op(user, params, action="save file to S3")
 
     def make_make_images_operation(self, tmpfilename, user):
@@ -334,11 +335,10 @@ class Video(TimeStampedModel):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="audio encode")
 
-    def make_local_audio_encode_operation(self, tmpfilename, file, user):
+    def make_local_audio_encode_operation(self, s3_key, user):
         """ run it through the audio encode job
         then upload it to s3. """
-        params = dict(tmpfilename=tmpfilename,
-                      file_id=file.id)
+        params = dict(s3_key=s3_key)
         return self.make_op(user, params, action="local audio encode")
 
     def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
@@ -371,17 +371,8 @@ class Video(TimeStampedModel):
 
     def make_default_operations(self, tmpfilename, source_file, user,
                                 audio=False, audio_flag=True):
-        operations = []
-        if audio:
-            if audio_flag:
-                o = self.make_local_audio_encode_operation(
-                    tmpfilename, source_file, user)
-                operations.append(o)
-        else:
-            o = self.make_save_file_to_s3_operation(
-                tmpfilename, user)
-            operations.append(o)
-
+        operations = [self.make_save_file_to_s3_operation(
+            tmpfilename, user, audio=audio)]
         return operations
 
     def upto_hundred_images(self):
@@ -761,6 +752,11 @@ class SaveFileToS3Operation(OperationType):
         if 's3_key' not in params:
             return []
         key = params['s3_key']
+
+        if params['audio']:
+            return [operation.video.make_local_audio_encode_operation(
+                params['s3_key'], user=operation.owner)]
+
         return [
             operation.video.make_pull_from_s3_and_extract_metadata_operation(
                 key=key, user=operation.owner),
