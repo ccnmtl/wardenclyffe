@@ -43,7 +43,7 @@ boto==2.38.0
 ipython==3.0.0
 sqlparse==0.1.14
 filechunkio==1.5
-urllib3==1.7.1
+urllib3==1.10.4
 httpretty==0.8.10
 simplejson==3.6.5
 
