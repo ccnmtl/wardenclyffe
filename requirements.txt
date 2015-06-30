@@ -45,8 +45,7 @@ sqlparse==0.1.14
 filechunkio==1.5
 urllib3==1.7.1
 httpretty==0.8.10
-simplejson==3.6.5
-
+simplejson==3.7.3
 factory_boy==2.4.1
 django-smartif==0.1
 djangowind==0.13.3
