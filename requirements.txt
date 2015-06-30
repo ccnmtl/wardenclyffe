@@ -27,7 +27,7 @@ pycrypto==2.6.1
 ecdsa==0.11
 paramiko==1.15.2
 raven==5.2.0
-requests==2.6.0
+requests==2.7.0
 statsd==3.1
 coverage==3.7.1
 pep8==1.5.7
@@ -44,9 +44,8 @@ ipython==3.0.0
 sqlparse==0.1.14
 filechunkio==1.5
 urllib3==1.7.1
-httpretty==0.8.8
+httpretty==0.8.10
 simplejson==3.7.3
-
 factory_boy==2.4.1
 django-smartif==0.1
 djangowind==0.13.3

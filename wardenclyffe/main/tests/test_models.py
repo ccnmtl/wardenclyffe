@@ -424,14 +424,6 @@ class OperationTest(TestCase):
         for o in ops:
             o.process()
 
-    def test_audio_default_operations_creation_no_encode(self):
-        f = SourceFileFactory()
-        u = UserFactory()
-        ops = f.video.make_default_operations(
-            "/tmp/file.mov",
-            f, u, True, audio_flag=False)
-        self.assertEquals(len(ops), 0)
-
     def test_submit_to_pcp_operation(self):
         f = SourceFileFactory()
         u = UserFactory()

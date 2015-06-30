@@ -56,10 +56,13 @@ def save_file_to_s3(operation):
     k.key = key
     k.set_contents_from_file(source_file)
     source_file.close()
+    label = "uploaded source file (S3)"
+    if params['audio']:
+        label = "uploaded source audio (S3)"
     f = File.objects.create(video=operation.video, url="", cap=key,
                             location_type="s3",
                             filename=params['filename'],
-                            label="uploaded source file (S3)")
+                            label=label)
     OperationFile.objects.create(operation=operation, file=f)
     # stash the s3 key back in params
     params['s3_key'] = key
@@ -412,15 +415,18 @@ def audio_encode(operation):
 
 
 def local_audio_encode(operation):
+    """ pull the mp3 down from S3, run it through the mp3 -> mp4
+    conversion process """
     statsd.incr("audio_encode")
     params = loads(operation.params)
-    file_id = params['file_id']
-    f = File.objects.get(id=file_id)
-    assert f.video.is_audio_file()
+
+    s3_key = params['s3_key']
+    t = pull_from_s3(".mp3", settings.AWS_S3_UPLOAD_BUCKET, s3_key)
+    operation.log(info="downloaded mp3 from S3")
 
     print "encoding mp3 to mp4"
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
-    do_audio_encode(params['tmpfilename'], tout)
+    do_audio_encode(t.name, tout)
 
     # stash the s3 key back in params
     params['mp4_tmpfilename'] = tout
