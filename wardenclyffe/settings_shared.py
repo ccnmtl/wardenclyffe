@@ -112,7 +112,6 @@ INSTALLED_APPS = [
     'compressor',
     'django.contrib.admin',
     'tagging',
-    'smartif',
     'template_utils',
     'djcelery',
     'wardenclyffe.main',
