@@ -4,7 +4,7 @@ httplib2==0.6.0
 restclient==0.11.0
 poster==0.8.1
 angeldust==0.1.3
-Markdown==2.6.1
+Markdown==2.6.2
 smartypants==1.6.0.3
 uuid==1.30
 psycopg2==2.5.4
@@ -21,7 +21,6 @@ pytz==2015.4
 python-dateutil==2.4.0
 librabbitmq==1.6.1
 celery==3.1.18
-zencoder==0.2
 gdata==2.0.14
 pycrypto==2.6.1
 ecdsa==0.13
@@ -47,7 +46,6 @@ urllib3==1.10.4
 httpretty==0.8.10
 simplejson==3.7.3
 factory_boy==2.4.1
-django-smartif==0.1
 djangowind==0.13.3
 sorl==3.1
 template_utils==0.4p2
@@ -61,7 +59,7 @@ django-smoketest==0.3.0
 django-waffle==0.10.1
 django-debug-toolbar==1.2.2
 django-jenkins==0.17.0
-django-appconf==0.6
+django-appconf==1.0.1
 django-compressor==1.5
 django-extensions==1.4.9
 django-markwhat==1.3
