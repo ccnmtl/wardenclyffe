@@ -1,4 +1,4 @@
-Django==1.7.7
+Django==1.7.9
 # 0.7.1 breaks SSL
 httplib2==0.6.0
 restclient==0.11.0
