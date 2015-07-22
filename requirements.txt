@@ -18,7 +18,7 @@ django-picklefield==0.3.1
 pyparsing==2.0.3
 six==1.9.0
 pytz==2015.4
-python-dateutil==2.4.0
+python-dateutil==2.4.2
 librabbitmq==1.6.1
 celery==3.1.18
 gdata==2.0.14
