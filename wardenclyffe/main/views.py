@@ -579,8 +579,8 @@ def save_file_locally(request):
         tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
             + extension.lower()
         if request.POST.get('scan_directory', False):
-            os.rename(settings.WATCH_DIRECTORY
-                      + request.POST.get('source_file'),
+            os.rename(settings.WATCH_DIRECTORY +
+                      request.POST.get('source_file'),
                       tmpfilename)
         else:
             tmpfile = open(tmpfilename, 'wb')
@@ -898,8 +898,8 @@ class FileSurelinkView(StaffMixin, TemplateView):
             filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
         if f.is_h264_secure_streamable():
             filename = f.h264_secure_path()
-        if (self.request.GET.get('protection', '') == 'mp4_public_stream'
-                and f.is_h264_public_streamable()):
+        if (self.request.GET.get('protection', '') == 'mp4_public_stream' and
+                f.is_h264_public_streamable()):
             filename = f.h264_public_path()
         s = SureLink(filename,
                      int(self.request.GET.get('width', '0')),
@@ -1084,8 +1084,8 @@ class FileFilterView(StaffMixin, TemplateView):
                     excluded_audio_formats.append(None)
 
         files = [f for f in results
-                 if f.video_format() not in excluded_video_formats
-                 and f.audio_format() not in excluded_audio_formats]
+                 if f.video_format() not in excluded_video_formats and
+                 f.audio_format() not in excluded_audio_formats]
 
         return dict(all_collection=all_collection,
                     all_video_formats=all_video_formats,
@@ -1115,8 +1115,9 @@ class BulkSurelinkView(StaffMixin, TemplateView):
                 filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
             if f.is_h264_secure_streamable():
                 filename = f.h264_secure_path()
-            if (self.request.GET.get('protection', '') == 'mp4_public_stream'
-                    and f.is_h264_public_streamable()):
+            if (self.request.GET.get(
+                    'protection', '') == 'mp4_public_stream' and
+                    f.is_h264_public_streamable()):
                 filename = f.h264_public_path()
             s = SureLink(filename,
                          int(self.request.GET.get('width', f.get_width())),
