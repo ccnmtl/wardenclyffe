@@ -42,7 +42,14 @@ pylint==1.4.4
 python-ldap==2.4.20
 surelink==1.0.1
 boto==2.38.0
-ipython==3.0.0
+traitlets==4.0.0
+ipython_genutils==0.1.0
+decorator==4.0.2
+pexpect==3.3
+pickleshare==0.5
+simplegeneric==0.8.1
+path.py==8.1.1
+ipython==4.0.0
 sqlparse==0.1.14
 filechunkio==1.6
 urllib3==1.10.4
