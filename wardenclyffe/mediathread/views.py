@@ -143,9 +143,9 @@ def video_mediathread_submit(request, id):
         video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret="
-               + settings.MEDIATHREAD_SECRET + "&user="
-               + request.user.username)
+        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
+               settings.MEDIATHREAD_SECRET + "&user=" +
+               request.user.username)
         credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
@@ -178,9 +178,9 @@ def collection_mediathread_submit(request, pk):
             video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret="
-               + settings.MEDIATHREAD_SECRET + "&user="
-               + request.user.username)
+        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
+               settings.MEDIATHREAD_SECRET + "&user=" +
+               request.user.username)
         credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
