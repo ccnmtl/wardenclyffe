@@ -29,6 +29,7 @@ class Collection(TimeStampedModel):
     subject = models.TextField(default="", blank=True, null=True)
     license = models.CharField(max_length=256, default="", blank=True)
     active = models.BooleanField(default=True)
+    audio = models.BooleanField(default=False)
 
     uuid = UUIDField()
 
