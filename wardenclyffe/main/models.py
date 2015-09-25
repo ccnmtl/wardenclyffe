@@ -29,6 +29,7 @@ class Collection(TimeStampedModel):
     subject = models.TextField(default="", blank=True, null=True)
     license = models.CharField(max_length=256, default="", blank=True)
     active = models.BooleanField(default=True)
+    audio = models.BooleanField(default=False)
 
     uuid = UUIDField()
 
@@ -62,12 +63,6 @@ class Collection(TimeStampedModel):
         # TODO: make this a user-editable attribute
         # rather than having it hard-coded here.
         return self.title == "h264 Public"
-
-
-class CollectionWorkflow(models.Model):
-    collection = models.ForeignKey(Collection)
-    workflow = models.CharField(max_length=256, default="", blank=True)
-    label = models.CharField(max_length=256, default="", blank=True)
 
 
 class Video(TimeStampedModel):

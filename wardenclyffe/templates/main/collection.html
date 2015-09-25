@@ -65,17 +65,26 @@ jQuery(document).ready(function()
 <p><a href="rss/"><img src="{{STATIC_URL}}img/rss.png"
 			/> RSS Feed</a></p>
 
-<h2>Default Workflows</h2>
-{% if collection.collectionworkflow_set.count %}
-<ul>
-	{% for cw in collection.collectionworkflow_set.all %}
-	<li>{{cw.label}} [{{cw.workflow}}]</li>
-	{% endfor %}
-</ul>
-{% else %}
-<p>None set</p>
-{% endif %}
-<a href="workflows/">Edit</a>
+<h2>Audio Encode?</h2>
+
+<form action="{% url 'collection-edit-audio' collection.id %}" method="post">
+  {% if collection.audio %}
+    <label><input type="radio" name="audio" value="1" checked="checked"/>
+      This is an audio collection. Send uploads through the MP3 -> MP4 conversion process.
+    </label><br />
+    <label><input type="radio" name="audio" value="0" />
+      This is not an audio collection
+    </label><br />
+  {% else %}
+    <label><input type="radio" name="audio" value="1" />
+      This is an audio collection. Send uploads through the MP3 -> MP4 conversion process.
+    </label><br />
+    <label><input type="radio" name="audio" value="0" checked="checked" />
+      This is not an audio collection
+    </label><br />
+  {% endif %}
+  <input type="submit" value="update" />
+</form>
 
 
 {% if videos %}

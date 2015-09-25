@@ -480,15 +480,18 @@ class TestStaff(TestCase):
         c = Collection.objects.get(id=c.id)
         self.assertTrue(c.active)
 
-    def test_edit_collection_workflows_form(self):
-        c = CollectionFactory()
-        r = self.c.get(c.get_absolute_url() + "workflows/")
-        self.assertEqual(r.status_code, 200)
-
-    def test_edit_collection_workflows(self):
-        c = CollectionFactory()
-        r = self.c.post(c.get_absolute_url() + "workflows/")
+    def test_edit_collection_audio(self):
+        c = CollectionFactory(audio=False)
+        r = self.c.post(reverse('collection-edit-audio', args=[c.id]),
+                        dict(audio="1"))
         self.assertEqual(r.status_code, 302)
+        c = Collection.objects.get(id=c.id)
+        self.assertTrue(c.audio)
+        r = self.c.post(reverse('collection-edit-audio', args=[c.id]),
+                        dict(audio="0"))
+        self.assertEqual(r.status_code, 302)
+        c = Collection.objects.get(id=c.id)
+        self.assertFalse(c.audio)
 
     def test_add_server_form(self):
         r = self.c.get("/server/add/")
