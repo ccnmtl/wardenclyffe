@@ -8,7 +8,7 @@ locals().update(
         base=base,
         INSTALLED_APPS=INSTALLED_APPS,
         STATIC_ROOT=STATIC_ROOT,
-        cloudfront="d369ay3g98xik5",
+        cloudfront="d32f8np9uyk4f2",
     ))
 
 TMP_DIR = "/var/www/wardenclyffe/tmp/"
