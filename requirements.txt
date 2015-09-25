@@ -69,3 +69,9 @@ tornado==4.2.1
 flower==0.8.2
 django-storages-redux==1.2.2
 django-cacheds3storage==0.1.1
+gunicorn==19.3.0
+django-impersonate==0.9.1
+django-stagingcontext==0.1.0
+django-ga-context==0.1.0
+
+ccnmtlsettings==0.1.0
