@@ -29,7 +29,7 @@ from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
 from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
-from wardenclyffe.main.models import Server, CollectionWorkflow
+from wardenclyffe.main.models import Server
 from wardenclyffe.main.models import OperationFile
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
@@ -304,6 +304,14 @@ class CollectionView(StaffMixin, TemplateView):
                 video__collection__id=pk).order_by("-modified")[:20])
 
 
+class CollectionEditAudioView(StaffMixin, View):
+    def post(self, request, pk):
+        collection = get_object_or_404(Collection, pk=pk)
+        collection.audio = request.POST.get('audio', '') == '1'
+        collection.save()
+        return HttpResponseRedirect(collection.get_absolute_url())
+
+
 class ChildrenView(TemplateView):
     """ abstract view for fetching the "children" of an object
     and paginating. don't instantiate this one directly,
@@ -375,44 +383,6 @@ class CollectionToggleActiveView(StaffMixin, View):
         collection.active = not collection.active
         collection.save()
         return HttpResponseRedirect(collection.get_absolute_url())
-
-
-class EditCollectionWorkflowsView(StaffMixin, View):
-    template_name = 'main/edit_collection_workflows.html'
-
-    def post(self, request, id):
-        collection = get_object_or_404(Collection, id=id)
-        workflows, pcp_error = get_pcp_workflows()
-        # clear existing ones
-        collection.collectionworkflow_set.all().delete()
-        # re-add
-        for k in request.POST.keys():
-            if k.startswith('workflow_'):
-                uuid = k.split('_')[1]
-                label = 'default workflow'
-                for w in workflows:
-                    if w.uuid == uuid:
-                        label = w.title
-                        break
-                CollectionWorkflow.objects.create(
-                    collection=collection,
-                    workflow=uuid,
-                    label=label,
-                )
-        return HttpResponseRedirect(collection.get_absolute_url())
-
-    def get(self, request, id):
-        collection = get_object_or_404(Collection, id=id)
-        workflows, pcp_error = get_pcp_workflows()
-        existing_uuids = [str(cw.workflow) for cw in
-                          collection.collectionworkflow_set.all()]
-        for w in workflows:
-            if str(w.uuid) in existing_uuids:
-                w.selected = True
-
-        return render(request, self.template_name,
-                      dict(collection=collection, workflows=workflows,
-                           pcp_error=pcp_error))
 
 
 class EditVideoView(StaffMixin, UpdateView):
@@ -604,11 +574,8 @@ def create_operations(request, v, tmpfilename, source_file, filename, idx=''):
         o = v.make_upload_to_youtube_operation(
             tmpfilename, request.user)
         operations.append(o)
-    # run collection's default workflow(s)
-    for cw in v.collection.collectionworkflow_set.all():
-        o = v.make_submit_to_podcast_producer_operation(
-            tmpfilename, cw.workflow, request.user)
-        operations.append(o)
+    if v.collection.audio:
+        o = v.make_audio_encode_operation(source_file.id, request.user)
     return operations
 
 
