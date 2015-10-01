@@ -457,6 +457,7 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
 
     try:
         sftp.putfo(fileobj, remote_path)
+        sftp.chmod(remote_path, 644)
         File.objects.create(video=video,
                             label=file_label,
                             filename=remote_path,
