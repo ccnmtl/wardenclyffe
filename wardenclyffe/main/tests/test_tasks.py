@@ -4,7 +4,7 @@ from wardenclyffe.main.tasks import (
     slow_operations, slow_operations_other_than_submitted,
     image_extract_command, avi_image_extract_command,
     fallback_image_extract_command, image_extract_command_for_file,
-    audio_encode_command, parse_metadata)
+    audio_encode_command, parse_metadata, exp_backoff)
 
 
 class SlowOperationsTest(TestCase):
@@ -87,3 +87,20 @@ class MetaDataParseTest(TestCase):
     def test_invalid_line(self):
         r = list(parse_metadata("bar=bar=bar"))
         self.assertEqual(r, [])
+
+
+class TestExpBackoff(TestCase):
+    def test_basics(self):
+        cases = [
+            (0, 1, 2),
+            (1, 2, 3),
+            (2, 4, 5),
+            (3, 8, 9),
+            (4, 16, 18),
+            (5, 32, 35),
+            (10, 1024, 1200),
+        ]
+        for retries, expected_min, expected_max in cases:
+            r = exp_backoff(retries)
+            self.assertTrue(r >= expected_min)
+            self.assertTrue(r <= expected_max)
