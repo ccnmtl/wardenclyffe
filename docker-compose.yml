@@ -13,9 +13,11 @@ web:
   links:
     - db
     - rabbitmq
+# NOTES:
+#   - The C_FORCE_ROOT variable allows celery to run as the root user.
 celery:
   build: .
-  command: python manage.py celery worker --settings=wardenclyffe.settings_compose -Q default,short,celery
+  command: python manage.py celery worker --settings=wardenclyffe.settings_compose
   environment:
     - C_FORCE_ROOT=true
   volumes:
