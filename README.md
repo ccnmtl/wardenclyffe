@@ -27,6 +27,22 @@ initialize the database by running:
 
     $ docker-compose run web python manage.py migrate --settings=wardenclyffe.settings_compose
 
+Or just
+
+    $ make compose-migrate
+
+You can also do:
+
+    $ make compose-install
+
+which will do the migrate, and also set up the waffle flags that you
+probably want (that only needs to be done once at the beginning).
+
+If you plan on actually doing anything with the AWS video processing
+side of things, you will need to set up a
+`wardenclyffe/local_settings.py` that has your AWS credentials and the
+various S3/ETS settings.
+
 ## Requirements
 
 * Python (2.7 preferred. could probably be made to work with others)

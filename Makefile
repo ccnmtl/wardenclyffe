@@ -56,6 +56,10 @@ compose-migrate:
 compose-run:
 	docker-compose up
 
+compose-install: compose-migrate
+	docker-compose run web python manage.py switch enable_s3 on --create --settings=wardenclyffe.settings_compose
+	docker-compose run web python manage.py flag allow_uploads --everyone --create --settings=wardenclyffe.settings_compose
+
 # run this one the very first time you check
 # this out on a new machine to set up dev
 # database, etc. You probably *DON'T* want
