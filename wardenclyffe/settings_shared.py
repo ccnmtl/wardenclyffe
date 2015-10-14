@@ -110,6 +110,10 @@ AUDIO_POSTER_IMAGE = os.path.join(
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-dev"
 IMAGES_URL_BASE = "https://s3.amazonaws.com/" + IMAGES_BUCKET + "/"
 
+AWS_S3_UPLOAD_BUCKET="ccnmtl-wardenclyffe-input-devel"
+AWS_S3_OUTPUT_BUCKET="ccnmtl-wardenclyffe-output-dev"
+
+
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }

@@ -13,6 +13,14 @@ DATABASES = {
     }
 }
 
+# if you want to actually do AWS stuff, you need the following
+# variables set in a `local_settings.py`
+#
+# AWS_ACCESS_KEY = 'your id'
+# AWS_SECRET_KEY = 'your secret'
+#
+# you may also want to set the `AWS_ET_PIPELINE_ID`
+
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 BROKER_URL = "amqp://guest:guest@rabbitmq:5672/"
 
@@ -28,3 +36,5 @@ try:
     from local_settings import *
 except ImportError:
     pass
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY = AWS_SECRET_KEY
