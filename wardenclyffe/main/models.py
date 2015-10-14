@@ -679,17 +679,16 @@ class Operation(TimeStampedModel):
         try:
             (success, message) = f(self)
             self.status = success
+            self.save()
             if self.status == "failed" or message != "":
                 self.log(info=message)
                 self.fail(message)
+            else:
+                self.post_process()
         except Exception, e:
             self.log(info=str(e))
             # re-raise so Celery's retry logic can deal with it
             raise
-
-        self.save()
-        if self.status != "failed":
-            self.post_process()
 
     def fail(self, error_message):
         self.status = "failed"
