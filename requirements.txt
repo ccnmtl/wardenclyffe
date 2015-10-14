@@ -1,3 +1,4 @@
+--index-url https://pypi.ccnmtl.columbia.edu/
 Django==1.8.5
 # 0.7.1 breaks SSL
 httplib2==0.6.0
@@ -73,7 +74,6 @@ django-compressor==1.5
 django-extensions==1.4.9
 django-markwhat==1.4
 tornado==4.2.1
-flower==0.8.2
 django-storages-redux==1.2.2
 django-cacheds3storage==0.1.1
 gunicorn==19.3.0
