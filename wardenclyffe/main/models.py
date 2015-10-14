@@ -676,24 +676,25 @@ class Operation(TimeStampedModel):
         self.status = "in progress"
         self.save()
         f = self.get_task()
-        error_message = ""
         try:
             (success, message) = f(self)
             self.status = success
+            self.save()
             if self.status == "failed" or message != "":
                 self.log(info=message)
-                error_message = message
+                self.fail(message)
+            else:
+                self.post_process()
         except Exception, e:
-            self.status = "failed"
             self.log(info=str(e))
-            error_message = str(e)
+            # re-raise so Celery's retry logic can deal with it
+            raise
 
+    def fail(self, error_message):
+        self.status = "failed"
         self.save()
-        if self.status == "failed":
-            statsd.incr("main.process_task.failure")
-            send_failed_operation_mail(self, error_message)
-        else:
-            self.post_process()
+        statsd.incr("main.process_task.failure")
+        send_failed_operation_mail(self, error_message)
 
     def post_process(self):
         import wardenclyffe.main.tasks as tasks
@@ -780,7 +781,7 @@ class SubmitToPCPOperation(OperationType):
 class UploadToYoutubeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.youtube.tasks
-        return wardenclyffe.youtube.tasks.upload_to_youtube,
+        return wardenclyffe.youtube.tasks.upload_to_youtube
 
 
 class SubmitToMediathreadOperation(OperationType):

@@ -25,7 +25,20 @@ import waffle
 import uuid
 
 
-@task(ignore_results=True)
+def exp_backoff(tries):
+    """ exponential backoff with jitter
+
+    back off 2^1, then 2^2, 2^3 (seconds), etc.
+
+    add a 10% jitter to prevent thundering herd.
+
+    """
+    backoff = 2 ** tries
+    jitter = random.uniform(0, backoff * .1)
+    return int(backoff + jitter)
+
+
+@task(ignore_results=True, bind=True)
 def process_operation(operation_id, **kwargs):
     print "process_operation(%s)" % (operation_id)
     try:
@@ -33,6 +46,16 @@ def process_operation(operation_id, **kwargs):
         operation.process()
     except Operation.DoesNotExist:
         print "operation not found (probably deleted)"
+    except Exception as exc:
+        print "Exception:"
+        print str(exc)
+        # the `bind=True` in the decorator makes `self` available at runtime
+        # but flake8 doesn't know about that, so we need to tell it to ignore
+        if self.request.retries > 10:  # noqa
+            # max out at 10 retry attempts
+            operation.fail(str(exc))
+        else:
+            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))  # noqa
 
 
 def save_file_to_s3(operation):
