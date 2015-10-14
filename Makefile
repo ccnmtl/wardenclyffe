@@ -47,6 +47,9 @@ rebase:
 	make migrate
 	make flake8
 
+build:
+	docker build -t ccnmtl/wardenclyffe .
+
 # run this one the very first time you check
 # this out on a new machine to set up dev
 # database, etc. You probably *DON'T* want
