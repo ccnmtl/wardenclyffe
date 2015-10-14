@@ -39,7 +39,7 @@ def exp_backoff(tries):
 
 
 @task(ignore_results=True, bind=True)
-def process_operation(operation_id, **kwargs):
+def process_operation(self, operation_id, **kwargs):
     print "process_operation(%s)" % (operation_id)
     try:
         operation = Operation.objects.get(id=operation_id)
@@ -49,13 +49,11 @@ def process_operation(operation_id, **kwargs):
     except Exception as exc:
         print "Exception:"
         print str(exc)
-        # the `bind=True` in the decorator makes `self` available at runtime
-        # but flake8 doesn't know about that, so we need to tell it to ignore
-        if self.request.retries > 10:  # noqa
+        if self.request.retries > 10:
             # max out at 10 retry attempts
             operation.fail(str(exc))
         else:
-            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))  # noqa
+            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
 
 
 def save_file_to_s3(operation):
