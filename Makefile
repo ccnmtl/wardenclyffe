@@ -50,6 +50,12 @@ rebase:
 build:
 	docker build -t ccnmtl/wardenclyffe .
 
+compose-migrate:
+	docker-compose run web python manage.py migrate --settings=wardenclyffe.settings_compose
+
+compose-run:
+	docker-compose up
+
 # run this one the very first time you check
 # this out on a new machine to set up dev
 # database, etc. You probably *DON'T* want

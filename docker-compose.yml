@@ -1,0 +1,35 @@
+db:
+  image: postgres
+rabbitmq:
+  image: rabbitmq
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000 --settings=wardenclyffe.settings_compose
+  volumes:
+    - .:/var/www/wardenclyffe/wardenclyffe
+  ports:
+    - "8000:8000"
+  links:
+    - db
+    - rabbitmq
+celery:
+  build: .
+  command: python manage.py celery worker --settings=wardenclyffe.settings_compose -Q default,short,celery
+  environment:
+    - C_FORCE_ROOT=true
+  volumes:
+    - .:/var/www/wardenclyffe/wardenclyffe
+  links:
+    - db
+    - rabbitmq
+
+beat:
+  build: .
+  command: python manage.py celery beat --settings=wardenclyffe.settings_compose
+  environment:
+    - C_FORCE_ROOT=true
+  volumes:
+    - .:/var/www/wardenclyffe/wardenclyffe
+  links:
+    - db
+    - rabbitmq
