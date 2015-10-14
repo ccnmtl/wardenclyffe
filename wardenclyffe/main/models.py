@@ -680,8 +680,9 @@ class Operation(TimeStampedModel):
             (success, message) = f(self)
             self.status = success
             self.save()
-            if self.status == "failed" or message != "":
-                self.log(info=message)
+            if message != "":
+                self.log(message)
+            if self.status == "failed":
                 self.fail(message)
             else:
                 self.post_process()
