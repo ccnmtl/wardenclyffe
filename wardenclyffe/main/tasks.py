@@ -49,8 +49,8 @@ def process_operation(self, operation_id, **kwargs):
     except Exception as exc:
         print "Exception:"
         print str(exc)
-        if self.request.retries > 10:
-            # max out at 10 retry attempts
+        if self.request.retries > settings.OPERATION_MAX_RETRIES:
+            # max out at (default) 10 retry attempts
             operation.fail(str(exc))
         else:
             self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
