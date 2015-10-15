@@ -12,3 +12,4 @@ reports/
 .DS_Store
 .project
 .pydevproject
+celerybeat-schedule
