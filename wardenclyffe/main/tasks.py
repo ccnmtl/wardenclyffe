@@ -38,7 +38,7 @@ def exp_backoff(tries):
     return int(backoff + jitter)
 
 
-@task(ignore_results=True, bind=True)
+@task(ignore_results=True, bind=True, max_retries=None)
 def process_operation(self, operation_id, **kwargs):
     print "process_operation(%s)" % (operation_id)
     try:
