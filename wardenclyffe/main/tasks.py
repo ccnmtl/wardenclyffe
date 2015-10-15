@@ -52,7 +52,10 @@ def process_operation(self, operation_id, **kwargs):
         if self.request.retries > 10:
             # max out at 10 retry attempts
             operation.fail(str(exc))
+            statsd.incr("max_retries")
         else:
+            statsd.incr("retry_operation")
+            statsd.incr("retry_%02d" % self.request.retries)
             self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
 
 
