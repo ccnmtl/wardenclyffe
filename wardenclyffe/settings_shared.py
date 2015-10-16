@@ -93,6 +93,8 @@ FLV_STREAM_BASE_URL = "http://ccnmtl.columbia.edu/stream/flv/"
 
 MAX_FRAMES = 50
 
+OPERATION_MAX_RETRIES = 10
+
 POSTER_BASE_URL = "https://wardenclyffe.ccnmtl.columbia.edu/uploads/"
 DEFAULT_POSTER_URL = (
     "http://ccnmtl.columbia.edu/"
