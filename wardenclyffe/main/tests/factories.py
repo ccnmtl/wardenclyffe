@@ -7,14 +7,16 @@ import uuid
 
 
 class CollectionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Collection
+    class Meta:
+        model = Collection
     title = "Mediathread Spring 2012"
     subject = "test subject"
     uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
 
 
 class VideoFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Video
+    class Meta:
+        model = Video
     title = "test video"
     creator = "anp8"
     subject = "test subject"
@@ -23,7 +25,8 @@ class VideoFactory(factory.DjangoModelFactory):
 
 
 class FileFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = File
+    class Meta:
+        model = File
     label = "CUIT File"
     location_type = "cuit"
     filename = ("/media/h264/ccnmtl/secure/"
@@ -51,7 +54,8 @@ class CUITFLVFileFactory(FileFactory):
 
 
 class UserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = User
+    class Meta:
+        model = User
     username = factory.Sequence(lambda n: "user%03d" % n)
     is_staff = True
 
@@ -98,7 +102,8 @@ ID_VIDEO_ID,1"""
 
 
 class SourceFileFactory(FileFactory):
-    FACTORY_FOR = File
+    class Meta:
+        model = File
     label = "source file"
     location_type = "none"
     filename = "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
@@ -112,7 +117,8 @@ class SourceFileFactory(FileFactory):
 
 
 class MediathreadSubmitFileFactory(FileFactory):
-    FACTORY_FOR = File
+    class Meta:
+        model = File
     label = "mediathread submit"
     location_type = "mediathreadsubmit"
 
@@ -124,7 +130,8 @@ class MediathreadSubmitFileFactory(FileFactory):
 
 
 class DimensionlessSourceFileFactory(FileFactory):
-    FACTORY_FOR = File
+    class Meta:
+        model = File
     label = "source file"
     location_type = "none"
     filename = "6a0dac24-7982-4df3-a1cb-86d52bf4df94.mov"
@@ -150,7 +157,8 @@ class S3FileFactory(FileFactory):
 
 
 class OperationFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Operation
+    class Meta:
+        model = Operation
     video = factory.SubFactory(VideoFactory)
     action = "s3"
     owner = factory.SubFactory(UserFactory)
@@ -159,25 +167,29 @@ class OperationFactory(factory.DjangoModelFactory):
 
 
 class OperationFileFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = OperationFile
+    class Meta:
+        model = OperationFile
     operation = factory.SubFactory(OperationFactory)
     file = factory.SubFactory(FileFactory)
 
 
 class ServerFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Server
+    class Meta:
+        model = Server
     name = "test server"
     hostname = "testserver.ccnmtl.columbia.edu"
     credentials = ""
 
 
 class ImageFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Image
+    class Meta:
+        model = Image
     video = factory.SubFactory(VideoFactory)
     image = "images/1234.jpg"
 
 
 class PosterFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Poster
+    class Meta:
+        model = Poster
     video = factory.SubFactory(VideoFactory)
     image = factory.SubFactory(ImageFactory)
