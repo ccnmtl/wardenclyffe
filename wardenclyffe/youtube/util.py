@@ -48,7 +48,30 @@ RETRIABLE_EXCEPTIONS = (
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 
+class YTAuthError(Exception):
+    pass
+
+
 def get_authenticated_service(args):
+    storage = Storage(settings.OAUTH_STORAGE_PATH)
+    credentials = storage.get()
+
+    if credentials is None or credentials.invalid:
+        raise YTAuthError
+
+    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                 http=credentials.authorize(httplib2.Http()))
+
+
+class Args(object):
+    pass
+
+
+def get_credentials():
+    """ do the oauth dance to get new credentials file """
+    args = Args()
+    args.logging_level = 'DEBUG'
+    args.noauth_local_webserver = 'http://localhost:8000/'
     flow = flow_from_clientsecrets(
         settings.YOUTUBE_CLIENT_SECRETS_FILE,
         # it complains if you don't set something as the redirect_uri,
@@ -56,14 +79,9 @@ def get_authenticated_service(args):
         redirect_uri="http://localhost:8000/",
         scope=YOUTUBE_UPLOAD_SCOPE)
 
-    storage = Storage(settings.OAUTH_STORAGE_PATH)
-    credentials = storage.get()
-
-    if credentials is None or credentials.invalid:
-        credentials = run_flow(flow, storage, args)
-
-    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                 http=credentials.authorize(httplib2.Http()))
+    storage = Storage("youtube_oauth.json")
+    credentials = run_flow(flow, storage, args)
+    return credentials
 
 
 def initialize_upload(youtube, options):
