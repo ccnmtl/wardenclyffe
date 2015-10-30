@@ -23,6 +23,6 @@ class Command(BaseCommand):
         a.description = "delete me"
         a.privacyStatus = "public"
         a.keywords = []
-        # actually don't know what the right value is for this yet
-        a.category = "22"
+        # 27 = "Education". see wardenclyffe/youtube/categories.json
+        a.category = "27"
         initialize_upload(youtube, a)

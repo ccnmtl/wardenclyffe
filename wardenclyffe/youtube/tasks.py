@@ -25,13 +25,8 @@ def upload_to_youtube(operation):
     a.privacyStatus = "private"
     a.keywords = ["education", "columbia"]
 
-    # actually don't know what the right value is for this yet
-    # it should map to this (from v2):
-#        category=gdata.media.Category(
-#            text='Education',
-#            scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
-#            label='Education'),
-    a.category = "22"
+    # 27 = "Education". see wardenclyffe/youtube/categories.json
+    a.category = "27"
     youtube_key = initialize_upload(youtube, a)
 
     youtube_url = "http://www.youtube.com/watch?v=%s" % youtube_key
