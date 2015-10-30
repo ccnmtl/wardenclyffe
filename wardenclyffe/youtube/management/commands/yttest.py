@@ -1,12 +1,28 @@
 from django.core.management.base import BaseCommand
-import gdata.youtube
-import gdata.youtube.service
+from wardenclyffe.youtube.util import (
+    get_authenticated_service, initialize_upload)
+
+
+class Args(object):
+    pass
 
 
 class Command(BaseCommand):
-    args = ''
-    help = ''
+    help = 'upload a video to youtube to test out code'
 
-    def handle(self, **kwargs):
-        yt_service = gdata.youtube.service.YouTubeService()
-        print("hi")
+    def add_arguments(self, parser):
+        parser.add_argument('video', type=str)
+
+    def handle(self, *args, **kwargs):
+        a = Args()
+        a.logging_level = 'DEBUG'
+        a.noauth_local_webserver = 'http://localhost:8000/'
+        youtube = get_authenticated_service(a)
+        a.file = kwargs['video']
+        a.title = "test video"
+        a.description = "delete me"
+        a.privacyStatus = "public"
+        a.keywords = []
+        # actually don't know what the right value is for this yet
+        a.category = "22"
+        initialize_upload(youtube, a)
