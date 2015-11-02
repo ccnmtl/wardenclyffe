@@ -87,7 +87,7 @@ def get_credentials():
 def initialize_upload(youtube, options):
     tags = None
     if options.keywords:
-        tags = options.keywords.split(",")
+        tags = options.keywords
 
     body = dict(
         snippet=dict(
