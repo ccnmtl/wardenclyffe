@@ -77,7 +77,7 @@ django-appconf==1.0.1
 django-compressor==1.5
 django-extensions==1.5.7
 django-markwhat==1.4
-tornado==4.2.1
+tornado==4.3
 django-storages-redux==1.2.2
 django-cacheds3storage==0.1.1
 gunicorn==19.3.0
