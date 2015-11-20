@@ -967,6 +967,17 @@ class VideoPCPSubmitView(StaffMixin, View):
                  kino_base=settings.PCP_BASE_URL))
 
 
+class VideoYoutubeUploadView(StaffMixin, View):
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
+
+        statsd.incr('main.video_youtube_upload')
+        o = video.make_pull_from_s3_and_upload_to_youtube_operation(
+            video.id, request.user)
+        tasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(video.get_absolute_url())
+
+
 class FilePCPSubmitView(StaffMixin, View):
     template_name = 'main/file_pcp_submit.html'
 

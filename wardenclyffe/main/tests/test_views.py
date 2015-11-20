@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.test.client import Client
 from wardenclyffe.main.models import (
     Collection, Operation, File)
+from wardenclyffe.main.views import VideoYoutubeUploadView
 from factories import (
     FileFactory, OperationFactory, ServerFactory,
     UserFactory, VideoFactory, CollectionFactory,
@@ -586,6 +587,17 @@ class TestStaff(TestCase):
     def test_video_pcp_submit(self):
         v = VideoFactory()
         response = self.c.post("/video/%d/pcp_submit/" % v.id)
+        self.assertEqual(response.status_code, 302)
+
+    def test_video_youtube_upload(self):
+        factory = RequestFactory()
+        v = VideoFactory()
+        request = factory.post(
+            "/video/%d/youtube/" % v.id,
+            {})
+        request.user = self.u
+        view = VideoYoutubeUploadView.as_view()
+        response = view(request, v.id)
         self.assertEqual(response.status_code, 302)
 
     def test_file_pcp_submit_form(self):

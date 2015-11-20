@@ -358,6 +358,12 @@ class Video(TimeStampedModel):
         params = dict(tmpfilename=tmpfilename)
         return self.make_op(user, params, action="upload to youtube")
 
+    def make_pull_from_s3_and_upload_to_youtube_operation(self, video_id,
+                                                          user):
+        params = dict(video_id=video_id)
+        return self.make_op(user, params,
+                            action="pull from s3 and upload to youtube")
+
     def make_source_file(self, filename):
         return File.objects.create(video=self,
                                    label="source file",
@@ -797,6 +803,12 @@ class PullFromS3AndSubmitToPCPOperation(OperationType):
         return wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp
 
 
+class PullFromS3AndUploadToYoutubeOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.youtube.tasks
+        return wardenclyffe.youtube.tasks.pull_from_s3_and_upload_to_youtube
+
+
 class PullFromCUITAndSubmitToPCPOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
@@ -858,6 +870,8 @@ OPERATION_TYPE_MAPPER = {
     'upload to youtube': UploadToYoutubeOperation,
     'submit to mediathread': SubmitToMediathreadOperation,
     'pull from s3 and submit to pcp': PullFromS3AndSubmitToPCPOperation,
+    'pull from s3 and upload to youtube':
+    PullFromS3AndUploadToYoutubeOperation,
     'pull from cuit and submit to pcp': PullFromCUITAndSubmitToPCPOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,

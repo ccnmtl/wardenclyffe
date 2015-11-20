@@ -181,6 +181,12 @@ var removeTag = function(tagName,tagId) {
 <p><a href="add_file/">manually add a file/location -&gt;</a></p>
 <p><a href="pcp_submit/">submit to another PCP workflow -&gt;</a></p>
 <p><a href="mediathread_submit/">import into mediathread -&gt;</a></p>
+
+{% flag "s3_to_youtube" %}
+<form action="{% url 's3-to-youtube' video.id %}" method="post">
+  <input type="submit" value="pull from S3 and upload to youtube" />
+</form>
+{% endflag %}
 </div>
 </div>
 <script>
