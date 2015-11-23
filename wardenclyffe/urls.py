@@ -99,6 +99,8 @@ urlpatterns = patterns(
     (r'^video/(?P<pk>\d+)/$', views.VideoView.as_view()),
     (r'^video/(?P<id>\d+)/pcp_submit/$',
      views.VideoPCPSubmitView.as_view()),
+    url(r'^video/(?P<id>\d+)/youtube/$',
+        views.VideoYoutubeUploadView.as_view(), name="s3-to-youtube"),
     (r'^video/(?P<id>\d+)/mediathread_submit/$',
      'wardenclyffe.mediathread.views.video_mediathread_submit'),
     (r'^video/(?P<id>\d+)/add_file/$', views.VideoAddFileView.as_view()),
