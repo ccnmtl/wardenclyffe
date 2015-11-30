@@ -303,12 +303,6 @@ class Video(TimeStampedModel):
         params = dict(video_id=video_id)
         return self.make_op(user, params, action="import from cuit")
 
-    def make_pull_from_s3_and_submit_to_pcp_operation(self, video_id,
-                                                      workflow, user):
-        params = dict(video_id=video_id, workflow=workflow)
-        return self.make_op(user, params,
-                            action="pull from s3 and submit to pcp")
-
     def make_copy_from_s3_to_cunix_operation(self, file_id, user):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
@@ -335,18 +329,6 @@ class Video(TimeStampedModel):
         then upload it to s3. """
         params = dict(s3_key=s3_key)
         return self.make_op(user, params, action="local audio encode")
-
-    def make_pull_from_cuit_and_submit_to_pcp_operation(self, video_id,
-                                                        workflow, user):
-        params = dict(video_id=video_id, workflow=workflow)
-        return self.make_op(user, params,
-                            action="pull from cuit and submit to pcp")
-
-    def make_submit_to_podcast_producer_operation(
-            self, tmpfilename, workflow, user):
-        params = dict(tmpfilename=tmpfilename,
-                      pcp_workflow=workflow)
-        return self.make_op(user, params, action="submit to podcast producer")
 
     def make_create_elastic_transcoder_job_operation(
             self, key, user):
@@ -779,12 +761,6 @@ class ImportFromCUITOperation(OperationType):
         return wardenclyffe.cuit.tasks.import_from_cuit
 
 
-class SubmitToPCPOperation(OperationType):
-    def get_task(self):
-        import wardenclyffe.main.tasks
-        return wardenclyffe.main.tasks.submit_to_pcp
-
-
 class UploadToYoutubeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.youtube.tasks
@@ -797,22 +773,10 @@ class SubmitToMediathreadOperation(OperationType):
         return wardenclyffe.mediathread.tasks.submit_to_mediathread
 
 
-class PullFromS3AndSubmitToPCPOperation(OperationType):
-    def get_task(self):
-        import wardenclyffe.main.tasks
-        return wardenclyffe.main.tasks.pull_from_s3_and_submit_to_pcp
-
-
 class PullFromS3AndUploadToYoutubeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.youtube.tasks
         return wardenclyffe.youtube.tasks.pull_from_s3_and_upload_to_youtube
-
-
-class PullFromCUITAndSubmitToPCPOperation(OperationType):
-    def get_task(self):
-        import wardenclyffe.main.tasks
-        return wardenclyffe.main.tasks.pull_from_cuit_and_submit_to_pcp
 
 
 class CreateElasticTranscoderJobOperation(OperationType):
@@ -866,13 +830,10 @@ OPERATION_TYPE_MAPPER = {
     'save file to S3': SaveFileToS3Operation,
     'make images': MakeImagesOperation,
     'import from cuit': ImportFromCUITOperation,
-    'submit to podcast producer': SubmitToPCPOperation,
     'upload to youtube': UploadToYoutubeOperation,
     'submit to mediathread': SubmitToMediathreadOperation,
-    'pull from s3 and submit to pcp': PullFromS3AndSubmitToPCPOperation,
     'pull from s3 and upload to youtube':
     PullFromS3AndUploadToYoutubeOperation,
-    'pull from cuit and submit to pcp': PullFromCUITAndSubmitToPCPOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,
     "audio encode": AudioEncodeOperation,

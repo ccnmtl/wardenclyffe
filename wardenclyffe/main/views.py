@@ -4,7 +4,6 @@ import uuid
 import requests
 import wardenclyffe.main.tasks as tasks
 
-from angeldust import PCP
 from django.shortcuts import render
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -40,23 +39,6 @@ from wardenclyffe.util.mail import send_mediathread_received_mail
 
 def is_staff(user):
     return user and not user.is_anonymous() and user.is_staff
-
-
-def get_pcp_workflows():
-    """ returns list of workflows and error message.
-
-    if it succeeds, error message will be an empty string
-    if it fails, workflows will be an empty list """
-    error_message = ""
-    try:
-        p = PCP(settings.PCP_BASE_URL,
-                settings.PCP_USERNAME,
-                settings.PCP_PASSWORD)
-        workflows = p.workflows()
-    except Exception, e:
-        error_message = str(e)
-        workflows = []
-    return (workflows, error_message)
 
 
 class StaffMixin(object):
@@ -774,61 +756,6 @@ def make_cunix_file(operation, cunix_path):
                             )
 
 
-class DoneView(View):
-    @method_decorator(transaction.non_atomic_requests)
-    def dispatch(self, *args, **kwargs):
-        return super(DoneView, self).dispatch(*args, **kwargs)
-
-    def post(self, request):
-        if 'title' not in request.POST:
-            return HttpResponse("expecting a title")
-        title = request.POST.get('title', 'no title')
-        ouuid = uuidparse(title)
-        r = Operation.objects.filter(uuid=ouuid)
-        if r.count() != 1:
-            return HttpResponse("could not find an operation with that UUID")
-
-        statsd.incr('main.done')
-        operations = []
-        try:
-            operation = r[0]
-            operation.status = "complete"
-            operation.save()
-            operation.log(info="PCP completed")
-            cunix_path = request.POST.get('movie_destination_path', '')
-            make_cunix_file(operation, cunix_path)
-            operations = operation.video.handle_mediathread_submit()
-        except:
-            statsd.incr('main.upload.failure')
-            raise
-        else:
-            for o in operations:
-                tasks.process_operation.delay(o)
-        return HttpResponse("ok")
-
-
-class PosterDoneView(View):
-    def post(self, request):
-        if 'title' not in request.POST:
-            return HttpResponse("expecting a title")
-        title = request.POST.get('title', 'no title')
-        uuid = uuidparse(title)
-        r = Operation.objects.filter(uuid=uuid)
-        if r.count() == 1:
-            statsd.incr('main.posterdone')
-            operation = r[0]
-            cunix_path = request.POST.get('image_destination_path', '')
-            poster_url = cunix_path.replace(
-                settings.CUNIX_BROADCAST_DIRECTORY,
-                settings.CUNIX_BROADCAST_URL)
-
-            File.objects.create(video=operation.video,
-                                label="CUIT thumbnail image",
-                                url=poster_url,
-                                location_type='cuitthumb')
-        return HttpResponse("ok")
-
-
 class VideoView(StaffMixin, DetailView):
     template_name = 'main/video.html'
     model = Video
@@ -945,28 +872,6 @@ class DeleteOperationView(StaffMixin, View):
         return render(request, self.template_name, dict())
 
 
-class VideoPCPSubmitView(StaffMixin, View):
-    template_name = 'main/pcp_submit.html'
-
-    def post(self, request, id):
-        video = get_object_or_404(Video, id=id)
-
-        statsd.incr('main.video_pcp_submit')
-        # send to podcast producer
-        o = video.make_pull_from_s3_and_submit_to_pcp_operation(
-            video.id, request.POST.get('workflow', ''), request.user)
-        tasks.process_operation.delay(o.id)
-        return HttpResponseRedirect(video.get_absolute_url())
-
-    def get(self, request, id):
-        video = get_object_or_404(Video, id=id)
-        workflows, pcp_error = get_pcp_workflows()
-        return render(
-            request, self.template_name,
-            dict(video=video, workflows=workflows, pcp_error=pcp_error,
-                 kino_base=settings.PCP_BASE_URL))
-
-
 class VideoYoutubeUploadView(StaffMixin, View):
     def post(self, request, id):
         video = get_object_or_404(Video, id=id)
@@ -976,32 +881,6 @@ class VideoYoutubeUploadView(StaffMixin, View):
             video.id, request.user)
         tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(video.get_absolute_url())
-
-
-class FilePCPSubmitView(StaffMixin, View):
-    template_name = 'main/file_pcp_submit.html'
-
-    def post(self, request, id):
-        file = get_object_or_404(File, id=id)
-        statsd.incr('main.file_pcp_submit')
-        video = file.video
-        # send to podcast producer
-        o = None
-        if video.s3_file():
-            o = video.make_pull_from_s3_and_submit_to_pcp_operation(
-                video.id, request.POST.get('workflow', ''), request.user)
-        else:
-            o = video.make_pull_from_cuit_and_submit_to_pcp_operation(
-                video.id, request.POST.get('workflow', ''), request.user)
-        tasks.process_operation.delay(o.id)
-        return HttpResponseRedirect(video.get_absolute_url())
-
-    def get(self, request, id):
-        file = get_object_or_404(File, id=id)
-        workflows, pcp_error = get_pcp_workflows()
-        return render(request, self.template_name,
-                      dict(file=file, workflows=workflows, pcp_error=pcp_error,
-                           kino_base=settings.PCP_BASE_URL))
 
 
 class AudioEncodeFileView(StaffMixin, View):
@@ -1126,13 +1005,6 @@ class BulkOperationView(StaffMixin, View):
                 for f in r.keys() if f.startswith("video_")]
 
     def post(self, request):
-        if request.POST.get('submit-to-pcp', False):
-            for video in self._videos(request):
-                o = video.make_pull_from_s3_and_submit_to_pcp_operation(
-                    video.id, request.POST.get('workflow', ''), request.user)
-                tasks.process_operation.delay(o.id)
-                statsd.incr('main.bulk_file_operation')
-            return HttpResponseRedirect("/")
         if request.POST.get('surelink', False):
             query_string = "&".join(
                 "video_%d=on" % v.id for v in self._videos(request))
@@ -1141,10 +1013,8 @@ class BulkOperationView(StaffMixin, View):
         return HttpResponse("Unknown action", status=400)
 
     def get(self, request):
-        workflows, pcp_error = get_pcp_workflows()
         return render(request, self.template_name, dict(
-            videos=self._videos(request), workflows=workflows,
-            pcp_error=pcp_error))
+            videos=self._videos(request)))
 
 
 class VideoAddFileView(StaffMixin, View):
@@ -1172,16 +1042,6 @@ class VideoSelectPosterView(StaffMixin, View):
         Poster.objects.filter(video=video).delete()
         Poster.objects.create(video=video, image=image)
         return HttpResponseRedirect(video.get_absolute_url())
-
-
-class ListWorkflowsView(StaffMixin, TemplateView):
-    template_name = 'main/workflows.html'
-
-    def get_context_data(self):
-        workflows, error_message = get_pcp_workflows()
-        return dict(workflows=workflows,
-                    error_message=error_message,
-                    kino_base=settings.PCP_BASE_URL)
 
 
 class SearchView(StaffMixin, TemplateView):

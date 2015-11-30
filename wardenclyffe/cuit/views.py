@@ -96,17 +96,3 @@ def import_retry(request):
         # try again
         process_operation.delay(operation.id)
     return HttpResponse("retry has begun.")
-
-
-@render_to("cuit/broken_quicktime.html")
-def broken_quicktime(request):
-    broken_files = []
-    s = Collection.objects.get(id=settings.QUICKTIME_IMPORT_COLLECTION_ID)
-    for v in s.video_set.all():
-        f = v.cuit_file()
-        if not f:
-            continue
-        if f.get_metadata("ID_AUDIO_FORMAT") != "255":
-            broken_files.append(f)
-
-    return dict(broken_files=broken_files)

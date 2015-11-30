@@ -56,12 +56,6 @@ def mediathread(request):
         dict(username=username, user=user, audio=audio))
 
 
-def select_workflow(audio):
-    if audio and hasattr(settings, 'MEDIATHREAD_AUDIO_PCP_WORKFLOW2'):
-        return settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2
-    return None
-
-
 @transaction.non_atomic_requests
 def mediathread_post(request):
     if request.method != "POST":
@@ -106,14 +100,6 @@ def mediathread_post(request):
             operations = v.make_default_operations(
                 tmpfilename, source_file, user, audio=audio,
                 audio_flag=audio_flag)
-
-            if not audio_flag:
-                # fallback to PCP version instead of encoding it locally
-                workflow = select_workflow(audio)
-                if workflow:
-                    o = v.make_submit_to_podcast_producer_operation(
-                        tmpfilename, workflow, user)
-                    operations.append(o)
         except:
             statsd.incr("mediathread.mediathread.failure")
             raise
