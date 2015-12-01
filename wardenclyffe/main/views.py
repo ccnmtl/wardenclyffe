@@ -1199,14 +1199,15 @@ class SNSView(View):
             # success report for a non-existent transcoding
             # job. assume it's a duplicate
             return HttpResponse("OK")
-        operation = tf[0].operationfile_set.all()[0].operation
+        fo = tf.first()
+        operation = fo.operationfile_set.first().operation
+        fo.delete()
 
         operations = []
         if state == 'COMPLETED':
             # set it to completed
             operation.status = "complete"
             operation.save()
-            tf[0].delete()
 
             # add S3 output file record
             for output in ets_message['outputs']:
@@ -1232,7 +1233,6 @@ class SNSView(View):
             # set it to failed
             operation.status = "failed"
             operation.save()
-            tf[0].delete()
             operation.log(info=self.body)
         for o in operations:
             tasks.process_operation.delay(o.id)
