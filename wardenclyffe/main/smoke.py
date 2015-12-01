@@ -20,12 +20,6 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.TMP_DIR)
         self.assertIsNotNone(settings.WATCH_DIRECTORY)
 
-    def test_pcp_settings(self):
-        self.assertIsNotNone(settings.PCP_BASE_URL)
-        self.assertIsNotNone(settings.PCP_USERNAME)
-        self.assertIsNotNone(settings.PCP_PASSWORD)
-        self.assertIsNotNone(settings.PCP_WORKFLOW)
-
     def test_aws_settings(self):
         self.assertIsNotNone(settings.AWS_ACCESS_KEY)
         self.assertIsNotNone(settings.AWS_SECRET_KEY)
@@ -35,10 +29,7 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.MEDIATHREAD_BASE)
         self.assertIsNotNone(settings.MEDIATHREAD_SECRET)
         self.assertIsNotNone(settings.MEDIATHREAD_POST_URL)
-        self.assertIsNotNone(settings.MEDIATHREAD_PCP_WORKFLOW)
         self.assertIsNotNone(settings.MEDIATHREAD_COLLECTION_ID)
-        self.assertIsNotNone(settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW)
-        self.assertIsNotNone(settings.MEDIATHREAD_AUDIO_PCP_WORKFLOW2)
 
     def test_youtube_settings(self):
         self.assertIsNotNone(settings.YOUTUBE_EMAIL)

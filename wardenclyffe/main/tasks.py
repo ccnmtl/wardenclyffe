@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
-from angeldust import PCP
 from celery.decorators import task
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
-from wardenclyffe.main.models import Video, File, Operation, OperationFile
+from wardenclyffe.main.models import File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
 from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
@@ -352,26 +351,6 @@ def parse_metadata(output):
             print line
 
 
-def pcp_upload(filename, fileobj, ouuid, operation, workflow, description):
-    pcp = PCP(settings.PCP_BASE_URL, settings.PCP_USERNAME,
-              settings.PCP_PASSWORD)
-    title = "%s-%s" % (str(ouuid),
-                       strip_special_characters(operation.video.title))
-    pcp.upload_file(fileobj, filename, workflow, title, description)
-
-
-def submit_to_pcp(operation):
-    statsd.incr("submit_to_pcp")
-    ouuid = operation.uuid
-    params = loads(operation.params)
-    filename = str(ouuid) + (operation.video.filename() or ".mp4")
-    fileobj = open(params['tmpfilename'])
-    pcp_upload(filename, fileobj, ouuid, operation,
-               params['pcp_workflow'],
-               operation.video.description)
-    return ("submitted", "")
-
-
 def pull_from_s3(suffix, bucket_name, key):
     conn = boto.connect_s3(
         settings.AWS_ACCESS_KEY,
@@ -384,27 +363,6 @@ def pull_from_s3(suffix, bucket_name, key):
     k.get_contents_to_file(t)
     t.seek(0)
     return t
-
-
-def pull_from_s3_and_submit_to_pcp(operation):
-    statsd.incr("pull_from_s3_and_submit_to_pcp")
-    print "pulling from S3"
-    params = loads(operation.params)
-    video_id = params['video_id']
-    workflow = params['workflow']
-    video = Video.objects.get(id=video_id)
-    ouuid = operation.uuid
-    filename = video.filename()
-    suffix = video.extension()
-    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
-                     video.s3_key())
-
-    operation.log(info="downloaded from S3")
-    print "submitting to PCP"
-    filename = str(ouuid) + suffix
-    pcp_upload(filename, t, ouuid, operation, workflow, video.description)
-    t.close()
-    return ("submitted", "submitted to PCP")
 
 
 def do_audio_encode(input_filename, tout):
@@ -546,32 +504,6 @@ def sftp_get(remote_filename, local_filename):
     finally:
         sftp.close()
         transport.close()
-
-
-def pull_from_cuit_and_submit_to_pcp(operation):
-    statsd.incr("pull_from_cuit_and_submit_to_pcp")
-    print "pulling from cuit"
-    params = loads(operation.params)
-    video_id = params['video_id']
-    workflow = params['workflow']
-    video = Video.objects.get(id=video_id)
-    if workflow == "":
-        return ("failed", "no workflow specified")
-
-    ouuid = operation.uuid
-    cuit_file = video.file_set.filter(video=video, location_type="cuit")[0]
-
-    filename = cuit_file.filename
-    extension = os.path.splitext(filename)[1]
-    tmpfilename = os.path.join(settings.TMP_DIR, str(ouuid) + extension)
-    sftp_get(filename, tmpfilename)
-    operation.log(info="downloaded from cuit")
-
-    print "submitting to PCP"
-    filename = str(ouuid) + extension
-    pcp_upload(filename, open(tmpfilename, "r"), ouuid, operation,
-               workflow, video.description)
-    return ("submitted", "submitted to PCP")
 
 
 def strip_special_characters(title):

@@ -424,17 +424,6 @@ class OperationTest(TestCase):
         for o in ops:
             o.process()
 
-    def test_submit_to_pcp_operation(self):
-        f = SourceFileFactory()
-        u = UserFactory()
-        o = f.video.make_submit_to_podcast_producer_operation(
-            "/tmp/file.mov", "SOMEWORKFLOW", u)
-        try:
-            o.process()
-        except IOError:
-            pass
-        o.post_process()
-
     @override_settings(YOUTUBE_EMAIL="foo@bar.com", YOUTUBE_PASSWORD="foo",
                        YOUTUBE_SOURCE="foo", YOUTUBE_DEVELOPER_KEY="foo",
                        YOUTUBE_CLIENT_ID="foo")

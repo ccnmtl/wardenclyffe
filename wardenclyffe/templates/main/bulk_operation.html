@@ -45,22 +45,6 @@
 </tbody>
 </table>
 
-<h3>Submit to PCP</h3>
-{% if workflows %}
-<p>Submit videos to workflow:<br />
-<select name="workflow">
-<option value="">select workflow</option>
-{% for workflow in workflows %}
-<option value="{{workflow.uuid}}">{{workflow.title}}</option>
-{% endfor %}
-</select>
-<br />
-<input type="submit" value="Submit Videos to PCP" />
-{% else %}
-<p>Can't get a list of workflows. PCP Submission not available.</p>
-<input disabled="disabled" type="submit" name="submit-to-pcp" value="Submit Videos to PCP" />
-{% endif %}
-
 <h3>Surelink</h3>
 <p>Get surelink embed codes for all selected videos.</p>
 <input type="submit" value="Surelink" name="surelink" />

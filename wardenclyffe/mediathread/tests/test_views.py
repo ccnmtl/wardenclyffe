@@ -1,11 +1,10 @@
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from django.test.utils import override_settings
 from django.contrib.auth.models import User
 import hmac
 import hashlib
 from django.conf import settings
-from wardenclyffe.mediathread.views import select_workflow, mediathread_post
+from wardenclyffe.mediathread.views import mediathread_post
 
 
 class SimpleText(TestCase):
@@ -75,13 +74,3 @@ class TestInvalidSessions(TestCase):
     def test_no_session(self):
         r = self.c.post("/mediathread/post/", {})
         self.assertEqual(r.content, "invalid session")
-
-
-class TestSelectWorkflow(TestCase):
-    @override_settings(MEDIATHREAD_AUDIO_PCP_WORKFLOW2="foo1")
-    def test_audio(self):
-        self.assertEqual(select_workflow(True), "foo1")
-
-    @override_settings(MEDIATHREAD_PCP_WORKFLOW2="foo3")
-    def test_default(self):
-        self.assertEqual(select_workflow(False), None)
