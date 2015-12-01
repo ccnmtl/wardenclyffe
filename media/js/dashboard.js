@@ -1,21 +1,21 @@
 $(document).ready(
-    function () {
+    function() {
 
         var Operation = Backbone.Model.extend({
             defaults: {
             },
-            initialize: function () {
-                this.set({clean_status: cleanStatus(this.get("status"))});
-                this.on('change:status', function () {
-                    this.set({clean_status: cleanStatus(this.get("status"))});
+            initialize: function() {
+                this.set({clean_status: cleanStatus(this.get('status'))});
+                this.on('change:status', function() {
+                    this.set({clean_status: cleanStatus(this.get('status'))});
                 });
             }
         });
 
         var Operations = Backbone.Collection.extend({
             model: Operation,
-            url: "/foo", // have to set a URL or it complains
-            addOrUpdateOperation: function (o) {
+            url: '/foo', // have to set a URL or it complains
+            addOrUpdateOperation: function(o) {
                 var op = this.get(o.id);
                 if (op !== undefined) {
                     op.set(o);
@@ -25,23 +25,23 @@ $(document).ready(
             }
         });
 
-        Backbone.sync = function (method, model, options) {
+        Backbone.sync = function(method, model, options) {
             // dummy this out since we never actually
             // want to sync back to the server
         };
 
         var AllOperations = new Operations();
-        
+
         var OperationView = Backbone.View.extend({
-            tagName: "tr",
+            tagName: 'tr',
             template: _.template($('#operation-template').html()),
             events: {},
-            initialize: function () {
+            initialize: function() {
                 _.bindAll(this, 'render');
                 this.model.on('change', this.render);
                 this.model.on('destroy', this.remove);
             },
-            render: function () {
+            render: function() {
                 this.$el.html(this.template(this.model.toJSON()));
                 return this;
             }
@@ -49,29 +49,31 @@ $(document).ready(
 
         var AppView = Backbone.View.extend({
             el: $('#bb-operations'),
-            initialize: function () {
+            initialize: function() {
                 AllOperations.bind('add', this.addOne, this);
                 AllOperations.bind('reset', this.addAll, this);
                 AllOperations.bind('all', this.render, this);
                 // AllOperations.fetch();
             },
-            addOne: function (operation) {
+            addOne: function(operation) {
                 var view = new OperationView({model: operation});
                 var e = view.render().el;
                 this.$el.prepend(e);
             },
-            addAll: function () {
+            addAll: function() {
                 AllOperations.each(this.addOne);
             },
-            render: function () {
+            render: function() {
             }
         });
 
         var App = new AppView();
 
         function getQueryParams() {
-            var vars = {}, hash;
-            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var vars = {};
+            var hash;
+            var hashes = window.location.href
+                .slice(window.location.href.indexOf('?') + 1).split('&');
             for (var i = 0; i < hashes.length; i++) {
                 hash = hashes[i].split('=');
                 vars[hash[0]] = hash[1];
@@ -79,49 +81,49 @@ $(document).ready(
             return vars;
         }
 
-        var cleanStatus = function (s) {
-            return s.replace(" ", "");
+        var cleanStatus = function(s) {
+            return s.replace(' ', '');
         };
 
-        var orderTableByDate = function () {
+        var orderTableByDate = function() {
             // jquery.tablesorter is responsible for table sorting
             // just tell it it needs to update
-            $("#operations").trigger("update");
+            $('#operations').trigger('update');
         };
 
-        var stripeTable = function () {
-            $(".even").removeClass("even");
-            $(".odd").removeClass("odd");
-            $("#bb-operations tr:odd").addClass("odd");
-            $("#bb-operations tr:even").addClass("even");
+        var stripeTable = function() {
+            $('.even').removeClass('even');
+            $('.odd').removeClass('odd');
+            $('#bb-operations tr:odd').addClass('odd');
+            $('#bb-operations tr:even').addClass('even');
         };
 
         var maxRows = 200;
 
-        var trimTable = function (maxRows) {
+        var trimTable = function(maxRows) {
             // todo: just trim AllOperations to maxRows
         };
 
         var sortInitialized = 0;
-        var mostRecentOperation = "";
+        var mostRecentOperation = '';
 
         var defaultRefresh = 10000; // 10 seconds
         var maxRefresh = 1000 * 5 * 60; // 5 minutes
         var currentRefresh = defaultRefresh;
 
-        var WCRefresh = function (e) {
+        var WCRefresh = function(e) {
             // first, we check if there are new operations at all
             // by calling /num_operations/ and comparing.
             $.ajax({
-                url: "/most_recent_operation/",
-                type: "get",
+                url: '/most_recent_operation/',
+                type: 'get',
                 dateType: 'json',
                 error: requestFailed,
                 success: getMostRecentSuccess
             });
         };
 
-        var getMostRecentSuccess = function (d) {
+        var getMostRecentSuccess = function(d) {
             if (!d) {
                 requestFailed();
                 return;
@@ -135,7 +137,7 @@ $(document).ready(
             setTimeout(WCRefresh, defaultRefresh);
         };
 
-        var requestFailed = function () {
+        var requestFailed = function() {
             // ease up on the server when it's having trouble
             currentRefresh = 2 * currentRefresh; // double the refresh time
             if (currentRefresh > maxRefresh) {
@@ -144,15 +146,16 @@ $(document).ready(
             setTimeout(WCRefresh, currentRefresh);
         };
 
-        var refreshOperationsSuccess = function (d) {
+        var refreshOperationsSuccess = function(d) {
             if (!d) {
                 requestFailed();
                 return;
             }
             if (d.operations.length) {
-                _.each(d.operations, AllOperations.addOrUpdateOperation, AllOperations);
+                _.each(d.operations, AllOperations.addOrUpdateOperation,
+                       AllOperations);
                 if (sortInitialized === 0) {
-                    $("#operations").tablesorter({sortList: [[4, 1]]});
+                    $('#operations').tablesorter({sortList: [[4, 1]]});
                     sortInitialized = 1;
                 }
                 orderTableByDate();
@@ -161,10 +164,9 @@ $(document).ready(
             }
         };
 
-
-        var refreshOperations = function (data) {
+        var refreshOperations = function(data) {
             $.ajax({
-                url: "/recent_operations/",
+                url: '/recent_operations/',
                 type: 'get',
                 dataType: 'json',
                 data: data,
@@ -173,32 +175,33 @@ $(document).ready(
             });
         };
 
-
-        jQuery(function ($) {
+        jQuery(function($) {
             // Ensure that the CSRF token is sent with AJAX POSTs sent by jQuery
-            // Taken from the documentation: http://docs.djangoproject.com/en/dev/ref/contrib/csrf/
-            $('html').ajaxSend(function (event, xhr, settings) {
+            // Taken from the documentation:
+            // http://docs.djangoproject.com/en/dev/ref/contrib/csrf/
+            $('html').ajaxSend(function(event, xhr, settings) {
                 function getCookie(name) {
                     var cookieValue = null;
                     if (document.cookie && document.cookie !== '') {
                         var cookies = document.cookie.split(';');
                         for (var i = 0; i < cookies.length; i++) {
                             var cookie = jQuery.trim(cookies[i]);
-                            // Does this cookie string begin with the name we want?
-                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            // Does this cookie string begin
+                            // with the name we want?
+                            if (cookie.substring(
+                                0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(
+                                    cookie.substring(name.length + 1));
                                 break;
                             }
                         }
                     }
                     return cookieValue;
                 }
-                // Only send the token to relative URLs i.e. locally.
-//                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             });
 
             $(document).ready(
-                function () {
+                function() {
                     WCRefresh();
                 }
             );
