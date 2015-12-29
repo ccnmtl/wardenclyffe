@@ -1,7 +1,12 @@
 # stdlib imports
+import base64
+import hmac
 import os
 import uuid
 import requests
+import time
+import urllib
+
 import wardenclyffe.main.tasks as tasks
 
 from django.shortcuts import render
@@ -22,6 +27,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
+from hashlib import sha1
 from json import dumps, loads
 from taggit.models import Tag
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
@@ -33,7 +39,7 @@ from wardenclyffe.main.models import OperationFile
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
-from wardenclyffe.util import uuidparse
+from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
 
 
@@ -1253,3 +1259,46 @@ class SNSView(View):
                 'Notification'):
             return self._notification(request)
         return HttpResponse("unknown message type", status=400)
+
+
+class SignS3View(View):
+    def get(self, request):
+        AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY
+        AWS_SECRET_KEY = settings.AWS_SECRET_KEY
+        S3_BUCKET = settings.AWS_S3_UPLOAD_BUCKET
+
+        object_name = safe_basename(
+            request.GET.get('s3_object_name', 'unknown.obj'))
+        mime_type = request.GET.get('s3_object_type')
+        (basename, extension) = os.path.splitext(object_name)
+
+        n = datetime.now()
+        uid = str(uuid.uuid4())
+
+        object_name = "%04d/%02d/%02d/%s-%s%s" % (
+            n.year, n.month, n.day, basename, uid, extension)
+
+        expires = int(time.time()+10)
+        amz_headers = "x-amz-acl:public-read"
+
+        put_request = "PUT\n\n%s\n%d\n%s\n/%s/%s" % (
+            mime_type, expires, amz_headers, S3_BUCKET, object_name)
+
+        signature = base64.encodestring(
+            hmac.new(AWS_SECRET_KEY, put_request, sha1).digest())
+
+        signature = urllib.quote_plus(signature.strip())
+
+        # Encode the plus symbols
+        # https://pmt.ccnmtl.columbia.edu/item/95796/
+        signature = urllib.quote(signature)
+
+        url = 'https://s3.amazonaws.com/%s/%s' % (S3_BUCKET, object_name)
+        signed_request = '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (
+            url, AWS_ACCESS_KEY, expires, signature)
+
+        return HttpResponse(
+            dumps({
+                'signed_request': signed_request,
+                'url': url
+            }), content_type="application/json")

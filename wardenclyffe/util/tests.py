@@ -1,3 +1,5 @@
+import unittest
+
 from django.core import mail
 from django.test import TestCase
 from wardenclyffe.util.mail import slow_operations_email_body
@@ -10,7 +12,7 @@ from wardenclyffe.util.mail import send_failed_operation_mail
 from wardenclyffe.util.mail import send_mediathread_received_mail
 from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from wardenclyffe.util.mail import send_youtube_submitted_mail
-from wardenclyffe.util import uuidparse
+from wardenclyffe.util import uuidparse, safe_basename
 
 
 class DummyVideo(object):
@@ -133,3 +135,8 @@ class UUIDParseTest(TestCase):
         self.assertEqual(
             uuidparse('not a uuid'),
             '')
+
+
+class SafeBasenameTests(unittest.TestCase):
+    def test_safe_basename(self):
+        self.assertEqual(safe_basename('Foo bar.png'), 'foobar.png')

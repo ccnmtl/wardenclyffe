@@ -110,6 +110,7 @@ urlpatterns = patterns(
     (r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),
     (r'^stats/auth/$',
      TemplateView.as_view(template_name="main/auth_stats.html")),
+    url(r'^sign_s3/$', views.SignS3View.as_view(), name='sign-s3'),
     (r'^uploads/(?P<path>.*)$',
      'django.views.static.serve',
      {'document_root': settings.MEDIA_ROOT}),
