@@ -10,6 +10,7 @@ from factories import (
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
 from httpretty import HTTPretty, httprettified
+import json
 import os.path
 import httpretty
 
@@ -328,6 +329,20 @@ class TestUploadify(TestCase):
         self.c = Client()
         response = self.c.post("/uploadify/", {})
         self.assertEqual(response.status_code, 200)
+
+
+class TestSignS3View(TestCase):
+    def test_sign_s3(self):
+        self.c = Client()
+        with self.settings(
+                AWS_ACCESS_KEY='',
+                AWS_SECRET_KEY='',
+                AWS_S3_UPLOAD_BUCKET=''):
+            r = self.c.get(
+                "/sign_s3/?s3_object_name=default_name&s3_object_type=foo")
+            self.assertEqual(r.status_code, 200)
+            j = json.loads(r.content)
+            self.assertTrue('signed_request' in j)
 
 
 class TestStaff(TestCase):
