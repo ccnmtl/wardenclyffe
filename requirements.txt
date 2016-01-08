@@ -69,7 +69,7 @@ django-taggit==0.17.6
 django-annoying==0.8.5
 django-statsd-mozilla==0.3.16
 django-smoketest==0.3.0
-django-waffle==0.10.1
+django-waffle==0.11
 django-debug-toolbar==1.4
 django-jenkins==0.17.0
 django-appconf==1.0.1
