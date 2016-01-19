@@ -425,7 +425,7 @@ class VideoIndexView(StaffMixin, TemplateView):
             params[k] = v
         return params
 
-    def get_context_data(self):
+    def get_videos(self):
         videos = Video.objects.all()
         creators = self.request.GET.getlist('creator')
         if len(creators) > 0:
@@ -442,6 +442,10 @@ class VideoIndexView(StaffMixin, TemplateView):
         licenses = self.request.GET.getlist('license')
         if len(licenses) > 0:
             videos = videos.filter(license__in=licenses)
+        return videos
+
+    def get_context_data(self):
+        videos = self.get_videos()
         paginator = Paginator(videos.order_by('title'), 100)
 
         try:
