@@ -150,13 +150,18 @@ def resumable_upload(insert_request):
             error = "A retriable error occurred: %s" % e
 
         if error is not None:
-            print error
-            retry += 1
-            if retry > MAX_RETRIES:
-                exit("No longer attempting to retry.")
-
-            max_sleep = 2 ** retry
-            sleep_seconds = random.random() * max_sleep
-            print "Sleeping %f seconds and then retrying..." % sleep_seconds
-            time.sleep(sleep_seconds)
+            retry = handle_upload_error(error, retry)
     return youtube_id
+
+
+def handle_upload_error(error, retry):
+    print error
+    retry += 1
+    if retry > MAX_RETRIES:
+        exit("No longer attempting to retry.")
+
+    max_sleep = 2 ** retry
+    sleep_seconds = random.random() * max_sleep
+    print "Sleeping %f seconds and then retrying..." % sleep_seconds
+    time.sleep(sleep_seconds)
+    return retry
