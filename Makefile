@@ -1,6 +1,6 @@
 APP=wardenclyffe
 JS_FILES=media/js/dashboard.js media/js/help_windows.js
-MAX_COMPLEXITY=9
+MAX_COMPLEXITY=8
 
 all: jenkins
 
