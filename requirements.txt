@@ -33,7 +33,7 @@ pyOpenSSL==0.15.1
 ndg-httpsclient==0.4.0
 requests==2.9.1
 statsd==3.2.1
-coverage==3.7.1
+coverage==4.0.3
 pep8==1.6.2
 pyflakes==1.0.0
 mccabe==0.3.1
@@ -71,7 +71,7 @@ django-statsd-mozilla==0.3.16
 django-smoketest==0.3.0
 django-waffle==0.11
 django-debug-toolbar==1.4
-django-jenkins==0.17.0
+django-jenkins==0.18.1
 django-appconf==1.0.1
 django-compressor==1.6
 django-extensions==1.6.1
