@@ -40,7 +40,7 @@ mccabe==0.3.1
 flake8==2.5.0
 logilab-common==0.63.2
 logilab-astng==0.24.3
-pylint==1.4.4
+pylint==1.5.4
 python-ldap==2.4.22
 surelink==1.0.1
 boto==2.38.0
