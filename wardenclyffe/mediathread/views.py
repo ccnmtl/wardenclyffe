@@ -1,5 +1,4 @@
 # Create your views here.
-from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -113,7 +112,6 @@ def mediathread_post(request):
 
 @login_required
 @transaction.non_atomic_requests
-@render_to('mediathread/mediathread_submit.html')
 def video_mediathread_submit(request, id):
     video = get_object_or_404(Video, id=id)
     if request.method == "POST":
@@ -141,13 +139,13 @@ def video_mediathread_submit(request, id):
         courses.sort(key=lambda x: x['title'].lower())
     except:
         courses = []
-    return dict(video=video, courses=courses,
-                mediathread_base=settings.MEDIATHREAD_BASE)
+    return render(request, 'mediathread/mediathread_submit.html',
+                  dict(video=video, courses=courses,
+                       mediathread_base=settings.MEDIATHREAD_BASE))
 
 
 @login_required
 @transaction.non_atomic_requests
-@render_to('mediathread/collection_mediathread_submit.html')
 def collection_mediathread_submit(request, pk):
     collection = get_object_or_404(Collection, id=pk)
     if request.method == "POST":
@@ -176,5 +174,6 @@ def collection_mediathread_submit(request, pk):
         courses.sort(key=lambda x: x['title'].lower())
     except:
         courses = []
-    return dict(collection=collection, courses=courses,
-                mediathread_base=settings.MEDIATHREAD_BASE)
+    return render(request, 'mediathread/collection_mediathread_submit.html',
+                  dict(collection=collection, courses=courses,
+                       mediathread_base=settings.MEDIATHREAD_BASE))

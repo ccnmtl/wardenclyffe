@@ -1,7 +1,7 @@
 # Create your views here.
-from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render
 from wardenclyffe.main.models import Video, Collection
 import wardenclyffe.main.tasks
 import os
@@ -11,9 +11,8 @@ from django_statsd.clients import statsd
 
 
 @login_required
-@render_to('main/youtube.html')
 def youtube(request):
-    return dict()
+    return render(request, 'main/youtube.html', dict())
 
 
 @transaction.non_atomic_requests()
@@ -55,6 +54,5 @@ def youtube_post(request):
         return HttpResponse("no tmpfilename parameter set")
 
 
-@render_to('main/youtube_done.html')
 def youtube_done(request):
-    return dict()
+    return render(request, 'main/youtube_done.html', dict())

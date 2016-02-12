@@ -1,6 +1,6 @@
-from annoying.decorators import render_to
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render
 from wardenclyffe.main.models import Video, Operation, File, Server
 from wardenclyffe.main.models import ServerFile, Collection
 from wardenclyffe.main.tasks import process_operation
@@ -47,10 +47,10 @@ def list_all_cuit_files():
 
 
 @login_required
-@render_to('cuit/index.html')
 def index(request):
     all_files = list_all_cuit_files()
-    return dict(dirs=[f for f in all_files if f.endswith(".mov")])
+    return render(request, 'cuit/index.html',
+                  dict(dirs=[f for f in all_files if f.endswith(".mov")]))
 
 
 @transaction.non_atomic_requests()
@@ -86,12 +86,11 @@ def import_quicktime(request):
     return HttpResponse("database entries created. import has begun.")
 
 
-@render_to("cuit/retry.html")
 def import_retry(request):
     failed = Operation.objects.filter(action="import from CUIT",
                                       status="failed")
     if request.method != "POST":
-        return dict(failed=failed)
+        return render(request, "cuit/retry.html", dict(failed=failed))
     for operation in failed:
         # try again
         process_operation.delay(operation.id)
