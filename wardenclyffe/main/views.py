@@ -611,8 +611,7 @@ def upload(request):
         statsd.incr('main.upload.failure')
         raise
     else:
-        for o in operations:
-            tasks.process_operation.delay(o.id)
+        enqueue_operations(operations)
     return HttpResponseRedirect("/")
 
 
