@@ -605,9 +605,8 @@ def upload(request):
         form.save_m2m()
         source_file = v.make_source_file(source_filename)
 
-        if source_filename:
-            operations = create_operations(
-                request, v, tmpfilename, source_file, source_filename)
+        operations = create_operations_if_source_filename(
+            request, v, tmpfilename, source_file, source_filename)
     except:
         statsd.incr('main.upload.failure')
         raise
@@ -615,6 +614,14 @@ def upload(request):
         for o in operations:
             tasks.process_operation.delay(o.id)
     return HttpResponseRedirect("/")
+
+
+def create_operations_if_source_filename(request, v, tmpfilename,
+                                         source_file, source_filename):
+    if source_filename:
+        return create_operations(
+            request, v, tmpfilename, source_file, source_filename)
+    return []
 
 
 @transaction.non_atomic_requests()
