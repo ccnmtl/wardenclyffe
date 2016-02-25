@@ -670,9 +670,13 @@ def batch_upload(request):
         statsd.incr('main.batch_upload.failure')
         raise
     else:
-        for o in operations:
-            tasks.process_operation.delay(o.id)
+        enqueue_operations(operations)
     return HttpResponseRedirect("/")
+
+
+def enqueue_operations(operations):
+    for o in operations:
+        tasks.process_operation.delay(o.id)
 
 
 class RerunOperationView(StaffMixin, View):
