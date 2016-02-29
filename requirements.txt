@@ -60,7 +60,7 @@ httpretty==0.8.10
 simplejson==3.7.3
 contextlib2==0.5.1
 fake-factory==0.5.3
-factory_boy==2.6.0
+factory_boy==2.6.1
 rcssmin==1.0.6
 rjsmin==1.0.12
 
