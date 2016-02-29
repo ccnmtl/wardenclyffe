@@ -77,6 +77,10 @@ urlpatterns = patterns(
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
     (r'^upload/$', views.PLUploadFormView.as_view()),
 
+    (r'^s3upload/$', views.PLUploadFormView.as_view(
+        template_name='main/s3upload.html')),
+    (r'^s3upload/post/$', 'wardenclyffe.main.views.s3upload'),
+
     (r'^upload/batch/$', views.BatchUploadFormView.as_view()),
     (r'^upload/batch/post/$', 'wardenclyffe.main.views.batch_upload'),
 

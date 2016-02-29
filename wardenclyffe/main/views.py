@@ -615,6 +615,59 @@ def upload(request):
     return HttpResponseRedirect("/")
 
 
+@transaction.non_atomic_requests
+@login_required
+@user_passes_test(is_staff)
+def s3upload(request):
+    if request.method != "POST":
+        return HttpResponseRedirect("/s3upload/")
+
+    form = VideoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        # TODO: give the user proper feedback here
+        return HttpResponseRedirect("/upload/")
+
+    collection_id = None
+    statsd.incr('main.s3upload')
+
+    vuuid = uuid.uuid4()
+
+    v = form.save(commit=False)
+    v.uuid = vuuid
+    v.creator = request.user.username
+    collection_id = request.GET.get('collection', None)
+    if collection_id:
+        v.collection_id = collection_id
+    v.save()
+    form.save_m2m()
+    s3url = request.POST['s3_url']
+
+    key = key_from_s3url(s3url)
+
+    label = "uploaded source file (S3)"
+    File.objects.create(video=v, url="", cap=key,
+                        location_type="s3",
+                        filename=key,
+                        label=label)
+    # trigger operations
+    # TODO: audio, youtube upload
+    operations = [
+        v.make_pull_from_s3_and_extract_metadata_operation(
+            key=key, user=request.user),
+        v.make_create_elastic_transcoder_job_operation(
+            key=key, user=request.user)]
+    enqueue_operations(operations)
+    return HttpResponseRedirect("/")
+
+
+def key_from_s3url(s3url):
+    # expects something like
+    #   https://s3.amazonaws.com/<bucket>/2016/02/29/filename.mp4
+    # and returns
+    #   2016/02/29/filename.mp4
+    return '/'.join(s3url.split('/')[4:])
+
+
 def create_operations_if_source_filename(request, v, tmpfilename,
                                          source_file, source_filename):
     if source_filename:

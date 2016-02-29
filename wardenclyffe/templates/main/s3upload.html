@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load waffle_tags %}
+{% load compress %}
+{% block title %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+{% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
+
+{% block extra_head %}
+    {% compress js %}
+    <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+    <script src="{{STATIC_URL}}js/libs/s3upload.js"></script>
+{% endcompress %}
+
+{% compress css %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
+{% endcompress %}
+
+{% endblock %}
+
+{% block content %}
+
+    {% flag allow_uploads %}
+    <form action="/s3upload/post/" method="post" enctype="multipart/form-data">
+
+        <div class="panel_top">
+	          <div class="form_video_source">
+		            <div class="form_video_source_title">Video source:</div>
+                {% if scan_directory %}
+                    <div class="wc_button inactive_button"><a href="/upload/" title="Upload files from your desktop">Desktop</a></div><!-- class="wc_button" -->
+                    <div class="wc_button active_button">Drop-off directory</div><!-- class="wc_button" -->
+                {% else %}
+		                <div class="wc_button active_button">Desktop</div><!-- class="wc_button" -->
+		                <div class="wc_button inactive_button"><a href="/scan_directory/" title="Upload files from the drop-off directory">Drop-off directory</a></div><!-- class="wc_button" -->
+                {% endif %}
+		            <div class="wc_help_button" id="help_video_source">?</div><!-- class="wc_help_button" -->
+	          </div><!-- class="form_video_source" -->
+
+            <div class="form_video_collection">
+                <div class="form_video_collection_title">
+                    <label for="id_collection">Collection:</label>
+                </div>
+                {% if form.collection %}
+                    {{ form.collection }}
+                {% else %}
+                    {{ collection_title }}
+                {% endif %}
+            </div><!-- class="form_video_collection" -->
+
+	          <div class="visualclear"></div>
+        </div><!-- class="panel_top" -->
+
+        <div class="panel_middle">
+	          <div class="leftcol">
+		            <div class="sectionbox">
+			              <div class="fieldwrapper">
+			                  <label for="id_title">Title:</label>
+			                  {{ form.title }}
+			              </div>
+		                
+			              <div class="fieldwrapper">
+			                  <label for="id_description">Description:</label>
+			                  {{ form.description }}
+			              </div>
+		                
+			              <div class="fieldwrapper">
+			                  <label for="id_subject">Subject(s):<div id="help_video_subject" class="wc_help_button floatright" style="margin-right: 18px;">?</div><!-- class="wc_help_button" --></label>
+			                  {{ form.subject }}
+			              </div>
+
+			              <div class="fieldwrapper">
+			                  <label for="id_tags">Tag(s):<div id="help_video_tag" class="wc_help_button floatright" style="margin-right: 18px;">?</div><!-- class="wc_help_button" --></label>
+			                  {{ form.tags }}
+			              </div>
+
+		            </div><!-- class="sectionbox" -->
+	          </div><!--  class="leftcol" -->
+	          <div class="rightcol">
+		            <div class="sectionbox">
+			              <div class="section-header">
+			                  Video file <div id="help_video_file" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
+			              </div>
+			              <input type="hidden" name="scan_directory"
+			                     value="{{scan_directory}}" />
+                    {% if scan_directory %}			
+                        <div class="fieldwrapper inlinewrapper">
+			                      <label for="id_source_file">Upload:</label>
+			                      {% if file_listing %}
+			                          <select name="source_file" id="id_source_file"> 
+			                              <option value="" selected="selected">---------</option> 
+			                              {% for file in file_listing %}
+			                                  <option value="{{file}}">{{file}}</option> 
+			                              {% endfor %}
+			                          </select> 
+			                      {% else %}
+			                          <p>There are no files in the drop-off directory</p>
+			                      {% endif %}
+		                    </div>
+                    {% else %}
+			                  <div class="fieldwrapper">
+                            <p id="status"><b>Please select a file</b></p>
+                             <input type="file" id="file" onchange="s3_upload();"/>
+                             <input type="hidden" name="s3_url" id="uploaded-url" />
+				                    <pre id="console"></pre>
+			                  </div>
+
+                        <script type="text/javascript">
+                        </script>
+                    {% endif %}
+		                
+			              <div class="fieldwrapper inlinewrapper">
+			                  <label for="id_creator">Creator:</label>
+			                  {{ form.creator }}
+			              </div>
+		                
+			              <div class="fieldwrapper inlinewrapper">
+			                  <label for="id_language">Language:</label>
+			                  {{ form.language }}
+			              </div>
+		                
+			              <div class="fieldwrapper inlinewrapper">
+			                  <label for="id_license">License:</label>
+			                  {{ form.license }}
+			              </div>
+		                
+		            </div><!-- class="sectionbox" -->
+		            <div class="sectionbox process_steps">
+			              <div class="section-header">
+			                  Process steps <div id="help_process_steps" class="wc_help_button floatright" style="margin-right: 0px; margin-top: 5px;">?</div><!-- class="wc_help_button" -->
+			              </div>
+			              <div class="fieldwrapper">
+				                <input type="checkbox" name="submit_to_youtube" id="submit_to_youtube"/>Submit file to Youtube<br />
+			              </div>
+
+			              <div class="fieldwrapper disabled">
+				                <input type="checkbox" name="submit_to_mediathread" disabled="disabled" />Submit file to Mediathread<br />
+			              </div>
+
+
+		            </div><!-- class="sectionbox" -->
+
+
+		            <div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box">
+		                <div class="section-header">Extra Fields</div>
+		            </div>
+
+	          </div><!-- class="rightcol" -->
+	          <div class="visualclear"></div>
+        </div><!-- class="panel_middle" -->
+
+        <div class="panel_bottom">
+	          {% if collection_id %}
+	              <input type="hidden" name="collection" value="{{collection_id}}" />
+	          {% endif %}
+	          <input type="submit" id="submit" value="upload" class="regbutton
+	                                                                 floatleft" style="margin-left: 515px;" 
+                   {% if scan_directory %}
+                   {% else %}
+                   disabled="disabled"
+                   {% endif %}
+            />
+	          <div class="visualclear"></div>
+        </div><!-- class="panel_bottom" -->
+
+		    
+    </form>
+
+
+
+
+    {% include "flatpages/help_windows.html" %}
+
+
+
+
+
+    <script type="text/javascript">
+     jQuery(document).ready(function() 
+         { 
+             jQuery('#id_tags').tagsInput({
+                 autocomplete_url:'/api/tagautocomplete',
+                 defaultText: 'Add a tag...'
+             }
+             );
+             jQuery('#id_subject').tagsInput({
+                 autocomplete_url:'/api/subjectautocomplete',
+                 defaultText: 'Add a subject...'
+             }
+             );
+             {% if scan_directory %}
+             {% else %}
+
+//                 $("#tmpfilename").val(r.response);
+//
+
+             {% endif %}
+         }
+     );
+
+    </script>
+
+    <script>
+function s3_upload() {
+    var s3upload = new S3Upload({
+        file_dom_selector: 'file',
+        s3_sign_put_url: '/sign_s3/',
+        s3_object_name: $('#file')[0].value,
+        onProgress: function(percent, message) {
+            $('#status').html('Upload progress: ' + percent + '%' + message);
+        },
+        onFinishS3Put: function(url) {
+            $('#uploaded-url').val(url);
+            $("#submit").removeAttr("disabled");            
+        },
+        onError: function(status) {
+            $('#status').html('Upload error: ' + status);
+        }
+    });
+}
+    </script>
+    
+    <script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
+{% else %}
+    {% include 'main/maintenance_mode.html' %}
+{% endflag %}
+{% endblock %}
+<!--  -->
