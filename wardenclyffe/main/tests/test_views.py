@@ -4,7 +4,7 @@ from django.test.utils import override_settings
 from django.test.client import Client
 from wardenclyffe.main.models import (
     Collection, Operation, File)
-from wardenclyffe.main.views import VideoYoutubeUploadView
+from wardenclyffe.main.views import VideoYoutubeUploadView, key_from_s3url
 from factories import (
     FileFactory, OperationFactory, ServerFactory,
     UserFactory, VideoFactory, CollectionFactory,
@@ -76,6 +76,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/scan_directory/")
         self.assertEquals(response.status_code, 200)
 
+    def test_s3upload_form(self):
+        self.c.login(username=self.u.username, password="bar")
+        response = self.c.get("/s3upload/")
+        self.assertEquals(response.status_code, 200)
+
     def test_batch_upload_form(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/batch/")
@@ -106,6 +111,20 @@ class SimpleTest(TestCase):
 
         # invalid form
         response = self.c.post("/upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+    def test_s3upload_errors(self):
+        # if we try to post without logging in, should get redirected
+        response = self.c.post("/s3upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+        self.c.login(username=self.u.username, password="bar")
+        # GET should not work
+        response = self.c.get("/s3upload/post/")
+        self.assertEquals(response.status_code, 302)
+
+        # invalid form
+        response = self.c.post("/s3upload/post/")
         self.assertEquals(response.status_code, 302)
 
     def test_batch_upload_errors(self):
@@ -740,3 +759,12 @@ class SNSTest(TestCase):
         self.assertEqual(
             nf.cap,
             "2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9_480.mp4")
+
+
+class TestKeyFromS3Url(TestCase):
+    def test_simple(self):
+        s3url = "https://s3.amazonaws.com/<bucket>/2016/02/29/f.mp4"
+        self.assertEqual(
+            key_from_s3url(s3url),
+            "2016/02/29/f.mp4",
+        )
