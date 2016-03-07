@@ -644,6 +644,10 @@ def s3upload(request):
 
     key = key_from_s3url(s3url)
 
+    # we need a source file object in there
+    # to attach basic metadata to
+    v.make_source_file(key)
+
     label = "uploaded source file (S3)"
     File.objects.create(video=v, url="", cap=key,
                         location_type="s3",
