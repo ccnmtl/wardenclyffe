@@ -124,10 +124,7 @@
 	          {% endif %}
 	          <input type="submit" id="submit" value="upload" class="regbutton
 	                                                                 floatleft" style="margin-left: 515px;" 
-                   {% if scan_directory %}
-                   {% else %}
                    disabled="disabled"
-                   {% endif %}
             />
 	          <div class="visualclear"></div>
         </div><!-- class="panel_bottom" -->
@@ -157,13 +154,6 @@
                  defaultText: 'Add a subject...'
              }
              );
-             {% if scan_directory %}
-             {% else %}
-
-//                 $("#tmpfilename").val(r.response);
-//
-
-             {% endif %}
          }
      );
 
