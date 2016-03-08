@@ -314,13 +314,7 @@ class Video(TimeStampedModel):
     def make_audio_encode_operation(self, file_id, user):
         """ pull the file down from S3
         run it through the audio encode job
-        then upload it to cunix.
-
-        right now, this is just for testing the
-        audio encoding stuff to make sure it works
-        as promised. once we are confident with it
-        it will probably go off the locally cached
-        version of the file instead of pulling from s3"""
+        then upload it to cunix. """
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="audio encode")
 
