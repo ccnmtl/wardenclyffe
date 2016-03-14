@@ -75,9 +75,9 @@ urlpatterns = patterns(
     (r'^tag/(?P<tagname>\w+)/$', views.TagView.as_view()),
 
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
-    (r'^upload/$', views.PLUploadFormView.as_view()),
+    (r'^upload/$', views.UploadFormView.as_view()),
 
-    (r'^s3upload/$', views.PLUploadFormView.as_view(
+    (r'^s3upload/$', views.UploadFormView.as_view(
         template_name='main/s3upload.html')),
     (r'^s3upload/post/$', 'wardenclyffe.main.views.s3upload'),
 
@@ -92,7 +92,6 @@ urlpatterns = patterns(
     (r'^youtube/post/$', 'wardenclyffe.youtube.views.youtube_post'),
     (r'^youtube/done/$', 'wardenclyffe.youtube.views.youtube_done'),
     (r'^uploadify/$', views.UploadifyView.as_view()),
-    (r'^pluploadify/$', views.PLUploadifyView.as_view()),
     (r'^received/$', views.ReceivedView.as_view()),
     (r'^surelink/$', views.SureLinkView.as_view()),
     (r'^video/$', views.VideoIndexView.as_view()),
