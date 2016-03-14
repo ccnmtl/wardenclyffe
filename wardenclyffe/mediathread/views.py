@@ -2,10 +2,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
-from wardenclyffe.main.models import Video, Collection
+from wardenclyffe.main.models import Video, Collection, File
+from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
 import wardenclyffe.main.tasks as maintasks
 import os
+import uuid
 from django.conf import settings
 from django.db import transaction
 from restclient import GET
@@ -66,6 +68,13 @@ def mediathread_post(request):
             or 'set_course' not in request.session:
         return HttpResponse("invalid session")
 
+    if waffle.flag_is_active(request, 's3upload'):
+        return s3_upload(request)
+    else:
+        return normal_upload(request)
+
+
+def normal_upload(request):
     tmpfilename = request.POST.get('tmpfilename', '')
     # backwards compatibility: allow 'audio' or 'audio2'
     audio2 = request.POST.get('audio2', False)
@@ -105,6 +114,61 @@ def mediathread_post(request):
             for o in operations:
                 maintasks.process_operation.delay(o.id)
             return HttpResponseRedirect(request.session['redirect_to'])
+    return HttpResponse("Bad file upload. Please try again.")
+
+
+def s3_upload(request):
+    s3url = request.POST.get('s3url')
+    if s3url is None:
+        return HttpResponse("Bad file upload. Please try again.")
+
+    # backwards compatibility: allow 'audio' or 'audio2'
+    audio2 = request.POST.get('audio2', False)
+    audio = request.POST.get('audio', False) or audio2
+    operations = []
+    vuuid = uuid.uuid4()
+    statsd.incr("mediathread.mediathread")
+    key = key_from_s3url(s3url)
+    # make db entry
+    try:
+        collection = Collection.objects.get(
+            id=settings.MEDIATHREAD_COLLECTION_ID)
+        v = Video.objects.create(collection=collection,
+                                 title=request.POST.get('title', ''),
+                                 creator=request.session['username'],
+                                 uuid=vuuid)
+        source_file = v.make_source_file(key)
+        # we make a "mediathreadsubmit" file to store the submission
+        # info and serve as a flag that it needs to be submitted
+        # (when PCP comes back)
+        user = User.objects.get(username=request.session['username'])
+        v.make_mediathread_submit_file(
+            key, user, request.session['set_course'],
+            request.session['redirect_to'], audio=audio,
+        )
+
+        label = "uploaded source file (S3)"
+        source_file = File.objects.create(video=v, url="", cap=key,
+                                          location_type="s3",
+                                          filename=key,
+                                          label=label)
+        audio_flag = waffle.flag_is_active(request, 'encode_audio')
+        operations = [
+            v.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=request.user),
+            v.make_create_elastic_transcoder_job_operation(
+                key=key, user=request.user)]
+        if audio_flag and audio:
+            o = v.make_audio_encode_operation(source_file.id, request.user)
+            operations.append(o)
+    except:
+        statsd.incr("mediathread.mediathread.failure")
+        raise
+    else:
+        # hand operations off to celery
+        for o in operations:
+            maintasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(request.session['redirect_to'])
     return HttpResponse("Bad file upload. Please try again.")
 
 

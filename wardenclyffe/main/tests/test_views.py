@@ -76,11 +76,6 @@ class SimpleTest(TestCase):
         response = self.c.get("/scan_directory/")
         self.assertEquals(response.status_code, 200)
 
-    def test_s3upload_form(self):
-        self.c.login(username=self.u.username, password="bar")
-        response = self.c.get("/s3upload/")
-        self.assertEquals(response.status_code, 200)
-
     def test_batch_upload_form(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/batch/")

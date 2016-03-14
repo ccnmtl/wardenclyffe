@@ -6,6 +6,7 @@ import uuid
 import requests
 import time
 import urllib
+import waffle
 
 import wardenclyffe.main.tasks as tasks
 
@@ -658,6 +659,82 @@ def create_operations_if_source_filename(request, v, tmpfilename,
     return []
 
 
+def normal_batch_upload(request, collection_id):
+    operations = []
+    for k in request.POST.keys():
+        if not k.startswith('tmpfilename_'):
+            continue
+        if request.POST[k] == "":
+            continue
+        (_base, idx) = k.split('_')
+
+        # only works with plupload for now
+        tmpfilename = request.POST[k]
+        filename = os.path.basename(tmpfilename)
+        vuuid = os.path.splitext(filename)[0]
+
+        v = Video.objects.create(
+            uuid=vuuid,
+            collection_id=collection_id,
+            creator=request.user.username,
+            title=request.POST.get('title_' + idx, filename),
+            description=request.POST.get('description_' + idx, ""),
+            subject=request.POST.get('subject_' + idx, ""),
+            license=request.POST.get('license_' + idx, ""),
+            language=request.POST.get('language_' + idx, ""),
+        )
+        source_file = v.make_source_file(tmpfilename)
+
+        v_operations = create_operations(
+            request, v, tmpfilename, source_file, tmpfilename,
+            '_' + idx)
+        operations.extend(v_operations)
+    return operations
+
+
+def s3_batch_upload(request, collection_id):
+    operations = []
+    for k in request.POST.keys():
+        if not k.startswith('s3url_'):
+            continue
+        if request.POST[k] == "":
+            continue
+        (_base, idx) = k.split('_')
+
+        s3url = request.POST[k]
+        key = key_from_s3url(s3url)
+
+        vuuid = uuid.uuid4()
+        v = Video.objects.create(
+            uuid=vuuid,
+            collection_id=collection_id,
+            creator=request.user.username,
+            title=request.POST.get('title_' + idx, key),
+            description=request.POST.get('description_' + idx, ""),
+            subject=request.POST.get('subject_' + idx, ""),
+            license=request.POST.get('license_' + idx, ""),
+            language=request.POST.get('language_' + idx, ""),
+        )
+
+        source_file = v.make_source_file(key)
+        label = "uploaded source file (S3)"
+        source_file = File.objects.create(video=v, url="", cap=key,
+                                          location_type="s3",
+                                          filename=key,
+                                          label=label)
+
+        v_operations = [
+            v.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=request.user),
+            v.make_create_elastic_transcoder_job_operation(
+                key=key, user=request.user)]
+        if v.collection.audio:
+            o = v.make_audio_encode_operation(source_file.id, request.user)
+            v_operations.append(o)
+        operations.extend(v_operations)
+    return operations
+
+
 @transaction.non_atomic_requests()
 @login_required
 @user_passes_test(is_staff)
@@ -670,36 +747,11 @@ def batch_upload(request):
     statsd.incr('main.batch_upload')
     collection_id = request.POST.get('collection', None)
 
-    # make db entry
     try:
-        for k in request.POST.keys():
-            if not k.startswith('tmpfilename_'):
-                continue
-            if request.POST[k] == "":
-                continue
-            (_base, idx) = k.split('_')
-
-            # only works with plupload for now
-            tmpfilename = request.POST[k]
-            filename = os.path.basename(tmpfilename)
-            vuuid = os.path.splitext(filename)[0]
-
-            v = Video.objects.create(
-                uuid=vuuid,
-                collection_id=collection_id,
-                creator=request.user.username,
-                title=request.POST.get('title_' + idx, filename),
-                description=request.POST.get('description_' + idx, ""),
-                subject=request.POST.get('subject_' + idx, ""),
-                license=request.POST.get('license_' + idx, ""),
-                language=request.POST.get('language_' + idx, ""),
-            )
-            source_file = v.make_source_file(tmpfilename)
-
-            v_operations = create_operations(
-                request, v, tmpfilename, source_file, tmpfilename,
-                '_' + idx)
-            operations.extend(v_operations)
+        if waffle.flag_is_active(request, 's3upload'):
+            operations = s3_batch_upload(request, collection_id)
+        else:
+            operations = normal_batch_upload(request, collection_id)
     except:
         statsd.incr('main.batch_upload.failure')
         raise
@@ -729,6 +781,8 @@ class UploadFormView(StaffMixin, TemplateView):
     template_name = 'main/upload.html'
 
     def get_context_data(self):
+        if waffle.flag_is_active(self.request, 's3upload'):
+            self.template_name = 'main/s3upload.html'
         form = VideoForm()
         form.fields["collection"].queryset = Collection.objects.filter(
             active=True)

@@ -23,7 +23,11 @@
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
+{% flag s3upload %}
+<script src="{{STATIC_URL}}js/libs/s3upload.js"></script>
+{% else %}
 <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+{% endflag %}
 {% endcompress %}
 
 </head>
@@ -77,10 +81,16 @@
                                 <td class="step">
                                     <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
                                     <div>
-                                    <ul id="filelist"></ul>
-                                    <a id="browse" href="javascript:;">Select File</a>
-                                    <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
-                                    <pre id="console"></pre>
+                                        {% flag s3upload %}
+                                        <p id="status"><b>Please select a file</b></p>
+                                        <input type="file" id="file" onchange="s3_upload();"/>
+                                        <input type="hidden" name="s3_url" id="uploaded-url" />
+                                        {% else %}
+                                        <ul id="filelist"></ul>
+                                        <a id="browse" href="javascript:;">Select File</a>
+                                        <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
+                                        <pre id="console"></pre>
+                                        {% endflag %}
                                     </div>
                                 </td>
                             </tr>
@@ -136,6 +146,25 @@
 
 </div>
 <script type="text/javascript">
+ {% flag s3upload %}
+ function s3_upload() {
+    var s3upload = new S3Upload({
+        file_dom_selector: 'file',
+        s3_sign_put_url: '/sign_s3/',
+        s3_object_name: $('#file')[0].value,
+        onProgress: function(percent, message) {
+            $('#status').html('Upload progress: ' + percent + '%' + message);
+        },
+        onFinishS3Put: function(url) {
+            $('#uploaded-url').val(url);
+            $("#submit").removeAttr("disabled");            
+        },
+        onError: function(status) {
+            $('#status').html('Upload error: ' + status);
+        }
+    });
+}
+ {% else %}
 jQuery(document).ready(function() { 
     var uploader = new plupload.Uploader({
         browse_button: 'browse', // this can be an id of a DOM element or the DOM element itself
@@ -180,6 +209,7 @@ jQuery(document).ready(function() {
     });
 
     uploader.init();
-});
+ });
+ {% endflag %}
 </script>
 </body>

@@ -4,16 +4,19 @@
 {% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 
 {% block extra_head %}
-<script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-
-<script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+    {% flag s3upload %}
+    <script src="{{STATIC_URL}}js/libs/s3upload.js"></script>
+    {% else %}
+    <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+    {% endflag %}
 
 {% endblock %}
 
 {% block content %}
 
-{% flag allow_uploads %}
-<form action="/upload/batch/post/" method="post" enctype="multipart/form-data">
+    {% flag allow_uploads %}
+    <form action="/upload/batch/post/" method="post" enctype="multipart/form-data">
 
 <div class="panel_top">
 
