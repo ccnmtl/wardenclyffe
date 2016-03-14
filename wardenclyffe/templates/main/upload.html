@@ -8,14 +8,12 @@
 {% compress js %}
 <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-<script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
-<script src="{{STATIC_URL}}js/jquery.uploadify.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
 {% endcompress %}
 
 {% compress css %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-<link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
 {% endcompress %}
 
 {% endblock %}
@@ -40,8 +38,7 @@
 
     <div class="form_video_collection">
         <div class="form_video_collection_title">
-            <label for="id_collection">Workflow:</label>
-            <!-- "Workflow" is Collection. The renaming here is cosmetic -->
+            <label for="id_collection">Collection:</label>
         </div>
         {% if form.collection %}
             {{ form.collection }}
@@ -86,7 +83,7 @@
 			<input type="hidden" name="scan_directory"
 			       value="{{scan_directory}}" />
 {% if scan_directory %}			
-                       <div class="fieldwrapper inlinewrapper">
+       <div class="fieldwrapper inlinewrapper">
 			 <label for="id_source_file">Upload:</label>
 			 {% if file_listing %}
 			 <select name="source_file" id="id_source_file"> 
@@ -101,10 +98,15 @@
 		       </div>
 {% else %}
 			<div class="fieldwrapper">
-			  <label for="id_file" id="upload_area">Select file to upload:</label>
-			  <input class="file_upload" type="file" name="source_file" id="file_upload" />
-			  <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
+				<ul id="filelist"></ul>
+				<a id="browse" href="javascript:;">Select File</a>
+        <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
+
+				<pre id="console"></pre>
 			</div>
+
+<script type="text/javascript">
+</script>
 {% endif %}
 		
 			<div class="fieldwrapper inlinewrapper">
@@ -188,27 +190,51 @@ jQuery(document).ready(function()
      );
 {% if scan_directory %}
 {% else %}
-    $('#file_upload').uploadify({
-    'swf'  : '{{STATIC_URL}}swf/uploadify.swf',
-    'uploader'    : '/uploadify/',
-    'cancelImg' : '{{STATIC_URL}}img/pixel.gif',
-    'folder'    : '/uploads',
-    'auto'      : true,
-    'fileTypeExts'     : '*.mov;*.avi;*.mp4;*.flv;*.mpg;*.wmv;*.m4v;*.mp3',
-    'fileTypeDesc'  : 'Video Files',
-    'removeCompleted' : false,
-    'successTimeout': 3000,
-    'onUploadError': function(file, errorCode, errorMsg, errorString) {
-       alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
-       alert('error code ' + errorCode + ' error message was: ' + errorMsg);
-    },
-    'onUploadSuccess'  : function(file, data, response) {
-      $("#tmpfilename").val(data);
-      $("#submit").removeAttr("disabled");
-      $("#file_uploadUploader").replaceWith();
-    },
-    'multi' : false
+var uploader = new plupload.Uploader({
+  browse_button: 'browse', // this can be an id of a DOM element or the DOM element itself
+  url: '/uploadify/',
+  max_retries: 3,
+  multi_selection: false,
+  runtimes : 'html5,flash,silverlight',
+  flash_swf_url: '{{STATIC_URL}}js/Moxie.swf',
+  silverlight_xap_url: '{{STATIC_URL}}js/Moxie.xap',
+  filters: {
+    mime_types : [
+      { title : "Audio files", extensions : "mp3" },
+      { title : "Video Files", extensions : "mov,avi,mp4,flv,mpg,wmv,m4v" }
+    ]
+  }
+});
+
+uploader.bind('FilesAdded', function(up, files) {
+  var html = '';
+  plupload.each(files, function(file) {
+    html += '<li id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></li>';
   });
+  document.getElementById('filelist').innerHTML += html;
+
+  // only allow one file at a time, and start uploading automatically
+  $("#browse").replaceWith();
+  up.start();
+});
+
+uploader.bind('UploadProgress', function(up, file) {
+  document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+});
+
+uploader.bind('Error', function(up, err) {
+  console.log(err);
+  document.getElementById('console').innerHTML += "\nError #" + err.code + ": " + err.message;
+});
+
+uploader.bind('FileUploaded', function(up, data, r) {
+   console.log(r.response);
+   $("#tmpfilename").val(r.response);
+   $("#submit").removeAttr("disabled");
+});
+
+uploader.init();
+
 {% endif %}
    }
 );

@@ -124,37 +124,6 @@ class UploadifyView(View):
                 # save it locally
                 vuuid = uuid.uuid4()
                 safe_makedirs(settings.TMP_DIR)
-                extension = request.FILES['Filedata'].name.split(".")[-1]
-                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
-                    + extension.lower()
-                tmpfile = open(tmpfilename, 'wb')
-                for chunk in request.FILES['Filedata'].chunks():
-                    tmpfile.write(chunk)
-                tmpfile.close()
-                return HttpResponse(tmpfilename)
-            else:
-                statsd.incr('main.uploadify_post_no_file')
-        except IOError:
-            # this happens when the client connection is lost
-            # during the upload. eg, bad wifi, or the user
-            # is impatient and hits reload or back, or if they
-            # cancel the upload. Not really our fault and not much
-            # we can do about it.
-            return HttpResponse('False')
-        return HttpResponse('True')
-
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('True')
-
-
-class PLUploadifyView(View):
-    def post(self, request, *args, **kwargs):
-        statsd.incr('main.uploadify_post')
-        try:
-            if request.FILES:
-                # save it locally
-                vuuid = uuid.uuid4()
-                safe_makedirs(settings.TMP_DIR)
                 extension = request.FILES['file'].name.split(".")[-1]
                 tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
                     + extension.lower()
@@ -758,23 +727,6 @@ class RerunOperationView(StaffMixin, View):
 
 class UploadFormView(StaffMixin, TemplateView):
     template_name = 'main/upload.html'
-
-    def get_context_data(self):
-        form = VideoForm()
-        form.fields["collection"].queryset = Collection.objects.filter(
-            active=True)
-        collection_id = self.request.GET.get('collection', None)
-        collection_title = None
-        if collection_id:
-            collection = get_object_or_404(Collection, id=collection_id)
-            collection_title = collection.title
-            form = collection.add_video_form()
-        return dict(form=form, collection_id=collection_id,
-                    collection_title=collection_title)
-
-
-class PLUploadFormView(StaffMixin, TemplateView):
-    template_name = 'main/plupload.html'
 
     def get_context_data(self):
         form = VideoForm()
