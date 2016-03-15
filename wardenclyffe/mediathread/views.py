@@ -118,7 +118,7 @@ def normal_upload(request):
 
 
 def s3_upload(request):
-    s3url = request.POST.get('s3url')
+    s3url = request.POST.get('s3_url')
     if s3url is None:
         return HttpResponse("Bad file upload. Please try again.")
 
