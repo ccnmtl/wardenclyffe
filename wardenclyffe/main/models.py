@@ -374,6 +374,9 @@ class FileType(object):
     def is_s3(self):
         return False
 
+    def is_audio(self):
+        return False
+
     def s3_download_url(self):
         return None
 
@@ -435,6 +438,9 @@ class File(TimeStampedModel):
 
     def is_s3(self):
         return self.filetype().is_s3()
+
+    def is_audio(self):
+        return self.filetype().is_audio()
 
     def s3_download_url(self):
         return self.filetype().s3_download_url()

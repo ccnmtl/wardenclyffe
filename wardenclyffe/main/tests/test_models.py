@@ -222,7 +222,14 @@ class S3FileTest(TestCase):
 
     def test_is_audio(self):
         f = S3FileFactory()
-        self.assertFalse(f.filetype().is_audio())
+        self.assertFalse(f.is_audio())
+        f2 = FileFactory()
+        self.assertFalse(f2.is_audio())
+        f3 = S3FileFactory(cap='something.mp3')
+        self.assertTrue(f3.is_audio())
+        # uppercase extension too
+        f4 = S3FileFactory(cap='something.MP3')
+        self.assertTrue(f4.is_audio())
 
 
 class MediathreadVideoTest(TestCase):
