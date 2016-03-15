@@ -155,6 +155,7 @@
         onFinishS3Put: function(url) {
             $('#uploaded-url').val(url);
             $("#submit").removeAttr("disabled");            
+            jQuery(".post-upload").fadeIn();
         },
         onError: function(status) {
             $('#status').html('Upload error: ' + status);
