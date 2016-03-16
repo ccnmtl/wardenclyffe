@@ -137,30 +137,31 @@ def s3_upload(request):
                                  title=request.POST.get('title', ''),
                                  creator=request.session['username'],
                                  uuid=vuuid)
-        source_file = v.make_source_file(key)
+        v.make_source_file(key)
         # we make a "mediathreadsubmit" file to store the submission
         # info and serve as a flag that it needs to be submitted
-        # (when PCP comes back)
+        # (when Elastic Transcoder comes back)
         user = User.objects.get(username=request.session['username'])
         v.make_mediathread_submit_file(
             key, user, request.session['set_course'],
             request.session['redirect_to'], audio=audio,
         )
 
-        label = "uploaded source file (S3)"
-        source_file = File.objects.create(video=v, url="", cap=key,
-                                          location_type="s3",
-                                          filename=key,
-                                          label=label)
         audio_flag = waffle.flag_is_active(request, 'encode_audio')
-        operations = [
-            v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user),
-            v.make_create_elastic_transcoder_job_operation(
-                key=key, user=request.user)]
+        label = "uploaded source file (S3)"
         if audio_flag and audio:
-            o = v.make_audio_encode_operation(source_file.id, request.user)
-            operations.append(o)
+            label = "uploaded source audio (S3)"
+        File.objects.create(video=v, url="", cap=key, location_type="s3",
+                            filename=key, label=label)
+        if audio_flag and audio:
+            operations = [v.make_local_audio_encode_operation(
+                key, user=request.user)]
+        else:
+            operations = [
+                v.make_pull_from_s3_and_extract_metadata_operation(
+                    key=key, user=request.user),
+                v.make_create_elastic_transcoder_job_operation(
+                    key=key, user=request.user)]
     except:
         statsd.incr("mediathread.mediathread.failure")
         raise
