@@ -80,7 +80,11 @@
                                     <div>
                                         {% flag s3upload %}
                                         <p id="status"><b>Please select a file</b></p>
-                                        <input type="file" id="file" onchange="s3_upload();"/>
+                                        {% if audio %}
+                                            <input type="file" id="file" onchange="s3_upload();" accept=".mp3" />                                            
+                                        {% else %}
+                                            <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v" />
+                                        {% endif %}
                                         <input type="hidden" name="s3_url" id="uploaded-url" />
                                         {% else %}
                                         <ul id="filelist"></ul>

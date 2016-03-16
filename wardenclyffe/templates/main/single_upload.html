@@ -26,7 +26,7 @@
 			<div class="fieldwrapper">
         {% flag s3upload %}
         <p id="status-{{idx}}"><b>Please select a file</b></p>
-        <input type="file" id="file-{{idx}}" onchange="s3_upload_{{idx}}();"/>
+        <input type="file" id="file-{{idx}}" onchange="s3_upload_{{idx}}();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v,.mp3"/>
         <input type="hidden" name="s3url_{{idx}}" id="uploaded-url-{{idx}}" />
         {% else %}
 				<ul id="filelist_{{idx}}"></ul>
