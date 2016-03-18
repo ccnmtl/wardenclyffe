@@ -29,7 +29,6 @@ PROJECT_APPS = [
     'wardenclyffe.mediathread',
     'wardenclyffe.util',
     'wardenclyffe.youtube',
-    'wardenclyffe.cuit',
     'wardenclyffe.graphite',
 ]
 
@@ -43,7 +42,6 @@ INSTALLED_APPS += [  # noqa
     'wardenclyffe.util',
     'oembed',
     'taggit',
-    'wardenclyffe.cuit',
     'wardenclyffe.graphite',
     'django_extensions',
 ]
