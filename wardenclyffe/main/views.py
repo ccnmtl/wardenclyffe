@@ -619,24 +619,25 @@ def s3upload(request):
     v.make_source_file(key)
 
     label = "uploaded source file (S3)"
-    source_file = File.objects.create(video=v, url="", cap=key,
-                                      location_type="s3",
-                                      filename=key,
-                                      label=label)
+    if v.collection.audio:
+        label = "uploaded source audio (S3)"
+
+    File.objects.create(video=v, url="", cap=key, location_type="s3",
+                        filename=key, label=label)
     # trigger operations
-    # TODO: audio, youtube upload
-    operations = [
-        v.make_pull_from_s3_and_extract_metadata_operation(
-            key=key, user=request.user),
-        v.make_create_elastic_transcoder_job_operation(
-            key=key, user=request.user)]
+    if v.collection.audio:
+        operations = [v.make_local_audio_encode_operation(
+            key, user=request.user)]
+    else:
+        operations = [
+            v.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=request.user),
+            v.make_create_elastic_transcoder_job_operation(
+                key=key, user=request.user)]
 
     if request.POST.get("submit_to_youtube", False):
         o = v.make_pull_from_s3_and_upload_to_youtube_operation(
             v.id, request.user)
-        operations.append(o)
-    if v.collection.audio:
-        o = v.make_audio_encode_operation(source_file.id, request.user)
         operations.append(o)
 
     enqueue_operations(operations)
