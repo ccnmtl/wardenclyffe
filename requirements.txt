@@ -53,7 +53,7 @@ pickleshare==0.5
 simplegeneric==0.8.1
 path.py==8.1.2
 ipython==4.1.1
-sqlparse==0.1.18
+sqlparse==0.1.19
 filechunkio==1.6
 urllib3==1.10.4
 httpretty==0.8.10
