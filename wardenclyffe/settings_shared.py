@@ -44,6 +44,7 @@ INSTALLED_APPS += [  # noqa
     'taggit',
     'wardenclyffe.graphite',
     'django_extensions',
+    's3sign',
 ]
 
 BROKER_URL = "amqp://localhost:5672//"
