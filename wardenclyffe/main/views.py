@@ -1098,8 +1098,10 @@ class BulkOperationView(StaffMixin, View):
         if request.POST.get('surelink', False):
             query_string = "&".join(
                 "video_%d=on" % v.id for v in self._videos(request))
+            if query_string != "":
+                query_string = "?" + query_string
             return HttpResponseRedirect(
-                reverse("bulk-surelink") + "?" + query_string)
+                reverse("bulk-surelink") + query_string)
         return HttpResponse("Unknown action", status=400)
 
     def get(self, request):
