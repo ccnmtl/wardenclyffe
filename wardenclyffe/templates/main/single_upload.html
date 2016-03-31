@@ -84,6 +84,8 @@ function s3_upload_{{idx}}() {
         },
         onFinishS3Put: function(url) {
             $('#uploaded-url-{{idx}}').val(url);
+	          window.oneOrMoreFiles = true;
+            window.updateSubmit();
         },
         onError: function(status) {
             $('#status-{{idx}}').html('Upload error: ' + status);
@@ -134,7 +136,8 @@ uploader_{{idx}}.bind('Error', function(up, err) {
 uploader_{{idx}}.bind('FileUploaded', function(up, data, r) {
 	console.log(r.response);
 	$("#tmpfilename_{{idx}}").val(r.response);
-	$("#submit").removeAttr("disabled");
+	window.oneOrMoreFiles = true;
+  window.updateSubmit();
 });
 
 uploader_{{idx}}.init();
