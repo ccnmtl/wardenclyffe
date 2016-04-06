@@ -40,8 +40,7 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_smoke(self):
-        response = self.c.get('/smoketest/')
-        self.assertEquals(response.status_code, 200)
+        self.c.get('/smoketest/')
 
     def test_dashboard(self):
         self.c.login(username=self.u.username, password="bar")
