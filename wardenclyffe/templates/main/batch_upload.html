@@ -34,19 +34,43 @@
 
 <script>
 window.copyDown = function(base, idx) {
-  var source = $("#" + base + idx);
-  var value = source.val();
-  console.log(base, idx, value);
-  $(":input").each(function () {
-     if (this.id.indexOf(base) == 0) {
-        var rest = this.id.substring(base.length);
-        if (rest > idx) {
-           $(this).val(value);
+    var source = $("#" + base + idx);
+    var value = source.val();
+    $(":input").each(function () {
+        if (this.id.indexOf(base) == 0) {
+            var rest = this.id.substring(base.length);
+            if (rest > idx) {
+                $(this).val(value);
+            }
         }
-     }
-   }
-  );
+    }
+    );
 }
+
+{% if collection_id %}
+window.collectionSelected = true;
+{% else %}
+window.collectionSelected = false;
+{% endif %}
+
+window.oneOrMoreFiles = false;
+
+window.updateSubmit = function() {
+    if (window.collectionSelected && window.oneOrMoreFiles) {
+        $("#submit").removeAttr("disabled");
+    } else {
+        $("#submit").attr("disabled", "disabled");
+    }
+};
+
+window.collectionUpdate = function(e) {
+    window.collectionSelected = $('#id_collection').val() != '';
+    window.updateSubmit();
+}
+
+$(function () {
+    $('#id_collection').change(collectionUpdate);
+});
 </script>
 
 {% with idx=1 %}

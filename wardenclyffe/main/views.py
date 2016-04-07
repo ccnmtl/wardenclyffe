@@ -745,6 +745,11 @@ def batch_upload(request):
     statsd.incr('main.batch_upload')
     collection_id = request.POST.get('collection', None)
 
+    if collection_id is None:
+        # javascript should prevent this from happening
+        # but...
+        return HttpResponse("need to pick a collection")
+
     try:
         if waffle.flag_is_active(request, 's3upload'):
             operations = s3_batch_upload(request, collection_id)

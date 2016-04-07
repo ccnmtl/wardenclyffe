@@ -133,7 +133,7 @@ class SimpleTest(TestCase):
         self.assertEquals(response.status_code, 302)
 
         # invalid form
-        response = self.c.post("/upload/batch/post/")
+        response = self.c.post("/upload/batch/post/", dict(collection=1))
         self.assertEquals(response.status_code, 302)
 
     def test_subject_autocomplete(self):
