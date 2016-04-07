@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load markup %}
 
 {% block content %}
@@ -28,8 +29,8 @@
 <td>
 <a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
 {% if poster.dummy %}
-<img src="http://ccnmtl.columbia.edu/broadcast/posters/vidthumb_480x360.jpg"
-     width="160" height="120" />
+    <img src="{% static 'img/vidthumb_480x360.jpg' %}"
+         width="160" height="120" />
 {% else %}
 <img src="{{poster.image.src}}" width="160" />
 {% endif %}
