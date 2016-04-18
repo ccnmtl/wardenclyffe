@@ -2,6 +2,7 @@
 import os
 import uuid
 import requests
+import urlparse
 import waffle
 
 import wardenclyffe.main.tasks as tasks
@@ -646,7 +647,12 @@ def key_from_s3url(s3url):
     #   https://s3.amazonaws.com/<bucket>/2016/02/29/filename.mp4
     # and returns
     #   2016/02/29/filename.mp4
-    return '/'.join(s3url.split('/')[4:])
+    r = urlparse.urlparse(s3url)
+    if r.netloc == 's3.amazonaws.com':
+        return '/'.join(s3url.split('/')[4:])
+    else:
+        # it's a https://<bucket>.s3.amazonaws.com/ URL
+        return '/'.join(s3url.split('/')[3:])
 
 
 def create_operations_if_source_filename(request, v, tmpfilename,

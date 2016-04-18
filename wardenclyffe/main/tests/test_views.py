@@ -762,3 +762,11 @@ class TestKeyFromS3Url(TestCase):
             key_from_s3url(s3url),
             "2016/02/29/f.mp4",
         )
+
+    def test_known_failure(self):
+        s3url = ("https://wardenclyffe-input-prod.s3.amazonaws.com/"
+                 "2016/04/18/46d54344-d228-4315-83ed-c0361dcac47c.mp3")
+        self.assertEqual(
+            key_from_s3url(s3url),
+            "2016/04/18/46d54344-d228-4315-83ed-c0361dcac47c.mp3",
+        )
