@@ -159,9 +159,9 @@ def s3_upload(request):
         else:
             operations = [
                 v.make_pull_from_s3_and_extract_metadata_operation(
-                    key=key, user=request.user),
+                    key=key, user=user),
                 v.make_create_elastic_transcoder_job_operation(
-                    key=key, user=request.user)]
+                    key=key, user=user)]
     except:
         statsd.incr("mediathread.mediathread.failure")
         raise
