@@ -155,7 +155,7 @@ def s3_upload(request):
                             filename=key, label=label)
         if audio_flag and audio:
             operations = [v.make_local_audio_encode_operation(
-                key, user=request.user)]
+                key, user=user)]
         else:
             operations = [
                 v.make_pull_from_s3_and_extract_metadata_operation(
