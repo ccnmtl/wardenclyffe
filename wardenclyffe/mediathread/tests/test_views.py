@@ -7,7 +7,7 @@ from django.conf import settings
 from wardenclyffe.mediathread.views import mediathread_post
 
 
-class SimpleText(TestCase):
+class SimpleTest(TestCase):
     def setUp(self):
         self.u = User.objects.create(username="foo")
         self.u.set_password("bar")
