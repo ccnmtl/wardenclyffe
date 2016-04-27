@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from django.contrib.auth.models import User
+from wardenclyffe.main.tests.factories import UserFactory
 import hmac
 import hashlib
 from django.conf import settings
@@ -9,7 +9,7 @@ from wardenclyffe.mediathread.views import mediathread_post
 
 class SimpleTest(TestCase):
     def setUp(self):
-        self.u = User.objects.create(username="foo")
+        self.u = UserFactory(username="foo")
         self.u.set_password("bar")
         self.u.save()
         self.c = Client()
