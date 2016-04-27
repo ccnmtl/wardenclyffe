@@ -1,10 +1,12 @@
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from wardenclyffe.main.tests.factories import UserFactory
 import hmac
 import hashlib
 from django.conf import settings
-from wardenclyffe.mediathread.views import mediathread_post
+from waffle.testutils import override_flag
+from wardenclyffe.mediathread.views import mediathread_post, s3_upload
+from wardenclyffe.main.tests.factories import (
+    UserFactory, CollectionFactory)
 
 
 class SimpleTest(TestCase):
@@ -47,6 +49,42 @@ class SimpleTest(TestCase):
         self.assertNotEquals(
             response.content,
             "invalid authentication token")
+
+
+class TestS3Upload(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_video(self):
+        u = UserFactory()
+        c = CollectionFactory()
+        s3url = "https://s3.amazonaws.com/f/2016/02/29/filename.mp4"
+        r = self.factory.post(
+            "/mediathread/post/",
+            dict(s3_url=s3url, title="test video")
+        )
+        r.session = dict(username=u.username,
+                         set_course="",
+                         redirect_to="")
+        with self.settings(MEDIATHREAD_COLLECTION_ID=c.id):
+            response = s3_upload(r)
+            self.assertEqual(response.status_code, 302)
+
+    @override_flag('encode_audio', active=True)
+    def test_audio(self):
+        u = UserFactory()
+        c = CollectionFactory()
+        s3url = "https://s3.amazonaws.com/f/2016/02/29/filename.mp3"
+        r = self.factory.post(
+            "/mediathread/post/",
+            dict(s3_url=s3url, title="test audio", audio=True)
+        )
+        r.session = dict(username=u.username,
+                         set_course="",
+                         redirect_to="")
+        with self.settings(MEDIATHREAD_COLLECTION_ID=c.id):
+            response = s3_upload(r)
+            self.assertEqual(response.status_code, 302)
 
 
 class TestInvalidUpload(TestCase):
