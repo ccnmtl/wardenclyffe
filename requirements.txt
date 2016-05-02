@@ -29,7 +29,7 @@ pycrypto==2.6.1
 ecdsa==0.13
 paramiko==1.15.2
 raven==5.12.0
-pyOpenSSL==0.15.1
+pyOpenSSL==16.0.0
 ndg-httpsclient==0.4.0
 requests==2.9.1
 statsd==3.2.1
