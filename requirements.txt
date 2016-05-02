@@ -15,7 +15,7 @@ kombu==3.0.35
 django-picklefield==0.3.1
 pyparsing==2.1.1
 six==1.10.0
-pytz==2016.3
+pytz==2016.4
 python-dateutil==2.5.2
 librabbitmq==1.6.1
 celery==3.1.23
