@@ -28,7 +28,7 @@ google-api-python-client==1.5.0
 pycrypto==2.6.1
 ecdsa==0.13
 paramiko==1.15.2
-raven==5.12.0
+raven==5.13.0
 pyOpenSSL==0.15.1
 ndg-httpsclient==0.4.0
 requests==2.9.1
