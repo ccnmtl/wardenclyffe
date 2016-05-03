@@ -16,7 +16,7 @@ django-picklefield==0.3.2
 pyparsing==2.1.1
 six==1.10.0
 pytz==2016.4
-python-dateutil==2.5.2
+python-dateutil==2.5.3
 librabbitmq==1.6.1
 celery==3.1.23
 oauth2client==2.0.2
@@ -27,9 +27,9 @@ uritemplate==0.6
 google-api-python-client==1.5.0
 pycrypto==2.6.1
 ecdsa==0.13
-paramiko==1.15.2
+paramiko==1.16.0
 raven==5.13.0
-pyOpenSSL==0.15.1
+pyOpenSSL==16.0.0
 ndg-httpsclient==0.4.0
 requests==2.9.1
 statsd==3.2.1
