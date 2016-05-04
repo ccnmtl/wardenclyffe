@@ -102,10 +102,8 @@ def normal_upload(request):
                 request.session['redirect_to'], audio=audio,
             )
 
-            audio_flag = waffle.flag_is_active(request, 'encode_audio')
             operations = v.make_default_operations(
-                tmpfilename, source_file, user, audio=audio,
-                audio_flag=audio_flag)
+                tmpfilename, source_file, user, audio=audio)
         except:
             statsd.incr("mediathread.mediathread.failure")
             raise
@@ -147,13 +145,12 @@ def s3_upload(request):
             request.session['redirect_to'], audio=audio,
         )
 
-        audio_flag = waffle.flag_is_active(request, 'encode_audio')
         label = "uploaded source file (S3)"
-        if audio_flag and audio:
+        if audio:
             label = "uploaded source audio (S3)"
         File.objects.create(video=v, url="", cap=key, location_type="s3",
                             filename=key, label=label)
-        if audio_flag and audio:
+        if audio:
             operations = [v.make_local_audio_encode_operation(
                 key, user=user)]
         else:

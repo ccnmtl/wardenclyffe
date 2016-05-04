@@ -3,7 +3,6 @@ from django.test.client import Client
 import hmac
 import hashlib
 from django.conf import settings
-from waffle.testutils import override_flag
 from wardenclyffe.mediathread.views import mediathread_post, s3_upload
 from wardenclyffe.main.tests.factories import (
     UserFactory, CollectionFactory)
@@ -70,7 +69,6 @@ class TestS3Upload(TestCase):
             response = s3_upload(r)
             self.assertEqual(response.status_code, 302)
 
-    @override_flag('encode_audio', active=True)
     def test_audio(self):
         u = UserFactory()
         c = CollectionFactory()
