@@ -15,7 +15,6 @@ from json import loads, dumps
 import paramiko
 import random
 import re
-import shutil
 from django_statsd.clients import statsd
 import boto
 import boto.elastictranscoder
@@ -146,33 +145,8 @@ def create_elastic_transcoder_job(operation):
     return ("submitted", "")
 
 
-IONICE = settings.IONICE_PATH
 MPLAYER = settings.MPLAYER_PATH
 FFMPEG = settings.FFMPEG_PATH
-MAX_SEEK_POS = "03:00:00"
-
-
-def avi_image_extract_command(tmpdir, frames, tmpfilename):
-    return ("%s -c 3 %s -nosound"
-            " -vo jpeg:outdir=%s -endpos %s -frames %d"
-            " -sstep 10 -correct-pts '%s' 2>/dev/null"
-            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
-
-
-def image_extract_command(tmpdir, frames, tmpfilename):
-    return ("%s -c 3 %s "
-            "-nosound -vo jpeg:outdir=%s "
-            "-endpos %s -frames %d "
-            "-sstep 10 '%s' 2>/dev/null"
-            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
-
-
-def fallback_image_extract_command(tmpdir, frames, tmpfilename):
-    return ("%s -c 3 %s "
-            "-nosound -vo jpeg:outdir=%s "
-            "-endpos %s -frames %d "
-            "-vf framerate=250 '%s' 2>/dev/null"
-            % (IONICE, MPLAYER, tmpdir, MAX_SEEK_POS, frames, tmpfilename))
 
 
 def audio_encode_command(image, tmpfilename, outputfilename):
@@ -189,49 +163,6 @@ def honey_badger(f, *args, **kwargs):
         return f(*args, **kwargs)
     except:
         pass
-
-
-def image_extract_command_for_file(tmpdir, frames, tmpfilename):
-    if tmpfilename.lower().endswith("avi"):
-        return avi_image_extract_command(tmpdir, frames, tmpfilename)
-    else:
-        return image_extract_command(tmpdir, frames, tmpfilename)
-
-
-def make_images(operation):
-    statsd.incr("make_images")
-    params = loads(operation.params)
-    ouuid = operation.uuid
-    tmpfilename = params['tmpfilename']
-    tmpdir = settings.TMP_DIR + "/imgs/" + str(ouuid) + "/"
-    honey_badger(os.makedirs, tmpdir)
-    size = os.stat(tmpfilename)[6] / (1024 * 1024)
-    frames = size * 2  # 2 frames per MB at the most
-    command = image_extract_command_for_file(tmpdir, frames, tmpfilename)
-    os.system(command)
-    imgs = os.listdir(tmpdir)
-    if len(imgs) == 0:
-        command = fallback_image_extract_command(tmpdir, frames, tmpfilename)
-        os.system(command)
-    # TODO: parameterize
-    imgdir = "%simages/%05d/" % (settings.MEDIA_ROOT, operation.video.id)
-    honey_badger(os.makedirs, imgdir)
-    imgs = os.listdir(tmpdir)
-    imgs.sort()
-    make_image_objects(operation.video, imgs, tmpdir, imgdir)
-    shutil.rmtree(tmpdir)
-    set_poster(operation.video, len(imgs))
-    return ("complete", "created %d images" % len(imgs))
-
-
-def make_image_objects(video, imgs, tmpdir, imgdir):
-    for img in imgs[:settings.MAX_FRAMES]:
-        os.system("mv %s%s %s" % (tmpdir, img, imgdir))
-        Image.objects.create(
-            video=video,
-            image="images/%05d/%s" % (video.id, img))
-        statsd.incr("image_created")
-        copy_image_to_s3.delay("images/%05d/%s" % (video.id, img))
 
 
 def pull_thumbs_from_s3(operation):
