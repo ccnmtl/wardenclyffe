@@ -347,7 +347,7 @@ class Video(TimeStampedModel):
                                    location_type='none')
 
     def make_default_operations(self, tmpfilename, source_file, user,
-                                audio=False, audio_flag=True):
+                                audio=False):
         operations = [self.make_save_file_to_s3_operation(
             tmpfilename, user, audio=audio)]
         return operations
