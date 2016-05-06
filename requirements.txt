@@ -57,7 +57,7 @@ sqlparse==0.1.19
 filechunkio==1.6
 simplejson==3.8.2
 httpretty==0.8.14
-contextlib2==0.5.1
+contextlib2==0.5.2
 fake-factory==0.5.3
 factory_boy==2.6.1
 rcssmin==1.0.6
