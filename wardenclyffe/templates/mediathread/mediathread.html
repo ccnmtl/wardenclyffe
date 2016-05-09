@@ -78,7 +78,6 @@
                                 <td class="step">
                                     <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
                                     <div>
-                                        {% flag s3upload %}
                                         <p id="status"><b>Please select a file</b></p>
                                         {% if audio %}
                                             <input type="file" id="file" onchange="s3_upload();" accept=".mp3" />                                            
@@ -86,12 +85,6 @@
                                             <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v" />
                                         {% endif %}
                                         <input type="hidden" name="s3_url" id="uploaded-url" />
-                                        {% else %}
-                                        <ul id="filelist"></ul>
-                                        <a id="browse" href="javascript:;">Select File</a>
-                                        <input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
-                                        <pre id="console"></pre>
-                                        {% endflag %}
                                     </div>
                                 </td>
                             </tr>
@@ -147,7 +140,6 @@
 
 </div>
 <script type="text/javascript">
- {% flag s3upload %}
  function s3_upload() {
     var s3upload = new S3Upload({
         file_dom_selector: 'file',
@@ -166,52 +158,5 @@
         }
     });
 }
- {% else %}
-jQuery(document).ready(function() { 
-    var uploader = new plupload.Uploader({
-        browse_button: 'browse', // this can be an id of a DOM element or the DOM element itself
-        url: '/uploadify/',
-        max_retries: 3,
-        multi_selection: false,
-        runtimes : 'html5,flash,silverlight',
-        flash_swf_url: '{{STATIC_URL}}js/Moxie.swf',
-        silverlight_xap_url: '{{STATIC_URL}}js/Moxie.xap',
-        filters: {
-            mime_types: [
-{% if audio %}                { title: "Audio files", extensions: "mp3" }
-{% else %}                 { title: "Video Files", extensions: "mov,avi,mp4,flv,mpg,wmv,m4v" }{% endif %}
-            ]
-        }
-    });
-
-    uploader.bind('FilesAdded', function(up, files) {
-        var html = '';
-        plupload.each(files, function(file) {
-          html += '<li id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></li>';
-        });
-        document.getElementById('filelist').innerHTML += html;
-        // only allow one file at a time, and start uploading automatically
-        jQuery("#browse").replaceWith();
-        up.start();
-    });
-
-    uploader.bind('UploadProgress', function(up, file) {
-        document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
-    });
-
-    uploader.bind('Error', function(up, err) {
-        document.getElementById('console').innerHTML += "\nError #" + err.code + ": " + err.message;
-    });
-
-    uploader.bind('FileUploaded', function(up, data, r) {
-         jQuery("#tmpfilename").val(r.response);
-         jQuery("#submit").removeAttr("disabled");
-         jQuery("#file_uploadUploader").replaceWith();
-         jQuery(".post-upload").fadeIn();
-    });
-
-    uploader.init();
- });
- {% endflag %}
 </script>
 </body>
