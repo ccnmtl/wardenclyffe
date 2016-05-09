@@ -76,12 +76,9 @@ urlpatterns = patterns(
     (r'^upload/post/$', 'wardenclyffe.main.views.upload'),
     (r'^upload/$', views.UploadFormView.as_view()),
 
-    (r'^s3upload/post/$', 'wardenclyffe.main.views.s3upload'),
-
     (r'^upload/batch/$', views.BatchUploadFormView.as_view()),
     (r'^upload/batch/post/$', 'wardenclyffe.main.views.batch_upload'),
 
-    (r'^scan_directory/$', views.ScanDirectoryView.as_view()),
     (r'^mediathread/$', 'wardenclyffe.mediathread.views.mediathread'),
     (r'^mediathread/post/$',
      'wardenclyffe.mediathread.views.mediathread_post'),

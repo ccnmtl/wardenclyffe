@@ -3,7 +3,6 @@ import os
 import uuid
 import requests
 import urlparse
-import waffle
 
 import wardenclyffe.main.tasks as tasks
 
@@ -552,50 +551,6 @@ def upload(request):
         return HttpResponseRedirect("/upload/")
 
     collection_id = None
-    operations = []
-    statsd.incr('main.upload')
-
-    # save it locally
-    (source_filename, tmpfilename, vuuid) = save_file_locally(request)
-    # important to note here that we allow an "upload" with no file
-    # so the user can create a placeholder for a later upload,
-    # or to associate existing files/urls with
-
-    # make db entry
-    try:
-        v = form.save(commit=False)
-        v.uuid = vuuid
-        v.creator = request.user.username
-        collection_id = request.GET.get('collection', None)
-        if collection_id:
-            v.collection_id = collection_id
-        v.save()
-        form.save_m2m()
-        source_file = v.make_source_file(source_filename)
-
-        operations = create_operations_if_source_filename(
-            request, v, tmpfilename, source_file, source_filename)
-    except:
-        statsd.incr('main.upload.failure')
-        raise
-    else:
-        enqueue_operations(operations)
-    return HttpResponseRedirect("/")
-
-
-@transaction.non_atomic_requests
-@login_required
-@user_passes_test(is_staff)
-def s3upload(request):
-    if request.method != "POST":
-        return HttpResponseRedirect("/s3upload/")
-
-    form = VideoForm(request.POST, request.FILES)
-    if not form.is_valid():
-        # TODO: give the user proper feedback here
-        return HttpResponseRedirect("/upload/")
-
-    collection_id = None
     statsd.incr('main.s3upload')
 
     vuuid = uuid.uuid4()
@@ -663,39 +618,6 @@ def create_operations_if_source_filename(request, v, tmpfilename,
     return []
 
 
-def normal_batch_upload(request, collection_id):
-    operations = []
-    for k in request.POST.keys():
-        if not k.startswith('tmpfilename_'):
-            continue
-        if request.POST[k] == "":
-            continue
-        (_base, idx) = k.split('_')
-
-        # only works with plupload for now
-        tmpfilename = request.POST[k]
-        filename = os.path.basename(tmpfilename)
-        vuuid = os.path.splitext(filename)[0]
-
-        v = Video.objects.create(
-            uuid=vuuid,
-            collection_id=collection_id,
-            creator=request.user.username,
-            title=request.POST.get('title_' + idx, filename),
-            description=request.POST.get('description_' + idx, ""),
-            subject=request.POST.get('subject_' + idx, ""),
-            license=request.POST.get('license_' + idx, ""),
-            language=request.POST.get('language_' + idx, ""),
-        )
-        source_file = v.make_source_file(tmpfilename)
-
-        v_operations = create_operations(
-            request, v, tmpfilename, source_file, tmpfilename,
-            '_' + idx)
-        operations.extend(v_operations)
-    return operations
-
-
 def s3_batch_upload(request, collection_id):
     operations = []
     for k in request.POST.keys():
@@ -757,10 +679,7 @@ def batch_upload(request):
         return HttpResponse("need to pick a collection")
 
     try:
-        if waffle.flag_is_active(request, 's3upload'):
-            operations = s3_batch_upload(request, collection_id)
-        else:
-            operations = normal_batch_upload(request, collection_id)
+        operations = s3_batch_upload(request, collection_id)
     except:
         statsd.incr('main.batch_upload.failure')
         raise
@@ -787,11 +706,9 @@ class RerunOperationView(StaffMixin, View):
 
 
 class UploadFormView(StaffMixin, TemplateView):
-    template_name = 'main/upload.html'
+    template_name = 'main/s3upload.html'
 
     def get_context_data(self):
-        if waffle.flag_is_active(self.request, 's3upload'):
-            self.template_name = 'main/s3upload.html'
         form = VideoForm()
         form.fields["collection"].queryset = Collection.objects.filter(
             active=True)
@@ -820,22 +737,6 @@ class BatchUploadFormView(StaffMixin, TemplateView):
             form = collection.add_video_form()
         return dict(form=form, collection_id=collection_id,
                     collection_title=collection_title)
-
-
-class ScanDirectoryView(StaffMixin, TemplateView):
-    template_name = 'main/upload.html'
-
-    def get_context_data(self):
-        collection_id = None
-        file_listing = []
-        form = VideoForm()
-        collection_id = self.request.GET.get('collection', None)
-        if collection_id:
-            collection = get_object_or_404(Collection, id=collection_id)
-            form = collection.add_video_form()
-        file_listing = os.listdir(settings.WATCH_DIRECTORY)
-        return dict(form=form, collection_id=collection_id,
-                    file_listing=file_listing, scan_directory=True)
 
 
 def test_upload(request):

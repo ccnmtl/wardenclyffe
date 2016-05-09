@@ -6,7 +6,6 @@ from wardenclyffe.main.models import Video, Collection, File
 from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
 import wardenclyffe.main.tasks as maintasks
-import os
 import uuid
 from django.conf import settings
 from django.db import transaction
@@ -15,7 +14,6 @@ from json import loads
 import hmac
 import hashlib
 from django_statsd.clients import statsd
-import waffle
 
 
 def mediathread(request):
@@ -68,51 +66,7 @@ def mediathread_post(request):
             or 'set_course' not in request.session:
         return HttpResponse("invalid session")
 
-    if waffle.flag_is_active(request, 's3upload'):
-        return s3_upload(request)
-    else:
-        return normal_upload(request)
-
-
-def normal_upload(request):
-    tmpfilename = request.POST.get('tmpfilename', '')
-    # backwards compatibility: allow 'audio' or 'audio2'
-    audio2 = request.POST.get('audio2', False)
-    audio = request.POST.get('audio', False) or audio2
-    operations = []
-    if tmpfilename.startswith(settings.TMP_DIR):
-        statsd.incr("mediathread.mediathread")
-        filename = os.path.basename(tmpfilename)
-        vuuid = os.path.splitext(filename)[0]
-        # make db entry
-        try:
-            collection = Collection.objects.get(
-                id=settings.MEDIATHREAD_COLLECTION_ID)
-            v = Video.objects.create(collection=collection,
-                                     title=request.POST.get('title', ''),
-                                     creator=request.session['username'],
-                                     uuid=vuuid)
-            source_file = v.make_source_file(filename)
-            # we make a "mediathreadsubmit" file to store the submission
-            # info and serve as a flag that it needs to be submitted
-            # (when PCP comes back)
-            user = User.objects.get(username=request.session['username'])
-            v.make_mediathread_submit_file(
-                filename, user, request.session['set_course'],
-                request.session['redirect_to'], audio=audio,
-            )
-
-            operations = v.make_default_operations(
-                tmpfilename, source_file, user, audio=audio)
-        except:
-            statsd.incr("mediathread.mediathread.failure")
-            raise
-        else:
-            # hand operations off to celery
-            for o in operations:
-                maintasks.process_operation.delay(o.id)
-            return HttpResponseRedirect(request.session['redirect_to'])
-    return HttpResponse("Bad file upload. Please try again.")
+    return s3_upload(request)
 
 
 def s3_upload(request):
