@@ -31,7 +31,7 @@ paramiko==1.16.0
 raven==5.15.0
 pyOpenSSL==16.0.0
 ndg-httpsclient==0.4.0
-requests==2.9.1
+requests==2.10.0
 statsd==3.2.1
 coverage==4.0.3
 pep8==1.7.0
