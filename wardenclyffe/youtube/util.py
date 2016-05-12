@@ -149,12 +149,13 @@ def resumable_upload(insert_request):
         except RETRIABLE_EXCEPTIONS, e:
             error = "A retriable error occurred: %s" % e
 
-        if error is not None:
-            retry = handle_upload_error(error, retry)
+        retry = handle_upload_error(error, retry)
     return youtube_id
 
 
 def handle_upload_error(error, retry):
+    if error is None:
+        return retry
     print error
     retry += 1
     if retry > MAX_RETRIES:
