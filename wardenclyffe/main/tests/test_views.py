@@ -315,13 +315,6 @@ class TestStats(TestCase):
         self.assertEquals(response.status_code, 200)
 
 
-class TestUploadify(TestCase):
-    def test_uploadify(self):
-        self.c = Client()
-        response = self.c.post("/uploadify/", {})
-        self.assertEqual(response.status_code, 200)
-
-
 class TestSignS3View(TestCase):
     def test_sign_s3(self):
         self.c = Client()
