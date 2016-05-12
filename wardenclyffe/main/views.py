@@ -706,7 +706,7 @@ class RerunOperationView(StaffMixin, View):
 
 
 class UploadFormView(StaffMixin, TemplateView):
-    template_name = 'main/s3upload.html'
+    template_name = 'main/upload.html'
 
     def get_context_data(self):
         form = VideoForm()
