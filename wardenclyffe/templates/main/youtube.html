@@ -12,9 +12,7 @@
 	<link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
     {% include 'main/jquery.html' %}
 
-<script type="text/javascript" src="{{STATIC_URL}}js/swfobject.js"></script>
-<script src="{{STATIC_URL}}js/jquery.uploadify.v2.1.4.min.js"></script>
-<link rel="stylesheet" href="{{STATIC_URL}}css/uploadify.css"></script>
+  <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
 
 </head>
 <body class="one_column fixed">
@@ -35,13 +33,12 @@
 
 
 <form action="post/" method="post" enctype="multipart/form-data">
-<div id="vitaldropform">
-<p id="upload_area"><b>Please select your video file to upload:</b><br /> 
 
-<input type="file" name="source_file" id="file_upload" /></p>
-
-<input type="hidden" name="tmpfilename" id="tmpfilename" value="" />
-
+    <div id="vitaldropform">
+        <p id="status"><b>Please select a file</b></p>
+        <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v,.mp3" />
+        <input type="hidden" name="s3_url" id="uploaded-url" />
+        
 <p><b>Title</b></p>
 <p><input type="text" name="title" /></p>
 
@@ -56,26 +53,26 @@
 </div>
 </div>
 
-<script type="text/javascript">
-$(document).ready(function() {
-  $('#file_upload').uploadify({
-    'uploader'  : '{{STATIC_URL}}swf/uploadify.swf',
-    'script'    : '/uploadify/',
-    'cancelImg' : '{{STATIC_URL}}img/pixel.gif',
-    'folder'    : '/uploads',
-    'auto'      : true,
-    'fileExt'     : '*.mov;*.avi;*.mp4;*.m4v',
-    'fileDesc'  : 'Video Files',
-    'removeCompleted' : false,
-    'onComplete'  : function(event, ID, fileObj, response, data) {
-      $("#tmpfilename").val(response);
-      $("#submit").removeAttr("disabled");
-      $("#file_uploadUploader").replaceWith();
-    },
-    'multi' : false
-  });
-});
+<script>
+function s3_upload() {
+    var s3upload = new S3Upload({
+        file_dom_selector: 'file',
+        s3_sign_put_url: '/sign_s3/',
+        s3_object_name: $('#file')[0].value,
+        onProgress: function(percent, message) {
+            $('#status').html('Upload progress: ' + percent + '%' + message);
+        },
+        onFinishS3Put: function(url) {
+            $('#uploaded-url').val(url);
+            $("#submit").removeAttr("disabled");            
+        },
+        onError: function(status) {
+            $('#status').html('Upload error: ' + status);
+        }
+    });
+}
 </script>
+
 {% else %}
 {% include 'main/maintenance_mode.html' %}
 {% endflag %}

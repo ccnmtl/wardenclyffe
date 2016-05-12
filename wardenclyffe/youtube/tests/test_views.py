@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.test.client import Client
-from wardenclyffe.main.tests.factories import UserFactory
+from wardenclyffe.main.tests.factories import (
+    UserFactory, CollectionFactory
+)
 
 
 class ViewTest(TestCase):
@@ -20,6 +22,7 @@ class ViewTest(TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_post(self):
-        r = self.c.post("/youtube/post/", {"tmpfilename": "foo.mp4"})
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "no tmpfilename parameter set")
+        CollectionFactory(title='Youtube')
+        s3url = "https://s3.amazonaws.com/<bucket>/2016/02/29/f.mp4"
+        r = self.c.post("/youtube/post/", {"s3_url": s3url})
+        self.assertEqual(r.status_code, 302)
