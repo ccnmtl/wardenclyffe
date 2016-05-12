@@ -114,37 +114,6 @@ class ReceivedView(View):
         return HttpResponse("ok")
 
 
-class UploadifyView(View):
-    def post(self, request, *args, **kwargs):
-        statsd.incr('main.uploadify_post')
-        try:
-            if request.FILES:
-                # save it locally
-                vuuid = uuid.uuid4()
-                safe_makedirs(settings.TMP_DIR)
-                extension = request.FILES['file'].name.split(".")[-1]
-                tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
-                    + extension.lower()
-                tmpfile = open(tmpfilename, 'wb')
-                for chunk in request.FILES['file'].chunks():
-                    tmpfile.write(chunk)
-                tmpfile.close()
-                return HttpResponse(tmpfilename)
-            else:
-                statsd.incr('main.uploadify_post_no_file')
-        except IOError:
-            # this happens when the client connection is lost
-            # during the upload. eg, bad wifi, or the user
-            # is impatient and hits reload or back, or if they
-            # cancel the upload. Not really our fault and not much
-            # we can do about it.
-            return HttpResponse('False')
-        return HttpResponse('True')
-
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('True')
-
-
 class RecentOperationsView(StaffMixin, View):
     def get(self, request):
         submitted = request.GET.get('submitted', '') == '1'
