@@ -579,14 +579,6 @@ def key_from_s3url(s3url):
         return '/'.join(s3url.split('/')[3:])
 
 
-def create_operations_if_source_filename(request, v, tmpfilename,
-                                         source_file, source_filename):
-    if source_filename:
-        return create_operations(
-            request, v, tmpfilename, source_file, source_filename)
-    return []
-
-
 def s3_batch_upload(request, collection_id):
     operations = []
     for k in request.POST.keys():
