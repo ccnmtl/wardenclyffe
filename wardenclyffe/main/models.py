@@ -342,12 +342,6 @@ class Video(TimeStampedModel):
                                    filename=filename,
                                    location_type='none')
 
-    def make_default_operations(self, tmpfilename, source_file, user,
-                                audio=False):
-        operations = [self.make_save_file_to_s3_operation(
-            tmpfilename, user, audio=audio)]
-        return operations
-
     def upto_hundred_images(self):
         """ return the first 100 frames for the video
 

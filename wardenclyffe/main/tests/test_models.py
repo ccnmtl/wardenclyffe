@@ -408,29 +408,6 @@ class OperationTest(TestCase):
         self.assertEquals(d['status'], o.status)
         self.assertEquals(o.formatted_params(), '{}')
 
-    def test_default_operations_creation(self):
-        f = SourceFileFactory()
-        u = UserFactory()
-        ops = f.video.make_default_operations(
-            "/tmp/file.mov",
-            f, u)
-        self.assertEquals(len(ops), 1)
-        # just run these to get the coverage up. don't worry if they fail
-        for o in ops:
-            o.process()
-            o.post_process()
-
-    def test_audio_default_operations_creation(self):
-        f = SourceFileFactory()
-        u = UserFactory()
-        ops = f.video.make_default_operations(
-            "/tmp/file.mov",
-            f, u, True)
-        self.assertEquals(len(ops), 1)
-        # just run these to get the coverage up. don't worry if they fail
-        for o in ops:
-            o.process()
-
     @override_settings(YOUTUBE_EMAIL="foo@bar.com", YOUTUBE_PASSWORD="foo",
                        YOUTUBE_SOURCE="foo", YOUTUBE_DEVELOPER_KEY="foo",
                        YOUTUBE_CLIENT_ID="foo")
