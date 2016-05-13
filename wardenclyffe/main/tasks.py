@@ -198,26 +198,6 @@ def pull_thumbs_from_s3(operation):
     return ("complete", "pulled %d thumbs" % cnt)
 
 
-@task(ignore_results=True)
-def copy_image_to_s3(path):
-    # path should be relative to MEDIA_ROOT
-    if not waffle.switch_is_active('enable_s3'):
-        print "S3 uploads are disabled"
-        return
-    statsd.incr("copy_image_to_s3")
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.IMAGES_BUCKET)
-    k = Key(bucket)
-    fullpath = os.path.join(settings.MEDIA_ROOT, path)
-    source_file = open(fullpath, "rb")
-
-    k.key = path
-    k.set_contents_from_file(source_file)
-    source_file.close()
-
-
 def set_poster(video, imgs):
     if imgs == 0:
         return

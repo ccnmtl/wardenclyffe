@@ -494,19 +494,6 @@ def save_file_locally(request):
     return (source_filename, tmpfilename, vuuid)
 
 
-def create_operations(request, v, tmpfilename, source_file, filename, idx=''):
-    operations = v.make_default_operations(
-        tmpfilename, source_file, request.user)
-
-    if request.POST.get("submit_to_youtube" + idx, False):
-        o = v.make_upload_to_youtube_operation(
-            tmpfilename, request.user)
-        operations.append(o)
-    if v.collection.audio:
-        o = v.make_audio_encode_operation(source_file.id, request.user)
-    return operations
-
-
 @transaction.non_atomic_requests
 @login_required
 @user_passes_test(is_staff)
@@ -577,14 +564,6 @@ def key_from_s3url(s3url):
     else:
         # it's a https://<bucket>.s3.amazonaws.com/ URL
         return '/'.join(s3url.split('/')[3:])
-
-
-def create_operations_if_source_filename(request, v, tmpfilename,
-                                         source_file, source_filename):
-    if source_filename:
-        return create_operations(
-            request, v, tmpfilename, source_file, source_filename)
-    return []
 
 
 def s3_batch_upload(request, collection_id):

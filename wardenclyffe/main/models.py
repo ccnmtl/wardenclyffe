@@ -295,10 +295,6 @@ class Video(TimeStampedModel):
                       audio=audio)
         return self.make_op(user, params, action="save file to S3")
 
-    def make_import_from_cuit_operation(self, video_id, user):
-        params = dict(video_id=video_id)
-        return self.make_op(user, params, action="import from cuit")
-
     def make_copy_from_s3_to_cunix_operation(self, file_id, user):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
@@ -341,12 +337,6 @@ class Video(TimeStampedModel):
                                    label="source file",
                                    filename=filename,
                                    location_type='none')
-
-    def make_default_operations(self, tmpfilename, source_file, user,
-                                audio=False):
-        operations = [self.make_save_file_to_s3_operation(
-            tmpfilename, user, audio=audio)]
-        return operations
 
     def upto_hundred_images(self):
         """ return the first 100 frames for the video
@@ -745,12 +735,6 @@ class SaveFileToS3Operation(OperationType):
                 key=key, user=operation.owner)]
 
 
-class ImportFromCUITOperation(OperationType):
-    def get_task(self):
-        import wardenclyffe.cuit.tasks
-        return wardenclyffe.cuit.tasks.import_from_cuit
-
-
 class UploadToYoutubeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.youtube.tasks
@@ -818,7 +802,6 @@ OPERATION_TYPE_MAPPER = {
     'extract metadata': ExtractMetadataOperation,
     'pull from s3 and extract metadata': PullFromS3AndExtractMetadataOperation,
     'save file to S3': SaveFileToS3Operation,
-    'import from cuit': ImportFromCUITOperation,
     'upload to youtube': UploadToYoutubeOperation,
     'submit to mediathread': SubmitToMediathreadOperation,
     'pull from s3 and upload to youtube':
