@@ -423,13 +423,6 @@ class OperationTest(TestCase):
             pass
         o.post_process()
 
-    def test_make_import_from_cuit_operation(self):
-        f = SourceFileFactory()
-        u = UserFactory()
-        o = f.video.make_import_from_cuit_operation(f.video.id, u)
-        self.assertTrue('video_id' in loads(o.params))
-        self.assertEqual(o.action, "import from cuit")
-
     def test_make_audio_encode_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
