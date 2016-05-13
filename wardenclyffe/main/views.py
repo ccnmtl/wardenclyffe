@@ -454,46 +454,6 @@ class OperationView(StaffMixin, TemplateView):
         return dict(operation=operation)
 
 
-def safe_makedirs(d):
-    try:
-        os.makedirs(d)
-    except:
-        pass
-
-
-def save_file_locally(request):
-    vuuid = uuid.uuid4()
-    source_filename = None
-    tmp_filename = ''
-    tmpfilename = ''
-    if request.POST.get('scan_directory', False):
-        source_filename = request.POST.get('source_file', '')
-        statsd.incr('main.upload.scan_directory')
-    if request.POST.get('tmpfilename', False):
-        tmp_filename = request.POST.get('tmpfilename', '')
-    if source_filename:
-        safe_makedirs(settings.TMP_DIR)
-        extension = source_filename.split(".")[-1]
-        tmpfilename = settings.TMP_DIR + "/" + str(vuuid) + "."\
-            + extension.lower()
-        if request.POST.get('scan_directory', False):
-            os.rename(settings.WATCH_DIRECTORY +
-                      request.POST.get('source_file'),
-                      tmpfilename)
-        else:
-            tmpfile = open(tmpfilename, 'wb')
-            for chunk in request.FILES['source_file'].chunks():
-                tmpfile.write(chunk)
-            tmpfile.close()
-    if tmp_filename.startswith(settings.TMP_DIR):
-        tmpfilename = tmp_filename
-        filename = os.path.basename(tmpfilename)
-        vuuid = os.path.splitext(filename)[0]
-        source_filename = tmp_filename
-
-    return (source_filename, tmpfilename, vuuid)
-
-
 @transaction.non_atomic_requests
 @login_required
 @user_passes_test(is_staff)
