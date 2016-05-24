@@ -33,7 +33,7 @@ pyOpenSSL==16.0.0
 ndg-httpsclient==0.4.0
 requests==2.10.0
 statsd==3.2.1
-coverage==4.0.3
+coverage==4.1
 pep8==1.7.0
 pyflakes==1.2.3
 mccabe==0.4.0
