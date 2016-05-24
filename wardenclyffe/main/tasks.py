@@ -321,6 +321,13 @@ def local_audio_encode(operation):
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(t.name, tout)
 
+    if not os.path.exists(tout):
+        # the encode failed and didn't produce the expected .mp4 file
+        # this could be an issue with ffmpeg, or just a source file
+        # that eg, isn't actually a valid mp3. either way, fail quickly
+        # here.
+        operation.log(info="expected mp4 output does not exist")
+        return ("failed", "no output file produced")
     # stash the s3 key back in params
     params['mp4_tmpfilename'] = tout
     operation.params = dumps(params)
