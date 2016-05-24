@@ -9,7 +9,8 @@ import wardenclyffe.main.tasks as maintasks
 import uuid
 from django.conf import settings
 from django.db import transaction
-import requests
+from restclient import GET
+from json import loads
 import hmac
 import hashlib
 from django_statsd.clients import statsd
@@ -143,11 +144,11 @@ def video_mediathread_submit(request, id):
         url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
                settings.MEDIATHREAD_SECRET + "&user=" +
                request.user.username)
-        credentials = (None, None)
+        credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = requests.get(url, auth=(credentials[0], credentials[1]))
-        courses = response.json()['courses']
+        response = GET(url, credentials=credentials)
+        courses = loads(response)['courses']
         courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
         courses.sort(key=lambda x: x['title'].lower())
     except:
@@ -178,11 +179,11 @@ def collection_mediathread_submit(request, pk):
         url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
                settings.MEDIATHREAD_SECRET + "&user=" +
                request.user.username)
-        credentials = (None, None)
+        credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = requests.get(url, auth=(credentials[0], credentials[1]))
-        courses = response.json()['courses']
+        response = GET(url, credentials=credentials)
+        courses = loads(response)['courses']
         courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
         courses.sort(key=lambda x: x['title'].lower())
     except:
