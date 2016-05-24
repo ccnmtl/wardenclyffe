@@ -1,7 +1,7 @@
 import wardenclyffe.main.models
 from django.conf import settings
 from json import loads
-from restclient import POST
+import requests
 from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
 
@@ -76,9 +76,8 @@ def submit_to_mediathread(operation):
         audio, width, height
     )
 
-    resp, content = POST(mediathread_base + "/save/",
-                         params=params, async=False, resp=True)
-    if resp.status == 302:
+    resp = requests.post(mediathread_base + "/save/", data=params)
+    if resp.status_code == 302:
         url = resp['location']
         f = wardenclyffe.main.models.File.objects.create(
             video=video,
