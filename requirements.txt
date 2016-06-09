@@ -32,7 +32,7 @@ ecdsa==0.13
 cffi==1.6.0
 idna==2.1
 paramiko==2.0.0
-raven==5.19.0
+raven==5.20.0
 pyOpenSSL==16.0.0
 ndg-httpsclient==0.4.0
 requests==2.10.0
