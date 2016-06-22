@@ -29,7 +29,7 @@ pycrypto==2.6.1
 enum34==1.1.6
 cryptography==1.4
 ecdsa==0.13
-cffi==1.6.0
+cffi==1.7.0
 idna==2.1
 paramiko==2.0.0
 raven==5.20.0
