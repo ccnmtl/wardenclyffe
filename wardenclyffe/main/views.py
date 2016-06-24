@@ -466,21 +466,13 @@ def upload(request):
         # TODO: give the user proper feedback here
         return HttpResponseRedirect("/upload/")
 
-    collection_id = None
     statsd.incr('main.s3upload')
 
-    vuuid = uuid.uuid4()
+    v = Video.objects.video_from_form(
+        form, request.user.username,
+        request.GET.get('collection', None))
 
-    v = form.save(commit=False)
-    v.uuid = vuuid
-    v.creator = request.user.username
-    collection_id = request.GET.get('collection', None)
-    if collection_id:
-        v.collection_id = collection_id
-    v.save()
-    form.save_m2m()
     s3url = request.POST['s3_url']
-
     key = key_from_s3url(s3url)
 
     # we need a source file object in there

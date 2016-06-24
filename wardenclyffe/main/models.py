@@ -65,6 +65,19 @@ class Collection(TimeStampedModel):
         return self.title == "h264 Public"
 
 
+class VideoManager(models.Manager):
+    def video_from_form(self, form, username, collection_id):
+        v = form.save(commit=False)
+        vuuid = uuid.uuid4()
+        v.uuid = vuuid
+        v.creator = username
+        if collection_id:
+            v.collection_id = collection_id
+        v.save()
+        form.save_m2m()
+        return v
+
+
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
@@ -76,6 +89,7 @@ class Video(TimeStampedModel):
 
     uuid = UUIDField()
 
+    objects = VideoManager()
     tags = TaggableManager(blank=True)
 
     def s3_file(self):
