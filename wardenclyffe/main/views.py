@@ -478,13 +478,8 @@ def upload(request):
     # we need a source file object in there
     # to attach basic metadata to
     v.make_source_file(key)
+    v.make_uploaded_source_file(key)
 
-    label = "uploaded source file (S3)"
-    if v.collection.audio:
-        label = "uploaded source audio (S3)"
-
-    File.objects.create(video=v, url="", cap=key, location_type="s3",
-                        filename=key, label=label)
     # trigger operations
     if v.collection.audio:
         operations = [v.make_local_audio_encode_operation(
