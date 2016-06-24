@@ -74,7 +74,7 @@ sorl==3.1
 django-staticmedia==0.2.2
 django-celery==3.1.17
 django-oembed==0.1.3
-django-taggit==0.20.0
+django-taggit==0.20.1
 django-statsd-mozilla==0.3.16
 django-smoketest==1.0.0
 django-waffle==0.11.1
