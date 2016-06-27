@@ -120,6 +120,12 @@ def s3_upload(request):
     return HttpResponse("Bad file upload. Please try again.")
 
 
+def mediathread_url(username):
+    return (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
+            settings.MEDIATHREAD_SECRET + "&user=" +
+            username)
+
+
 @login_required
 @transaction.non_atomic_requests
 def video_mediathread_submit(request, id):
@@ -137,9 +143,7 @@ def video_mediathread_submit(request, id):
         video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
-               settings.MEDIATHREAD_SECRET + "&user=" +
-               request.user.username)
+        url = mediathread_url(request.user.username)
         credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
@@ -172,9 +176,7 @@ def collection_mediathread_submit(request, pk):
             video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
     try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
-               settings.MEDIATHREAD_SECRET + "&user=" +
-               request.user.username)
+        url = mediathread_url(request.user.username)
         credentials = None
         if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
             credentials = settings.MEDIATHREAD_CREDENTIALS
