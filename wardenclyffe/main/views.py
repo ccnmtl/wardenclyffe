@@ -772,11 +772,27 @@ class AudioEncodeFileView(StaffMixin, View):
 class FileFilterView(StaffMixin, TemplateView):
     template_name = 'main/file_filter.html'
 
+    def get_video_formats(self):
+        include_video_formats = self.request.GET.getlist(
+            'include_video_formats')
+        all_video_formats = []
+        excluded_video_formats = []
+        for vf in [""] + list(
+            set(
+                [
+                    m.value for m
+                    in Metadata.objects.filter(
+                        field="ID_VIDEO_FORMAT")])):
+            all_video_formats.append((vf, vf in include_video_formats))
+            if vf not in include_video_formats:
+                excluded_video_formats.append(vf)
+                if vf == "":
+                    excluded_video_formats.append(None)
+        return all_video_formats, excluded_video_formats
+
     def get_context_data(self):
         include_collection = self.request.GET.getlist('include_collection')
         include_file_types = self.request.GET.getlist('include_file_types')
-        include_video_formats = self.request.GET.getlist(
-            'include_video_formats')
         include_audio_formats = self.request.GET.getlist(
             'include_audio_formats')
 
@@ -791,19 +807,7 @@ class FileFilterView(StaffMixin, TemplateView):
                           for l in list(set([f.location_type
                                              for f in File.objects.all()]))]
 
-        all_video_formats = []
-        excluded_video_formats = []
-        for vf in [""] + list(
-            set(
-                [
-                    m.value for m
-                    in Metadata.objects.filter(
-                        field="ID_VIDEO_FORMAT")])):
-            all_video_formats.append((vf, vf in include_video_formats))
-            if vf not in include_video_formats:
-                excluded_video_formats.append(vf)
-                if vf == "":
-                    excluded_video_formats.append(None)
+        all_video_formats, excluded_video_formats = self.get_video_formats()
         all_audio_formats = []
         excluded_audio_formats = []
         for af in [""] + list(
