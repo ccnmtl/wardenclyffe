@@ -178,16 +178,24 @@ class VideoMediathreadSubmit(View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
-@login_required
-@transaction.non_atomic_requests
-def collection_mediathread_submit(request, pk):
-    collection = get_object_or_404(Collection, id=pk)
-    if request.method == "POST":
+class CollectionMediathreadSubmit(View):
+    template_name = 'mediathread/collection_mediathread_submit.html'
+
+    @method_decorator(login_required)
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(CollectionMediathreadSubmit, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pk):
+        collection = get_object_or_404(Collection, id=pk)
+        courses = get_mediathread_courses(request.user.username)
+        return render(request, self.template_name,
+                      dict(collection=collection, courses=courses,
+                           mediathread_base=settings.MEDIATHREAD_BASE))
+
+    def post(self, request, pk):
+        collection = get_object_or_404(Collection, id=pk)
         for video in collection.video_set.all():
             submit_video_to_mediathread(video, request.user,
                                         request.POST.get('course', ''))
         return HttpResponseRedirect(video.get_absolute_url())
-    courses = get_mediathread_courses(request.user.username)
-    return render(request, 'mediathread/collection_mediathread_submit.html',
-                  dict(collection=collection, courses=courses,
-                       mediathread_base=settings.MEDIATHREAD_BASE))
