@@ -2,7 +2,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
-from wardenclyffe.main.models import Video, Collection, File
+from wardenclyffe.main.models import Video, Collection
 from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
 import wardenclyffe.main.tasks as maintasks
@@ -99,11 +99,7 @@ def s3_upload(request):
             request.session['redirect_to'], audio=audio,
         )
 
-        label = "uploaded source file (S3)"
-        if audio:
-            label = "uploaded source audio (S3)"
-        File.objects.create(video=v, url="", cap=key, location_type="s3",
-                            filename=key, label=label)
+        v.make_uploaded_source_file(key, audio=audio)
         if audio:
             operations = [v.make_local_audio_encode_operation(
                 key, user=user)]

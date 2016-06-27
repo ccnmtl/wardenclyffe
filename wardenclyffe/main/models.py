@@ -352,8 +352,8 @@ class Video(TimeStampedModel):
                                    filename=filename,
                                    location_type='none')
 
-    def make_uploaded_source_file(self, key):
-        return File.objects.create_uploaded_source_file(self, key)
+    def make_uploaded_source_file(self, key, audio=False):
+        return File.objects.create_uploaded_source_file(self, key, audio)
 
     def upto_hundred_images(self):
         """ return the first 100 frames for the video
@@ -419,9 +419,9 @@ class S3File(FileType):
 
 
 class FileManager(models.Manager):
-    def create_uploaded_source_file(self, v, key):
+    def create_uploaded_source_file(self, v, key, audio=False):
         label = "uploaded source file (S3)"
-        if v.collection.audio:
+        if audio or v.collection.audio:
             label = "uploaded source audio (S3)"
 
         f = File.objects.create(video=v, url="", cap=key, location_type="s3",
