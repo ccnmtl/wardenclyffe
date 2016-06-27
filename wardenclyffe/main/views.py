@@ -790,24 +790,9 @@ class FileFilterView(StaffMixin, TemplateView):
                     excluded_video_formats.append(None)
         return all_video_formats, excluded_video_formats
 
-    def get_context_data(self):
-        include_collection = self.request.GET.getlist('include_collection')
-        include_file_types = self.request.GET.getlist('include_file_types')
+    def get_audio_formats(self):
         include_audio_formats = self.request.GET.getlist(
             'include_audio_formats')
-
-        results = File.objects.filter(
-            video__collection__id__in=include_collection
-        ).filter(location_type__in=include_file_types)
-
-        all_collection = [(s, str(s.id) in include_collection)
-                          for s in Collection.objects.all()]
-
-        all_file_types = [(l, l in include_file_types)
-                          for l in list(set([f.location_type
-                                             for f in File.objects.all()]))]
-
-        all_video_formats, excluded_video_formats = self.get_video_formats()
         all_audio_formats = []
         excluded_audio_formats = []
         for af in [""] + list(
@@ -821,6 +806,25 @@ class FileFilterView(StaffMixin, TemplateView):
                 excluded_audio_formats.append(af)
                 if af == "":
                     excluded_audio_formats.append(None)
+        return all_audio_formats, excluded_audio_formats
+
+    def get_context_data(self):
+        include_collection = self.request.GET.getlist('include_collection')
+        include_file_types = self.request.GET.getlist('include_file_types')
+
+        results = File.objects.filter(
+            video__collection__id__in=include_collection
+        ).filter(location_type__in=include_file_types)
+
+        all_collection = [(s, str(s.id) in include_collection)
+                          for s in Collection.objects.all()]
+
+        all_file_types = [(l, l in include_file_types)
+                          for l in list(set([f.location_type
+                                             for f in File.objects.all()]))]
+
+        all_video_formats, excluded_video_formats = self.get_video_formats()
+        all_audio_formats, excluded_audio_formats = self.get_audio_formats()
 
         files = [f for f in results
                  if f.video_format() not in excluded_video_formats and
