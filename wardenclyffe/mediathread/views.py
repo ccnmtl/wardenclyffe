@@ -199,4 +199,4 @@ class CollectionMediathreadSubmit(AuthenticatedNonAtomic, View):
         for video in collection.video_set.all():
             submit_video_to_mediathread(video, request.user,
                                         request.POST.get('course', ''))
-        return HttpResponseRedirect(video.get_absolute_url())
+        return HttpResponseRedirect(collection.get_absolute_url())

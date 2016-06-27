@@ -1,11 +1,70 @@
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
+from django.test.utils import override_settings
 import hmac
 import hashlib
 from django.conf import settings
-from wardenclyffe.mediathread.views import mediathread_post, s3_upload
+from wardenclyffe.mediathread.views import (
+    mediathread_post, s3_upload, VideoMediathreadSubmit,
+    CollectionMediathreadSubmit)
 from wardenclyffe.main.tests.factories import (
-    UserFactory, CollectionFactory)
+    UserFactory, CollectionFactory, VideoFactory)
+
+
+class DummyCourseGetter(object):
+    def run(self, *args, **kwargs):
+        return []
+
+
+class SubmitViewsTest(TestCase):
+    def setUp(self):
+        self.u = UserFactory()
+
+    @override_settings(MEDIATHREAD_BASE="foo")
+    def test_video_mediathread_submit_form(self):
+        factory = RequestFactory()
+        v = VideoFactory()
+        request = factory.get("/video/%d/mediathread/" % v.id, {})
+        request.user = self.u
+        view = VideoMediathreadSubmit.as_view(
+            course_getter=DummyCourseGetter,
+        )
+        response = view(request, v.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_video_mediathread_submit(self):
+        factory = RequestFactory()
+        v = VideoFactory()
+        request = factory.post("/video/%d/mediathread/" % v.id, {})
+        request.user = self.u
+        view = VideoMediathreadSubmit.as_view(
+            course_getter=DummyCourseGetter,
+        )
+        response = view(request, v.id)
+        self.assertEqual(response.status_code, 302)
+
+    @override_settings(MEDIATHREAD_BASE="foo")
+    def test_collection_mediathread_submit_form(self):
+        factory = RequestFactory()
+        c = CollectionFactory()
+        request = factory.get("/collection/%d/mediathread/" % c.id, {})
+        request.user = self.u
+        view = CollectionMediathreadSubmit.as_view(
+            course_getter=DummyCourseGetter,
+        )
+        response = view(request, c.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_collection_mediathread_submit(self):
+        factory = RequestFactory()
+        c = CollectionFactory()
+        request = factory.post("/collection/%d/mediathread/" % c.id, {})
+        request.user = self.u
+        view = CollectionMediathreadSubmit.as_view(
+            course_getter=DummyCourseGetter,
+        )
+        response = view(request, c.id)
+        self.assertEqual(response.status_code, 302)
 
 
 class SimpleTest(TestCase):
