@@ -1064,6 +1064,34 @@ class SNSView(View):
             return HttpResponse("OK")
         return HttpResponse("Failed to confirm")
 
+    def _completed(self, operation, ets_message):
+        operations = []
+        # set it to completed
+        operation.status = "complete"
+        operation.save()
+
+        # add S3 output file record
+        for output in ets_message['outputs']:
+            label = "transcoded 480p file (S3)"
+            if output['presetId'] == settings.AWS_ET_720_PRESET:
+                label = "transcoded 720p file (S3)"
+            f = File.objects.create(
+                video=operation.video,
+                cap=output['key'],
+                location_type="s3",
+                filename=output['key'],
+                label=label)
+            OperationFile.objects.create(operation=operation, file=f)
+            v = operation.video
+            if 'thumbnailPattern' in output:
+                o = v.make_pull_thumbs_from_s3_operation(
+                    output['thumbnailPattern'], operation.owner)
+                operations.append(o)
+            o = v.make_copy_from_s3_to_cunix_operation(
+                f.id, operation.owner)
+            operations.append(o)
+        return operations
+
     def _notification(self, request):
         full_message = loads(self.body)
         ets_message = loads(full_message['Message'])
@@ -1085,30 +1113,7 @@ class SNSView(View):
 
         operations = []
         if state == 'COMPLETED':
-            # set it to completed
-            operation.status = "complete"
-            operation.save()
-
-            # add S3 output file record
-            for output in ets_message['outputs']:
-                label = "transcoded 480p file (S3)"
-                if output['presetId'] == settings.AWS_ET_720_PRESET:
-                    label = "transcoded 720p file (S3)"
-                f = File.objects.create(
-                    video=operation.video,
-                    cap=output['key'],
-                    location_type="s3",
-                    filename=output['key'],
-                    label=label)
-                OperationFile.objects.create(operation=operation, file=f)
-                v = operation.video
-                if 'thumbnailPattern' in output:
-                    o = v.make_pull_thumbs_from_s3_operation(
-                        output['thumbnailPattern'], operation.owner)
-                    operations.append(o)
-                o = v.make_copy_from_s3_to_cunix_operation(
-                    f.id, operation.owner)
-                operations.append(o)
+            operations = self._completed(operation, ets_message)
         else:
             # set it to failed
             operation.status = "failed"
