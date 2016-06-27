@@ -18,21 +18,32 @@ import hashlib
 from django_statsd.clients import statsd
 
 
+class MediathreadAuthenticator(object):
+    def __init__(self, request):
+        self.nonce = request.GET.get('nonce', '')
+        self.hmc = request.GET.get('hmac', '')
+        self.set_course = request.GET.get('set_course', '')
+        self.username = request.GET.get('as')
+        self.redirect_to = request.GET.get('redirect_url', '')
+
+    def is_valid(self):
+        verify = hmac.new(
+            settings.MEDIATHREAD_SECRET,
+            '%s:%s:%s' % (self.username, self.redirect_to,
+                          self.nonce),
+            hashlib.sha1
+        ).hexdigest()
+        return verify == self.hmc
+
+
 def mediathread(request):
     # check their credentials
-    nonce = request.GET.get('nonce', '')
-    hmc = request.GET.get('hmac', '')
-    set_course = request.GET.get('set_course', '')
-    username = request.GET.get('as')
-    redirect_to = request.GET.get('redirect_url', '')
-    verify = hmac.new(settings.MEDIATHREAD_SECRET,
-                      '%s:%s:%s' % (username, redirect_to, nonce),
-                      hashlib.sha1
-                      ).hexdigest()
-    if verify != hmc:
+    authenticator = MediathreadAuthenticator(request)
+    if not authenticator.is_valid():
         statsd.incr("mediathread.auth_failure")
         return HttpResponse("invalid authentication token")
 
+    username = authenticator.username
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -40,10 +51,10 @@ def mediathread(request):
         statsd.incr("mediathread.user_created")
 
     request.session['username'] = username
-    request.session['set_course'] = set_course
-    request.session['nonce'] = nonce
-    request.session['redirect_to'] = redirect_to
-    request.session['hmac'] = hmc
+    request.session['set_course'] = authenticator.set_course
+    request.session['nonce'] = authenticator.nonce
+    request.session['redirect_to'] = authenticator.redirect_to
+    request.session['hmac'] = authenticator.hmc
     # either 'audio' or 'audio2' are accepted for now
     # for backwards-compatibility. going forward,
     # 'audio2' will be deprecated
