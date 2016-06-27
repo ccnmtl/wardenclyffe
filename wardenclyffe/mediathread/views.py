@@ -141,21 +141,26 @@ def get_mediathread_courses(username):
     return courses
 
 
+def submit_video_to_mediathread(video, user, course):
+    statsd.incr("mediathread.submit")
+    video.make_mediathread_submit_file(
+        video.filename(), user,
+        course,
+        redirect_to="",
+        audio=video.is_audio_file())
+    operations = video.handle_mediathread_submit()
+    for o in operations:
+        maintasks.process_operation.delay(o)
+    video.clear_mediathread_submit()
+
+
 @login_required
 @transaction.non_atomic_requests
 def video_mediathread_submit(request, id):
     video = get_object_or_404(Video, id=id)
     if request.method == "POST":
-        statsd.incr("mediathread.submit")
-        video.make_mediathread_submit_file(
-            video.filename(), request.user,
-            request.POST.get('course', ''),
-            redirect_to="",
-            audio=video.is_audio_file())
-        operations = video.handle_mediathread_submit()
-        for o in operations:
-            maintasks.process_operation.delay(o)
-        video.clear_mediathread_submit()
+        submit_video_to_mediathread(video, request.user,
+                                    request.POST.get('course', ''))
         return HttpResponseRedirect(video.get_absolute_url())
     courses = get_mediathread_courses(request.user.username)
     return render(request, 'mediathread/mediathread_submit.html',
@@ -169,16 +174,8 @@ def collection_mediathread_submit(request, pk):
     collection = get_object_or_404(Collection, id=pk)
     if request.method == "POST":
         for video in collection.video_set.all():
-            statsd.incr("mediathread.submit")
-            video.make_mediathread_submit_file(
-                video.filename(), request.user,
-                request.POST.get('course', ''),
-                redirect_to="",
-                audio=video.is_audio_file())
-            operations = video.handle_mediathread_submit()
-            for o in operations:
-                maintasks.process_operation.delay(o)
-            video.clear_mediathread_submit()
+            submit_video_to_mediathread(video, request.user,
+                                        request.POST.get('course', ''))
         return HttpResponseRedirect(video.get_absolute_url())
     courses = get_mediathread_courses(request.user.username)
     return render(request, 'mediathread/collection_mediathread_submit.html',
