@@ -113,15 +113,7 @@ def s3_upload(request):
         )
 
         v.make_uploaded_source_file(key, audio=audio)
-        if audio:
-            operations = [v.make_local_audio_encode_operation(
-                key, user=user)]
-        else:
-            operations = [
-                v.make_pull_from_s3_and_extract_metadata_operation(
-                    key=key, user=user),
-                v.make_create_elastic_transcoder_job_operation(
-                    key=key, user=user)]
+        operations = v.initial_operations(key, user, audio)
     except:
         statsd.incr("mediathread.mediathread.failure")
         raise

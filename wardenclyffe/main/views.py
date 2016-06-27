@@ -480,16 +480,8 @@ def upload(request):
     v.make_source_file(key)
     v.make_uploaded_source_file(key)
 
-    # trigger operations
-    if v.collection.audio:
-        operations = [v.make_local_audio_encode_operation(
-            key, user=request.user)]
-    else:
-        operations = [
-            v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user),
-            v.make_create_elastic_transcoder_job_operation(
-                key=key, user=request.user)]
+    operations = v.initial_operations(key, request.user,
+                                      v.collection.audio)
 
     if request.POST.get("submit_to_youtube", False):
         o = v.make_pull_from_s3_and_upload_to_youtube_operation(
@@ -537,21 +529,10 @@ def s3_batch_upload(request, collection_id):
             language=request.POST.get('language_' + idx, ""),
         )
 
-        source_file = v.make_source_file(key)
-        label = "uploaded source file (S3)"
-        source_file = File.objects.create(video=v, url="", cap=key,
-                                          location_type="s3",
-                                          filename=key,
-                                          label=label)
-
-        v_operations = [
-            v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user),
-            v.make_create_elastic_transcoder_job_operation(
-                key=key, user=request.user)]
-        if v.collection.audio:
-            o = v.make_audio_encode_operation(source_file.id, request.user)
-            v_operations.append(o)
+        v.make_source_file(key)
+        v.make_uploaded_source_file(key)
+        v_operations = v.initial_operations(key, request.user,
+                                            v.collection.audio)
         operations.extend(v_operations)
     return operations
 

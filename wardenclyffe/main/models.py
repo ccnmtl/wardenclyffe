@@ -365,6 +365,17 @@ class Video(TimeStampedModel):
         ought to be enough to select a poster from """
         return self.image_set.all()[:100]
 
+    def initial_operations(self, key, user, audio):
+        if audio:
+            return [self.make_local_audio_encode_operation(
+                key, user=user)]
+        else:
+            return [
+                self.make_pull_from_s3_and_extract_metadata_operation(
+                    key=key, user=user),
+                self.make_create_elastic_transcoder_job_operation(
+                    key=key, user=user)]
+
 
 class WrongFileType(Exception):
     pass
