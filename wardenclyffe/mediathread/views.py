@@ -156,13 +156,15 @@ def submit_video_to_mediathread(video, user, course):
     video.clear_mediathread_submit()
 
 
-class VideoMediathreadSubmit(View):
-    template_name = 'mediathread/mediathread_submit.html'
-
+class AuthenticatedNonAtomic(object):
     @method_decorator(login_required)
     @method_decorator(transaction.non_atomic_requests)
     def dispatch(self, *args, **kwargs):
-        return super(VideoMediathreadSubmit, self).dispatch(*args, **kwargs)
+        return super(AuthenticatedNonAtomic, self).dispatch(*args, **kwargs)
+
+
+class VideoMediathreadSubmit(AuthenticatedNonAtomic, View):
+    template_name = 'mediathread/mediathread_submit.html'
 
     def get(self, request, id):
         video = get_object_or_404(Video, id=id)
@@ -178,13 +180,8 @@ class VideoMediathreadSubmit(View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
-class CollectionMediathreadSubmit(View):
+class CollectionMediathreadSubmit(AuthenticatedNonAtomic, View):
     template_name = 'mediathread/collection_mediathread_submit.html'
-
-    @method_decorator(login_required)
-    @method_decorator(transaction.non_atomic_requests)
-    def dispatch(self, *args, **kwargs):
-        return super(CollectionMediathreadSubmit, self).dispatch(*args, **kwargs)
 
     def get(self, request, pk):
         collection = get_object_or_404(Collection, id=pk)
