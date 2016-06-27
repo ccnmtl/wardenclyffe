@@ -126,6 +126,21 @@ def mediathread_url(username):
             username)
 
 
+def get_mediathread_courses(username):
+    try:
+        url = mediathread_url(username)
+        credentials = None
+        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
+            credentials = settings.MEDIATHREAD_CREDENTIALS
+        response = GET(url, credentials=credentials)
+        courses = loads(response)['courses']
+        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
+        courses.sort(key=lambda x: x['title'].lower())
+    except:
+        courses = []
+    return courses
+
+
 @login_required
 @transaction.non_atomic_requests
 def video_mediathread_submit(request, id):
@@ -142,17 +157,7 @@ def video_mediathread_submit(request, id):
             maintasks.process_operation.delay(o)
         video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        url = mediathread_url(request.user.username)
-        credentials = None
-        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-            credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = GET(url, credentials=credentials)
-        courses = loads(response)['courses']
-        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
-        courses.sort(key=lambda x: x['title'].lower())
-    except:
-        courses = []
+    courses = get_mediathread_courses(request.user.username)
     return render(request, 'mediathread/mediathread_submit.html',
                   dict(video=video, courses=courses,
                        mediathread_base=settings.MEDIATHREAD_BASE))
@@ -175,17 +180,7 @@ def collection_mediathread_submit(request, pk):
                 maintasks.process_operation.delay(o)
             video.clear_mediathread_submit()
         return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        url = mediathread_url(request.user.username)
-        credentials = None
-        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-            credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = GET(url, credentials=credentials)
-        courses = loads(response)['courses']
-        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
-        courses.sort(key=lambda x: x['title'].lower())
-    except:
-        courses = []
+    courses = get_mediathread_courses(request.user.username)
     return render(request, 'mediathread/collection_mediathread_submit.html',
                   dict(collection=collection, courses=courses,
                        mediathread_base=settings.MEDIATHREAD_BASE))
