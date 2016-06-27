@@ -2,6 +2,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.generic import View
 from wardenclyffe.main.models import Video, Collection
 from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
@@ -154,18 +156,26 @@ def submit_video_to_mediathread(video, user, course):
     video.clear_mediathread_submit()
 
 
-@login_required
-@transaction.non_atomic_requests
-def video_mediathread_submit(request, id):
-    video = get_object_or_404(Video, id=id)
-    if request.method == "POST":
+class VideoMediathreadSubmit(View):
+    template_name = 'mediathread/mediathread_submit.html'
+
+    @method_decorator(login_required)
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(VideoMediathreadSubmit, self).dispatch(*args, **kwargs)
+
+    def get(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        courses = get_mediathread_courses(request.user.username)
+        return render(request, self.template_name,
+                      dict(video=video, courses=courses,
+                           mediathread_base=settings.MEDIATHREAD_BASE))
+
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
         submit_video_to_mediathread(video, request.user,
                                     request.POST.get('course', ''))
         return HttpResponseRedirect(video.get_absolute_url())
-    courses = get_mediathread_courses(request.user.username)
-    return render(request, 'mediathread/mediathread_submit.html',
-                  dict(video=video, courses=courses,
-                       mediathread_base=settings.MEDIATHREAD_BASE))
 
 
 @login_required
