@@ -128,19 +128,21 @@ def mediathread_url(username):
             username)
 
 
-def get_mediathread_courses(username):
-    try:
-        url = mediathread_url(username)
-        credentials = None
-        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-            credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = GET(url, credentials=credentials)
-        courses = loads(response)['courses']
-        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
-        courses.sort(key=lambda x: x['title'].lower())
-    except:
-        courses = []
-    return courses
+class MediathreadCourseGetter(object):
+    def run(username):
+        try:
+            url = mediathread_url(username)
+            credentials = None
+            if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
+                credentials = settings.MEDIATHREAD_CREDENTIALS
+            response = GET(url, credentials=credentials)
+            courses = loads(response)['courses']
+            courses = [dict(id=k, title=v['title'])
+                       for (k, v) in courses.items()]
+            courses.sort(key=lambda x: x['title'].lower())
+        except:
+            courses = []
+        return courses
 
 
 def submit_video_to_mediathread(video, user, course):
@@ -165,10 +167,11 @@ class AuthenticatedNonAtomic(object):
 
 class VideoMediathreadSubmit(AuthenticatedNonAtomic, View):
     template_name = 'mediathread/mediathread_submit.html'
+    course_getter = MediathreadCourseGetter
 
     def get(self, request, id):
         video = get_object_or_404(Video, id=id)
-        courses = get_mediathread_courses(request.user.username)
+        courses = self.course_getter().run(request.user.username)
         return render(request, self.template_name,
                       dict(video=video, courses=courses,
                            mediathread_base=settings.MEDIATHREAD_BASE))
@@ -182,10 +185,11 @@ class VideoMediathreadSubmit(AuthenticatedNonAtomic, View):
 
 class CollectionMediathreadSubmit(AuthenticatedNonAtomic, View):
     template_name = 'mediathread/collection_mediathread_submit.html'
+    course_getter = MediathreadCourseGetter
 
     def get(self, request, pk):
         collection = get_object_or_404(Collection, id=pk)
-        courses = get_mediathread_courses(request.user.username)
+        courses = self.course_getter().run(request.user.username)
         return render(request, self.template_name,
                       dict(collection=collection, courses=courses,
                            mediathread_base=settings.MEDIATHREAD_BASE))
