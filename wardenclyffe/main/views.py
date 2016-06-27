@@ -772,41 +772,33 @@ class AudioEncodeFileView(StaffMixin, View):
 class FileFilterView(StaffMixin, TemplateView):
     template_name = 'main/file_filter.html'
 
-    def get_video_formats(self):
-        include_video_formats = self.request.GET.getlist(
-            'include_video_formats')
-        all_video_formats = []
-        excluded_video_formats = []
+    def _get_all_excluded(self, included, field):
+        all_x = []
+        excluded_x = []
         for vf in [""] + list(
             set(
                 [
                     m.value for m
                     in Metadata.objects.filter(
-                        field="ID_VIDEO_FORMAT")])):
-            all_video_formats.append((vf, vf in include_video_formats))
-            if vf not in include_video_formats:
-                excluded_video_formats.append(vf)
+                        field=field)])):
+            all_x.append((vf, vf in included))
+            if vf not in included:
+                excluded_x.append(vf)
                 if vf == "":
-                    excluded_video_formats.append(None)
-        return all_video_formats, excluded_video_formats
+                    excluded_x.append(None)
+        return all_x, excluded_x
+
+    def get_video_formats(self):
+        include_video_formats = self.request.GET.getlist(
+            'include_video_formats')
+        return self._get_all_excluded(
+            include_video_formats, "ID_VIDEO_FORMAT")
 
     def get_audio_formats(self):
         include_audio_formats = self.request.GET.getlist(
             'include_audio_formats')
-        all_audio_formats = []
-        excluded_audio_formats = []
-        for af in [""] + list(
-            set(
-                [
-                    m.value for m
-                    in Metadata.objects.filter(
-                        field="ID_AUDIO_FORMAT")])):
-            all_audio_formats.append((af, af in include_audio_formats))
-            if af not in include_audio_formats:
-                excluded_audio_formats.append(af)
-                if af == "":
-                    excluded_audio_formats.append(None)
-        return all_audio_formats, excluded_audio_formats
+        return self._get_all_excluded(
+            include_audio_formats, "ID_AUDIO_FORMAT")
 
     def get_context_data(self):
         include_collection = self.request.GET.getlist('include_collection')
