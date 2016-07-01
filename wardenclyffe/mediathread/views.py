@@ -2,7 +2,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
-from wardenclyffe.main.models import Video, Collection, File
+from django.utils.decorators import method_decorator
+from django.views.generic import View
+from wardenclyffe.main.models import Video, Collection
 from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
 import wardenclyffe.main.tasks as maintasks
@@ -16,21 +18,32 @@ import hashlib
 from django_statsd.clients import statsd
 
 
+class MediathreadAuthenticator(object):
+    def __init__(self, request):
+        self.nonce = request.GET.get('nonce', '')
+        self.hmc = request.GET.get('hmac', '')
+        self.set_course = request.GET.get('set_course', '')
+        self.username = request.GET.get('as')
+        self.redirect_to = request.GET.get('redirect_url', '')
+
+    def is_valid(self):
+        verify = hmac.new(
+            settings.MEDIATHREAD_SECRET,
+            '%s:%s:%s' % (self.username, self.redirect_to,
+                          self.nonce),
+            hashlib.sha1
+        ).hexdigest()
+        return verify == self.hmc
+
+
 def mediathread(request):
     # check their credentials
-    nonce = request.GET.get('nonce', '')
-    hmc = request.GET.get('hmac', '')
-    set_course = request.GET.get('set_course', '')
-    username = request.GET.get('as')
-    redirect_to = request.GET.get('redirect_url', '')
-    verify = hmac.new(settings.MEDIATHREAD_SECRET,
-                      '%s:%s:%s' % (username, redirect_to, nonce),
-                      hashlib.sha1
-                      ).hexdigest()
-    if verify != hmc:
+    authenticator = MediathreadAuthenticator(request)
+    if not authenticator.is_valid():
         statsd.incr("mediathread.auth_failure")
         return HttpResponse("invalid authentication token")
 
+    username = authenticator.username
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -38,10 +51,10 @@ def mediathread(request):
         statsd.incr("mediathread.user_created")
 
     request.session['username'] = username
-    request.session['set_course'] = set_course
-    request.session['nonce'] = nonce
-    request.session['redirect_to'] = redirect_to
-    request.session['hmac'] = hmc
+    request.session['set_course'] = authenticator.set_course
+    request.session['nonce'] = authenticator.nonce
+    request.session['redirect_to'] = authenticator.redirect_to
+    request.session['hmac'] = authenticator.hmc
     # either 'audio' or 'audio2' are accepted for now
     # for backwards-compatibility. going forward,
     # 'audio2' will be deprecated
@@ -99,20 +112,8 @@ def s3_upload(request):
             request.session['redirect_to'], audio=audio,
         )
 
-        label = "uploaded source file (S3)"
-        if audio:
-            label = "uploaded source audio (S3)"
-        File.objects.create(video=v, url="", cap=key, location_type="s3",
-                            filename=key, label=label)
-        if audio:
-            operations = [v.make_local_audio_encode_operation(
-                key, user=user)]
-        else:
-            operations = [
-                v.make_pull_from_s3_and_extract_metadata_operation(
-                    key=key, user=user),
-                v.make_create_elastic_transcoder_job_operation(
-                    key=key, user=user)]
+        v.make_uploaded_source_file(key, audio=audio)
+        operations = v.initial_operations(key, user, audio)
     except:
         statsd.incr("mediathread.mediathread.failure")
         raise
@@ -124,70 +125,81 @@ def s3_upload(request):
     return HttpResponse("Bad file upload. Please try again.")
 
 
-@login_required
-@transaction.non_atomic_requests
-def video_mediathread_submit(request, id):
-    video = get_object_or_404(Video, id=id)
-    if request.method == "POST":
-        statsd.incr("mediathread.submit")
-        video.make_mediathread_submit_file(
-            video.filename(), request.user,
-            request.POST.get('course', ''),
-            redirect_to="",
-            audio=video.is_audio_file())
-        operations = video.handle_mediathread_submit()
-        for o in operations:
-            maintasks.process_operation.delay(o)
-        video.clear_mediathread_submit()
+def mediathread_url(username):
+    return (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
+            settings.MEDIATHREAD_SECRET + "&user=" +
+            username)
+
+
+class MediathreadCourseGetter(object):
+    def run(username):
+        try:
+            url = mediathread_url(username)
+            credentials = None
+            if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
+                credentials = settings.MEDIATHREAD_CREDENTIALS
+            response = GET(url, credentials=credentials)
+            courses = loads(response)['courses']
+            courses = [dict(id=k, title=v['title'])
+                       for (k, v) in courses.items()]
+            courses.sort(key=lambda x: x['title'].lower())
+        except:
+            courses = []
+        return courses
+
+
+def submit_video_to_mediathread(video, user, course):
+    statsd.incr("mediathread.submit")
+    video.make_mediathread_submit_file(
+        video.filename(), user,
+        course,
+        redirect_to="",
+        audio=video.is_audio_file())
+    operations = video.handle_mediathread_submit()
+    for o in operations:
+        maintasks.process_operation.delay(o)
+    video.clear_mediathread_submit()
+
+
+class AuthenticatedNonAtomic(object):
+    @method_decorator(login_required)
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, *args, **kwargs):
+        return super(AuthenticatedNonAtomic, self).dispatch(*args, **kwargs)
+
+
+class VideoMediathreadSubmit(AuthenticatedNonAtomic, View):
+    template_name = 'mediathread/mediathread_submit.html'
+    course_getter = MediathreadCourseGetter
+
+    def get(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        courses = self.course_getter().run(request.user.username)
+        return render(request, self.template_name,
+                      dict(video=video, courses=courses,
+                           mediathread_base=settings.MEDIATHREAD_BASE))
+
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        submit_video_to_mediathread(video, request.user,
+                                    request.POST.get('course', ''))
         return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
-               settings.MEDIATHREAD_SECRET + "&user=" +
-               request.user.username)
-        credentials = None
-        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-            credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = GET(url, credentials=credentials)
-        courses = loads(response)['courses']
-        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
-        courses.sort(key=lambda x: x['title'].lower())
-    except:
-        courses = []
-    return render(request, 'mediathread/mediathread_submit.html',
-                  dict(video=video, courses=courses,
-                       mediathread_base=settings.MEDIATHREAD_BASE))
 
 
-@login_required
-@transaction.non_atomic_requests
-def collection_mediathread_submit(request, pk):
-    collection = get_object_or_404(Collection, id=pk)
-    if request.method == "POST":
+class CollectionMediathreadSubmit(AuthenticatedNonAtomic, View):
+    template_name = 'mediathread/collection_mediathread_submit.html'
+    course_getter = MediathreadCourseGetter
+
+    def get(self, request, pk):
+        collection = get_object_or_404(Collection, id=pk)
+        courses = self.course_getter().run(request.user.username)
+        return render(request, self.template_name,
+                      dict(collection=collection, courses=courses,
+                           mediathread_base=settings.MEDIATHREAD_BASE))
+
+    def post(self, request, pk):
+        collection = get_object_or_404(Collection, id=pk)
         for video in collection.video_set.all():
-            statsd.incr("mediathread.submit")
-            video.make_mediathread_submit_file(
-                video.filename(), request.user,
-                request.POST.get('course', ''),
-                redirect_to="",
-                audio=video.is_audio_file())
-            operations = video.handle_mediathread_submit()
-            for o in operations:
-                maintasks.process_operation.delay(o)
-            video.clear_mediathread_submit()
-        return HttpResponseRedirect(video.get_absolute_url())
-    try:
-        url = (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
-               settings.MEDIATHREAD_SECRET + "&user=" +
-               request.user.username)
-        credentials = None
-        if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-            credentials = settings.MEDIATHREAD_CREDENTIALS
-        response = GET(url, credentials=credentials)
-        courses = loads(response)['courses']
-        courses = [dict(id=k, title=v['title']) for (k, v) in courses.items()]
-        courses.sort(key=lambda x: x['title'].lower())
-    except:
-        courses = []
-    return render(request, 'mediathread/collection_mediathread_submit.html',
-                  dict(collection=collection, courses=courses,
-                       mediathread_base=settings.MEDIATHREAD_BASE))
+            submit_video_to_mediathread(video, request.user,
+                                        request.POST.get('course', ''))
+        return HttpResponseRedirect(collection.get_absolute_url())

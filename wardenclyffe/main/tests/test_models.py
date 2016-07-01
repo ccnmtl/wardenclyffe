@@ -62,6 +62,13 @@ class CollectionTest(TestCase):
         assert "id_title" in str(add_form)
         assert 'title' in add_form.fields
 
+    def test_is_public(self):
+        c = CollectionFactory(title="h264 Public")
+        self.assertTrue(c.is_public())
+
+        c = CollectionFactory(title="not h264 public")
+        self.assertFalse(c.is_public())
+
 
 class EmptyVideoTest(TestCase):
     """ test the behavior for a video that doesn't have any files associated

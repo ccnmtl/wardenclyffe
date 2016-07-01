@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.conf import settings
 from wardenclyffe.main.feeds import CollectionFeed
 import wardenclyffe.main.views as views
+import wardenclyffe.mediathread.views as mediathread_views
 from django.views.generic import TemplateView
 admin.autodiscover()
 
@@ -30,7 +31,7 @@ urlpatterns = patterns(
     (r'^collection/(?P<pk>\d+)/toggle_active/$',
      views.CollectionToggleActiveView.as_view()),
     (r'^collection/(?P<pk>\d+)/mediathread_submit/$',
-     'wardenclyffe.mediathread.views.collection_mediathread_submit'),
+     mediathread_views.CollectionMediathreadSubmit.as_view()),
     (r'^collection/(?P<pk>\d+)/delete/$',
      views.DeleteCollectionView.as_view()),
     (r'^collection/(?P<id>\d+)/remove_tag/(?P<tagname>\w+)/$',
@@ -92,7 +93,7 @@ urlpatterns = patterns(
     url(r'^video/(?P<id>\d+)/youtube/$',
         views.VideoYoutubeUploadView.as_view(), name="s3-to-youtube"),
     (r'^video/(?P<id>\d+)/mediathread_submit/$',
-     'wardenclyffe.mediathread.views.video_mediathread_submit'),
+     mediathread_views.VideoMediathreadSubmit.as_view()),
     (r'^video/(?P<id>\d+)/add_file/$', views.VideoAddFileView.as_view()),
     (r'^video/(?P<id>\d+)/select_poster/(?P<image_id>\d+)/$',
      views.VideoSelectPosterView.as_view()),

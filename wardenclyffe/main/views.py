@@ -466,43 +466,22 @@ def upload(request):
         # TODO: give the user proper feedback here
         return HttpResponseRedirect("/upload/")
 
-    collection_id = None
     statsd.incr('main.s3upload')
 
-    vuuid = uuid.uuid4()
+    v = Video.objects.video_from_form(
+        form, request.user.username,
+        request.GET.get('collection', None))
 
-    v = form.save(commit=False)
-    v.uuid = vuuid
-    v.creator = request.user.username
-    collection_id = request.GET.get('collection', None)
-    if collection_id:
-        v.collection_id = collection_id
-    v.save()
-    form.save_m2m()
     s3url = request.POST['s3_url']
-
     key = key_from_s3url(s3url)
 
     # we need a source file object in there
     # to attach basic metadata to
     v.make_source_file(key)
+    v.make_uploaded_source_file(key)
 
-    label = "uploaded source file (S3)"
-    if v.collection.audio:
-        label = "uploaded source audio (S3)"
-
-    File.objects.create(video=v, url="", cap=key, location_type="s3",
-                        filename=key, label=label)
-    # trigger operations
-    if v.collection.audio:
-        operations = [v.make_local_audio_encode_operation(
-            key, user=request.user)]
-    else:
-        operations = [
-            v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user),
-            v.make_create_elastic_transcoder_job_operation(
-                key=key, user=request.user)]
+    operations = v.initial_operations(key, request.user,
+                                      v.collection.audio)
 
     if request.POST.get("submit_to_youtube", False):
         o = v.make_pull_from_s3_and_upload_to_youtube_operation(
@@ -550,21 +529,10 @@ def s3_batch_upload(request, collection_id):
             language=request.POST.get('language_' + idx, ""),
         )
 
-        source_file = v.make_source_file(key)
-        label = "uploaded source file (S3)"
-        source_file = File.objects.create(video=v, url="", cap=key,
-                                          location_type="s3",
-                                          filename=key,
-                                          label=label)
-
-        v_operations = [
-            v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user),
-            v.make_create_elastic_transcoder_job_operation(
-                key=key, user=request.user)]
-        if v.collection.audio:
-            o = v.make_audio_encode_operation(source_file.id, request.user)
-            v_operations.append(o)
+        v.make_source_file(key)
+        v.make_uploaded_source_file(key)
+        v_operations = v.initial_operations(key, request.user,
+                                            v.collection.audio)
         operations.extend(v_operations)
     return operations
 
@@ -804,13 +772,37 @@ class AudioEncodeFileView(StaffMixin, View):
 class FileFilterView(StaffMixin, TemplateView):
     template_name = 'main/file_filter.html'
 
+    def _get_all_excluded(self, included, field):
+        all_x = []
+        excluded_x = []
+        for vf in [""] + list(
+            set(
+                [
+                    m.value for m
+                    in Metadata.objects.filter(
+                        field=field)])):
+            all_x.append((vf, vf in included))
+            if vf not in included:
+                excluded_x.append(vf)
+                if vf == "":
+                    excluded_x.append(None)
+        return all_x, excluded_x
+
+    def get_video_formats(self):
+        include_video_formats = self.request.GET.getlist(
+            'include_video_formats')
+        return self._get_all_excluded(
+            include_video_formats, "ID_VIDEO_FORMAT")
+
+    def get_audio_formats(self):
+        include_audio_formats = self.request.GET.getlist(
+            'include_audio_formats')
+        return self._get_all_excluded(
+            include_audio_formats, "ID_AUDIO_FORMAT")
+
     def get_context_data(self):
         include_collection = self.request.GET.getlist('include_collection')
         include_file_types = self.request.GET.getlist('include_file_types')
-        include_video_formats = self.request.GET.getlist(
-            'include_video_formats')
-        include_audio_formats = self.request.GET.getlist(
-            'include_audio_formats')
 
         results = File.objects.filter(
             video__collection__id__in=include_collection
@@ -823,32 +815,8 @@ class FileFilterView(StaffMixin, TemplateView):
                           for l in list(set([f.location_type
                                              for f in File.objects.all()]))]
 
-        all_video_formats = []
-        excluded_video_formats = []
-        for vf in [""] + list(
-            set(
-                [
-                    m.value for m
-                    in Metadata.objects.filter(
-                        field="ID_VIDEO_FORMAT")])):
-            all_video_formats.append((vf, vf in include_video_formats))
-            if vf not in include_video_formats:
-                excluded_video_formats.append(vf)
-                if vf == "":
-                    excluded_video_formats.append(None)
-        all_audio_formats = []
-        excluded_audio_formats = []
-        for af in [""] + list(
-            set(
-                [
-                    m.value for m
-                    in Metadata.objects.filter(
-                        field="ID_AUDIO_FORMAT")])):
-            all_audio_formats.append((af, af in include_audio_formats))
-            if af not in include_audio_formats:
-                excluded_audio_formats.append(af)
-                if af == "":
-                    excluded_audio_formats.append(None)
+        all_video_formats, excluded_video_formats = self.get_video_formats()
+        all_audio_formats, excluded_audio_formats = self.get_audio_formats()
 
         files = [f for f in results
                  if f.video_format() not in excluded_video_formats and
@@ -1096,6 +1064,34 @@ class SNSView(View):
             return HttpResponse("OK")
         return HttpResponse("Failed to confirm")
 
+    def _completed(self, operation, ets_message):
+        operations = []
+        # set it to completed
+        operation.status = "complete"
+        operation.save()
+
+        # add S3 output file record
+        for output in ets_message['outputs']:
+            label = "transcoded 480p file (S3)"
+            if output['presetId'] == settings.AWS_ET_720_PRESET:
+                label = "transcoded 720p file (S3)"
+            f = File.objects.create(
+                video=operation.video,
+                cap=output['key'],
+                location_type="s3",
+                filename=output['key'],
+                label=label)
+            OperationFile.objects.create(operation=operation, file=f)
+            v = operation.video
+            if 'thumbnailPattern' in output:
+                o = v.make_pull_thumbs_from_s3_operation(
+                    output['thumbnailPattern'], operation.owner)
+                operations.append(o)
+            o = v.make_copy_from_s3_to_cunix_operation(
+                f.id, operation.owner)
+            operations.append(o)
+        return operations
+
     def _notification(self, request):
         full_message = loads(self.body)
         ets_message = loads(full_message['Message'])
@@ -1117,30 +1113,7 @@ class SNSView(View):
 
         operations = []
         if state == 'COMPLETED':
-            # set it to completed
-            operation.status = "complete"
-            operation.save()
-
-            # add S3 output file record
-            for output in ets_message['outputs']:
-                label = "transcoded 480p file (S3)"
-                if output['presetId'] == settings.AWS_ET_720_PRESET:
-                    label = "transcoded 720p file (S3)"
-                f = File.objects.create(
-                    video=operation.video,
-                    cap=output['key'],
-                    location_type="s3",
-                    filename=output['key'],
-                    label=label)
-                OperationFile.objects.create(operation=operation, file=f)
-                v = operation.video
-                if 'thumbnailPattern' in output:
-                    o = v.make_pull_thumbs_from_s3_operation(
-                        output['thumbnailPattern'], operation.owner)
-                    operations.append(o)
-                o = v.make_copy_from_s3_to_cunix_operation(
-                    f.id, operation.owner)
-                operations.append(o)
+            operations = self._completed(operation, ets_message)
         else:
             # set it to failed
             operation.status = "failed"

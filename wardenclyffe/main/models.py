@@ -65,6 +65,19 @@ class Collection(TimeStampedModel):
         return self.title == "h264 Public"
 
 
+class VideoManager(models.Manager):
+    def video_from_form(self, form, username, collection_id):
+        v = form.save(commit=False)
+        vuuid = uuid.uuid4()
+        v.uuid = vuuid
+        v.creator = username
+        if collection_id:
+            v.collection_id = collection_id
+        v.save()
+        form.save_m2m()
+        return v
+
+
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
@@ -76,6 +89,7 @@ class Video(TimeStampedModel):
 
     uuid = UUIDField()
 
+    objects = VideoManager()
     tags = TaggableManager(blank=True)
 
     def s3_file(self):
@@ -338,6 +352,9 @@ class Video(TimeStampedModel):
                                    filename=filename,
                                    location_type='none')
 
+    def make_uploaded_source_file(self, key, audio=False):
+        return File.objects.create_uploaded_source_file(self, key, audio)
+
     def upto_hundred_images(self):
         """ return the first 100 frames for the video
 
@@ -347,6 +364,17 @@ class Video(TimeStampedModel):
         to show *all* those images. The first hundred or so
         ought to be enough to select a poster from """
         return self.image_set.all()[:100]
+
+    def initial_operations(self, key, user, audio):
+        if audio:
+            return [self.make_local_audio_encode_operation(
+                key, user=user)]
+        else:
+            return [
+                self.make_pull_from_s3_and_extract_metadata_operation(
+                    key=key, user=user),
+                self.make_create_elastic_transcoder_job_operation(
+                    key=key, user=user)]
 
 
 class WrongFileType(Exception):
@@ -401,6 +429,17 @@ class S3File(FileType):
         return self.file.cap.lower().endswith("mp3")
 
 
+class FileManager(models.Manager):
+    def create_uploaded_source_file(self, v, key, audio=False):
+        label = "uploaded source file (S3)"
+        if audio or v.collection.audio:
+            label = "uploaded source audio (S3)"
+
+        f = File.objects.create(video=v, url="", cap=key, location_type="s3",
+                                filename=key, label=label)
+        return f
+
+
 class File(TimeStampedModel):
     video = models.ForeignKey(Video)
     label = models.CharField(max_length=256, blank=True, null=True, default="")
@@ -414,6 +453,7 @@ class File(TimeStampedModel):
                                               ('youtube', 'youtube'),
                                               ('s3', 's3'),
                                               ('none', 'none')))
+    objects = FileManager()
 
     def filetype(self):
         tmap = dict(
