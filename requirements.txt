@@ -57,7 +57,7 @@ pexpect==4.1.0
 pickleshare==0.7.2
 simplegeneric==0.8.1
 path.py==8.2.1
-ipython==4.2.0
+ipython==4.2.1
 sqlparse==0.1.19
 filechunkio==1.8
 simplejson==3.8.2
