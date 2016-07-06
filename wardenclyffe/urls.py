@@ -16,6 +16,7 @@ urlpatterns = patterns(
     ('^most_recent_operation/', views.MostRecentOperationView.as_view()),
     ('^accounts/', include('djangowind.urls')),
     (r'^admin/', include(admin.site.urls)),
+    (r'^drop/', include('wardenclyffe.drop.urls')),
     (r'^capture/file_upload', 'wardenclyffe.main.views.test_upload'),
     (r'^add_collection/$', views.AddCollectionView.as_view()),
     (r'^collection/(?P<pk>\d+)/$', views.CollectionView.as_view()),
