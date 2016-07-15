@@ -71,3 +71,8 @@ class TestMessage(unittest.TestCase):
         self.assertFalse(self.r.is_directory())
         self.r._d['s3']['object']['key'] = "foo/"
         self.assertTrue(self.r.is_directory())
+
+    def test_title(self):
+        self.assertEqual(self.r.title(), "929")
+        self.r._d['s3']['object']['key'] = "foo/bar/one_two-three.mp4"
+        self.assertEqual(self.r.title(), "one two three")

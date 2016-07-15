@@ -10,9 +10,10 @@ from .models import DropBucket
 
 
 @task(ignore_results=True, bind=True, max_retries=None)
-def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, **kwargs):
-    print("move_from_dropbucket_to_upload_bucket({}, {})".format(
-        bucket_id, s3key))
+def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, title,
+                                          **kwargs):
+    print("move_from_dropbucket_to_upload_bucket({}, {}, {})".format(
+        bucket_id, s3key, title))
     try:
         b = DropBucket.objects.get(pk=bucket_id)
         conn = boto.connect_s3(
@@ -27,7 +28,7 @@ def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, **kwargs):
         # using the info from the DropBucket
         v = Video.objects.simple_create(
             collection=b.collection,
-            title=s3key,
+            title=title,
             username=b.user.username,
         )
         v.make_source_file(s3key)

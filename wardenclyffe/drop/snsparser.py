@@ -1,4 +1,6 @@
 import json
+import os.path
+import re
 
 
 class SNSMessageError(Exception):
@@ -26,6 +28,17 @@ class Record(object):
 
     def is_directory(self):
         return self.s3_bucket_key().endswith("/")
+
+    def title(self):
+        """ come up with a reasonable title based on the filename/key
+
+        basically, strip off extension and directory info and convert
+        non-alphanums to spaces.
+        """
+        fname = self.s3_bucket_key()
+        base = os.path.basename(fname)
+        title = os.path.splitext(base)[0]
+        return re.sub(r"[_\W]+", " ", title)
 
 
 class SNSMessage(object):

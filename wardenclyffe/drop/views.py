@@ -24,7 +24,8 @@ class SNSView(View):
                     continue
                 b = get_object_or_404(
                     DropBucket, bucket_id=r.s3_bucket_name())
-                move_from_dropbucket_to_upload_bucket.delay(b.id, s3key)
+                move_from_dropbucket_to_upload_bucket.delay(
+                    b.id, s3key, r.title())
         except SNSMessageError:
             return HttpResponseBadRequest()
         return HttpResponse("OK")
