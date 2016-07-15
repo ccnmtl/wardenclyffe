@@ -19,7 +19,7 @@ class SNSView(View):
                 return HttpResponseBadRequest()
             for r in s.records():
                 s3key = r.s3_bucket_key()
-                if s3key.is_directory():
+                if r.is_directory():
                     # someone made a directory. not a file upload. ignore.
                     continue
                 b = get_object_or_404(
