@@ -24,6 +24,9 @@ class Record(object):
     def s3_bucket_key(self):
         return self._d['s3']['object']['key']
 
+    def is_directory(self):
+        return self.s3_bucket_key().endswith("/")
+
 
 class SNSMessage(object):
     def __init__(self, message):
