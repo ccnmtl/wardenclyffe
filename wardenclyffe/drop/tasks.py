@@ -38,8 +38,8 @@ def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, title,
         enqueue_operations(operations)
         print("move completed")
     except Exception as exc:
-        print "Exception:"
-        print str(exc)
+        print("Exception:")
+        print(str(exc))
         if self.request.retries > settings.OPERATION_MAX_RETRIES:
             # max out at (default) 10 retry attempts
             print("max retries")
