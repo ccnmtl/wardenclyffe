@@ -1,0 +1,38 @@
+from django.http import Http404
+from django.test import TestCase, RequestFactory
+
+from .factories import DropBucketFactory
+from ..views import SNSView
+from .test_snsparser import sample_message
+
+
+class TestSNSView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_invalid_message(self):
+        request = self.factory.post(
+            "/sns/endpoint/",
+            {}
+        )
+        response = SNSView.as_view()(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_valid_message_with_no_matching_bucket(self):
+        request = self.factory.post(
+            "/sns/endpoint/",
+            data=sample_message(),
+            content_type='application/json',
+        )
+        with self.assertRaises(Http404):
+            SNSView.as_view()(request)
+
+    def test_valid_message_with_matching_bucket(self):
+        DropBucketFactory(bucket_id="ctl-wardenclyffe-dropbox-test")
+        request = self.factory.post(
+            "/sns/endpoint/",
+            data=sample_message(),
+            content_type='application/json',
+        )
+        response = SNSView.as_view()(request)
+        self.assertEqual(response.status_code, 200)

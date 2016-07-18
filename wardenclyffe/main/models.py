@@ -77,6 +77,15 @@ class VideoManager(models.Manager):
         form.save_m2m()
         return v
 
+    def simple_create(self, collection, title, username):
+        vuuid = uuid.uuid4()
+        return Video.objects.create(
+            collection=collection,
+            title=title[:256],
+            creator=username,
+            uuid=vuuid,
+        )
+
 
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)

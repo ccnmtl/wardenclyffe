@@ -116,6 +116,9 @@ AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-devel"
 AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-dev"
 AWS_ET_REGION = 'us-east-1'
 
+DROPBOX_TOPIC_ARN = (
+    "arn:aws:sns:us-east-1:051882422638:ctl-wardenclyffe-dropbox")
+
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }

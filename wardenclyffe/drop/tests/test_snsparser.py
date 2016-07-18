@@ -66,3 +66,13 @@ class TestMessage(unittest.TestCase):
 
     def test_s3_bucket_key(self):
         self.assertEqual(self.r.s3_bucket_key(), '929.jpg')
+
+    def test_is_directory(self):
+        self.assertFalse(self.r.is_directory())
+        self.r._d['s3']['object']['key'] = "foo/"
+        self.assertTrue(self.r.is_directory())
+
+    def test_title(self):
+        self.assertEqual(self.r.title(), "929")
+        self.r._d['s3']['object']['key'] = "foo/bar/one_two-three.mp4"
+        self.assertEqual(self.r.title(), "one two three")
