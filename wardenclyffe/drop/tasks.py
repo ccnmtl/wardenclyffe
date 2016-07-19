@@ -22,7 +22,7 @@ def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, title,
         drop_bucket = conn.get_bucket(b.bucket_id)
         upload_bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
         # TODO: filename santization
-        upload_bucket.copy_key(s3key, drop_bucket, s3key)
+        upload_bucket.copy_key(s3key, drop_bucket.name, s3key)
 
         # now that it's moved, we need to kick off a regular upload pipeline
         # using the info from the DropBucket
