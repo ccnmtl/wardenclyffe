@@ -119,6 +119,10 @@ AWS_ET_REGION = 'us-east-1'
 DROPBOX_TOPIC_ARN = (
     "arn:aws:sns:us-east-1:051882422638:ctl-wardenclyffe-dropbox")
 
+VIDEO_EXTENSIONS = [".mov", ".avi", ".mp4", ".flv", ".mpg", ".wmv", ".m4v"]
+AUDIO_EXTENSIONS = [".mp3"]
+ALLOWED_EXTENSIONS = VIDEO_EXTENSIONS + AUDIO_EXTENSIONS
+
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }
