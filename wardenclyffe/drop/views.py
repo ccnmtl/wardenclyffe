@@ -35,7 +35,7 @@ class SNSView(View):
         try:
             s = SNSMessage(request_body)
             if (s.message_type() != "Notification"
-                    and s.topic() != settings.DROPBOX_TOPIC_ARN):
+                    or s.topic() != settings.DROPBOX_TOPIC_ARN):
                 return HttpResponseBadRequest()
             for r in s.records():
                 process_record(r)
