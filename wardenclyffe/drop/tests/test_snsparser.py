@@ -9,6 +9,12 @@ def sample_message():
     return f.read()
 
 
+def sample_video_message():
+    f = open(os.path.join(os.path.dirname(__file__),
+                          "sample_video_message.txt"))
+    return f.read()
+
+
 class TestSNSMessage(unittest.TestCase):
     def setUp(self):
         self.m = sample_message()

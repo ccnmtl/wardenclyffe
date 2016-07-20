@@ -1,9 +1,11 @@
+import unittest
+
 from django.http import Http404
 from django.test import TestCase, RequestFactory
 
 from .factories import DropBucketFactory
-from ..views import SNSView
-from .test_snsparser import sample_message
+from ..views import SNSView, is_encodable_file
+from .test_snsparser import sample_message, sample_video_message
 
 
 class TestSNSView(TestCase):
@@ -21,7 +23,7 @@ class TestSNSView(TestCase):
     def test_valid_message_with_no_matching_bucket(self):
         request = self.factory.post(
             "/sns/endpoint/",
-            data=sample_message(),
+            data=sample_video_message(),
             content_type='application/json',
         )
         with self.assertRaises(Http404):
@@ -36,3 +38,15 @@ class TestSNSView(TestCase):
         )
         response = SNSView.as_view()(request)
         self.assertEqual(response.status_code, 200)
+
+
+class TestIsEncodableFile(unittest.TestCase):
+    def test_basics(self):
+        self.assertTrue(is_encodable_file("foo.mp4"))
+        self.assertTrue(is_encodable_file("foo/bar/baz.mp4"))
+        self.assertTrue(is_encodable_file("foo.MP4"))
+        self.assertTrue(is_encodable_file("foo.wmv"))
+        self.assertTrue(is_encodable_file("foo.MP3"))
+
+        self.assertFalse(is_encodable_file("foo.jpg"))
+        self.assertFalse(is_encodable_file("foo.txt"))
