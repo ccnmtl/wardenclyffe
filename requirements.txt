@@ -9,7 +9,8 @@ psycopg2==2.6.2
 Pillow==3.3.0
 anyjson==0.3.3
 billiard==3.3.0.23
-amqp==1.4.9
+vine==1.1.1
+amqp==2.0.3
 amqplib==1.0.2
 kombu==3.0.35
 django-picklefield==0.3.2
