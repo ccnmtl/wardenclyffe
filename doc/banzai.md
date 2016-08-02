@@ -62,7 +62,8 @@ However, WC's current architecture is limited in the following ways:
 
 1) much of the inter-step dependency handling is ad-hoc and
 fragile. The common use-cases are fairly well tested at this point,
-but changing a workflow is a risky job and usually involves some
+but changing a workflow (eg, adding a step to add a bumper or
+watermark to videos) is a risky job and usually involves some
 breakage and manual testing.
 
 2) workflows to handle new use-cases can only be implemented by
@@ -126,7 +127,116 @@ etc) and use it to hang temporary metadata off (eg, which Mediathread
 course the video will eventually go to or the ET job ID that was
 started)
 
-[TODO]
+Let's go through a more detailed example, seeing exactly what happens
+in this model when a video is uploaded to the Mediathread `Workflow`.
+
+First, we have to define the `Step`s that are in the `Workflow`:
+
+* extract metadata
+** prereq events: `START`
+** success events: `metadata extracted`
+** failure events: `failed`
+* create Elastic Transcode Job
+** prereq events: `START`
+** success events: `ET Job created`
+** failure events: `failed`
+* pull down thumbnails
+** prereq events: `ET Job finished`
+** success events: `poster created`
+** failure events: `failed`
+* copy from S3 output bucket to cunix
+** prereq events: `ET Job finished`
+** success events: `uploaded to cunix`
+** failure events: `failed`
+* mediathread submit
+** prereq events: `metadata extracted`, `poster created`, `uploaded to cunix`
+** success events: `submitted to mediathread`
+** failure events: `failed`
+* email user (success)
+** prereq events: `submitted to mediathread`
+** success events: `OK`
+** failure events: `failed`
+* email user (failure)
+** prereq events: `START`
+** success events: `FAIL`
+** failure events: `FAIL`
+
+`START`, `OK`, and `FAIL` are special `Event`s that are either created
+or handled directly by WC.
+
+* a `Video` object is created (as currently happens)
+* a `Pipeline` is created associated with the `Video` and `Workflow`.
+* additional metadata is attached to that `Pipeline`: mediathread
+  course id, user uploading the video, S3 key for the source video
+  that was uploaded
+* For each `Step` associated with the Mediathread `Workflow`, `Step`
+  objects are instantiated, each associated with the `Pipeline`, each
+  with their status set to `blocked`, since all steps require an
+  `Event` to trigger them and there are not yet any here.
+* a `START` `Event` is created (and associated with the `Pipeline`).
+* whenever WC sees a new `Event`, it goes through all the `Step`s in
+  the `Pipeline` and checks if they are waiting on that `Event`
+  type. If so (and it's seen all the `Event`s that the `Step` is
+  waiting on), it changes the `Step`'s status to `ready` and adds its
+  `task` to the Celery Job Queue.
+* When Celery runs a `task`, it changes the associated `Step`'s status
+  to `running` and executes the code. Assuming success, it changes the
+  `Step`s status to `complete` and fires off any events in that
+  `Step`'s list of success `Event`s. If it fails, it sets the `Step`'s
+  status to `failed` and fires the failure `Event`s instead.
+* so, when WC fires off the initial `START` event, `extract metadata`
+  and `create Elastic Transcode Job` both become `ready` and their
+  tasks go into the Queue.
+* assuming `extract metadata` finishes first. A `metadata extracted`
+  `Event` is fired. `mediathread submit` is blocked on that event, but
+  it's also blocked on `poster created` and `uploaded to cunix`, which
+  it has not seen yet, so it stays blocked.
+* now, notice that `create Elastic Transcode job` generates an `ET job
+  created` `Event`, but no `Step`s are looking for that. Instead,
+  they're looking for `ET job finished`. This is because ET is its own
+  system with its own queue and it notifies us of completion through a
+  separate SNS endpoint. That endpoint, when it gets hit, simply finds the
+  `Pipeline` that corresponds to the ET job, adds a bit of metadata
+  with the S3 key of the encoded file, and then fires off an `ET job
+  finished` event.
+* when that `ET job finished` `Event` is processed, `pull down
+  thumbnails` and `copy from S3 output bucket to cunix` both become
+  `ready` and their tasks are enqueued.
+* as each of those finish, again `submit to mediathread` will be
+  examined since it depends on all those `Event`s. Only when the last
+  of them comes through will it become `ready`.
+* eventually `email user (success)` will run and emit an `OK`, which
+  WC knows it can safely ignore.
+* if any of the steps fail, they would emit a `failed` event and
+  `email user (fail)` would execute, letting the original user know
+  that something went wrong. Then `FAIL` would be emitted and WC would
+  mark the entire `Pipeline` as failed and block the processing of any
+  other `Event`s or `Step`s in the `Pipeline`. If we wanted more
+  complicated error handling, it would just be a matter of defining
+  more granular events than `failed` and creating `Step`s to handle
+  them (perhaps some failures could be corrected for).
+
+That should give you a sense of how this all works.
+
+Some advantages that may have been glossed over:
+
+* the mechanism of processing `Event`s and triggering `Step`s is
+  incredibly generic but supports very complicated workflows. It
+  should be straightforward to implement and have it nicely abstracted
+  out from the details of how our videos are currently processed,
+  allowing it to support nearly any future workflows and external
+  integrations we might need.
+* async external integrations become a matter of setting up an
+  endpoint that just generates an `Event` of a fixed type. It doesn't
+  need to know anything else about the system, which keeps it flexible
+  for using in all kinds of different workflows.
+* It also becomes straightforward for non-programmer users to assemble
+  a new `Workflow` from a pool of available `Step`s. That can be done
+  through the web. If we wanted to get fancy, it wouldn't be that
+  difficult to eg, draw a Petri Net style diagram of the workflow,
+  warn the user if the `Workflow` is incomplete (eg, `Step`s included
+  that depend on `Event`s that no other included `Step` can generate,
+  etc.)
 
 ## Open Issues
 
@@ -137,12 +247,45 @@ started)
   that any `Step` can trigger)? Is that flexibility that we need? Or
   will it just add complexity?
 
-
-[TODO]
+* I've lazily re-used the term `Step` both for the abstract thing that
+  is just a mapping of a `task` to input and output `Event`s and a
+  concrete instance that maps the abstract `Step` to a `Pipeline`. It
+  would be nice to have abstract/concrete terms analogous to how
+  `Workflow` and `Pipeline` are defined. "`StepType`", perhaps? I do
+  think of it as analogous to a type in a programming language, but
+  "type" in general is annoying since you have to be really careful
+  about not using it directly in Python and SQL. There's actually the
+  same problem with `Event`, but less troublesome because an
+  "EventType" can really just be a string value.
 
 ## Migration Strategy
 
 Ie, how do we get from where WC currently is, to this new architecture
 without breaking everything in the meantime?
 
-[TODO]
+This is a pretty disruptive change, since it replaces some pretty core
+functionality.
+
+I would probably start by implementing most of the `Event` and `Step`
+triggering and processing code on its own. Being very abstract, that
+code should be very self-contained and testable.
+
+Once that is reliable on its own, we would integrate it with the video
+upload in a couple phases:
+
+* first, a separate upload form, not visible to regular users. Upload
+  there and instead of the current WC `Operations`, it kicks off a
+  `Pipeline`. We could test quite a bit in production there with dummy
+  `Step`s that don't really do much, slowly building up to real
+  `Workflow`s. UI for through-the-web `Workflow` definition could go
+  on in parallel hidden behind a feature flag.
+* once we're happy with that, we set up a feature flag to kick of a
+  `Pipeline` in parallel with the current version when a user uploads
+  any video. Again, probably hiding it from most users (leaving off
+  the final email confirmation `Step`, eg). That lets us test on
+  "real" data while the current system is still in place.
+* eventually, we could change the feature flag to then toggle between
+old and new approaches and roll it out internally, then fully.
+* finally, once everyone is using the new version, we remove the
+  feature flag and clean out the old code.
+
