@@ -133,33 +133,33 @@ in this model when a video is uploaded to the Mediathread `Workflow`.
 First, we have to define the `Step`s that are in the `Workflow`:
 
 * extract metadata
-** prereq events: `START`
-** success events: `metadata extracted`
-** failure events: `failed`
+    * prereq events: `START`
+    * success events: `metadata extracted`
+    * failure events: `failed`
 * create Elastic Transcode Job
-** prereq events: `START`
-** success events: `ET Job created`
-** failure events: `failed`
+    * prereq events: `START`
+    * success events: `ET Job created`
+    * failure events: `failed`
 * pull down thumbnails
-** prereq events: `ET Job finished`
-** success events: `poster created`
-** failure events: `failed`
+    * prereq events: `ET Job finished`
+    * success events: `poster created`
+    * failure events: `failed`
 * copy from S3 output bucket to cunix
-** prereq events: `ET Job finished`
-** success events: `uploaded to cunix`
-** failure events: `failed`
+    * prereq events: `ET Job finished`
+    * success events: `uploaded to cunix`
+    * failure events: `failed`
 * mediathread submit
-** prereq events: `metadata extracted`, `poster created`, `uploaded to cunix`
-** success events: `submitted to mediathread`
-** failure events: `failed`
+    * prereq events: `metadata extracted`, `poster created`, `uploaded to cunix`
+    * success events: `submitted to mediathread`
+    * failure events: `failed`
 * email user (success)
-** prereq events: `submitted to mediathread`
-** success events: `OK`
-** failure events: `failed`
+    * prereq events: `submitted to mediathread`
+    * success events: `OK`
+    * failure events: `failed`
 * email user (failure)
-** prereq events: `START`
-** success events: `FAIL`
-** failure events: `FAIL`
+    * prereq events: `START`
+    * success events: `FAIL`
+    * failure events: `FAIL`
 
 `START`, `OK`, and `FAIL` are special `Event`s that are either created
 or handled directly by WC.
