@@ -14,7 +14,7 @@ amqp==2.0.3
 amqplib==1.0.2
 kombu==3.0.35
 django-picklefield==0.3.2
-pyparsing==2.1.7
+pyparsing==2.1.8
 six==1.10.0
 pytz==2016.6.1
 python-dateutil==2.5.3
@@ -56,11 +56,11 @@ ipython_genutils==0.1.0
 decorator==4.0.10
 ptyprocess==0.5.1
 pexpect==4.2.0
-pickleshare==0.7.3
+pickleshare==0.7.4
 simplegeneric==0.8.1
 path.py==8.2.1
 ipython==5.1.0
-sqlparse==0.2.0
+sqlparse==0.2.1
 filechunkio==1.8
 simplejson==3.8.2
 httpretty==0.8.14
