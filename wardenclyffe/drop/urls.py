@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import SNSView
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^sns/$', SNSView.as_view(), name='drop-sns-endpoint'),
-)
+]
