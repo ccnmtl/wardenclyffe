@@ -132,7 +132,7 @@ def mediathread_url(username):
 
 
 class MediathreadCourseGetter(object):
-    def run(username):
+    def run(self, username):
         try:
             url = mediathread_url(username)
             credentials = None
