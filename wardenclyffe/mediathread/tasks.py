@@ -1,9 +1,9 @@
+import requests
 import wardenclyffe.main.models
 from django.conf import settings
-from json import loads
-from restclient import POST
-from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 from django_statsd.clients import statsd
+from json import loads
+from wardenclyffe.util.mail import send_mediathread_uploaded_mail
 
 
 def guess_dimensions(video, audio):
@@ -76,10 +76,11 @@ def submit_to_mediathread(operation):
         audio, width, height
     )
 
-    resp, content = POST(mediathread_base + "/save/",
-                         params=params, async=False, resp=True)
-    if resp.status == 302:
-        url = resp['location']
+    r = requests.post(mediathread_base + "/save/", params)
+    if r.status_code == 200:
+        # requests follows redirects, so we need to get the location
+        # out of the history
+        url = r.history[0].headers['Location']
         f = wardenclyffe.main.models.File.objects.create(
             video=video,
             url=url, cap="",
