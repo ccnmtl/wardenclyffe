@@ -1,4 +1,9 @@
-# Create your views here.
+import hmac
+import hashlib
+import requests
+import uuid
+import wardenclyffe.main.tasks as maintasks
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -7,15 +12,9 @@ from django.views.generic import View
 from wardenclyffe.main.models import Video, Collection
 from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
-import wardenclyffe.main.tasks as maintasks
-import uuid
+from django_statsd.clients import statsd
 from django.conf import settings
 from django.db import transaction
-from restclient import GET
-from json import loads
-import hmac
-import hashlib
-from django_statsd.clients import statsd
 
 
 class MediathreadAuthenticator(object):
@@ -135,11 +134,8 @@ class MediathreadCourseGetter(object):
     def run(username):
         try:
             url = mediathread_url(username)
-            credentials = None
-            if hasattr(settings, "MEDIATHREAD_CREDENTIALS"):
-                credentials = settings.MEDIATHREAD_CREDENTIALS
-            response = GET(url, credentials=credentials)
-            courses = loads(response)['courses']
+            r = requests.get(url)
+            courses = r.json()['courses']
             courses = [dict(id=k, title=v['title'])
                        for (k, v) in courses.items()]
             courses.sort(key=lambda x: x['title'].lower())
