@@ -19,6 +19,12 @@ FFMPEG_PATH = "/usr/local/bin/ffmpeg"
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-prod"
 IMAGES_URL_BASE = "https://d369ay3g98xik5.cloudfront.net/"
 
+INSTALLED_APPS += [
+    'opbeat.contrib.django',
+]
+MIDDLEWARE_CLASSES.insert(0, 'opbeat.contrib.django.middleware.OpbeatAPMMiddleware')
+
+
 try:
     from local_settings import *
 except ImportError:
