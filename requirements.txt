@@ -27,7 +27,7 @@ uritemplate==0.6
 google-api-python-client==1.5.2
 pycrypto==2.6.1
 enum34==1.1.6
-cryptography==1.4
+cryptography==1.5
 ecdsa==0.13
 cffi==1.7.0
 idna==2.1
