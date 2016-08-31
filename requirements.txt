@@ -23,7 +23,7 @@ oauth2client==3.0.0
 pyasn1==0.1.9
 pyasn1_modules==0.0.8
 rsa==3.4.2
-uritemplate==0.6
+uritemplate==3.0.0
 google-api-python-client==1.5.2
 pycrypto==2.6.1
 enum34==1.1.6
