@@ -19,6 +19,7 @@ urlpatterns = [
     url('^accounts/', include('djangowind.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^drop/', include('wardenclyffe.drop.urls')),
+    url(r'^streamlogs/', include('wardenclyffe.streamlogs.urls')),
     url(r'^capture/file_upload', views.test_upload),
     url(r'^add_collection/$', views.AddCollectionView.as_view()),
     url(r'^collection/(?P<pk>\d+)/$', views.CollectionView.as_view()),
