@@ -10,3 +10,6 @@ class StreamLog(models.Model):
     # how they were authenticated: cookie, url hash, or public
     access = models.TextField(blank=True)
     request_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-request_at']

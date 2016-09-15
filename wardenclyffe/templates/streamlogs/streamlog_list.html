@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>timestamp</th>
+                <th>filename</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for object in object_list %}
+        <tr>
+            <td>{{object.request_at}}</td>
+            <td>{{object.filename}}</td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+    
+{% endblock %}
