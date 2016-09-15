@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from .models import StreamLog
@@ -10,4 +11,7 @@ urlpatterns = [
         model=StreamLog,
         paginate_by=50,
     ), name='streamlogs-list'),
+    url(r'(?P<pk>\d+)/$', DetailView.as_view(
+        model=StreamLog,
+    ), name='streamlogs-detail'),
 ]

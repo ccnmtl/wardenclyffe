@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p><a href="{% url 'streamlogs-list' %}">Back to List</a></p>
+    
+    <table>
+        <tbody>
+            <tr>
+                <th>Timestamp</th><td>{{ object.request_at }}</td>
+            </tr>
+            <tr>
+                <th>Filename</th><td><tt>{{object.filename}}</tt></td>
+            </tr>
+            <tr>
+                <th>Remote Address</th><td><tt>{{object.remote_addr}}</tt></td>
+            </tr>
+            <tr>
+                <th>Offset</th><td>{{object.offset}}</td>
+            </tr>
+            <tr>
+                <th>Referer</th><td><tt>{{object.referer}}</tt></td>
+            </tr>
+            <tr>
+                <th>User Agent</th><td>{{object.user_agent}}</td>
+            </tr>
+            <tr>
+                <th>Access Mode</th><td>{{object.access}}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+{% endblock %}
