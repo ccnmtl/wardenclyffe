@@ -29,7 +29,7 @@
     {% for object in object_list %}
         <tr>
             <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
-            <td>{{object.filename}}</td>
+            <td><tt>{{object.filename}}</tt></td>
         </tr>
     {% endfor %}
         </tbody>
