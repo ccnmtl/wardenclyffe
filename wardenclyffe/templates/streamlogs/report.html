@@ -17,7 +17,7 @@
 <script>
  var dailyCounts = [];
  {% for d in daily_counts %}
- dailyCounts.push([Date.UTC({{d.date.year}},{{d.date.month}},{{d.date.day}}), {{d.count}}]);{% endfor %}
+ dailyCounts.push([Date.UTC({{d.date.year}},{{d.date.month}}-1,{{d.date.day}}), {{d.count}}]);{% endfor %}
      
 
  $(function () { 
