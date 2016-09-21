@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from ..models import StreamLog
-from ..views import LogView
+from ..views import LogView, ReportView
 
 
 class ViewTest(TestCase):
@@ -30,3 +30,12 @@ class LogViewTest(ViewTest):
         self.assertEqual(l.referer, params['referer'])
         self.assertEqual(l.user_agent, params['user_agent'])
         self.assertEqual(l.access, params['access'])
+
+
+class ReportViewTest(ViewTest):
+    def test_get(self):
+        request = self.factory.get(reverse('streamlogs-report'))
+        response = ReportView.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('total_count' in response.context_data)
+        self.assertTrue('daily_counts' in response.context_data)
