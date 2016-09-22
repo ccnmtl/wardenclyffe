@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
 from django.http import HttpResponse
-from django.views.generic.base import View
+from django.views.generic.base import View, TemplateView
 
-from .models import StreamLog
+from .models import StreamLog, daily_counts
 
 
 class LogView(View):
@@ -15,3 +16,15 @@ class LogView(View):
             access=request.POST.get('access', ''),
         )
         return HttpResponse("ok")
+
+
+class ReportView(TemplateView):
+    template_name = "streamlogs/report.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data(**kwargs)
+        context['total_count'] = StreamLog.objects.all().count()
+        today = datetime.now()
+        start = today - timedelta(days=30)
+        context['daily_counts'] = daily_counts(start, today)
+        return context
