@@ -1,6 +1,11 @@
+import os
+import re
 from datetime import timedelta
 from django.db import connection
 from django.db import models
+from django.conf import settings
+
+from wardenclyffe.main.models import File
 
 
 class StreamLog(models.Model):
@@ -15,6 +20,24 @@ class StreamLog(models.Model):
 
     class Meta:
         ordering = ['-request_at']
+
+    def video(self):
+        """ try to find a Video that matches this entry.
+        not all files will have a match, so it can also return None
+        """
+        f = File.objects.filter(
+            location_type='cuit', filename=self.full_filename()).first()
+        if f is not None:
+            return f.video
+        return None
+
+    def full_filename(self):
+        # unofortunately, streamlogs filenames start with a 'broadcast/'
+        # and the broadcast directory also includes it. So we need to
+        # to strip it first.
+        pattern = re.compile(r'^broadcast/')
+        filename = pattern.sub("", self.filename)
+        return os.path.join(settings.CUNIX_BROADCAST_DIRECTORY, filename)
 
 
 def counts_by_date():
