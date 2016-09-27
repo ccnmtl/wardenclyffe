@@ -24,5 +24,4 @@ class StreamLogTest(TestCase):
         f = FileFactory(
             filename=settings.CUNIX_BROADCAST_DIRECTORY + "foo/bar.flv",
             location_type='cuit')
-        print(f.filename)
         self.assertEqual(s.video(), f.video)
