@@ -32,7 +32,7 @@ class StreamLog(models.Model):
         return None
 
     def full_filename(self):
-        # unofortunately, streamlogs filenames start with a 'broadcast/'
+        # unfortunately, streamlogs filenames start with a 'broadcast/'
         # and the broadcast directory also includes it. So we need to
         # to strip it first.
         pattern = re.compile(r'^broadcast/')
