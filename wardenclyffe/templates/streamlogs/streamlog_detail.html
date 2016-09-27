@@ -9,6 +9,18 @@
                 <th>Timestamp</th><td>{{ object.request_at }}</td>
             </tr>
             <tr>
+                <th>Video</th>
+                <td>
+                    {% with video=object.video %}
+                        {% if video %}
+                            <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
+                        {% else %}
+                            No matching video in Wardenclyffe
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+            <tr>
                 <th>Filename</th><td><tt>{{object.filename}}</tt></td>
             </tr>
             <tr>
