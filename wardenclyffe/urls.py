@@ -96,6 +96,8 @@ urlpatterns = [
     url(r'^video/(?P<pk>\d+)/$', views.VideoView.as_view()),
     url(r'^video/(?P<id>\d+)/youtube/$',
         views.VideoYoutubeUploadView.as_view(), name="s3-to-youtube"),
+    url(r'^video/(?P<id>\d+)/flv2mp4/$',
+        views.FlvToMp4View.as_view(), name="video-flv-to-mp4"),
     url(r'^video/(?P<id>\d+)/mediathread_submit/$',
         mediathread_views.VideoMediathreadSubmit.as_view()),
     url(r'^video/(?P<id>\d+)/add_file/$', views.VideoAddFileView.as_view()),

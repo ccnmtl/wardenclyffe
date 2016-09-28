@@ -248,6 +248,11 @@ class SimpleTest(TestCase):
         response = self.c.get("/operation/%s/info/" % o.uuid)
         self.assertEqual(response.status_code, 200)
 
+    def test_flv_to_mp4_convert(self):
+        v = VideoFactory()
+        response = self.c.post(reverse('video-flv-to-mp4', args=[v.pk]))
+        self.assertEquals(response.status_code, 302)
+
 
 class TestSurelink(TestCase):
     def setUp(self):
