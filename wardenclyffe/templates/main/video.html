@@ -188,7 +188,7 @@ var removeTag = function(tagName,tagId) {
 {% endflag %}
 
 {% if video.flv_convertable %}
-    <form action="{% url 'video-flv-to-mp4}' video.id %}" method="post">
+    <form action="{% url 'video-flv-to-mp4' video.id %}" method="post">
         <input type="submit" value="convert flv to mp4" />        
     </form>
 {% endif %}
