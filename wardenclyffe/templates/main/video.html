@@ -183,9 +183,15 @@ var removeTag = function(tagName,tagId) {
 
 {% flag "s3_to_youtube" %}
 <form action="{% url 's3-to-youtube' video.id %}" method="post">
-  <input type="submit" value="pull from S3 and upload to youtube" />
+    <input type="submit" value="pull from S3 and upload to youtube" />
 </form>
 {% endflag %}
+
+{% if video.flv_convertable %}
+    <form action="{% url 'video-flv-to-mp4}' video.id %}" method="post">
+        <input type="submit" value="convert flv to mp4" />        
+    </form>
+{% endif %}
 </div>
 </div>
 <script>

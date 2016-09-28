@@ -761,6 +761,14 @@ class VideoYoutubeUploadView(StaffMixin, View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
+class FlvToMp4View(StaffMixin, View):
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        o = video.make_flv_to_mp4_operation(request.user)
+        tasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(video.get_absolute_url())
+
+
 class AudioEncodeFileView(StaffMixin, View):
     def post(self, request, pk):
         f = get_object_or_404(File, pk=pk)

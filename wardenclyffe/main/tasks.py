@@ -406,6 +406,44 @@ def copy_from_s3_to_cunix(operation):
     return ("complete", "")
 
 
+def copy_flv_from_cunix_to_s3(operation):
+    print("copy flv from cunix to S3")
+    video = operation.video
+    params = loads(operation.params)
+
+    # pull the flv down from cunix
+    t = tempfile.NamedTemporaryFile(suffix="flv")
+    sftp_get(video.flv_filename(), t.name)
+
+    # upload it to S3
+    conn = boto.connect_s3(
+        settings.AWS_ACCESS_KEY,
+        settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    k = Key(bucket)
+    # make a YYYY/MM/DD directory to put the file in
+    n = datetime.now()
+    key = "%04d/%02d/%02d/%s" % (
+        n.year, n.month, n.day,
+        os.path.basename(t.name))
+    k.key = key
+
+    source_file = open(t.name, "rb")
+    k.set_contents_from_file(source_file)
+    source_file.close()
+    label = "uploaded source file (S3)"
+    f = File.objects.create(video=video, url="", cap=key,
+                            location_type="s3",
+                            filename=t.name,
+                            label=label)
+    OperationFile.objects.create(operation=operation, file=f)
+    # stash the s3 key back in params
+    params['s3_key'] = key
+    operation.params = dumps(params)
+    operation.save()
+    return ("complete", "")
+
+
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print "sftp_get(%s,%s)" % (remote_filename, local_filename)
