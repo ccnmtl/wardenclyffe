@@ -133,6 +133,9 @@ class EmptyVideoTest(TestCase):
     def test_has_flv(self):
         self.assertFalse(self.video.has_flv())
 
+    def test_has_mp4(self):
+        self.assertFalse(self.video.has_mp4())
+
     def test_make_source_file(self):
         f = self.video.make_source_file("somefile.mpg")
         self.assertEqual(f.filename, "somefile.mpg")

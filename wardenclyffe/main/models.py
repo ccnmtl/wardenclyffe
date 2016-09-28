@@ -278,6 +278,10 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="cuit", filename__endswith='.flv').count() > 0
 
+    def has_mp4(self):
+        return self.file_set.filter(
+            location_type="cuit", filename__endswith='.mp4').count() > 0
+
     def is_audio_file(self):
         """ is this one of the weird mp3s that are
         uploaded to be converted to mp4s so clipping works?"""
