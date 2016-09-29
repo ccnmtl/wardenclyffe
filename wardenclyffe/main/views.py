@@ -764,7 +764,17 @@ class VideoYoutubeUploadView(StaffMixin, View):
 class FlvToMp4View(StaffMixin, View):
     def post(self, request, id):
         video = get_object_or_404(Video, id=id)
-        o = video.make_flv_to_mp4_operation(request.user)
+        if video.has_s3_source():
+            # we don't need to pull down the flv, there's
+            # already a copy in S3. instead, just
+            # kick off the elastic transcode job
+            o = video.make_create_elastic_transcoder_job_operation(
+                video.s3_key(),
+                request.user,
+            )
+        else:
+            # have to pull it down
+            o = video.make_flv_to_mp4_operation(request.user)
         tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(video.get_absolute_url())
 
