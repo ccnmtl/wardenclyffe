@@ -109,6 +109,9 @@ class Video(TimeStampedModel):
         else:
             return None
 
+    def has_s3_source(self):
+        return self.s3_file() is not None
+
     def s3_key(self):
         t = self.s3_file()
         if t:

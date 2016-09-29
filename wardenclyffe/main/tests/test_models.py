@@ -136,6 +136,9 @@ class EmptyVideoTest(TestCase):
     def test_has_mp4(self):
         self.assertFalse(self.video.has_mp4())
 
+    def test_has_s3_source(self):
+        self.assertFalse(self.video.has_s3_source())
+
     def test_flv_convertable(self):
         self.assertFalse(self.video.flv_convertable())
 
