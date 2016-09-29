@@ -412,7 +412,7 @@ def copy_flv_from_cunix_to_s3(operation):
     params = loads(operation.params)
 
     # pull the flv down from cunix
-    t = tempfile.NamedTemporaryFile(suffix="flv")
+    t = tempfile.NamedTemporaryFile(suffix=".flv")
     sftp_get(video.flv_filename(), t.name)
 
     # upload it to S3
