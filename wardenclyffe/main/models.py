@@ -1,23 +1,25 @@
+import base64
+import hmac
+import os.path
+import sha
+import time
+import urllib
+import uuid
+
+from django import forms
+from django.apps import apps
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
-from django.contrib.auth.models import User
-from django import forms
-from taggit.managers import TaggableManager
-from surelink import SureLink
-from surelink.helpers import PROTECTION_OPTIONS
-from surelink.helpers import AUTHTYPE_OPTIONS
-from django.conf import settings
-import os.path
-from wardenclyffe.util.mail import send_failed_operation_mail
 from django_statsd.clients import statsd
-import uuid
-import time
-import hmac
-import sha
-import urllib
-import base64
 from json import dumps, loads
+from surelink import SureLink
+from surelink.helpers import AUTHTYPE_OPTIONS
+from surelink.helpers import PROTECTION_OPTIONS
+from taggit.managers import TaggableManager
+from wardenclyffe.util.mail import send_failed_operation_mail
 
 
 class Collection(TimeStampedModel):
@@ -303,6 +305,17 @@ class Video(TimeStampedModel):
                 location_type='mediathreadsubmit')[0].get_metadata('audio')
         except:
             return False
+
+    def streamlogs(self):
+        if not self.has_flv():
+            return None
+        filename = self.flv_filename()
+        # convert to the partial filename that streamlogs have
+        base = settings.CUNIX_BROADCAST_DIRECTORY
+        # strip off up to the 'broadcast/'
+        filename = filename.replace(base, "broadcast/")
+        StreamLog = apps.get_model('streamlogs', 'StreamLog')
+        return StreamLog.objects.filter(filename=filename)
 
     def make_mediathread_submit_file(self, filename, user, set_course,
                                      redirect_to, audio=False):

@@ -78,6 +78,28 @@ var removeTag = function(tagName,tagId) {
 <p><a href="edit/">edit video metadata</a></p>
 </td></tr></table>
 
+{% with streamlogs=video.streamlogs %}
+    {% if streamlogs %}
+        <h2>Recent Streams</h2>
+        <p>(only implemented for flv streaming currently)</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in streamlogs %}
+                    <tr>
+                        <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+{% endwith %}
+
 </div>
 
 

@@ -142,6 +142,15 @@ class EmptyVideoTest(TestCase):
     def test_flv_convertable(self):
         self.assertFalse(self.video.flv_convertable())
 
+    def test_streamlogs_no_flv(self):
+        self.assertIsNone(self.video.streamlogs())
+
+    def test_streamlogs_with_flv(self):
+        CUITFLVFileFactory(video=self.video)
+        r = self.video.streamlogs()
+        self.assertIsNotNone(r)
+        self.assertEqual(r.count(), 0)
+
     def test_make_source_file(self):
         f = self.video.make_source_file("somefile.mpg")
         self.assertEqual(f.filename, "somefile.mpg")
