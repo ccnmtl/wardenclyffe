@@ -50,7 +50,7 @@ pylint==1.6.4
 ldap3==1.4.0
 surelink==1.0.1
 boto==2.42.0
-traitlets==4.3.0
+traitlets==4.3.1
 ipython_genutils==0.1.0
 decorator==4.0.10
 ptyprocess==0.5.1
