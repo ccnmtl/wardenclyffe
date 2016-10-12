@@ -20,11 +20,12 @@ class LogView(View):
 
 class ReportView(TemplateView):
     template_name = "streamlogs/report.html"
+    days = 30
 
     def get_context_data(self, **kwargs):
         context = super(ReportView, self).get_context_data(**kwargs)
         context['total_count'] = StreamLog.objects.all().count()
         today = datetime.now()
-        start = today - timedelta(days=30)
+        start = today - timedelta(days=self.days)
         context['daily_counts'] = daily_counts(start, today)
         return context
