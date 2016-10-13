@@ -330,6 +330,14 @@ class MediathreadVideoTest(TestCase):
         f = CUITFLVFileFactory()
         assert not f.video.is_mediathread_submit()
 
+    def test_has_mediathread_asset_negative(self):
+        f = CUITFLVFileFactory()
+        self.assertFalse(f.video.has_mediathread_asset())
+
+    def test_has_mediathread_asset_positive(self):
+        f = FileFactory(location_type="mediathread")
+        self.assertTrue(f.video.has_mediathread_asset())
+
     def test_mediathread_submit(self):
         f = MediathreadFileFactory()
         assert f.video.mediathread_submit() == (None, None, None)

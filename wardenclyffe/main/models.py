@@ -243,6 +243,10 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="mediathreadsubmit").count() > 0
 
+    def has_mediathread_asset(self):
+        return self.file_set.filter(
+            location_type="mediathread").count() > 0
+
     def mediathread_submit(self):
         r = self.file_set.filter(location_type="mediathreadsubmit")
         if r.count() > 0:
