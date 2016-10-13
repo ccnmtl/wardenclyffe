@@ -277,6 +277,23 @@ class Video(TimeStampedModel):
                 return [o]
         return []
 
+    def create_mediathread_update(self):
+        """ add a temporary File that indicates that an update to Meth
+        is expected """
+        return File.objects.create(
+            video=self,
+            label="mediathread update",
+            filename="",
+            location_type='mediathreadupdate'
+        )
+
+    def has_mediathread_update(self):
+        return self.file_set.filter(
+            location_type="mediathreadupdate").count() > 0
+
+    def clear_mediathread_update(self):
+        self.file_set.filter(location_type="mediathreadupdate").delete()
+
     def cuit_file(self):
         try:
             return self.file_set.filter(location_type="cuit")[0]

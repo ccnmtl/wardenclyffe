@@ -350,6 +350,17 @@ class MediathreadVideoTest(TestCase):
         f = CUITFLVFileFactory()
         assert f.video.cuit_file() == f
 
+    def test_mediathread_update(self):
+        v = VideoFactory()
+        # none to start with
+        self.assertFalse(v.has_mediathread_update())
+        # create one
+        v.create_mediathread_update()
+        self.assertTrue(v.has_mediathread_update())
+        # clear it
+        v.clear_mediathread_update()
+        self.assertFalse(v.has_mediathread_update())
+
 
 class MissingDimensionsTest(TestCase):
     """ test the behavior for a video that has a source file, but
