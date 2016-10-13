@@ -764,6 +764,8 @@ class VideoYoutubeUploadView(StaffMixin, View):
 class FlvToMp4View(StaffMixin, View):
     def post(self, request, id):
         video = get_object_or_404(Video, id=id)
+        if video.has_mediathread_asset():
+            video.create_mediathread_update()
         if video.has_s3_source():
             # we don't need to pull down the flv, there's
             # already a copy in S3. instead, just

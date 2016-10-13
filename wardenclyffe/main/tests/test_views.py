@@ -250,8 +250,11 @@ class SimpleTest(TestCase):
 
     def test_flv_to_mp4_convert(self):
         v = VideoFactory()
+        FileFactory(video=v, location_type="mediathread", label="mediathread")
+        self.c.login(username=self.u.username, password="bar")
         response = self.c.post(reverse('video-flv-to-mp4', args=[v.pk]))
         self.assertEquals(response.status_code, 302)
+        self.assertTrue(v.has_mediathread_update())
 
 
 class TestSurelink(TestCase):
