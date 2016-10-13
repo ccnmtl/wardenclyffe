@@ -1,4 +1,5 @@
 import requests
+import waffle
 import wardenclyffe.main.models
 from django.conf import settings
 from django_statsd.clients import statsd
@@ -114,6 +115,9 @@ def submit_to_mediathread(operation):
 
 
 def update_mediathread(operation):
+    if not waffle.switch_is_active('mediathread_update'):
+        print("mediathread updates are disabled")
+        return ("complete", "mediathread updates are temporarily disabled")
     statsd.incr("mediathread.tasks.update_mediathread")
     video = operation.video
     mediathread_secret = settings.MEDIATHREAD_SECRET
