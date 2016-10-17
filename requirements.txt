@@ -33,7 +33,7 @@ cffi==1.8.3
 idna==2.1
 paramiko==2.0.2
 raven==5.27.1
-pyOpenSSL==16.1.0
+pyOpenSSL==16.2.0
 ndg-httpsclient==0.4.2
 requests==2.11.1
 statsd==3.2.1
