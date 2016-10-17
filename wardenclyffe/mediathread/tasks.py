@@ -1,4 +1,5 @@
 import requests
+import waffle
 import wardenclyffe.main.models
 from django.conf import settings
 from django_statsd.clients import statsd
@@ -51,6 +52,21 @@ def mediathread_submit_params(video, course_id, username, mediathread_secret,
     return params
 
 
+def mediathread_update_params(video, mediathread_secret):
+    params = {
+        'secret': mediathread_secret,
+        "metadata-uuid": video.uuid,
+        "metadata-wardenclyffe-id": str(video.id),
+        "metadata-tag": "update",
+    }
+    # the thumbnail may also have changed
+    params['thumb'] = video.cuit_poster_url() or video.poster_url()
+    # only handle the non-audio parameter. afaik, we didn't do audio
+    # conversions with the flv, so they shouldn't ever be converted
+    params['mp4_pseudo'] = video.h264_secure_stream_url()
+    return params
+
+
 def submit_to_mediathread(operation):
     statsd.incr("mediathread.tasks.submit_to_mediathread")
     params = loads(operation.params)
@@ -96,3 +112,30 @@ def submit_to_mediathread(operation):
     else:
         statsd.incr("mediathread.tasks.submit_to_mediathread.failure")
         return ("failed", "mediathread rejected submission")
+
+
+def update_mediathread(operation):
+    if not waffle.switch_is_active('mediathread_update'):
+        print("mediathread updates are disabled")
+        return ("complete", "mediathread updates are temporarily disabled")
+    statsd.incr("mediathread.tasks.update_mediathread")
+    video = operation.video
+    mediathread_secret = settings.MEDIATHREAD_SECRET
+
+    # assume that width/height stay the same
+    # so we just need the new URL and the asset ID
+    if not video.mediathread_url():
+        statsd.incr(
+            "mediathread.tasks.update_mediathread.failure.video_url")
+        return ("failed", "no video URL")
+
+    params = mediathread_update_params(video, mediathread_secret)
+
+    r = requests.post(video.mediathread_asset_url() + "update/", params)
+    if r.status_code == 200:
+        return ("complete", "")
+    else:
+        statsd.incr("mediathread.tasks.update_mediathread.failure")
+        print(r.status_code)
+        print(r.content)
+        return ("failed", "mediathread rejected update")

@@ -243,6 +243,14 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="mediathreadsubmit").count() > 0
 
+    def has_mediathread_asset(self):
+        return self.file_set.filter(
+            location_type="mediathread").count() > 0
+
+    def mediathread_asset_url(self):
+        return self.file_set.filter(
+            location_type="mediathread").first().url
+
     def mediathread_submit(self):
         r = self.file_set.filter(location_type="mediathreadsubmit")
         if r.count() > 0:
@@ -272,6 +280,33 @@ class Video(TimeStampedModel):
                 self.clear_mediathread_submit()
                 return [o]
         return []
+
+    def handle_mediathread_update(self):
+        if not self.has_mediathread_update():
+            return []
+        o = self.make_op(
+            User.objects.get(username=self.creator),
+            dict(),
+            action="update mediathread")
+        self.clear_mediathread_update()
+        return [o]
+
+    def create_mediathread_update(self):
+        """ add a temporary File that indicates that an update to Meth
+        is expected """
+        return File.objects.create(
+            video=self,
+            label="mediathread update",
+            filename="",
+            location_type='mediathreadupdate'
+        )
+
+    def has_mediathread_update(self):
+        return self.file_set.filter(
+            location_type="mediathreadupdate").count() > 0
+
+    def clear_mediathread_update(self):
+        self.file_set.filter(location_type="mediathreadupdate").delete()
 
     def cuit_file(self):
         try:
@@ -833,6 +868,12 @@ class SubmitToMediathreadOperation(OperationType):
         return wardenclyffe.mediathread.tasks.submit_to_mediathread
 
 
+class UpdateMediathreadOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.mediathread.tasks
+        return wardenclyffe.mediathread.tasks.update_mediathread
+
+
 class PullFromS3AndUploadToYoutubeOperation(OperationType):
     def get_task(self):
         import wardenclyffe.youtube.tasks
@@ -843,6 +884,9 @@ class CreateElasticTranscoderJobOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.create_elastic_transcoder_job
+
+    def post_process(self):
+        return self.operation.video.handle_mediathread_update()
 
 
 class CopyFromS3ToCunixOperation(OperationType):
@@ -907,6 +951,7 @@ OPERATION_TYPE_MAPPER = {
     'save file to S3': SaveFileToS3Operation,
     'upload to youtube': UploadToYoutubeOperation,
     'submit to mediathread': SubmitToMediathreadOperation,
+    'update mediathread': UpdateMediathreadOperation,
     'pull from s3 and upload to youtube':
     PullFromS3AndUploadToYoutubeOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
