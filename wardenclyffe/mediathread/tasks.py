@@ -59,6 +59,8 @@ def mediathread_update_params(video, mediathread_secret):
         "metadata-wardenclyffe-id": str(video.id),
         "metadata-tag": "update",
     }
+    # asset-url for reference
+    params['asset-url'] = video.mediathread_asset_url()
     # the thumbnail may also have changed
     params['thumb'] = video.cuit_poster_url() or video.poster_url()
     # only handle the non-audio parameter. afaik, we didn't do audio
@@ -121,6 +123,7 @@ def update_mediathread(operation):
     statsd.incr("mediathread.tasks.update_mediathread")
     video = operation.video
     mediathread_secret = settings.MEDIATHREAD_SECRET
+    mediathread_base = settings.MEDIATHREAD_BASE
 
     # assume that width/height stay the same
     # so we just need the new URL and the asset ID
@@ -131,7 +134,7 @@ def update_mediathread(operation):
 
     params = mediathread_update_params(video, mediathread_secret)
 
-    r = requests.post(video.mediathread_asset_url() + "update/", params)
+    r = requests.post(mediathread_base + '/update/', params)
     if r.status_code == 200:
         return ("complete", "")
     else:
