@@ -75,7 +75,7 @@ CELERY_ROUTES = (MyRouter(),)
 
 # email addresses of video team members how want to
 # be annoyed by lots of status email
-ANNOY_EMAILS = ["jhanford@columbia.edu", "anders@columbia.edu"]
+ANNOY_EMAILS = ["jhanford@columbia.edu"]
 VIDEO_TEAM_EMAILS = ["jhanford@columbia.edu"]
 
 H264_SECURE_STREAM_DIRECTORY = "/media/h264/ccnmtl/secure/"
