@@ -61,7 +61,7 @@ pickleshare==0.7.4
 simplegeneric==0.8.1
 path.py==8.2.1
 ipython==5.1.0
-sqlparse==0.2.1
+sqlparse==0.2.2
 filechunkio==1.8
 simplejson==3.8.2
 httpretty==0.8.14
