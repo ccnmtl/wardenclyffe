@@ -114,6 +114,17 @@ class Video(TimeStampedModel):
     def has_s3_source(self):
         return self.s3_file() is not None
 
+    def s3_transcoded(self):
+        r = self.file_set.filter(
+            location_type='s3', label="transcoded 480p file (S3)")
+        if r.count():
+            return r[0]
+        else:
+            return None
+
+    def has_s3_transcoded(self):
+        return self.s3_transcoded() is not None
+
     def s3_key(self):
         t = self.s3_file()
         if t:

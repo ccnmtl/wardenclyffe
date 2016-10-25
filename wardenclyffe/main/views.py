@@ -640,6 +640,12 @@ class VideoView(StaffMixin, DetailView):
     context_object_name = "video"
 
 
+class VideoS3Serve(StaffMixin, DetailView):
+    template_name = "main/video_s3serve.html"
+    model = Video
+    context_object_name = "video"
+
+
 class FileView(StaffMixin, TemplateView):
     template_name = 'main/file.html'
 
