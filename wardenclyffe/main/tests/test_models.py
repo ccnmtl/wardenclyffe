@@ -186,6 +186,16 @@ class EmptyVideoTest(TestCase):
         ops = f.video.handle_mediathread_submit()
         self.assertEqual(len(ops), 0)
 
+    def test_s3_transcoded_none(self):
+        f = MediathreadSubmitFileFactory()
+        self.assertIsNone(f.video.s3_transcoded())
+        self.assertFalse(f.video.has_s3_transcoded())
+
+    def test_s3_transcoded_exists(self):
+        f = S3FileFactory(label="transcoded 480p file (S3)")
+        self.assertIsNotNone(f.video.s3_transcoded())
+        self.assertTrue(f.video.has_s3_transcoded())
+
 
 class FileTest(TestCase):
     def test_set_metadata(self):

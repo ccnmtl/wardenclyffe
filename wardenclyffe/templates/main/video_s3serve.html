@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load waffle_tags %}
+{% load markup %}
+{% load oembed_tags %}
+
+{% block js %}
+    <link href="https://vjs.zencdn.net/5.4.6/video-js.min.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/5.4.6/video.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <p>In Collection: <a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></p>
+    <h1>{{video.title}}</h1>
+
+    {% if video.has_s3_transcoded %}
+        <video id="video-{{video.pk}}" class="video-js vjs-default-skin"
+               controls preload="auto" width="640" height="480"
+               {% with video.poster as poster %}
+               {% if poster.dummy %}
+            poster="{% static 'img/vidthumb_480x360.jpg' %}"
+               {% else %}
+            poster="{{poster.image.src}}"
+               {% endif %}
+               {% endwith %}               
+               data-setup='{"example_option":true}'>
+            <source src="{{video.s3_transcoded.s3_download_url}}" type="video/mp4" />
+            <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+        </video>
+    {% else %}
+    <p>No S3 transcoded file</p>
+    {% endif %}
+{% endblock %}
