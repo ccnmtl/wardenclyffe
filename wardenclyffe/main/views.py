@@ -767,6 +767,7 @@ class VideoYoutubeUploadView(StaffMixin, View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
+@transaction.non_atomic_requests
 class FlvToMp4View(StaffMixin, View):
     def post(self, request, id):
         video = get_object_or_404(Video, id=id)
