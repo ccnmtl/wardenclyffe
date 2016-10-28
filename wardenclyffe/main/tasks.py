@@ -42,8 +42,16 @@ def process_operation(self, operation_id, **kwargs):
     try:
         operation = Operation.objects.get(id=operation_id)
         operation.process()
-    except Operation.DoesNotExist:
-        print "operation not found (probably deleted)"
+    except Operation.DoesNotExist as exc:
+        if self.request.retries > settings.OPERATION_MAX_RETRIES:
+            # max out at (default) 10 retry attempts
+            print("operation not found after %d attempts (probably deleted)" %
+                  settings.OPERATION_MAX_RETRIES)
+            statsd.incr("max_retries")
+        else:
+            statsd.incr("retry_operation")
+            statsd.incr("retry_%02d" % self.request.retries)
+            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
     except Exception as exc:
         print "Exception:"
         print str(exc)
