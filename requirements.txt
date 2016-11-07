@@ -63,7 +63,7 @@ path.py==8.2.1
 ipython==5.1.0
 sqlparse==0.2.2
 filechunkio==1.8
-simplejson==3.9.0
+simplejson==3.10.0
 httpretty==0.8.14
 contextlib2==0.5.4
 ipaddress==1.0.17
