@@ -147,6 +147,24 @@
 
 
 </div><!-- id="page" -->
+<script src="https://cdn.ravenjs.com/3.7.0/raven.min.js"></script>
+<script>
+ Raven.config('https://10d861afd788428683a75ff4503ec1f4@sentry.io/100858', {
+     whitelistUrls: [/wardenclyffe\.ccnmtl\.columbia\.edu/]
+ }).install();
+ {% if not request.user.is_anonymous %}
+ Raven.setUserContext({
+     email: '{{request.user.email}}',
+     id: '{{request.user.username}}'
+ });
+ {% else %}
+ Raven.setUserContext({
+     email: 'none',
+     id: 'anonymous'
+ });
+ {% endif %}
+</script>
+
 {% compress js %}
 <script>
 jQuery(function($){
