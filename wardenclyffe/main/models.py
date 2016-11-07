@@ -106,10 +106,7 @@ class Video(TimeStampedModel):
     def s3_file(self):
         r = self.file_set.filter(
             location_type='s3', label="uploaded source file (S3)")
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return r.first()
 
     def has_s3_source(self):
         return self.s3_file() is not None
@@ -117,10 +114,7 @@ class Video(TimeStampedModel):
     def s3_transcoded(self):
         r = self.file_set.filter(
             location_type='s3', label="transcoded 480p file (S3)")
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return r.first()
 
     def has_s3_transcoded(self):
         return self.s3_transcoded() is not None
@@ -133,11 +127,7 @@ class Video(TimeStampedModel):
             return None
 
     def source_file(self):
-        r = self.file_set.filter(label='source file')
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return self.file_set.filter(label='source file').first()
 
     def filename(self):
         r = self.file_set.filter().exclude(filename="").exclude(filename=None)
