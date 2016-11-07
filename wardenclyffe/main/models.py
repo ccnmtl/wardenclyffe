@@ -106,10 +106,7 @@ class Video(TimeStampedModel):
     def s3_file(self):
         r = self.file_set.filter(
             location_type='s3', label="uploaded source file (S3)")
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return r.first()
 
     def has_s3_source(self):
         return self.s3_file() is not None
@@ -117,10 +114,7 @@ class Video(TimeStampedModel):
     def s3_transcoded(self):
         r = self.file_set.filter(
             location_type='s3', label="transcoded 480p file (S3)")
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return r.first()
 
     def has_s3_transcoded(self):
         return self.s3_transcoded() is not None
@@ -133,11 +127,7 @@ class Video(TimeStampedModel):
             return None
 
     def source_file(self):
-        r = self.file_set.filter(label='source file')
-        if r.count():
-            return r[0]
-        else:
-            return None
+        return self.file_set.filter(label='source file').first()
 
     def filename(self):
         r = self.file_set.filter().exclude(filename="").exclude(filename=None)
@@ -195,16 +185,12 @@ class Video(TimeStampedModel):
         return (t.get_width(), t.get_height())
 
     def cuit_url(self):
-        r = self.file_set.filter(location_type="cuit")
-        if r.count() > 0:
-            f = r[0]
+        for f in self.file_set.filter(location_type="cuit"):
             return f.cuit_public_url()
         return ""
 
     def mediathread_url(self):
-        r = self.file_set.filter(location_type="cuit")
-        if r.count() > 0:
-            f = r[0]
+        for f in self.file_set.filter(location_type="cuit"):
             return f.mediathread_public_url()
         return ""
 
@@ -215,17 +201,13 @@ class Video(TimeStampedModel):
         return None
 
     def h264_secure_stream_url(self):
-        r = self.file_set.filter(location_type="cuit")
-        if r.count() > 0:
-            f = r[0]
+        for f in self.file_set.filter(location_type="cuit"):
             if f.is_h264_secure_streamable():
                 return f.h264_secure_stream_url()
         return ""
 
     def h264_public_stream_url(self):
-        r = self.file_set.filter(location_type="cuit")
-        if r.count() > 0:
-            f = r[0]
+        for f in self.file_set.filter(location_type="cuit"):
             if f.is_h264_public_streamable():
                 return f.h264_public_stream_url()
         return ""
@@ -263,15 +245,12 @@ class Video(TimeStampedModel):
             location_type="mediathread").first().url
 
     def mediathread_submit(self):
-        r = self.file_set.filter(location_type="mediathreadsubmit")
-        if r.count() > 0:
-            f = r[0]
+        for f in self.file_set.filter(location_type="mediathreadsubmit"):
             return (f.get_metadata("set_course"),
                     f.get_metadata("username"),
                     f.get_metadata("audio"),
                     )
-        else:
-            return (None, None, None)
+        return (None, None, None)
 
     def clear_mediathread_submit(self):
         self.file_set.filter(location_type="mediathreadsubmit").delete()
