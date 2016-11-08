@@ -875,9 +875,6 @@ class CreateElasticTranscoderJobOperation(OperationType):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.create_elastic_transcoder_job
 
-    def post_process(self):
-        return self.operation.video.handle_mediathread_update()
-
 
 class CopyFromS3ToCunixOperation(OperationType):
     def get_task(self):
@@ -885,7 +882,9 @@ class CopyFromS3ToCunixOperation(OperationType):
         return wardenclyffe.main.tasks.copy_from_s3_to_cunix
 
     def post_process(self):
-        return self.operation.video.handle_mediathread_submit()
+        ops = self.operation.video.handle_mediathread_submit()
+        ops.append(self.operation.video.handle_mediathread_update())
+        return ops
 
 
 class CopyFlvFromCunixToS3Operation(OperationType):
