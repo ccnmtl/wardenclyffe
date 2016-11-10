@@ -883,7 +883,7 @@ class CopyFromS3ToCunixOperation(OperationType):
 
     def post_process(self):
         ops = self.operation.video.handle_mediathread_submit()
-        ops.append(self.operation.video.handle_mediathread_update())
+        ops.extend(self.operation.video.handle_mediathread_update())
         return ops
 
 
