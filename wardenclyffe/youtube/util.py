@@ -134,25 +134,32 @@ def get_youtube_id_from_response(response):
 # failed upload.
 def resumable_upload(insert_request):
     response = None
-    error = None
     retry = 0
     youtube_id = None
     while response is None:
-        try:
-            print("Uploading file...")
-            status, response = insert_request.next_chunk()
-            youtube_id = get_youtube_id_from_response(response)
-        except HttpError, e:
-            if e.resp.status in RETRIABLE_STATUS_CODES:
-                error = "A retriable HTTP error %d occurred:\n%s" % (
-                    e.resp.status, e.content)
-            else:
-                raise
-        except RETRIABLE_EXCEPTIONS, e:
-            error = "A retriable error occurred: %s" % e
-
-        retry = handle_upload_error(error, retry)
+        (response, retry, youtube_id) = attempt_upload(
+            insert_request, response, retry)
     return youtube_id
+
+
+def attempt_upload(insert_request, response, retry):
+    error = None
+    youtube_id = None
+    try:
+        print("Uploading file...")
+        status, response = insert_request.next_chunk()
+        youtube_id = get_youtube_id_from_response(response)
+    except HttpError, e:
+        if e.resp.status in RETRIABLE_STATUS_CODES:
+            error = "A retriable HTTP error %d occurred:\n%s" % (
+                e.resp.status, e.content)
+        else:
+            raise
+    except RETRIABLE_EXCEPTIONS, e:
+        error = "A retriable error occurred: %s" % e
+
+    retry = handle_upload_error(error, retry)
+    return (response, retry, youtube_id)
 
 
 def handle_upload_error(error, retry):
