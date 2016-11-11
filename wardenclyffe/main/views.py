@@ -423,6 +423,12 @@ class VideoIndexView(StaffMixin, TemplateView):
 class FileIndexView(StaffMixin, TemplateView):
     template_name = 'main/file_index.html'
 
+    def get_page(self):
+        try:
+            return int(self.request.GET.get('page', '1'))
+        except ValueError:
+            return 1
+
     def get_context_data(self):
         files = File.objects.all()
         params = dict()
@@ -434,11 +440,7 @@ class FileIndexView(StaffMixin, TemplateView):
             facets.append(dict(field=k, value=v))
         paginator = Paginator(files.order_by('video__title'), 100)
 
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-
+        page = self.get_page()
         try:
             files = paginator.page(page)
         except (EmptyPage, InvalidPage):
