@@ -363,23 +363,43 @@ class VideoIndexView(StaffMixin, TemplateView):
             params[k] = v
         return params
 
-    def get_videos(self):
-        videos = Video.objects.all()
+    def filter_creators(self, videos):
         creators = self.request.GET.getlist('creator')
         if len(creators) > 0:
             videos = videos.filter(creator__in=creators)
+        return videos
+
+    def filter_descriptions(self, videos):
         descriptions = self.request.GET.getlist('description')
         if len(descriptions) > 0:
             videos = videos.filter(description__in=descriptions)
+        return videos
+
+    def filter_languages(self, videos):
         languages = self.request.GET.getlist('language')
         if len(languages) > 0:
             videos = videos.filter(language__in=languages)
+        return videos
+
+    def filter_subjects(self, videos):
         subjects = self.request.GET.getlist('subject')
         if len(subjects) > 0:
             videos = videos.filter(subject__in=subjects)
+        return videos
+
+    def filter_licenses(self, videos):
         licenses = self.request.GET.getlist('license')
         if len(licenses) > 0:
             videos = videos.filter(license__in=licenses)
+        return videos
+
+    def get_videos(self):
+        videos = Video.objects.all()
+        videos = self.filter_creators(videos)
+        videos = self.filter_descriptions(videos)
+        videos = self.filter_languages(videos)
+        videos = self.filter_subjects(videos)
+        videos = self.filter_licenses(videos)
         return videos
 
     def get_context_data(self):
