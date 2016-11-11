@@ -889,30 +889,36 @@ class BulkSurelinkView(StaffMixin, TemplateView):
         return [get_object_or_404(Video, id=int(f.split("_")[1]))
                 for f in r.keys() if f.startswith("video_")]
 
+    def surelink_video(self, v):
+        f = v.h264_secure_stream_file()
+        if f is None:
+            return None
+        PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+        filename = f.filename
+        if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+            filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+        if f.is_h264_secure_streamable():
+            filename = f.h264_secure_path()
+        if (self.request.GET.get(
+                'protection', '') == 'mp4_public_stream' and
+                f.is_h264_public_streamable()):
+            filename = f.h264_public_path()
+        s = SureLink(filename,
+                     int(self.request.GET.get('width', f.get_width())),
+                     int(self.request.GET.get('height', f.get_height())),
+                     '',
+                     v.poster_url(),
+                     'mp4_secure_stream',
+                     self.request.GET.get('authtype', 'wind'),
+                     PROTECTION_KEY)
+        return s
+
     def get_context_data(self):
         surelinks = []
         for v in self._videos(self.request):
-            f = v.h264_secure_stream_file()
-            if f is None:
+            s = self.surelink_video(v)
+            if s is None:
                 continue
-            PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
-            filename = f.filename
-            if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
-                filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
-            if f.is_h264_secure_streamable():
-                filename = f.h264_secure_path()
-            if (self.request.GET.get(
-                    'protection', '') == 'mp4_public_stream' and
-                    f.is_h264_public_streamable()):
-                filename = f.h264_public_path()
-            s = SureLink(filename,
-                         int(self.request.GET.get('width', f.get_width())),
-                         int(self.request.GET.get('height', f.get_height())),
-                         '',
-                         v.poster_url(),
-                         'mp4_secure_stream',
-                         self.request.GET.get('authtype', 'wind'),
-                         PROTECTION_KEY)
             surelinks.append(s)
         return dict(
             videos=self._videos(self.request),
