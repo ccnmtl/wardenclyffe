@@ -241,16 +241,18 @@ class ChildrenView(TemplateView):
     and paginating. don't instantiate this one directly,
     subclass it and set the appropriate fields."""
 
+    def get_page(self):
+        try:
+            return int(self.request.GET.get('page', '1'))
+        except ValueError:
+            return 1
+
     def get_context_data(self, pk):
         obj = get_object_or_404(self.model, pk=pk)
         children = self.get_children_qs(obj)
         params = {self.context_object_name: obj}
         paginator = Paginator(children, 100)
-
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
+        page = self.get_page()
         try:
             children = paginator.page(page)
         except (EmptyPage, InvalidPage):
