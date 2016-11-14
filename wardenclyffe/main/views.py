@@ -241,16 +241,18 @@ class ChildrenView(TemplateView):
     and paginating. don't instantiate this one directly,
     subclass it and set the appropriate fields."""
 
+    def get_page(self):
+        try:
+            return int(self.request.GET.get('page', '1'))
+        except ValueError:
+            return 1
+
     def get_context_data(self, pk):
         obj = get_object_or_404(self.model, pk=pk)
         children = self.get_children_qs(obj)
         params = {self.context_object_name: obj}
         paginator = Paginator(children, 100)
-
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
+        page = self.get_page()
         try:
             children = paginator.page(page)
         except (EmptyPage, InvalidPage):
@@ -361,23 +363,43 @@ class VideoIndexView(StaffMixin, TemplateView):
             params[k] = v
         return params
 
-    def get_videos(self):
-        videos = Video.objects.all()
+    def filter_creators(self, videos):
         creators = self.request.GET.getlist('creator')
         if len(creators) > 0:
             videos = videos.filter(creator__in=creators)
+        return videos
+
+    def filter_descriptions(self, videos):
         descriptions = self.request.GET.getlist('description')
         if len(descriptions) > 0:
             videos = videos.filter(description__in=descriptions)
+        return videos
+
+    def filter_languages(self, videos):
         languages = self.request.GET.getlist('language')
         if len(languages) > 0:
             videos = videos.filter(language__in=languages)
+        return videos
+
+    def filter_subjects(self, videos):
         subjects = self.request.GET.getlist('subject')
         if len(subjects) > 0:
             videos = videos.filter(subject__in=subjects)
+        return videos
+
+    def filter_licenses(self, videos):
         licenses = self.request.GET.getlist('license')
         if len(licenses) > 0:
             videos = videos.filter(license__in=licenses)
+        return videos
+
+    def get_videos(self):
+        videos = Video.objects.all()
+        videos = self.filter_creators(videos)
+        videos = self.filter_descriptions(videos)
+        videos = self.filter_languages(videos)
+        videos = self.filter_subjects(videos)
+        videos = self.filter_licenses(videos)
         return videos
 
     def get_context_data(self):
@@ -401,6 +423,12 @@ class VideoIndexView(StaffMixin, TemplateView):
 class FileIndexView(StaffMixin, TemplateView):
     template_name = 'main/file_index.html'
 
+    def get_page(self):
+        try:
+            return int(self.request.GET.get('page', '1'))
+        except ValueError:
+            return 1
+
     def get_context_data(self):
         files = File.objects.all()
         params = dict()
@@ -412,11 +440,7 @@ class FileIndexView(StaffMixin, TemplateView):
             facets.append(dict(field=k, value=v))
         paginator = Paginator(files.order_by('video__title'), 100)
 
-        try:
-            page = int(self.request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-
+        page = self.get_page()
         try:
             files = paginator.page(page)
         except (EmptyPage, InvalidPage):
@@ -865,30 +889,36 @@ class BulkSurelinkView(StaffMixin, TemplateView):
         return [get_object_or_404(Video, id=int(f.split("_")[1]))
                 for f in r.keys() if f.startswith("video_")]
 
+    def surelink_video(self, v):
+        f = v.h264_secure_stream_file()
+        if f is None:
+            return None
+        PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
+        filename = f.filename
+        if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
+            filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
+        if f.is_h264_secure_streamable():
+            filename = f.h264_secure_path()
+        if (self.request.GET.get(
+                'protection', '') == 'mp4_public_stream' and
+                f.is_h264_public_streamable()):
+            filename = f.h264_public_path()
+        s = SureLink(filename,
+                     int(self.request.GET.get('width', f.get_width())),
+                     int(self.request.GET.get('height', f.get_height())),
+                     '',
+                     v.poster_url(),
+                     'mp4_secure_stream',
+                     self.request.GET.get('authtype', 'wind'),
+                     PROTECTION_KEY)
+        return s
+
     def get_context_data(self):
         surelinks = []
         for v in self._videos(self.request):
-            f = v.h264_secure_stream_file()
-            if f is None:
+            s = self.surelink_video(v)
+            if s is None:
                 continue
-            PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
-            filename = f.filename
-            if filename.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
-                filename = filename[len(settings.CUNIX_BROADCAST_DIRECTORY):]
-            if f.is_h264_secure_streamable():
-                filename = f.h264_secure_path()
-            if (self.request.GET.get(
-                    'protection', '') == 'mp4_public_stream' and
-                    f.is_h264_public_streamable()):
-                filename = f.h264_public_path()
-            s = SureLink(filename,
-                         int(self.request.GET.get('width', f.get_width())),
-                         int(self.request.GET.get('height', f.get_height())),
-                         '',
-                         v.poster_url(),
-                         'mp4_secure_stream',
-                         self.request.GET.get('authtype', 'wind'),
-                         PROTECTION_KEY)
             surelinks.append(s)
         return dict(
             videos=self._videos(self.request),

@@ -38,23 +38,15 @@ def exp_backoff(tries):
 
 @task(ignore_results=True, bind=True, max_retries=None)
 def process_operation(self, operation_id, **kwargs):
-    print "process_operation(%s)" % (operation_id)
+    print("process_operation(%s)" % (operation_id))
     try:
         operation = Operation.objects.get(id=operation_id)
         operation.process()
     except Operation.DoesNotExist as exc:
-        if self.request.retries > settings.OPERATION_MAX_RETRIES:
-            # max out at (default) 10 retry attempts
-            print("operation not found after %d attempts (probably deleted)" %
-                  settings.OPERATION_MAX_RETRIES)
-            statsd.incr("max_retries")
-        else:
-            statsd.incr("retry_operation")
-            statsd.incr("retry_%02d" % self.request.retries)
-            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
+        handle_operation_does_not_exist(self, exc)
     except Exception as exc:
-        print "Exception:"
-        print str(exc)
+        print("Exception:")
+        print(str(exc))
         if self.request.retries > settings.OPERATION_MAX_RETRIES:
             # max out at (default) 10 retry attempts
             operation.fail(str(exc))
@@ -65,9 +57,21 @@ def process_operation(self, operation_id, **kwargs):
             self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
 
 
+def handle_operation_does_not_exist(self, exc):
+    if self.request.retries > settings.OPERATION_MAX_RETRIES:
+        # max out at (default) 10 retry attempts
+        print("operation not found after %d attempts (probably deleted)" %
+              settings.OPERATION_MAX_RETRIES)
+        statsd.incr("max_retries")
+    else:
+        statsd.incr("retry_operation")
+        statsd.incr("retry_%02d" % self.request.retries)
+        self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
+
+
 def save_file_to_s3(operation):
     if not waffle.switch_is_active('enable_s3'):
-        print "S3 uploads are disabled"
+        print("S3 uploads are disabled")
         return ("complete", "S3 uploads temporarily disabled")
     statsd.incr("save_file_to_s3")
     params = loads(operation.params)
@@ -142,7 +146,7 @@ def create_elastic_transcoder_job(operation):
         input_name=input_object,
         outputs=output_objects)
     job_id = str(job['Job']['Id'])
-    print job_id
+    print(job_id)
     f = File.objects.create(
         video=operation.video,
         cap=job_id,
@@ -226,7 +230,7 @@ def midentify_path():
 
 def pull_from_s3_and_extract_metadata(operation):
     statsd.incr("pull_from_s3_and_extract_metadata")
-    print "pulling from S3"
+    print("pulling from S3")
     params = loads(operation.params)
     video = operation.video
     suffix = video.extension()
@@ -266,8 +270,8 @@ def parse_metadata(output):
             yield f, v
         except Exception, e:
             # just ignore any parsing issues
-            print "exception in extract_metadata: " + str(e)
-            print line
+            print("exception in extract_metadata: " + str(e))
+            print(line)
 
 
 def pull_from_s3(suffix, bucket_name, key):
@@ -301,16 +305,16 @@ def audio_encode(operation):
     filename = os.path.basename(f.cap)
     suffix = video.extension()
 
-    print "pulling from s3"
+    print("pulling from s3")
     t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET,
                      video.s3_key())
     operation.log(info="downloaded from S3")
 
-    print "encoding mp3 to mp4"
+    print("encoding mp3 to mp4")
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(t.name, tout)
 
-    print "uploading to CUIT"
+    print("uploading to CUIT")
     sftp_put(filename, suffix, open(tout, "rb"), video)
     return ("complete", "")
 
@@ -325,7 +329,7 @@ def local_audio_encode(operation):
     t = pull_from_s3(".mp3", settings.AWS_S3_UPLOAD_BUCKET, s3_key)
     operation.log(info="downloaded mp3 from S3")
 
-    print "encoding mp3 to mp4"
+    print("encoding mp3 to mp4")
     tout = os.path.join(settings.TMP_DIR, str(operation.uuid) + ".mp4")
     do_audio_encode(t.name, tout)
 
@@ -372,10 +376,10 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
                             location_type='cuit',
                             )
     except Exception, e:
-        print "sftp put failed"
-        print str(e)
+        print("sftp put failed")
+        print(str(e))
     else:
-        print "sftp_put succeeded"
+        print("sftp_put succeeded")
     finally:
         sftp.close()
         transport.close()
@@ -383,7 +387,7 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
 
 def copy_from_s3_to_cunix(operation):
     statsd.incr("copy_from_s3_to_cunix")
-    print "pulling from S3"
+    print("pulling from S3")
     params = loads(operation.params)
 
     file_id = params['file_id']
@@ -454,17 +458,17 @@ def copy_flv_from_cunix_to_s3(operation):
 
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
-    print "sftp_get(%s,%s)" % (remote_filename, local_filename)
+    print("sftp_get(%s,%s)" % (remote_filename, local_filename))
     sftp, transport = sftp_client()
 
     try:
         sftp.get(remote_filename, local_filename)
     except Exception, e:
-        print "sftp fetch failed"
-        print str(e)
+        print("sftp fetch failed")
+        print(str(e))
         raise
     else:
-        print "sftp_get succeeded"
+        print("sftp_get succeeded")
     finally:
         sftp.close()
         transport.close()
