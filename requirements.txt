@@ -67,7 +67,7 @@ simplejson==3.10.0
 httpretty==0.8.14
 contextlib2==0.5.4
 ipaddress==1.0.17
-fake-factory==0.7.2
+Faker==0.7.3
 factory_boy==2.7.0
 rcssmin==1.0.6
 rjsmin==1.0.12
