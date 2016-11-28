@@ -244,6 +244,9 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="mediathread").first().url
 
+    def remove_mediathread_asset(self):
+        return self.file_set.filter(location_type="mediathread").delete()
+
     def mediathread_submit(self):
         for f in self.file_set.filter(location_type="mediathreadsubmit"):
             return (f.get_metadata("set_course"),
