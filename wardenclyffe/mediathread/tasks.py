@@ -137,6 +137,14 @@ def update_mediathread(operation):
     r = requests.post(mediathread_base + '/update/', params)
     if r.status_code == 200:
         return ("complete", "")
+    elif r.status_code == 404:
+        print("Mediathread responded with a 404")
+        # mediathread doesn't have this asset anymore. that's fine.
+        # we should delete the asset on our end while we're at it
+        # since it is outdated.
+        video.remove_mediathread_asset()
+        # from an operation perspective, we consider this successful
+        return ("complete", "")
     else:
         statsd.incr("mediathread.tasks.update_mediathread.failure")
         print(r.status_code)
