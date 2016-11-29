@@ -901,10 +901,19 @@ class CopyFlvFromCunixToS3Operation(OperationType):
         if 's3_key' not in params:
             return []
         key = params['s3_key']
-
-        return [
+        ops = [
             operation.video.make_create_elastic_transcoder_job_operation(
                 key=key, user=operation.owner)]
+        if operation.video.source_file() is None:
+            # no source file implies that the metadata has not been extracted
+            operation.video.make_source_file(key)
+            o = operation
+            ops.extend(
+                o.video.make_pull_from_s3_and_extract_metadata_operation(
+                    key=key,
+                    user=operation.owner,
+                ))
+        return ops
 
 
 class AudioEncodeOperation(OperationType):
