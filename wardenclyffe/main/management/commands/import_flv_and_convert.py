@@ -25,13 +25,17 @@ class Command(BaseCommand):
         user = User.objects.get(username=uni)
         collection = Collection.objects.get(id=collection_id)
 
+        full_filename = flv
+        if not full_filename.startswith('/www/data/ccnmtl/'):
+            full_filename = '/www/data/ccnmtl/' + full_filename
+
         # create basic video
         v = Video.objects.simple_create(collection, flv, uni)
 
         # create an FLV File for the video
         File.objects.create(
             video=v,
-            filename=flv,
+            filename=full_filename,
             location_type='cuit',
             label='CUIT FLV',
         )
