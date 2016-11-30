@@ -907,11 +907,11 @@ class CopyFlvFromCunixToS3Operation(OperationType):
         if o.video.source_file() is None:
             # no source file implies that the metadata has not been extracted
             o.video.make_source_file(key)
-            ops.extend(
+            ops.extend([
                 o.video.make_pull_from_s3_and_extract_metadata_operation(
                     key=key,
                     user=o.owner,
-                ))
+                )])
         return ops
 
 
