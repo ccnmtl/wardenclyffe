@@ -896,22 +896,21 @@ class CopyFlvFromCunixToS3Operation(OperationType):
         return wardenclyffe.main.tasks.copy_flv_from_cunix_to_s3
 
     def post_process(self):
-        operation = self.operation
-        params = loads(operation.params)
+        o = self.operation
+        params = loads(o.params)
         if 's3_key' not in params:
             return []
         key = params['s3_key']
         ops = [
-            operation.video.make_create_elastic_transcoder_job_operation(
-                key=key, user=operation.owner)]
-        if operation.video.source_file() is None:
+            o.video.make_create_elastic_transcoder_job_operation(
+                key=key, user=o.owner)]
+        if o.video.source_file() is None:
             # no source file implies that the metadata has not been extracted
-            operation.video.make_source_file(key)
-            o = operation
+            o.video.make_source_file(key)
             ops.extend(
                 o.video.make_pull_from_s3_and_extract_metadata_operation(
                     key=key,
-                    user=operation.owner,
+                    user=o.owner,
                 ))
         return ops
 
