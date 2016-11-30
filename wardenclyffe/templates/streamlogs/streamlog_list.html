@@ -23,6 +23,7 @@
             <tr>
                 <th>timestamp</th>
                 <th>filename</th>
+                <th>video</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,13 @@
         <tr>
             <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
             <td><tt>{{object.filename}}</tt></td>
+            <td>
+                {% with video=object.video %}
+                    {% if video %}
+                        <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
+                    {% endif %}
+                {% endwith %}
+            </td>
         </tr>
     {% endfor %}
         </tbody>
