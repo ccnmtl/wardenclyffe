@@ -812,6 +812,41 @@ class FlvToMp4View(StaffMixin, View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
+@transaction.non_atomic_requests
+class ImportFlv(StaffMixin, View):
+    def post(self, request):
+        flv = request.POST.get('flv')
+        user = request.user
+
+        # if you are developing, remember to set
+        # FLV_IMPORT_COLLECTION_ID in your local_settings
+        collection = Collection.objects.get(
+            id=settings.FLV_IMPORT_COLLECTION_ID)
+
+        full_filename = flv
+        if not full_filename.startswith(settings.CUNIX_BROADCAST_BASE):
+            full_filename = os.path.join(settings.CUNIX_BROADCAST_BASE,
+                                         full_filename)
+
+        # create basic video
+        v = Video.objects.simple_create(collection, flv, user.username)
+
+        # create an FLV File for the video
+        File.objects.create(
+            video=v,
+            filename=full_filename,
+            location_type='cuit',
+            label='CUIT FLV',
+        )
+
+        # now we can just pretend that it was originally uploaded
+        # through WC and someone has now hit the 'FLV to MP4' button
+        o = v.make_flv_to_mp4_operation(user)
+        tasks.process_operation.delay(o.id)
+
+        return HttpResponseRedirect(v.get_absolute_url())
+
+
 class AudioEncodeFileView(StaffMixin, View):
     def post(self, request, pk):
         f = get_object_or_404(File, pk=pk)

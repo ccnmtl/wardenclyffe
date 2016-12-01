@@ -19,6 +19,9 @@ FFMPEG_PATH = "/usr/local/bin/ffmpeg"
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-prod"
 IMAGES_URL_BASE = "https://d369ay3g98xik5.cloudfront.net/"
 
+# id of the default collection to put imported FLVs into
+FLV_IMPORT_COLLECTION_ID = 30
+
 INSTALLED_APPS += [
     'opbeat.contrib.django',
 ]
