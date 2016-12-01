@@ -749,3 +749,19 @@ class TestKeyFromS3Url(TestCase):
             key_from_s3url(s3url),
             "2016/04/18/46d54344-d228-4315-83ed-c0361dcac47c.mp3",
         )
+
+
+class FLVImportTest(TestCase):
+    def setUp(self):
+        self.u = UserFactory()
+        self.u.set_password("bar")
+        self.u.save()
+        self.c = Client()
+        self.c.login(username=self.u.username, password="bar")
+        self.collection = CollectionFactory()
+
+    def test_post(self):
+        with self.settings(
+                FLV_IMPORT_COLLECTION_ID=self.collection.id):
+            r = self.c.post(reverse("import-flv"), dict(flv="file.flv"))
+            self.assertEqual(r.status_code, 302)

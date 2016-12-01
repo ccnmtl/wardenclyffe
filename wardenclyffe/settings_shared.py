@@ -86,6 +86,7 @@ H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
 H264_PUBLIC_STREAM_BASE = "http://stream.ccnmtl.columbia.edu/public/"
 
+CUNIX_BROADCAST_BASE = "/www/data/ccnmtl/"
 CUNIX_BROADCAST_DIRECTORY = "/www/data/ccnmtl/broadcast/"
 CUNIX_BROADCAST_URL = "http://ccnmtl.columbia.edu/broadcast/"
 CUNIX_SECURE_DIRECTORY = "/www/data/ccnmtl/broadcast/secure/"
