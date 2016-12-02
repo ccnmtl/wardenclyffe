@@ -1,8 +1,9 @@
 # stdlib imports
 import os
-import uuid
+import re
 import requests
 import urlparse
+import uuid
 
 import wardenclyffe.main.tasks as tasks
 
@@ -689,6 +690,19 @@ class FileView(StaffMixin, TemplateView):
                     )
 
 
+def positive_int(s):
+    """ forgiving version of int() that will handle the presence
+    of extra chars that might've been typed in by accident.
+
+    The gotcha here is that a leading '-' will be removed,
+    so this only works for positive ints. In our case,
+    we are dealing with video dimensions, so that is desirable,
+    but keep it in mind if you are thinking of re-using this elsewhere.
+    """
+    pattern = re.compile(r'[^\d.]+')
+    return int(pattern.sub('', s))
+
+
 class FileSurelinkView(StaffMixin, TemplateView):
     template_name = "main/file_surelink.html"
 
@@ -704,8 +718,8 @@ class FileSurelinkView(StaffMixin, TemplateView):
                 f.is_h264_public_streamable()):
             filename = f.h264_public_path()
         s = SureLink(filename,
-                     int(self.request.GET.get('width', '0')),
-                     int(self.request.GET.get('height', '0')),
+                     positive_int(self.request.GET.get('width', '0')),
+                     positive_int(self.request.GET.get('height', '0')),
                      self.request.GET.get('captions', ''),
                      self.request.GET.get('poster', ''),
                      self.request.GET.get('protection', ''),
@@ -1116,14 +1130,15 @@ class SureLinkView(TemplateView):
         if self.request.GET.get('files', ''):
             for filename in self.request.GET.get('files', '').split('\n'):
                 filename = filename.strip()
-                s = SureLink(filename,
-                             int(self.request.GET.get('width', '0')),
-                             int(self.request.GET.get('height', '0')),
-                             self.request.GET.get('captions', ''),
-                             self.request.GET.get('poster', ''),
-                             self.request.GET.get('protection', ''),
-                             self.request.GET.get('authtype', ''),
-                             PROTECTION_KEY)
+                s = SureLink(
+                    filename,
+                    positive_int(self.request.GET.get('width', '0')),
+                    positive_int(self.request.GET.get('height', '0')),
+                    self.request.GET.get('captions', ''),
+                    self.request.GET.get('poster', ''),
+                    self.request.GET.get('protection', ''),
+                    self.request.GET.get('authtype', ''),
+                    PROTECTION_KEY)
                 results.append(s)
         return dict(
             protection=self.request.GET.get('protection', ''),
