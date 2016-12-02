@@ -307,6 +307,32 @@ class TestSurelink(TestCase):
         assert "file=/media/h264/ccnmtl/" not in response.content
         assert "file=/course" in response.content
 
+    def test_file_surelink_extra_chars_in_dimensions(self):
+        """ regression test for PMT #87084 """
+        public_file = FileFactory(
+            filename=("/media/h264/ccnmtl/public/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.mp4"))
+        response = self.c.get("/file/%d/" % public_file.id)
+        self.assertEquals(response.status_code, 200)
+
+        response = self.c.get(
+            "/file/%d/surelink/" % public_file.id,
+            {'file': public_file.filename,
+             'captions': '',
+             'poster': ('http://wardenclyffe.ccnmtl.columbia.edu/'
+                        'uploads/images/11213/00000238.jpg'),
+             'width': "480-",
+             'height': " 720 ",
+             'protection': 'mp4_public_stream',
+             'authtype': '',
+             'player': 'v4',
+             })
+        self.assertEquals(response.status_code, 200)
+        assert "&lt;iframe" in response.content
+        assert "file=/media/h264/ccnmtl/" not in response.content
+        assert "file=/course" in response.content
+
 
 class TestFeed(TestCase):
     def test_rss_feed(self):
