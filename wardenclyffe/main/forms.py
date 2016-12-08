@@ -1,5 +1,5 @@
-from wardenclyffe.main.models import Video, Collection, Server
 from django import forms
+from .models import Video, Collection, Server, File
 
 
 class AddCollectionForm(forms.ModelForm):
@@ -24,3 +24,15 @@ class EditCollectionForm(forms.ModelForm):
     class Meta:
         model = Collection
         exclude = []
+
+
+class AddVideoForm(forms.ModelForm):
+    class Meta:
+        model = Video
+        exclude = ('collection', )
+
+
+class AddFileForm(forms.ModelForm):
+    class Meta:
+        model = File
+        exclude = ('video', )

@@ -6,7 +6,6 @@ import time
 import urllib
 import uuid
 
-from django import forms
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -54,10 +53,7 @@ class Collection(TimeStampedModel):
         return "/collection/%d/" % self.id
 
     def add_video_form(self):
-        class AddVideoForm(forms.ModelForm):
-            class Meta:
-                model = Video
-                exclude = ('collection', )
+        from .forms import AddVideoForm
         return AddVideoForm()
 
     def is_public(self):
@@ -169,10 +165,7 @@ class Video(TimeStampedModel):
         return "/video/%d/oembed/" % self.id
 
     def add_file_form(self, data=None):
-        class AddFileForm(forms.ModelForm):
-            class Meta:
-                model = File
-                exclude = ('video', )
+        from .forms import AddFileForm
         if data:
             return AddFileForm(data)
         else:
