@@ -21,6 +21,7 @@ IMAGES_URL_BASE = "https://d369ay3g98xik5.cloudfront.net/"
 
 # id of the default collection to put imported FLVs into
 FLV_IMPORT_COLLECTION_ID = 30
+FLV_PUBLIC_IMPORT_COLLECTION_ID = 31
 
 INSTALLED_APPS += [
     'opbeat.contrib.django',

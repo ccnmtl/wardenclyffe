@@ -797,10 +797,24 @@ class FLVImportTest(TestCase):
         self.u.save()
         self.c = Client()
         self.c.login(username=self.u.username, password="bar")
-        self.collection = CollectionFactory()
+        self.secure_collection = CollectionFactory()
+        self.public_collection = CollectionFactory(public=True)
 
     def test_post(self):
         with self.settings(
-                FLV_IMPORT_COLLECTION_ID=self.collection.id):
-            r = self.c.post(reverse("import-flv"), dict(flv="file.flv"))
+                FLV_IMPORT_COLLECTION_ID=self.secure_collection.id,
+                FLV_PUBLIC_IMPORT_COLLECTION_ID=self.public_collection.id):
+            r = self.c.post(
+                reverse("import-flv"),
+                dict(flv="broadcast/secure/file.flv"))
             self.assertEqual(r.status_code, 302)
+            # secure one should go to the right collection
+            self.assertEqual(self.secure_collection.video_set.count(), 1)
+            self.assertEqual(self.public_collection.video_set.count(), 0)
+            # and a public one should also be routed properly
+            r = self.c.post(
+                reverse("import-flv"),
+                dict(flv="broadcast/file.flv"))
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(self.secure_collection.video_set.count(), 1)
+            self.assertEqual(self.public_collection.video_set.count(), 1)
