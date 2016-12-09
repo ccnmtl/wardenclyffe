@@ -63,10 +63,16 @@ class CollectionTest(TestCase):
         assert 'title' in add_form.fields
 
     def test_is_public(self):
-        c = CollectionFactory(title="h264 Public")
+        c = CollectionFactory(title="h264 Public", public=True)
         self.assertTrue(c.is_public())
 
-        c = CollectionFactory(title="not h264 public")
+        c = CollectionFactory(title="some other title", public=True)
+        self.assertTrue(c.is_public())
+
+        c = CollectionFactory(title="not h264 public", public=False)
+        self.assertFalse(c.is_public())
+
+        c = CollectionFactory(title="make sure default is secure")
         self.assertFalse(c.is_public())
 
 

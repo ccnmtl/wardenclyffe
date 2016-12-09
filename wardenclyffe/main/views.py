@@ -237,6 +237,14 @@ class CollectionEditAudioView(StaffMixin, View):
         return HttpResponseRedirect(collection.get_absolute_url())
 
 
+class CollectionEditPublicView(StaffMixin, View):
+    def post(self, request, pk):
+        collection = get_object_or_404(Collection, pk=pk)
+        collection.public = request.POST.get('public', '') == '1'
+        collection.save()
+        return HttpResponseRedirect(collection.get_absolute_url())
+
+
 class ChildrenView(TemplateView):
     """ abstract view for fetching the "children" of an object
     and paginating. don't instantiate this one directly,

@@ -494,6 +494,19 @@ class TestStaff(TestCase):
         c = Collection.objects.get(id=c.id)
         self.assertFalse(c.audio)
 
+    def test_edit_collection_public(self):
+        c = CollectionFactory(public=False)
+        r = self.c.post(reverse('collection-edit-public', args=[c.id]),
+                        dict(public="1"))
+        self.assertEqual(r.status_code, 302)
+        c = Collection.objects.get(id=c.id)
+        self.assertTrue(c.public)
+        r = self.c.post(reverse('collection-edit-public', args=[c.id]),
+                        dict(public="0"))
+        self.assertEqual(r.status_code, 302)
+        c = Collection.objects.get(id=c.id)
+        self.assertFalse(c.public)
+
     def test_add_server_form(self):
         r = self.c.get("/server/add/")
         self.assertEqual(r.status_code, 200)
