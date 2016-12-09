@@ -87,6 +87,27 @@ jQuery(document).ready(function()
   <input type="submit" value="update" />
 </form>
 
+<h2>Public/Secure</h2>
+
+<form action="{% url 'collection-edit-public' collection.id %}" method="post">
+    {% if collection.is_public %}
+        <label><input type="radio" name="public" value="1" checked="checked"/>
+            This is a public Collection. Videos uploaded to it will not require authentication.
+        </label><br />
+        <label><input type="radio" name="public" value="0" />
+            This is a secure Collection. Videos uploaded to it will require authentication.
+        </label><br />
+    {% else %}
+        <label><input type="radio" name="public" value="1" />
+            This is a public Collection. Videos uploaded to it will not require authentication.
+        </label><br />
+        <label><input type="radio" name="public" value="0" checked="checked" />
+            This is a secure Collection. Videos uploaded to it will require authentication.
+        </label><br />
+    {% endif %}
+    <input type="submit" value="update" />
+</form>
+
 
 {% if videos %}
 <h2>Recent Videos</h2>
