@@ -841,9 +841,13 @@ class ImportFlv(StaffMixin, View):
         user = request.user
 
         # if you are developing, remember to set
-        # FLV_IMPORT_COLLECTION_ID in your local_settings
+        # FLV_[PUBLIC]_IMPORT_COLLECTION_ID in your local_settings
+        collection_id = settings.FLV_IMPORT_COLLECTION_ID
+        if '/secure/' not in flv:
+            # it's a public video
+            collection_id = settings.FLV_PUBLIC_IMPORT_COLLECTION_ID
         collection = Collection.objects.get(
-            id=settings.FLV_IMPORT_COLLECTION_ID)
+            id=collection_id)
 
         full_filename = flv
         if not full_filename.startswith(settings.CUNIX_BROADCAST_BASE):
