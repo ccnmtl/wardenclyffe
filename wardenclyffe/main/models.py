@@ -48,10 +48,8 @@ class Collection(TimeStampedModel):
         return AddVideoForm()
 
     def is_public(self):
-        """ is this the h264 Public collection? """
-        # TODO: make this a user-editable attribute
-        # rather than having it hard-coded here.
-        return self.title == "h264 Public"
+        """ is this a Public collection? """
+        return self.public
 
 
 class VideoManager(models.Manager):
