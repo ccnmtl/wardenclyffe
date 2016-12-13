@@ -289,6 +289,12 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="cuit", filename__endswith='.mp4').count() > 0
 
+    def mp4_filename(self):
+        # only valid if video has an mp4 attached.
+        # expect an exception otherwise
+        return self.file_set.filter(
+            location_type="cuit", filename__endswith='.mp4').first().filename
+
     def flv_convertable(self):
         # there's an associated flv, but no mp4 yet
         return self.has_flv() and not self.has_mp4()
