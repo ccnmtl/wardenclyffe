@@ -46,16 +46,7 @@ def process_operation(self, operation_id, **kwargs):
     try:
         operation.process()
     except Exception as exc:
-        print("Exception:")
-        print(str(exc))
-        if self.request.retries > settings.OPERATION_MAX_RETRIES:
-            # max out at (default) 10 retry attempts
-            operation.fail(str(exc))
-            statsd.incr("max_retries")
-        else:
-            statsd.incr("retry_operation")
-            statsd.incr("retry_%02d" % self.request.retries)
-            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
+        handle_processing_error(self, operation, exc)
 
 
 def handle_operation_does_not_exist(self, exc):
@@ -68,6 +59,19 @@ def handle_operation_does_not_exist(self, exc):
         statsd.incr("retry_operation")
         statsd.incr("retry_%02d" % self.request.retries)
         self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
+
+
+def handle_processing_error(self, operation, exc):
+        print("Exception:")
+        print(str(exc))
+        if self.request.retries > settings.OPERATION_MAX_RETRIES:
+            # max out at (default) 10 retry attempts
+            operation.fail(str(exc))
+            statsd.incr("max_retries")
+        else:
+            statsd.incr("retry_operation")
+            statsd.incr("retry_%02d" % self.request.retries)
+            self.retry(exc=exc, countdown=exp_backoff(self.request.retries))
 
 
 def save_file_to_s3(operation):
