@@ -41,9 +41,10 @@ def process_operation(self, operation_id, **kwargs):
     print("process_operation(%s)" % (operation_id))
     try:
         operation = Operation.objects.get(id=operation_id)
-        operation.process()
     except Operation.DoesNotExist as exc:
         handle_operation_does_not_exist(self, exc)
+    try:
+        operation.process()
     except Exception as exc:
         print("Exception:")
         print(str(exc))
