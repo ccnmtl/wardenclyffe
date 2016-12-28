@@ -13,7 +13,7 @@ staff_only = user_passes_test(lambda u: is_staff(u))
 urlpatterns = [
     url(r'^$', LogView.as_view(), name='streamlogs'),
     url(r'report/$', staff_only(
-        ReportView.as_view(days=100)),
+        ReportView.as_view(days=200)),
         name='streamlogs-report'),
     url(r'list/$', staff_only(
         ListView.as_view(
