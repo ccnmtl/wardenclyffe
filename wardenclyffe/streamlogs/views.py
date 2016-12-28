@@ -25,6 +25,7 @@ class ReportView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ReportView, self).get_context_data(**kwargs)
         context['total_count'] = StreamLog.objects.all().count()
+        context['days'] = self.days
         today = datetime.now()
         start = today - timedelta(days=self.days)
         context['daily_counts'] = daily_counts(start, today)
