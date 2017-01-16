@@ -54,11 +54,7 @@ def mediathread(request):
     request.session['nonce'] = authenticator.nonce
     request.session['redirect_to'] = authenticator.redirect_to
     request.session['hmac'] = authenticator.hmc
-    # either 'audio' or 'audio2' are accepted for now
-    # for backwards-compatibility. going forward,
-    # 'audio2' will be deprecated
-    audio2 = request.GET.get('audio2', False)
-    audio = request.GET.get('audio', False) or audio2
+    audio = request.GET.get('audio', False)
     template = 'mediathread/mediathread.html'
     return render(
         request, template,
@@ -86,9 +82,7 @@ def s3_upload(request):
     if s3url is None:
         return HttpResponse("Bad file upload. Please try again.")
 
-    # backwards compatibility: allow 'audio' or 'audio2'
-    audio2 = request.POST.get('audio2', False)
-    audio = request.POST.get('audio', False) or audio2
+    audio = request.POST.get('audio', False)
     operations = []
     vuuid = uuid.uuid4()
     statsd.incr("mediathread.mediathread")
