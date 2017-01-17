@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from wardenclyffe.main.tests.factories import (
@@ -14,15 +15,15 @@ class ViewTest(TestCase):
         self.c.login(username=u.username, password="foo")
 
     def test_form(self):
-        r = self.c.get("/youtube/")
+        r = self.c.get(reverse('youtube-upload-form'))
         self.assertEqual(r.status_code, 200)
 
     def test_done(self):
-        r = self.c.get("/youtube/done/")
+        r = self.c.get(reverse('youtube-done'))
         self.assertEqual(r.status_code, 200)
 
     def test_post(self):
         CollectionFactory(title='Youtube')
         s3url = "https://s3.amazonaws.com/<bucket>/2016/02/29/f.mp4"
-        r = self.c.post("/youtube/post/", {"s3_url": s3url})
+        r = self.c.post(reverse('youtube-post'), {"s3_url": s3url})
         self.assertEqual(r.status_code, 302)

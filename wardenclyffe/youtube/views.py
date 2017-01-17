@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from wardenclyffe.main.models import Video, Collection, File
@@ -54,7 +55,7 @@ def youtube_post(request):
     ]
     for o in operations:
         wardenclyffe.main.tasks.process_operation.delay(o.id)
-    return HttpResponseRedirect("/youtube/done/")
+    return HttpResponseRedirect(reverse('youtube-done'))
 
 
 def youtube_done(request):
