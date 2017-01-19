@@ -6,7 +6,6 @@ from django.conf import settings
 from wardenclyffe.main.feeds import CollectionFeed
 import wardenclyffe.main.views as views
 import wardenclyffe.mediathread.views as mediathread_views
-import wardenclyffe.youtube.views as youtube_views
 from django.views.generic import TemplateView
 admin.autodiscover()
 
@@ -91,9 +90,7 @@ urlpatterns = [
 
     url(r'^mediathread/$', mediathread_views.mediathread),
     url(r'^mediathread/post/$', mediathread_views.mediathread_post),
-    url(r'^youtube/$', youtube_views.youtube),
-    url(r'^youtube/post/$', youtube_views.youtube_post),
-    url(r'^youtube/done/$', youtube_views.youtube_done),
+    url(r'^youtube/', include('wardenclyffe.youtube.urls')),
     url(r'^received/$', views.ReceivedView.as_view()),
     url(r'^surelink/$', views.SureLinkView.as_view()),
     url(r'^video/$', views.VideoIndexView.as_view()),
