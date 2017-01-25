@@ -43,10 +43,8 @@ def mediathread(request):
         return HttpResponse("invalid authentication token")
 
     username = authenticator.username
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        user = User.objects.create(username=username)
+    user, created = User.objects.get_or_create(username=username)
+    if created:
         statsd.incr("mediathread.user_created")
 
     request.session['username'] = username
