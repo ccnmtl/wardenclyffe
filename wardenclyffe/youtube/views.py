@@ -89,7 +89,7 @@ class YTAuth(View):
             'credential')
         credential = storage.get()
         if credential is None or credential.invalid:
-            flow = get_flow()
+            flow = get_flow(request)
             flow.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
                                                            request.user)
             authorize_url = flow.step1_get_authorize_url()
