@@ -104,7 +104,7 @@ class OauthCallback(View):
                 settings.SECRET_KEY, str(request.GET['state']),
                 request.user):
             return HttpResponseBadRequest()
-        flow = get_flow()
+        flow = get_flow(request)
         credential = flow.step2_exchange(code=request.GET['code'])
         storage = DjangoORMStorage(
             Credentials, 'email', settings.PRIMARY_YOUTUBE_ACCOUNT,
