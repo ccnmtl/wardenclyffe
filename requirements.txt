@@ -27,7 +27,7 @@ pyasn1==0.2.2
 pyasn1_modules==0.0.8
 rsa==3.4.2
 uritemplate==3.0.0
-google-api-python-client==1.6.1
+google-api-python-client==1.6.2
 pycrypto==2.6.1
 enum34==1.1.6
 cryptography==1.7.2
