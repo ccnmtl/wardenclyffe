@@ -1,11 +1,13 @@
 from django_statsd.clients import statsd
 from django.conf import settings
+
+from json import loads
+
 from wardenclyffe.main.tasks import pull_from_s3
 from wardenclyffe.util.mail import send_youtube_submitted_mail
 from wardenclyffe.youtube.util import (
     get_authenticated_service, initialize_upload, Args)
 from wardenclyffe.main.models import Video, File
-from json import loads
 
 
 def upload_to_youtube(operation):
@@ -24,7 +26,6 @@ def youtube_upload(video, user, tmpfilename):
 
     a = Args()
     a.logging_level = 'DEBUG'
-    a.noauth_local_webserver = 'http://localhost:8000/'
     a.file = tmpfilename
     a.title = video.title
     a.description = description
@@ -33,7 +34,7 @@ def youtube_upload(video, user, tmpfilename):
 
     # 27 = "Education". see wardenclyffe/youtube/categories.json
     a.category = "27"
-    youtube = get_authenticated_service(a)
+    youtube = get_authenticated_service()
     youtube_key = initialize_upload(youtube, a)
 
     youtube_url = "http://www.youtube.com/watch?v=%s" % youtube_key

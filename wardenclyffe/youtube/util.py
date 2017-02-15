@@ -6,7 +6,6 @@ https://developers.google.com/youtube/v3/code_samples/python#upload_a_video
 with a few improvements and simplifications.
 
 """
-
 from django.conf import settings
 
 import httplib2
@@ -17,9 +16,10 @@ import time
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import run_flow
+
+from oauth2client.contrib.django_util.storage import DjangoORMStorage
+
+from .models import Credentials
 
 YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -52,10 +52,11 @@ class YTAuthError(Exception):
     pass
 
 
-def get_authenticated_service(args):
-    storage = Storage(settings.OAUTH_STORAGE_PATH)
+def get_authenticated_service():
+    storage = DjangoORMStorage(
+        Credentials, 'email', settings.PRIMARY_YOUTUBE_ACCOUNT,
+        'credential')
     credentials = storage.get()
-
     if credentials is None or credentials.invalid:
         raise YTAuthError
 
@@ -65,23 +66,6 @@ def get_authenticated_service(args):
 
 class Args(object):
     pass
-
-
-def get_credentials():
-    """ do the oauth dance to get new credentials file """
-    args = Args()
-    args.logging_level = 'DEBUG'
-    args.noauth_local_webserver = 'http://localhost:8000/'
-    flow = flow_from_clientsecrets(
-        settings.YOUTUBE_CLIENT_SECRETS_FILE,
-        # it complains if you don't set something as the redirect_uri,
-        # even though it's not used
-        redirect_uri="http://localhost:8000/",
-        scope=YOUTUBE_UPLOAD_SCOPE)
-
-    storage = Storage("youtube_oauth.json")
-    credentials = run_flow(flow, storage, args)
-    return credentials
 
 
 def initialize_upload(youtube, options):
