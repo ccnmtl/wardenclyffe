@@ -16,8 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         a = Args()
         a.logging_level = 'DEBUG'
-        a.noauth_local_webserver = 'http://localhost:8000/'
-        youtube = get_authenticated_service(a)
+        youtube = get_authenticated_service()
         a.file = kwargs['video']
         a.title = "test video"
         a.description = "delete me"
