@@ -34,7 +34,7 @@ cryptography==1.7.2
 ecdsa==0.13
 cffi==1.9.1
 idna==2.2
-paramiko==2.1.1
+paramiko==2.1.2
 raven==6.0.0
 pyOpenSSL==16.2.0
 ndg-httpsclient==0.4.2
