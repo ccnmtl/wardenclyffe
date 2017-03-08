@@ -1,6 +1,10 @@
-from smoketest import SmokeTest
-from django.conf import settings
 import os.path
+
+from django.conf import settings
+from oauth2client.contrib.django_util.storage import DjangoORMStorage
+from smoketest import SmokeTest
+
+from .models import Credentials
 
 
 class YoutubeTest(SmokeTest):
@@ -16,4 +20,9 @@ class YoutubeTest(SmokeTest):
 
     """ make sure our youtube account works """
     def test_youtube_connection(self):
-        pass
+        storage = DjangoORMStorage(
+            Credentials, 'email', settings.PRIMARY_YOUTUBE_ACCOUNT,
+            'credential')
+        credential = storage.get()
+        self.assertIsNotNone(credential)
+        self.assertFalse(credential.invalid)
