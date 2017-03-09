@@ -20,6 +20,9 @@ class YoutubeTest(SmokeTest):
 
     """ make sure our youtube account works """
     def test_youtube_connection(self):
+        if hasattr(settings, 'STAGING_ENV') and settings.STAGING_ENV:
+            # skip this test on staging
+            return
         storage = DjangoORMStorage(
             Credentials, 'email', settings.PRIMARY_YOUTUBE_ACCOUNT,
             'credential')
