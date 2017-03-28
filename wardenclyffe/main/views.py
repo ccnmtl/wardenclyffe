@@ -873,6 +873,17 @@ class ImportFlv(StaffMixin, View):
         return HttpResponseRedirect(v.get_absolute_url())
 
 
+@transaction.non_atomic_requests()
+class DeleteFromCunix(StaffMixin, View):
+    def post(self, request, pk):
+        f = get_object_or_404(File, pk=pk)
+        video = f.video
+        o = video.make_delete_from_cunix_operation(file_id=f.id,
+                                                   user=request.user)
+        tasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(reverse('video-details', args=[video.id]))
+
+
 class AudioEncodeFileView(StaffMixin, View):
     def post(self, request, pk):
         f = get_object_or_404(File, pk=pk)

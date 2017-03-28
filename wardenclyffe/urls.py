@@ -59,6 +59,9 @@ urlpatterns = [
     url(r'^file/(?P<id>\d+)/$', views.FileView.as_view()),
     url(r'^file/(?P<pk>\d+)/audio/$', views.AudioEncodeFileView.as_view(),
         name='audio_encode_file'),
+    url(r'^file/(?P<pk>\d+)/delete_from_cunix/$',
+        views.DeleteFromCunix.as_view(),
+        name='delete-file-from-cunix'),
 
     url(r'^file/filter/$', views.FileFilterView.as_view()),
     url((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'
