@@ -390,6 +390,39 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
         transport.close()
 
 
+def sftp_delete(remote_path):
+    sftp, transport = sftp_client()
+    success = False
+    try:
+        sftp.remove(remote_path)
+        success = True
+    except Exception, e:
+        print("sftp delete failed")
+        print(str(e))
+    else:
+        print("sftp_put succeeded")
+    finally:
+        sftp.close()
+        transport.close()
+    return success
+
+
+def delete_from_cunix(operation):
+    print("delete file from cunix")
+    params = loads(operation.params)
+    file_id = params['file_id']
+    f = File.objects.get(id=file_id)
+
+    remote_filename = f.filename
+    success = sftp_delete(remote_filename)
+    if success:
+        f.delete()
+        operation.log(info="deleted file %s from cunix" % remote_filename)
+        return ("complete", "")
+    else:
+        return ("failed", "failed to delete %s from cunix" % remote_filename)
+
+
 def copy_from_s3_to_cunix(operation):
     statsd.incr("copy_from_s3_to_cunix")
     print("pulling from S3")

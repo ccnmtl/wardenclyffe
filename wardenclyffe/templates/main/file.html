@@ -120,6 +120,15 @@ S3 Key
 
 
 </div>
+
+<div id="delete-from-cunix">
+    <h2>Delete File From CUNIX</h2>
+
+    <form action="{% url 'delete-file-from-cunix' file.id %}" method="post">
+        <input type="submit" value="delete this file from CUNIX" />
+    </form>
+</div>
+
 {% endif %}
 
 

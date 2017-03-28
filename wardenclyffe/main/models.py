@@ -358,6 +358,10 @@ class Video(TimeStampedModel):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
 
+    def make_delete_from_cunix_operation(self, file_id, user):
+        params = dict(file_id=file_id)
+        return self.make_op(user, params, action="delete from cunix")
+
     def make_pull_thumbs_from_s3_operation(self, pattern, user):
         params = dict(pattern=pattern)
         return self.make_op(user, params, action="pull thumbs from s3")
@@ -864,6 +868,12 @@ class CopyFromS3ToCunixOperation(OperationType):
         return ops
 
 
+class DeleteFromCunixOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.delete_from_cunix
+
+
 class CopyFlvFromCunixToS3Operation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
@@ -930,6 +940,7 @@ OPERATION_TYPE_MAPPER = {
     PullFromS3AndUploadToYoutubeOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,
+    'delete from cunix': DeleteFromCunixOperation,
     'copy flv from cunix to s3': CopyFlvFromCunixToS3Operation,
     "audio encode": AudioEncodeOperation,
     "local audio encode": LocalAudioEncodeOperation,
