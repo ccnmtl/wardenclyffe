@@ -115,6 +115,8 @@ urlpatterns = [
     url(r'^api/subjectautocomplete/$',
         views.SubjectAutocompleteView.as_view()),
     url(r'^api/sns/$', views.SNSView.as_view()),
+    url(r'^api/cunixdelete/$', views.APICunixDelete.as_view(),
+        name='api-cunix-delete'),
     url(r'^celery/', include('djcelery.urls')),
     url('smoketest/', include('smoketest.urls')),
     url(r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),

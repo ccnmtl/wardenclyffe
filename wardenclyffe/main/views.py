@@ -17,7 +17,8 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import (HttpResponseRedirect, HttpResponse,
+                         HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
@@ -36,6 +37,8 @@ from wardenclyffe.main.models import OperationFile
 from surelink.helpers import PROTECTION_OPTIONS
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink import SureLink
+
+from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
 
@@ -882,6 +885,39 @@ class DeleteFromCunix(StaffMixin, View):
                                                    user=request.user)
         tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(reverse('video-details', args=[video.id]))
+
+
+@transaction.non_atomic_requests()
+class APICunixDelete(View):
+    def post(self, request):
+        # for this situation, authenticator expects
+        # the usual `hmac` and `nonce`, plus
+        # `as` to give a username (WC needs to associate operations with users)
+        # and `redirect_to` set to the video_id
+        # (that prevents the token from being intercepted and changed
+        # to delete a different video than specified)
+
+        authenticator = MediathreadAuthenticator(request.POST)
+        if not authenticator.is_valid():
+            statsd.incr("mediathread.auth_failure")
+            return HttpResponse("invalid authentication token")
+
+        user, created = User.objects.get_or_create(
+            username=authenticator.username)
+        if created:
+            statsd.incr("mediathread.user_created")
+
+        # remember, we're overloading the `redirect_to` field
+        pk = authenticator.redirect_to
+
+        v = get_object_or_404(Video, pk=pk)
+        f = v.cuit_file()
+
+        if f is None:
+            return HttpResponseNotFound()
+        o = v.make_delete_from_cunix_operation(file_id=f.id, user=user)
+        tasks.process_operation.delay(o.id)
+        return HttpResponse("ok")
 
 
 class AudioEncodeFileView(StaffMixin, View):
