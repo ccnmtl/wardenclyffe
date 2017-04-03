@@ -1,5 +1,3 @@
-import hmac
-import hashlib
 import requests
 import uuid
 import wardenclyffe.main.tasks as maintasks
@@ -16,28 +14,12 @@ from django_statsd.clients import statsd
 from django.conf import settings
 from django.db import transaction
 
-
-class MediathreadAuthenticator(object):
-    def __init__(self, request):
-        self.nonce = request.GET.get('nonce', '')
-        self.hmc = request.GET.get('hmac', '')
-        self.set_course = request.GET.get('set_course', '')
-        self.username = request.GET.get('as')
-        self.redirect_to = request.GET.get('redirect_url', '')
-
-    def is_valid(self):
-        verify = hmac.new(
-            settings.MEDIATHREAD_SECRET,
-            '%s:%s:%s' % (self.username, self.redirect_to,
-                          self.nonce),
-            hashlib.sha1
-        ).hexdigest()
-        return verify == self.hmc
+from .auth import MediathreadAuthenticator
 
 
 def mediathread(request):
     # check their credentials
-    authenticator = MediathreadAuthenticator(request)
+    authenticator = MediathreadAuthenticator(request.GET)
     if not authenticator.is_valid():
         statsd.incr("mediathread.auth_failure")
         return HttpResponse("invalid authentication token")
