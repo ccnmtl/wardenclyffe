@@ -2,7 +2,6 @@ from django.core.mail import send_mail
 from django_statsd.clients import statsd
 from django.conf import settings
 from django.template.loader import get_template
-from django.template import Context
 
 
 def send_to_everyone(subject, body, toaddress, fromaddress):
@@ -32,7 +31,7 @@ def send_to_videoteam(subject, body, toaddress, fromaddress):
 
 def slow_operations_email_body(cnt):
     t = get_template("util/slow_operations_email_body.txt")
-    d = Context(dict(cnt=cnt, mcnt=cnt > 1))
+    d = dict(cnt=cnt, mcnt=cnt > 1)
     return t.render(d)
 
 
@@ -54,7 +53,7 @@ def send_slow_operations_to_videoteam_email(operations):
 
 def failed_operation_body(operation, error_message):
     t = get_template("util/failed_operation_email_body.txt")
-    d = Context(dict(operation=operation, error_message=error_message))
+    d = dict(operation=operation, error_message=error_message)
     return t.render(d)
 
 
@@ -67,7 +66,7 @@ def send_failed_operation_mail(operation, error_message):
 
 def mediathread_received_body(video_title, uni):
     t = get_template("util/mediathread_received_email_body.txt")
-    d = Context(dict(video_title=video_title, uni=uni))
+    d = dict(video_title=video_title, uni=uni)
     return t.render(d)
 
 
@@ -81,7 +80,7 @@ def send_mediathread_received_mail(video_title, uni):
 
 def mediathread_uploaded_body(video_title, uni, url):
     t = get_template("util/mediathread_uploaded_email_body.txt")
-    d = Context(dict(video_title=video_title, uni=uni, url=url))
+    d = dict(video_title=video_title, uni=uni, url=url)
     return t.render(d)
 
 
@@ -95,7 +94,7 @@ def send_mediathread_uploaded_mail(video_title, uni, url):
 
 def youtube_submitted_body(video_title, uni, url):
     t = get_template("util/youtube_submitted_email_body.txt")
-    d = Context(dict(video_title=video_title, uni=uni, url=url))
+    d = dict(video_title=video_title, uni=uni, url=url)
     return t.render(d)
 
 
