@@ -37,7 +37,7 @@ cffi==1.10.0
 idna==2.5
 paramiko==2.1.2
 raven==6.0.0
-pyOpenSSL==16.2.0
+pyOpenSSL==17.0.0
 ndg-httpsclient==0.4.2
 requests==2.13.0
 statsd==3.2.1
