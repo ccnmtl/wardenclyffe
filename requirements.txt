@@ -1,6 +1,5 @@
---index-url https://pypi.ccnmtl.columbia.edu/
 Django==1.11.2
-httplib2==0.10.2
+httplib2==0.10.3
 Markdown==2.6.8
 smartypants==2.0.0
 uuid==1.30
@@ -76,7 +75,7 @@ rcssmin==1.0.6
 rjsmin==1.0.12
 
 djangowind==1.0.0
-sorl==3.1
+requirements/src/sorl-3.1.tar.gz
 django-staticmedia==0.2.2
 django-celery==3.2.1
 django-oembed==0.1.3
