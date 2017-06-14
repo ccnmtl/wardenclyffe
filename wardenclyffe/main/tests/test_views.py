@@ -644,6 +644,7 @@ class TestStaff(TestCase):
         response = self.c.get("/video/%d/add_file/" % v.id)
         self.assertEqual(response.status_code, 200)
 
+
 confirmation_headers = {
     'HTTP_X_AMZ_SNS_MESSAGE_TYPE': 'SubscriptionConfirmation',
     'x-amz-sns-message-id': '165545c9-2a5c-472c-8df2-7ff2be2b3b1b',

@@ -1167,6 +1167,7 @@ class SubjectAutocompleteView(View):
 
         return HttpResponse("\n".join(all_subjects.keys()))
 
+
 POSTER_BASE = settings.CUNIX_BROADCAST_URL + "posters/vidthumb"
 POSTER_OPTIONS = [
     dict(value="default_custom_poster",

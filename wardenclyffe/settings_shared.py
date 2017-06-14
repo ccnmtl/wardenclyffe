@@ -71,6 +71,7 @@ class MyRouter(object):
                     'routing_key': 'batch'}
         return None
 
+
 CELERY_ROUTES = (MyRouter(),)
 
 # email addresses of video team members how want to
