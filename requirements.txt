@@ -76,7 +76,7 @@ ipython==5.4.1 # pyup: <6.0.0
 
 sqlparse==0.2.3
 filechunkio==1.8
-simplejson==3.10.0
+simplejson==3.11.0
 httpretty==0.8.14
 contextlib2==0.5.5
 ipaddress==1.0.18
