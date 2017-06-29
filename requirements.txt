@@ -98,7 +98,7 @@ django-debug-toolbar==1.8
 django-jenkins==0.110.0
 django-appconf==1.0.2
 django-compressor==2.1.1
-django-extensions==1.7.9
+django-extensions==1.8.0
 django-markwhat==1.5.1
 tornado==4.5.1
 django-storages==1.6.3
