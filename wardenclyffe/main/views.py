@@ -104,6 +104,10 @@ class ReceivedView(View):
         statsd.incr('main.received')
         title = request.POST.get('title', 'no title')
         ruuid = uuidparse(title)
+        if ruuid == "":
+            # didn't find a valid UUID
+            statsd.incr('main.received_failure')
+            return HttpResponse("ok")
         r = Operation.objects.filter(uuid=ruuid)
         if r.count() == 1:
             operation = r[0]

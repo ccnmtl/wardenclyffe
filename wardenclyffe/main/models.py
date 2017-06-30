@@ -10,7 +10,6 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django_extensions.db.fields import UUIDField
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
 from json import dumps, loads
@@ -33,7 +32,7 @@ class Collection(TimeStampedModel):
     audio = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
 
-    uuid = UUIDField()
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     tags = TaggableManager(blank=True)
 
@@ -83,7 +82,7 @@ class Video(TimeStampedModel):
     license = models.CharField(max_length=256, default="", blank=True)
     language = models.CharField(max_length=256, default="", blank=True)
 
-    uuid = UUIDField()
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = VideoManager()
     tags = TaggableManager(blank=True)
@@ -702,13 +701,13 @@ class Operation(TimeStampedModel):
     owner = models.ForeignKey(User)
     status = models.CharField(max_length=256, default="in progress")
     params = models.TextField(default="")
-    uuid = UUIDField()
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def as_dict(self):
         d = dict(action=self.action,
                  status=self.status,
                  params=self.params,
-                 uuid=self.uuid,
+                 uuid=str(self.uuid),
                  id=self.id,
                  video_id=self.video.id,
                  video_url=self.video.get_absolute_url(),
