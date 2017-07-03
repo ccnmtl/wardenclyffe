@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('subject', models.TextField(default=b'', null=True, blank=True)),
                 ('license', models.CharField(default=b'', max_length=256, blank=True)),
                 ('active', models.BooleanField(default=True)),
-                ('uuid', django_extensions.db.fields.UUIDField(max_length=36, editable=False, blank=True)),
+                ('uuid', models.UUIDField(max_length=36, editable=False, blank=True)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('action', models.CharField(default=b'', max_length=256)),
                 ('status', models.CharField(default=b'in progress', max_length=256)),
                 ('params', models.TextField(default=b'')),
-                ('uuid', django_extensions.db.fields.UUIDField(max_length=36, editable=False, blank=True)),
+                ('uuid', models.UUIDField(max_length=36, editable=False, blank=True)),
                 ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -198,7 +198,7 @@ class Migration(migrations.Migration):
                 ('subject', models.TextField(default=b'', null=True, blank=True)),
                 ('license', models.CharField(default=b'', max_length=256, blank=True)),
                 ('language', models.CharField(default=b'', max_length=256, blank=True)),
-                ('uuid', django_extensions.db.fields.UUIDField(max_length=36, editable=False, blank=True)),
+                ('uuid', models.UUIDField(max_length=36, editable=False, blank=True)),
                 ('collection', models.ForeignKey(to='main.Collection')),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
