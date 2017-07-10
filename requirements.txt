@@ -62,7 +62,7 @@ editdistance==0.3.1
 pylint==1.7.2
 ldap3==2.2.4
 surelink==1.0.1
-boto==2.47.0
+boto==2.48.0
 traitlets==4.3.2
 ipython_genutils==0.2.0
 decorator==4.0.11
