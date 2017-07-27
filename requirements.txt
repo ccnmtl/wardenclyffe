@@ -32,7 +32,7 @@ google-api-python-client==1.6.2
 pycrypto==2.6.1
 enum34==1.1.6
 asn1crypto==0.22.0
-cryptography==2.0.1
+cryptography==2.0.2
 ecdsa==0.13
 cffi==1.10.0
 idna==2.5
