@@ -41,7 +41,7 @@ pynacl==1.1.2
 paramiko==2.2.1
 raven==6.1.0
 pyOpenSSL==17.2.0
-ndg-httpsclient==0.4.2
+ndg-httpsclient==0.4.3
 
 chardet==3.0.4
 idna==2.6
