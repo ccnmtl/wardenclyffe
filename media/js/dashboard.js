@@ -67,7 +67,7 @@ $(document).ready(
             }
         });
 
-        var App = new AppView();
+        new AppView();
 
         function getQueryParams() {
             var vars = {};
@@ -134,6 +134,7 @@ $(document).ready(
                 refreshOperations(data);
             }
             currentRefresh = defaultRefresh;
+            // eslint-disable-next-line scanjs-rules/call_setTimeout
             setTimeout(WCRefresh, defaultRefresh);
         };
 
@@ -143,6 +144,7 @@ $(document).ready(
             if (currentRefresh > maxRefresh) {
                 currentRefresh = maxRefresh;
             }
+            // eslint-disable-next-line scanjs-rules/call_setTimeout
             setTimeout(WCRefresh, currentRefresh);
         };
 
@@ -153,7 +155,7 @@ $(document).ready(
             }
             if (d.operations.length) {
                 _.each(d.operations, AllOperations.addOrUpdateOperation,
-                       AllOperations);
+                    AllOperations);
                 if (sortInitialized === 0) {
                     $('#operations').tablesorter({sortList: [[4, 1]]});
                     sortInitialized = 1;
@@ -176,30 +178,6 @@ $(document).ready(
         };
 
         jQuery(function($) {
-            // Ensure that the CSRF token is sent with AJAX POSTs sent by jQuery
-            // Taken from the documentation:
-            // http://docs.djangoproject.com/en/dev/ref/contrib/csrf/
-            $('html').ajaxSend(function(event, xhr, settings) {
-                function getCookie(name) {
-                    var cookieValue = null;
-                    if (document.cookie && document.cookie !== '') {
-                        var cookies = document.cookie.split(';');
-                        for (var i = 0; i < cookies.length; i++) {
-                            var cookie = jQuery.trim(cookies[i]);
-                            // Does this cookie string begin
-                            // with the name we want?
-                            if (cookie.substring(
-                                0, name.length + 1) === (name + '=')) {
-                                cookieValue = decodeURIComponent(
-                                    cookie.substring(name.length + 1));
-                                break;
-                            }
-                        }
-                    }
-                    return cookieValue;
-                }
-            });
-
             $(document).ready(
                 function() {
                     WCRefresh();

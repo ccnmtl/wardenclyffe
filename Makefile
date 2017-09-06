@@ -16,7 +16,3 @@ compose-install: compose-migrate
 	docker-compose run web python manage.py switch enable_s3 on --create --settings=$(APP).settings_compose
 	docker-compose run web python manage.py flag allow_uploads --everyone --create --settings=$(APP).settings_compose
 
-eslint: $(JS_SENTINAL)
-	$(NODE_MODULES)/.bin/eslint $(JS_FILES)
-
-.PHONY: eslint
