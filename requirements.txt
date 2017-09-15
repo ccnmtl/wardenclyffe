@@ -72,7 +72,7 @@ pickleshare==0.7.4
 simplegeneric==0.8.1
 path.py==10.4
 
-ipython==5.4.1 # pyup: <6.0.0
+ipython==5.5.0 # pyup: <6.0.0
 
 sqlparse==0.2.3
 filechunkio==1.8
