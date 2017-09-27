@@ -14,13 +14,13 @@ locals().update(
     ))
 
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
-TMP_DIR = "/tmp"
+TMP_DIR = "/tmp"  # nosec
 
 if 'test' in sys.argv or 'jenkins' in sys.argv:
     SURELINK_PROTECTION_KEY = "test-dummy-key"
     MEDIATHREAD_SECRET = "test-dummy-secret"
-    WATCH_DIRECTORY = "/tmp/"
-    TMP_DIR = "/tmp"
+    WATCH_DIRECTORY = "/tmp/"  # nosec
+    TMP_DIR = "/tmp"  # nosec
     PCP_BASE_URL = ""
     CELERY_ALWAYS_EAGER = True
 

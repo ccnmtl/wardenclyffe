@@ -483,10 +483,11 @@ class OperationTest(TestCase):
     def test_make_upload_to_youtube_operation(self):
         f = SourceFileFactory()
         u = UserFactory()
-        o = f.video.make_upload_to_youtube_operation("/tmp/file.mov", u)
+        o = f.video.make_upload_to_youtube_operation(
+            "/tmp/file.mov", u)  # nosec
         try:
             o.process()
-        except:
+        except:  # nosec
             # we don't expect to actually be able to log in.
             # youtube raises a BadAuthentication or something here
             pass
