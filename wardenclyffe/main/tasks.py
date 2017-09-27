@@ -9,7 +9,7 @@ from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
 import os.path
 import os
 import tempfile
-import subprocess
+import subprocess  # nosec
 from django.conf import settings
 from json import loads, dumps
 import paramiko
@@ -32,7 +32,7 @@ def exp_backoff(tries):
 
     """
     backoff = 2 ** tries
-    jitter = random.uniform(0, backoff * .1)
+    jitter = random.uniform(0, backoff * .1)  # nosec
     return int(backoff + jitter)
 
 
@@ -178,7 +178,7 @@ def honey_badger(f, *args, **kwargs):
     honey badger don't care if there's an exception"""
     try:
         return f(*args, **kwargs)
-    except:
+    except:  # nosec
         pass
 
 
@@ -222,7 +222,7 @@ def set_poster(video, imgs):
         return
     # pick a random image out of the set and assign
     # it as the poster on the video
-    r = random.randint(0, min(imgs, settings.MAX_FRAMES) - 1)
+    r = random.randint(0, min(imgs, settings.MAX_FRAMES) - 1)  # nosec
     image = Image.objects.filter(video=video)[r]
     Poster.objects.create(video=video, image=image)
 
@@ -257,7 +257,7 @@ def extract_metadata(operation):
 def do_extract_metadata(source_file, filename):
     statsd.incr("extract_metadata")
     output = unicode(
-        subprocess.Popen(
+        subprocess.Popen(  # nosec
             [midentify_path(), filename],
             stdout=subprocess.PIPE).communicate()[0],
         errors='replace')
@@ -296,7 +296,7 @@ def pull_from_s3(suffix, bucket_name, key):
 def do_audio_encode(input_filename, tout):
     image_path = settings.AUDIO_POSTER_IMAGE
     command = audio_encode_command(image_path, input_filename, tout)
-    os.system(command)
+    os.system(command)  # nosec
 
 
 def audio_encode(operation):

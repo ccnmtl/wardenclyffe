@@ -2,7 +2,7 @@ from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings
 import os.path
-import subprocess
+import subprocess  # nosec
 
 
 class DBConnectivityTest(SmokeTest):
@@ -98,7 +98,7 @@ class FFMPEGTest(SmokeTest):
 
         (on 2.6+) or no copyright string on older versions.
         """
-        output = subprocess.Popen(
+        output = subprocess.Popen(  # nosec
             [settings.FFMPEG_PATH, "-version"],
             stdout=subprocess.PIPE).communicate()[0]
         self.assertFalse("the Libav developers" in output)

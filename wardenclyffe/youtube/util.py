@@ -155,7 +155,7 @@ def handle_upload_error(error, retry):
         exit("No longer attempting to retry.")
 
     max_sleep = 2 ** retry
-    sleep_seconds = random.random() * max_sleep
+    sleep_seconds = random.random() * max_sleep  # nosec
     print "Sleeping %f seconds and then retrying..." % sleep_seconds
     time.sleep(sleep_seconds)
     return retry

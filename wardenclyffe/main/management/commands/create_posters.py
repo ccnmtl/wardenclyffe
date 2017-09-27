@@ -14,5 +14,5 @@ class Command(BaseCommand):
             if video.image_set.all().count() == 0:
                 continue
             image = video.image_set.all()[
-                random.randint(0, video.image_set.all().count() - 1)]
+                random.randint(0, video.image_set.all().count() - 1)]  # nosec
             Poster.objects.create(video=video, image=image)
