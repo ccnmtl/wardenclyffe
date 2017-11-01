@@ -23,13 +23,13 @@ class LogViewTest(ViewTest):
         response = LogView.as_view()(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(StreamLog.objects.count(), 1)
-        l = StreamLog.objects.all().first()
-        self.assertEqual(l.filename, params['filename'])
-        self.assertEqual(l.remote_addr, params['remote_addr'])
-        self.assertEqual(l.offset, params['offset'])
-        self.assertEqual(l.referer, params['referer'])
-        self.assertEqual(l.user_agent, params['user_agent'])
-        self.assertEqual(l.access, params['access'])
+        log = StreamLog.objects.all().first()
+        self.assertEqual(log.filename, params['filename'])
+        self.assertEqual(log.remote_addr, params['remote_addr'])
+        self.assertEqual(log.offset, params['offset'])
+        self.assertEqual(log.referer, params['referer'])
+        self.assertEqual(log.user_agent, params['user_agent'])
+        self.assertEqual(log.access, params['access'])
 
 
 class ReportViewTest(ViewTest):

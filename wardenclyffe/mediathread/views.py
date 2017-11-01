@@ -87,7 +87,7 @@ def s3_upload(request):
 
         v.make_uploaded_source_file(key, audio=audio)
         operations = v.initial_operations(key, user, audio)
-    except:
+    except (Collection.DoesNotExist, User.DoesNotExist, KeyError):
         statsd.incr("mediathread.mediathread.failure")
         raise
     else:
@@ -113,7 +113,7 @@ class MediathreadCourseGetter(object):
             courses = [dict(id=k, title=v['title'])
                        for (k, v) in courses.items()]
             courses.sort(key=lambda x: x['title'].lower())
-        except:
+        except (ValueError, KeyError):
             courses = []
         return courses
 

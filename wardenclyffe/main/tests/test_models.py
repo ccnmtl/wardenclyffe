@@ -487,7 +487,7 @@ class OperationTest(TestCase):
             "/tmp/file.mov", u)  # nosec
         try:
             o.process()
-        except:  # nosec
+        except:  # nosec # noqa
             # we don't expect to actually be able to log in.
             # youtube raises a BadAuthentication or something here
             pass

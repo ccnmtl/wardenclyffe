@@ -196,7 +196,7 @@ class Video(TimeStampedModel):
         try:
             return File.objects.filter(video=self,
                                        location_type='cuitthumb')[0].url
-        except:
+        except IndexError:
             return None
 
     def is_mediathread_submit(self):
@@ -271,7 +271,7 @@ class Video(TimeStampedModel):
     def cuit_file(self):
         try:
             return self.file_set.filter(location_type="cuit")[0]
-        except:
+        except IndexError:
             return None
 
     def has_flv(self):
@@ -304,7 +304,7 @@ class Video(TimeStampedModel):
         try:
             return self.file_set.filter(
                 location_type='mediathreadsubmit')[0].get_metadata('audio')
-        except:
+        except IndexError:
             return False
 
     def streamlogs(self):
@@ -567,7 +567,7 @@ class File(TimeStampedModel):
         else:
             try:
                 return self.video.get_dimensions()[0]
-            except:
+            except IndexError:
                 return None
 
     def guess_height(self):
@@ -577,7 +577,7 @@ class File(TimeStampedModel):
         else:
             try:
                 return self.video.get_dimensions()[1]
-            except:
+            except IndexError:
                 return None
 
     def surelinkable(self):
@@ -726,7 +726,7 @@ class Operation(TimeStampedModel):
     def formatted_params(self):
         try:
             return dumps(loads(self.params), indent=4)
-        except:
+        except ValueError:
             return self.params
 
     def operation_type(self):

@@ -584,7 +584,6 @@ def batch_upload(request):
     if request.method != "POST":
         return HttpResponseRedirect("/upload/batch/")
 
-    collection_id = None
     operations = []
     statsd.incr('main.batch_upload')
     collection_id = request.POST.get('collection', None)
@@ -596,7 +595,7 @@ def batch_upload(request):
 
     try:
         operations = s3_batch_upload(request, collection_id)
-    except:
+    except Exception:
         statsd.incr('main.batch_upload.failure')
         raise
     else:
