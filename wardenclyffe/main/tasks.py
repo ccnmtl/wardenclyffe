@@ -178,7 +178,7 @@ def honey_badger(f, *args, **kwargs):
     honey badger don't care if there's an exception"""
     try:
         return f(*args, **kwargs)
-    except:  # nosec
+    except:  # nosec # noqa
         pass
 
 
