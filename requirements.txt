@@ -58,7 +58,7 @@ configparser==3.5.0
 flake8==3.5.0
 logilab-common==1.4.1
 logilab-astng==0.24.3
-editdistance==0.3.1
+editdistance==0.4
 pylint==1.7.4
 ldap3==2.3
 surelink==1.0.1
