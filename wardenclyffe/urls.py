@@ -109,7 +109,7 @@ urlpatterns = [
     url(r'^video/(?P<id>\d+)/select_poster/(?P<image_id>\d+)/$',
         views.VideoSelectPosterView.as_view()),
     url(r'importflv/$', views.ImportFlv.as_view(), name='import-flv'),
-    url(r'^search/$', views.SearchView.as_view()),
+    url(r'^search/$', views.SearchView.as_view(), name='search'),
     url(r'^uuid_search/$', views.UUIDSearchView.as_view()),
     url(r'^api/tagautocomplete/$', views.TagAutocompleteView.as_view()),
     url(r'^api/subjectautocomplete/$',

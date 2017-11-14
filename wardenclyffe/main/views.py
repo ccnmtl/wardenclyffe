@@ -1,14 +1,10 @@
 # stdlib imports
+from datetime import datetime, timedelta
+from json import dumps, loads
 import os
 import re
-import requests
 import urlparse
-import uuid
 
-import wardenclyffe.main.tasks as tasks
-
-from django.shortcuts import render
-from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -17,32 +13,35 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions.base import Lower
 from django.http import (HttpResponseRedirect, HttpResponse,
                          HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
-from json import dumps, loads
+import requests
+from s3sign.views import SignS3View as BaseSignS3View
+from surelink import SureLink
+from surelink.helpers import AUTHTYPE_OPTIONS
+from surelink.helpers import PROTECTION_OPTIONS
 from taggit.models import Tag
+import uuid
+
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
-from wardenclyffe.main.models import Video, Operation, Collection, File
 from wardenclyffe.main.models import Metadata, Image, Poster
-from wardenclyffe.main.models import Server
 from wardenclyffe.main.models import OperationFile
-from surelink.helpers import PROTECTION_OPTIONS
-from surelink.helpers import AUTHTYPE_OPTIONS
-from surelink import SureLink
-
+from wardenclyffe.main.models import Server
+from wardenclyffe.main.models import Video, Operation, Collection, File
+import wardenclyffe.main.tasks as tasks
 from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
-
-from s3sign.views import SignS3View as BaseSignS3View
 
 
 def is_staff(user):
@@ -1092,26 +1091,17 @@ class VideoSelectPosterView(StaffMixin, View):
         return HttpResponseRedirect(video.get_absolute_url())
 
 
-class SearchView(StaffMixin, TemplateView):
-    template_name = "main/search.html"
+class SearchView(StaffMixin, ListView):
+    model = Video
+    paginate_by = 25
+    template_name = 'main/search.html'
 
-    def get_context_data(self):
+    def get_queryset(self):
+        qs = Video.objects.all()
+
         q = self.request.GET.get('q', '')
-        results = dict(count=0)
         if q:
-            r = Collection.objects.filter(
-                Q(title__icontains=q) |
-                Q(creator__icontains=q) |
-                Q(contributor__icontains=q) |
-                Q(language__icontains=q) |
-                Q(description__icontains=q) |
-                Q(subject__icontains=q) |
-                Q(license__icontains=q)
-            )
-            results['count'] += r.count()
-            results['collection'] = r
-
-            r = Video.objects.filter(
+            qs = qs.filter(
                 Q(title__icontains=q) |
                 Q(creator__icontains=q) |
                 Q(language__icontains=q) |
@@ -1119,10 +1109,27 @@ class SearchView(StaffMixin, TemplateView):
                 Q(subject__icontains=q) |
                 Q(license__icontains=q)
             )
-            results['count'] += r.count()
-            results['videos'] = r
 
-        return dict(q=q, results=results)
+        sort_by = self.request.GET.get('sort_by', 'title')
+        direction = self.request.GET.get('direction', 'asc')
+        if direction == 'desc':
+            qs = qs.order_by(Lower(sort_by).desc())
+        else:
+            qs = qs.order_by(Lower(sort_by).asc())
+
+        return qs.order_by(sort_by)
+
+    def get_context_data(self, **kwargs):
+        context = ListView.get_context_data(self, **kwargs)
+
+        base = reverse('search')
+        context['base_url'] = u'{}?page='.format(base)
+        context['q'] = self.request.GET.get('q', '')
+        context['sort_by'] = self.request.GET.get('sort_by', 'title')
+        context['direction'] = self.request.GET.get('direction', 'asc')
+        context['page'] = self.request.GET.get('page', '1')
+
+        return context
 
 
 class UUIDSearchView(StaffMixin, TemplateView):

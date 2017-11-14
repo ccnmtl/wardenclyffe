@@ -1,89 +1,107 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block pagetitle %}Search Videos{% endblock %}
+
 {% block content %}
+<div class="object-search">
+    <form class="form-inline" action="{% url 'search' %}">
+        <div class="tools search-level">
+            <input type="hidden" name="sort_by" value="{{sort_by}}" />
+            <input type="hidden" name="direction" value="{{direction}}" />
+            <input type="hidden" name="page" value="{{page}}" />
 
-{% if q %}
-<h1>search results for: "{{q}}"</h1>
-{% if not results.count %}
-<p>no results found</p>
-{% endif %}
-{% else %}
-<h1>search</h1>
-{% endif %}
-<form action="." method="get">
-<input type="text" name="q" value="{{q}}" />
-<input type="submit" value="search" />
-</form>
+            <div class="form-group{% if form.q.errors %} has-error{% endif %}">
+                <label for="keyword-search">Keyword:</span></label>
+                <input class="form-control" type="text" name="q" placeholder="Find..." value="{{q}}">
+                <button type="submit" class="btn btn-default">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
+                </button>
+                <button type="reset" class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove"></span> Clear
+                </button>
+            </div>
+        </div>
+        <br />
 
-{% if results.count %}
-
-{% if results.collection %}
-<h2>Collection</h2>
-<table>
-{% for collection in results.collection %}
-<tr class="{% cycle 'odd' 'even' %}">
-<th><a href="{{collection.get_absolute_url}}">{{collection.title}}</a></th>
-</tr>
-{% endfor %}
-
-</table>
-{% endif %}
-
-{% if results.videos %}
-<form action="{% url 'bulk-operation' %}" method="get">
-<h2>Videos</h2>
-<table style="width: 100%" id="recent-videos" class="tablesorter"> 
-<thead>
-  <tr>
-		<th></th>
-    <th colspan="2">video</th>
-    <th>collection</th>
-    <th>uploaded</th>
-    <th>modified</th>
-  </tr>
-</thead>
-<tbody>
-{% for video in results.videos %}
-<tr class="{% cycle 'odd' 'even' %}">
-<td><input class="video_checkbox" type="checkbox" name="video_{{video.id}}" /></td>
-<td>
-<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
-{% if poster.dummy %}
-    <img src="{% static 'img/vidthumb_480x360.jpg' %}"
-         width="160" height="120" />
-{% else %}
-<img src="{{poster.image.src}}" width="160" />
-{% endif %}
-{% endwith %}</a>
-</td>
-<td align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
-<td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
-<td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
-<td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-
-<input type="button" value="select all" onclick="selectAll()"/>
-<input type="button" value="deselect all" onclick="deselectAll()"/>
-<input type="submit" value="Bulk operation on selected videos" />
-
-</form>
-{% endif %}
-
-
-{% endif %}
-
-<script type="text/javascript">
-var selectAll = function()   {
-   $(".video_checkbox").prop('checked', true);
-};
-var deselectAll = function() {
-   $(".video_checkbox").prop('checked', false);
-};
-
-</script>
-
+        <!-- Results navigation  -->
+        <div class="visualclear"></div>
+        <div>
+            <div class="total-results-count pull-left">
+                {{paginator.count}} videos
+            </div>
+            <div class="pull-right">
+                {% include 'main/pagination.html' %}
+            </div>
+        </div>
+        <div class="visualclear"></div>
+        <br />
+        {% if object_list|length < 1 %}
+            <h4 class="well">No matching videos</h4>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped table-videos">
+                    <tr>
+                        <th>Poster</th>
+                        <th data-sort-by="ftitle" class="sortable ftitle">
+                            Title
+                        </th>
+                        <th>Extension</th>
+                        <th data-sort-by="fdate" class="sortable fdate">
+                            Collection
+                        </th>
+                        <th data-sort-by="flocation" class="sortable flocation">
+                            Location
+                        </th>
+                        <th>Tags</th>
+                        <th data-sort-by="added" class="sortable added">Added</th>
+                        <th data-sort-by="complete" class="sortable">Modified</th>
+                    </tr>
+                    {% for video in object_list %}
+                        {% with file=video.file_set.first %}
+                        <tr>
+                        <td>
+                            <a href="{{video.get_absolute_url}}">
+                                {% with video.poster as poster %}
+                                {% if poster.dummy %}
+                                    <img src="{% static 'img/vidthumb_480x360.jpg' %}"
+                                         style="width: 80px; height: auto" />
+                                {% else %}
+                                    <img src="{{poster.image.src}}" style="width: 80px; height: auto" />
+                                {% endif %}
+                                {% endwith %}</a>
+                        </td>
+                        <td align="left"  style="width: 35%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+                        <td>{{video.extension}}</td>
+                        <td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
+                        <td>
+                            {% for file in video.file_set.all %}
+                                {% if file.location_type == "cuit" %}
+                                    <a href="{{file.get_absolute_url}}">{{file.filename|truncatechars:30}}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                        {% if video.tags.count %}
+                            {% for tag in video.tags.all %}
+                                <a href="/tag/{{tag}}/">{{tag}}</a>{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        </td>
+                        <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
+                        <td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="row tools">
+                <div class="col-md-12">
+                    {% include 'main/pagination.html' %}
+                </div>
+            </div>
+        {% endif %}
+    </form>
+</div>
 {% endblock %}
+

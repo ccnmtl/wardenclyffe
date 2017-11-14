@@ -2292,3 +2292,26 @@ td.step h4 {
     font-size: 12px;
     font-style: normal;
 }
+
+.object-search .tools {
+    width: 100%;
+}
+
+.object-search .form-group label {
+    width: 100px;
+}
+
+.object-search .form-group input[type="text"] {
+    width: 200px;
+}
+
+.object-search .pull-right {
+    float: right;
+}
+.object-search .pull-left {
+    float: left;
+}
+
+.object-search .btn-paginate {
+    margin: 0 5px;
+}
