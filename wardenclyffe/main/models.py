@@ -1,5 +1,6 @@
 import base64
 import hmac
+from json import dumps, loads
 import os.path
 import sha
 import time
@@ -12,11 +13,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
-from json import dumps, loads
 from surelink import SureLink
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink.helpers import PROTECTION_OPTIONS
 from taggit.managers import TaggableManager
+
 from wardenclyffe.util.mail import send_failed_operation_mail
 
 
@@ -357,10 +358,6 @@ class Video(TimeStampedModel):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
 
-    def make_backup_from_s3_to_cunix_operation(self, file_id, user):
-        params = dict(file_id=file_id)
-        return self.make_op(user, params, action="backup from s3 to cunix")
-
     def make_delete_from_cunix_operation(self, file_id, user):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="delete from cunix")
@@ -397,6 +394,18 @@ class Video(TimeStampedModel):
         params = dict(video_id=video_id)
         return self.make_op(user, params,
                             action="pull from s3 and upload to youtube")
+
+    def make_pull_from_s3_and_upload_to_panopto_operation(
+            self, video_id, folder_id, user):
+        params = dict(video_id=video_id, folder_id=folder_id)
+        return self.make_op(user, params,
+                            action="pull from s3 and upload to panopto")
+
+    def make_verify_upload_to_panopto_operation(
+            self, user, video_id, upload_id):
+        params = dict(video_id=video_id, upload_id=upload_id)
+        return self.make_op(user, params,
+                            action="verify upload to panopto")
 
     def make_flv_to_mp4_operation(self, user):
         return self.make_op(user, dict(), action="copy flv from cunix to s3")
@@ -507,6 +516,7 @@ class File(TimeStampedModel):
                                               ('cuit', 'cuit'),
                                               ('youtube', 'youtube'),
                                               ('s3', 's3'),
+                                              ('panopto', 'panopto'),
                                               ('none', 'none')))
     objects = FileManager()
 
@@ -854,6 +864,18 @@ class PullFromS3AndUploadToYoutubeOperation(OperationType):
         return wardenclyffe.youtube.tasks.pull_from_s3_and_upload_to_youtube
 
 
+class PullFromS3AndUploadToPanoptoOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.panopto.tasks
+        return wardenclyffe.panopto.tasks.pull_from_s3_and_upload_to_panopto
+
+
+class VerifyUploadToPanoptoOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.panopto.tasks
+        return wardenclyffe.panopto.tasks.verify_upload_to_panopto
+
+
 class CreateElasticTranscoderJobOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
@@ -869,12 +891,6 @@ class CopyFromS3ToCunixOperation(OperationType):
         ops = self.operation.video.handle_mediathread_submit()
         ops.extend(self.operation.video.handle_mediathread_update())
         return ops
-
-
-class BackupFromS3ToCunixOperation(OperationType):
-    def get_task(self):
-        import wardenclyffe.main.tasks
-        return wardenclyffe.main.tasks.backup_from_s3_to_cunix
 
 
 class DeleteFromCunixOperation(OperationType):
@@ -947,14 +963,17 @@ OPERATION_TYPE_MAPPER = {
     'update mediathread': UpdateMediathreadOperation,
     'pull from s3 and upload to youtube':
     PullFromS3AndUploadToYoutubeOperation,
+    'pull from s3 and upload to panopto':
+    PullFromS3AndUploadToPanoptoOperation,
+    'verify upload to panopto':
+    VerifyUploadToPanoptoOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,
-    'backup from s3 to cunix': BackupFromS3ToCunixOperation,
     'delete from cunix': DeleteFromCunixOperation,
     'copy flv from cunix to s3': CopyFlvFromCunixToS3Operation,
-    "audio encode": AudioEncodeOperation,
-    "local audio encode": LocalAudioEncodeOperation,
-    "pull thumbs from s3": PullThumbsFromS3Operation,
+    'audio encode': AudioEncodeOperation,
+    'local audio encode': LocalAudioEncodeOperation,
+    'pull thumbs from s3': PullThumbsFromS3Operation
 }
 
 
