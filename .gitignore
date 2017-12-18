@@ -18,3 +18,4 @@ youtube_oauth.json
 node_modules
 wheelhouse
 gunicorn.sh
+.settings
