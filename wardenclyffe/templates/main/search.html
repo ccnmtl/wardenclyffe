@@ -6,7 +6,6 @@
 {% block content %}
 <div class="object-search">
     <form class="form-inline" action="{% url 'search' %}">
-        <div class="tools search-level">
             <input type="hidden" name="sort_by" value="{{sort_by}}" />
             <input type="hidden" name="direction" value="{{direction}}" />
             <input type="hidden" name="page" value="{{page}}" />
@@ -14,23 +13,22 @@
             <div class="form-group{% if form.q.errors %} has-error{% endif %}">
                 <label for="keyword-search">Keyword:</span></label>
                 <input class="form-control" type="text" name="q" placeholder="Find..." value="{{q}}">
-                <button type="submit" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
-                </button>
-                <button type="reset" class="btn btn-default">
-                    <span class="glyphicon glyphicon-remove"></span> Clear
-                </button>
-            </div>
-        </div>
-        <br />
+            </div>&nbsp;
+            <button type="submit" class="btn btn-default">
+                <i class="fa fa-search" aria-hidden="true"></i> Search
+            </button>&nbsp;
+            <button type="reset" class="btn btn-default">
+                <i class="fa fa-times" aria-hidden="true"></i> Clear
+            </button>
+    </form>
 
         <!-- Results navigation  -->
         <div class="visualclear"></div>
         <div>
-            <div class="total-results-count pull-left">
+            <div class="total-results-count float-left">
                 {{paginator.count}} videos
             </div>
-            <div class="pull-right">
+            <div class="float-right">
                 {% include 'main/pagination.html' %}
             </div>
         </div>
@@ -101,7 +99,7 @@
                 </div>
             </div>
         {% endif %}
-    </form>
+
 </div>
 {% endblock %}
 

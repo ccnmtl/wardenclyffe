@@ -1,0 +1,112 @@
+body
+{
+  background: #efefef;
+  color: #000;
+}
+
+.bg-dark {
+    background-color: black !important;
+}
+
+html {
+    position: relative;
+    height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+body > .container-fluid {
+    padding-top: 75px;
+}
+
+footer {
+    border-top: 1px solid #ccc;
+    margin-top: 100px;
+}
+
+.footer-moreinfo,
+.footer-logos {
+    list-style: none;
+    margin: 0 -15px 20px -15px;
+    padding: 0;
+    text-align: center;
+}
+
+.footer-moreinfo li,
+.footer-logos li {
+    display: inline-block;
+    padding: 10px;
+}
+
+.footer-moreinfo {
+    background-color: transparent;
+}
+
+.footer-logos {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.footer-logos li {
+    padding: 10px;
+}
+
+.footer-logos img {
+    height: 50px;
+}
+
+.operation_status {
+    float: left;
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+}
+
+.enqueued {
+    // need an icon_enqueued.gif image here
+}
+
+.inprogress {
+  background: url('../img/icon_progress.gif') 0 0 no-repeat;
+}
+
+.complete {
+  background: url('../img/icon_success.gif') 0 0 no-repeat;
+}
+
+.submitted {
+   background: url('../img/icon_submitted.gif') 0 0 no-repeat;
+}
+
+.failed {
+  background: url('../img/icon_failed.gif') 0 0 no-repeat;
+}
+
+.object-search .tools {
+    width: 100%;
+}
+
+.object-search .form-group label {
+    width: 100px;
+}
+
+.object-search .form-group input[type="text"] {
+    width: 200px;
+}
+
+.object-search .pull-right {
+    float: right;
+}
+.object-search .pull-left {
+    float: left;
+}
+
+.object-search .btn-paginate {
+    margin: 0 5px;
+}
+
+.object-search .total-results-count {
+    padding-top: 10px;
+}
