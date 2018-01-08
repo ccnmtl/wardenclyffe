@@ -517,12 +517,16 @@ def upload(request):
     # we need a source file object in there
     # to attach basic metadata to
     v.make_source_file(key)
-    v.make_uploaded_source_file(key)
+    uploaded_source_file = v.make_uploaded_source_file(key)
 
     if request.POST.get("submit_to_panopto", False):
         operations = [
+            # @todo is this a necessary step?
             v.make_pull_from_s3_and_extract_metadata_operation(
-                key=key, user=request.user)
+                key=key, user=request.user),
+            # continue to copy from s3 to cunix for the moment
+            v.make_backup_from_s3_to_cunix_operation(
+                uploaded_source_file.id, request.user)
         ]
     else:
         operations = v.initial_operations(key, request.user,
