@@ -519,13 +519,19 @@ def upload(request):
     v.make_source_file(key)
     v.make_uploaded_source_file(key)
 
-    operations = v.initial_operations(key, request.user,
-                                      v.collection.audio)
+    if request.POST.get("submit_to_panopto", False):
+        operations = [
+            v.make_pull_from_s3_and_extract_metadata_operation(
+                key=key, user=request.user)
+        ]
+    else:
+        operations = v.initial_operations(key, request.user,
+                                          v.collection.audio)
 
-    if request.POST.get("submit_to_youtube", False):
-        o = v.make_pull_from_s3_and_upload_to_youtube_operation(
-            v.id, request.user)
-        operations.append(o)
+        if request.POST.get("submit_to_youtube", False):
+            o = v.make_pull_from_s3_and_upload_to_youtube_operation(
+                v.id, request.user)
+            operations.append(o)
 
     enqueue_operations(operations)
     return HttpResponseRedirect("/")
