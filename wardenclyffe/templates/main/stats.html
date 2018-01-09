@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load waffle_tags %}
 
+{% block title %}Stats{% endblock %}
+
 {% block content %}
 {% with graphite_base="https://graphite.ctl.columbia.edu/render/" width=900 height=200 metric_base="stats.app." %}
 <div id="tabs">
