@@ -34,7 +34,7 @@ enum34==1.1.6
 asn1crypto==0.24.0
 cryptography==2.1.4
 ecdsa==0.13
-cffi==1.11.3
+cffi==1.11.4
 idna==2.6
 bcrypt==3.1.4
 pynacl==1.2.1
