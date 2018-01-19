@@ -44,6 +44,7 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                     </li>
+                    {% if not request.user.is_anonymous %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           Add
@@ -77,6 +78,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/search/">Search</a>
                     </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav">
                     {% if not request.user.is_anonymous %}
