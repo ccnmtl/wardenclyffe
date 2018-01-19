@@ -1,0 +1,23 @@
+<PanoptoSession xmlns:i="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://panopto.com/PanoptoSession/v1">
+    <Title>Wardenclyffe Upload Session</Title>
+    <Description></Description>
+    <Date>{% now "Y-m-dTH:m:s.000-00:00" %}</Date>
+    <Videos>
+        <Video>
+            <Start>PT0S</Start>
+            <Filename>{{filename}}</Filename>
+            <Cuts />
+            <TableOfContents />
+            <Type>Primary</Type>
+            <Transcripts />
+        </Video>
+        {% endfor %}
+    </Videos>
+    <Presentations />
+    <Images />
+    <Cuts />
+    <Tags />
+    <Extensions />
+    <Attachments />
+</PanoptoSession>

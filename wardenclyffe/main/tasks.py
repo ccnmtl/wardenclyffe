@@ -500,36 +500,6 @@ def copy_flv_from_cunix_to_s3(operation):
     return ("complete", "")
 
 
-def backup_from_s3_to_cunix(operation):
-    print("backup from s3 to cunix")
-    statsd.incr("backup_from_s3_to_cunix")
-    print("pulling from S3")
-    params = loads(operation.params)
-
-    file_id = params['file_id']
-    f = File.objects.get(id=file_id)
-    assert f.is_s3()
-
-    resolution = 480
-    if "720" in f.label:
-        resolution = 720
-
-    video = f.video
-    (base, ext) = os.path.splitext(os.path.basename(f.cap))
-    filename = (
-        base + "-" + strip_special_characters(operation.video.title) + ext)
-    suffix = video.extension()
-    t = pull_from_s3(suffix, settings.AWS_S3_UPLOAD_BUCKET, f.cap)
-    operation.log(info="downloaded from S3")
-
-    remote_base = os.path.join(
-        settings.CUNIX_H264_DIRECTORY, "ccnmtl", "secure")
-
-    sftp_put(filename, suffix, t, video, "CUIT H264 %d" % resolution,
-             remote_base)
-    return ("complete", "")
-
-
 def sftp_get(remote_filename, local_filename):
     statsd.incr("sftp_get")
     print("sftp_get(%s,%s)" % (remote_filename, local_filename))
