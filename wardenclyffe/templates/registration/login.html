@@ -1,47 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Please Log In{% endblock %}
-{% block pagetitle %}Welcome to Wardenclyffe{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .cover-container {
+            max-width: 42em;
+        }
+        .cover {
+            padding: 0 1.5rem;
+        }
+        body {
+            color: #fff;
+            background-color: black;
+        }
+    </style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block bodyclass %}text-center{% endblock %}"
+
 {% block content %}
-{% if form.has_errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-<div class="loginbox">
-	<h2>Choose a login option...</h2>
-	<div class="content">
-	<!-- UNI LOG IN -->
-<form method="get" action="{{ cas_base }}cas/login" class="well">
-<input type="hidden" name="destination" value="https://{{ request.get_host }}/accounts/caslogin/?next={{ next }}" />
+    <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+      <main role="main" class="inner cover">
+        <h1 class="cover-heading"><img src="{{ STATIC_URL}}img/logo_wardenclyffe.png" style="height: 100px"></h1>
+        <p class="lead">Wardenclyffe is an open source, web-based video asset and workflow management tool. This tool also has light media management features, including a Dublin Core-based metadata schema (OC Core). Wardenclyffe provides the capability to upload, manage and publish online video to online media platforms.</p>
 
-	<p>If you have a Columbia University Network ID (UNI)...</p>
-
-	<input class="regbutton" type="submit" value="Log in" />
-	
-	</form>
-	<p class="smalltxt"><a href="http://cuit.columbia.edu/cuit/manage-my-uni" title="Learn more about UNI" target="_blank">What is a UNI?</a></p>
-	<!-- End UNI LOG IN -->
-	
-	<hr class="seperator" />
-	
-	<p>If you have a project account...</p>
-
-	<form method="post" action=".">
-	<div class="fieldwrapper">
-		<label for="id_username">Username:</label>
-		{{ form.username }}
-	</div><!-- fieldwrapper -->
-	<div class="fieldwrapper">
-		<label for="id_password">Password:</label>
-		{{ form.password }}
-	</div><!-- fieldwrapper -->
-	
-	<input class="regbutton" type="submit" value="Log in" />
-	<input type="hidden" name="next" value="{{ next }}" />
-	</form>
-	<p class="smalltxt"><a href="accounthelp">Need a new account?</a> | <a href="accounthelp">Can't access your account?</a></p>
-	</div><!-- content -->
-</div><!-- loginbox -->
-{% include "flatpages/login_about.html" %}
-
-
-
+        {% if form.has_errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        <div class="loginbox">
+            <div class="content">
+                <!-- UNI LOG IN -->
+                <form method="get" action="{{ cas_base }}cas/login" class="well">
+                    <input type="hidden" name="destination" value="https://{{ request.get_host }}/accounts/caslogin/?next={{ next }}" />
+                    <input class="btn btn-lg" type="submit" value="Log in with your UNI" />
+                </form>
+            </div>
+        </div>
+      </main>
+    </div>
 {% endblock %}
