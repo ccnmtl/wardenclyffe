@@ -13,7 +13,6 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.functions.base import Lower
 from django.http import (HttpResponseRedirect, HttpResponse,
                          HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
@@ -1117,14 +1116,14 @@ class SearchView(StaffMixin, ListView):
                 Q(license__icontains=q)
             )
 
-        sort_by = self.request.GET.get('sort_by', 'title')
-        direction = self.request.GET.get('direction', 'asc')
+        sort_by = self.request.GET.get('sort_by', 'modified')
+        direction = self.request.GET.get('direction', 'desc')
         if direction == 'desc':
-            qs = qs.order_by(Lower(sort_by).desc())
+            qs = qs.order_by('-' + sort_by)
         else:
-            qs = qs.order_by(Lower(sort_by).asc())
+            qs = qs.order_by(sort_by)
 
-        return qs.order_by(sort_by)
+        return qs
 
     def get_context_data(self, **kwargs):
         context = ListView.get_context_data(self, **kwargs)
@@ -1132,8 +1131,8 @@ class SearchView(StaffMixin, ListView):
         base = reverse('search')
         context['base_url'] = u'{}?page='.format(base)
         context['q'] = self.request.GET.get('q', '')
-        context['sort_by'] = self.request.GET.get('sort_by', 'title')
-        context['direction'] = self.request.GET.get('direction', 'asc')
+        context['sort_by'] = self.request.GET.get('sort_by', 'modified')
+        context['direction'] = self.request.GET.get('direction', 'desc')
         context['page'] = self.request.GET.get('page', '1')
 
         return context
