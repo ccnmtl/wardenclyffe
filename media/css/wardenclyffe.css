@@ -1,7 +1,15 @@
 body
 {
   background: #efefef;
-  color: #000;
+  color: #2E2E2E;
+}
+
+a, a:visited {
+    color: #3F729B;
+}
+
+a:hover {
+    color: #1C2331;
 }
 
 .bg-dark {
@@ -109,4 +117,28 @@ footer {
 
 .object-search .total-results-count {
     padding-top: 10px;
+}
+
+.grid-item {
+    width: 300px;
+    margin-bottom: 10px;
+}
+
+@media (min-width: 576px) {
+    .homepage .card-columns {
+        column-count: 3;
+    }
+}
+@media (min-width: 768px) {
+    .homepage .card-columns {
+        column-count: 4;
+    }
+}
+
+.homepage .asset-count {
+    color: #4B515D;
+}
+
+.homepage .details-link {
+    padding-top: 20px;
 }
