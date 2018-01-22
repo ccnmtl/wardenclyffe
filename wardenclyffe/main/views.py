@@ -13,7 +13,6 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.functions.base import Lower
 from django.http import (HttpResponseRedirect, HttpResponse,
                          HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
