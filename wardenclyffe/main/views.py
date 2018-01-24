@@ -221,17 +221,25 @@ class AddServerView(StaffMixin, View):
                       dict(form=ServerForm()))
 
 
-class CollectionView(StaffMixin, TemplateView):
+class CollectionView(StaffMixin, ListView):
     template_name = 'main/collection.html'
+    model = Video
+    paginate_by = 25
 
-    def get_context_data(self, pk):
-        collection = get_object_or_404(Collection, pk=pk)
-        videos = Video.objects.filter(
-            collection=collection).order_by("-modified")
-        return dict(
-            collection=collection, videos=videos[:20],
-            operations=Operation.objects.filter(
-                video__collection__id=pk).order_by("-modified")[:20])
+    def get_queryset(self):
+        self.collection = get_object_or_404(
+            Collection, pk=self.kwargs.get('pk', None))
+        return Video.objects.filter(
+            collection=self.collection).order_by("-modified")
+
+    def get_context_data(self, **kwargs):
+        context = super(CollectionView, self).get_context_data(**kwargs)
+        context['collection'] = self.collection
+
+        base = reverse('collection-view', kwargs={'pk': self.collection.id})
+        context['base_url'] = u'{}?page='.format(base)
+
+        return context
 
 
 class CollectionEditAudioView(StaffMixin, View):

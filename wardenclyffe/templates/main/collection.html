@@ -3,6 +3,7 @@
 {% load markup %}
 
 {% block js %}
+
 {{block.super}}
 <script type="text/javascript">
 var removeTag = function(tagName,tagId) {
@@ -12,45 +13,67 @@ var removeTag = function(tagName,tagId) {
    context: li,
    success: function (){this.hide();}
 });
-//   jQuery("#tag-" + tagId).hide();
+
 };
-
-jQuery(document).ready(function() 
-    { 
-        jQuery(".tablesorter").tablesorter({widgets: ['zebra']}); 
-    } 
-); 
-
 </script>
 
 {% endblock %}
 
 {% block content %}
+<div class="btn-toolbar float-right" role="toolbar" aria-label="Toolbar with button groups">
+  <div class="btn-group mr-2" role="group" aria-label="First group">
+    <a href="edit/" class="btn btn-secondary">Edit Metadata</a>
+  </div>
+  <div class="btn-group mr-2" role="group" aria-label="Second group">
+    <a href="/upload/?collection={{collection.id}}" class="btn btn-secondary">Add Video</a>
+  </div>
+  <div class="btn-group mr-2" role="group" aria-label="Third group">
+    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Submit All
+    </button>
+    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+      <a class="dropdown-item" href="mediathread_submit/">to Mediathread</a>
+      <a class="dropdown-item" href="panopto_submit" disabled="disabled">to Panopto</a>
+    </div>
+  </div>
+  <div class="btn-group" role="group" aria-label="Fourth group">
+    <a href="rss/" class="btn btn-secondary"><img class="mr-2" src="{{STATIC_URL}}img/rss.png"/>RSS</a>
+  </div>
+</div>
 
-<h1>Collection: {{collection.title}}</h1>
+<h2>{{collection.title}}</h2>
 
-<table>
-<tr><th>creator<br /><span class="dc">dcterms:creator</span></th></th><td>{{collection.creator}}</td></tr>
-<tr><th>contributor<br /><span class="dc">dcterms:contributor</span></th></th><td>{{collection.contributor}}</td></tr>
-<tr><th>language<br /><span class="dc">dcterms:language</span></th></th><td>{{collection.language}}</td></tr>
-<tr><th>description<br /><span class="dc">dcterms:description</span></th></th><td>{{collection.description}}</td></tr>
-<tr><th>subject<br /><span class="dc">dcterms:subject</span></th></th><td>{{collection.subject}}</td></tr>
-<tr><th>license<br /><span class="dc">dcterms:license</span></th></th><td>{{collection.license}}</td></tr>
-<tr><th>tags</th>
-<td>
-    <ul>
-      {% for tag in collection.tags.all %}
-      <li id="tag-{{tag.id}}">
-	<a href="/tag/{{tag}}/">{{tag}}</a>
-	[<a href="remove_tag/{{tag}}/"
-	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
-      </li>{% endfor %}
-    </ul>
+<div class="clearfix"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="card-title">
+            <h4>Metadata</h4>
+        </div>
+        <div class="row">
+            <div class="col">{{collection.description}}</div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col"><strong>Creator</strong>: {{collection.creator}}</div>
+            <div class="col"><strong>Contributor</strong>: {{collection.contributor}}</div>
+        </div>
 
-</td></tr>
-</table>
-<p><a href="edit/">edit collection metadata</a></p>
+        <div class="row">
+            <div class="col"><strong>Language</strong>: {{collection.language}}</div>
+            <div class="col"><strong>Subject</strong>: {{collection.subject}}</div>
+        </div>
+        <div class="row">
+            <div class="col"><strong>License</strong>: {{collection.license}}</div>
+            <div class="col"><strong>Tags</strong>:
+                {% for tag in collection.tags.all %}
+                    <a href="/tag/{{tag}}/">{{tag}}</a> [<a href="remove_tag/{{tag}}/" onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>],
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- @todo - do we need the sense of active?
 <form action="toggle_active/" method="post">
 {% if collection.active %}
 <input type="submit" value="de-activate collection" />
@@ -58,15 +81,9 @@ jQuery(document).ready(function()
 <input type="submit" value="re-activate collection" />
 {% endif %}
 </form>
-
-<p><a href="mediathread_submit/">Import all videos in collection to a
-		Mediathread Course</a></p>
-
-<p><a href="/upload/?collection={{collection.id}}">add a video</a></p>
-<p><a href="rss/"><img src="{{STATIC_URL}}img/rss.png"
-			/> RSS Feed</a></p>
-
-<h2>Audio Encode?</h2>
+ 
+ 
+ <h2>Audio Encode?</h2>
 
 <form action="{% url 'collection-edit-audio' collection.id %}" method="post">
   {% if collection.audio %}
@@ -107,70 +124,88 @@ jQuery(document).ready(function()
     {% endif %}
     <input type="submit" value="update" />
 </form>
+-->
 
 
-{% if videos %}
-<h2>Recent Videos</h2>
-<p>You can also browse <a href="videos/">all videos in the collection</a></p>
-<table style="width: 100%" class="tablesorter"> 
-<thead>
-<tr><th colspan="2">Video</th>
-<th>uploaded</th>
-<th>modified</th>
-</tr>
-</thead>
+<div class="object-search">
+    {% if object_list|length < 1 %}
+        <h4 class="well mt-4">No videos in this collection</h4>
+    {% else %}
+    <div class="card mt-3">
+    <div class="card-body">
+        <div class="card-title">
+            <h4>Videos</h4>
+        </div>
 
-<tbody>
-{% for video in videos %}
-<tr class="{% cycle 'odd' 'even' %}">
-<td>
-<a href="{{video.get_absolute_url}}">{% with video.poster as poster %}
-{% if poster.dummy %}
-    <img src="{% static 'img/vidthumb_480x360.jpg' %}"
-         width="160" height="120" />
-{% else %}
-<img src="{{poster.image.src}}" width="160"/>
-{% endif %}
-{% endwith %}</a>
-</td>
-
-<th align="left"><a href="{{video.get_absolute_url}}">{{video.title}}</a></th>
-<td>{{video.created|date:"M d, Y H:i:s"}}</td>
-<td>{{video.modified|date:"M d, Y H:i:s"}}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% endif %}
-
-{% if operations %}
-<h2>Recent Operations</h2>
-<p>You can also browse <a href="operations/">all operations in the collection</a></p>
-<table style="width: 100%" class="tablesorter">
-<thead>
-<tr>
-  <th>action</th>
-  <th>owner</th>
-  <th>video</th>
-  <th>status</th>
-  <th>started</th>
-  <th>last update</th>
-</tr>
-</thead>
-<tbody>
-{% for operation in operations %}
-<tr class="{% cycle 'odd' 'even' %}">
-  <td>{{operation.action}}</td>
-  <td><a href="/user/{{operation.owner.username}}/">{{operation.owner.first_name}} {{operation.owner.last_name}}</a></td>
-  <td><a href="{{operation.video.get_absolute_url}}">{{operation.video.title}}</a></td>
-  <td class="{{operation.status}}">{{operation.status}}</td>
-  <td>{{operation.created|date:"M d, Y H:i:s"}}</td>
-  <td>{{operation.modified|date:"M d, Y H:i:s"}}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% endif %}
-
-
+        <div>
+            <div class="total-results-count float-left">
+                <h5>{{paginator.count}} videos</h5>
+            </div>
+            <div class="float-right">
+                {% include 'main/pagination.html' %}
+            </div>
+        </div>
+        <div class="visualclear"></div>
+        <br />
+    
+        <div class="table-responsive">
+            <table class="table table-striped table-videos">
+                <tr>
+                    <th>Poster</th>
+                    <th data-sort-by="ftitle" class="sortable ftitle">
+                        Title
+                    </th>
+                    <th>Extension</th>
+                    <th data-sort-by="flocation" class="sortable flocation">
+                        Location
+                    </th>
+                    <th>Tags</th>
+                    <th data-sort-by="added" class="sortable added">Added</th>
+                    <th data-sort-by="complete" class="sortable">Modified</th>
+                </tr>
+                {% for video in object_list %}
+                    {% with file=video.file_set.first %}
+                    <tr>
+                    <td>
+                        <a href="{{video.get_absolute_url}}">
+                            {% with video.poster as poster %}
+                            {% if poster.dummy %}
+                                <img src="{% static 'img/vidthumb_480x360.jpg' %}"
+                                     style="width: 80px; height: auto" />
+                            {% else %}
+                                <img src="{{poster.image.src}}" style="width: 80px; height: auto" />
+                            {% endif %}
+                            {% endwith %}</a>
+                    </td>
+                    <td align="left"  style="width: 35%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+                    <td>{{video.extension}}</td>
+                    <td>
+                        {% for file in video.file_set.all %}
+                            {% if file.location_type == "cuit" %}
+                                <a href="{{file.get_absolute_url}}">{{file.filename|truncatechars:30}}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                    {% if video.tags.count %}
+                        {% for tag in video.tags.all %}
+                            <a href="/tag/{{tag}}/">{{tag}}</a>{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    </td>
+                    <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
+                    <td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </table>
+        </div>
+        <div class="row tools">
+            <div class="col-md-12">
+                {% include 'main/pagination.html' %}
+            </div>
+        </div>
+    </div></div>
+    {% endif %}
+</div>
 {% endblock %}

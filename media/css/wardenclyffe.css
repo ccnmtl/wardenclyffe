@@ -12,6 +12,10 @@ a:hover {
     color: #1C2331;
 }
 
+a.btn-secondary:visited {
+    color: white
+}
+
 .bg-dark {
     background-color: black !important;
 }
