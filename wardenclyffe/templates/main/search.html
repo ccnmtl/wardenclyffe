@@ -49,7 +49,7 @@
                             Collection
                         </th>
                         <th data-sort-by="flocation" class="sortable flocation">
-                            Location
+                            CUIT Location
                         </th>
                         <th>Tags</th>
                         <th data-sort-by="added" class="sortable added">Added</th>
@@ -69,15 +69,17 @@
                                 {% endif %}
                                 {% endwith %}</a>
                         </td>
-                        <td align="left"  style="width: 35%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+                        <td align="left"  style="width: 25%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
                         <td>{{video.extension}}</td>
                         <td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
                         <td>
+                            <div style="word-wrap: break-word; width: 275px">
                             {% for file in video.file_set.all %}
                                 {% if file.location_type == "cuit" %}
-                                    <a href="{{file.get_absolute_url}}">{{file.filename|truncatechars:30}}</a>
+                                    <a href="{{file.get_absolute_url}}">{{file.filename}}</a>
                                 {% endif %}
                             {% endfor %}
+                            </div>
                         </td>
                         <td>
                         {% if video.tags.count %}
