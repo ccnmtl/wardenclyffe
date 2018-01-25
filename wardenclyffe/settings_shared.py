@@ -27,6 +27,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
 PROJECT_APPS = [
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
+    'wardenclyffe.panopto',
     'wardenclyffe.util',
     'wardenclyffe.youtube',
     'wardenclyffe.graphite',
@@ -38,6 +39,7 @@ INSTALLED_APPS += [  # noqa
     'djcelery',
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
+    'wardenclyffe.panopto',
     'wardenclyffe.youtube',
     'wardenclyffe.util',
     'oembed',
