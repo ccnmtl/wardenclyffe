@@ -157,7 +157,7 @@ var removeTag = function(tagName,tagId) {
                     </th>
                     <th>Extension</th>
                     <th data-sort-by="flocation" class="sortable flocation">
-                        Location
+                        CUIT Location
                     </th>
                     <th>Tags</th>
                     <th data-sort-by="added" class="sortable added">Added</th>
@@ -166,7 +166,7 @@ var removeTag = function(tagName,tagId) {
                 {% for video in object_list %}
                     {% with file=video.file_set.first %}
                     <tr>
-                    <td>
+                      <td>
                         <a href="{{video.get_absolute_url}}">
                             {% with video.poster as poster %}
                             {% if poster.dummy %}
@@ -177,14 +177,16 @@ var removeTag = function(tagName,tagId) {
                             {% endif %}
                             {% endwith %}</a>
                     </td>
-                    <td align="left"  style="width: 35%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+                    <td style="width: 25%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
                     <td>{{video.extension}}</td>
                     <td>
+                        <div style="word-wrap: break-word; width: 275px">
                         {% for file in video.file_set.all %}
                             {% if file.location_type == "cuit" %}
-                                <a href="{{file.get_absolute_url}}">{{file.filename|truncatechars:30}}</a>
+                                <a href="{{file.get_absolute_url}}">{{file.filename}}</a>
                             {% endif %}
                         {% endfor %}
+                        </div>
                     </td>
                     <td>
                     {% if video.tags.count %}
