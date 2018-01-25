@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Collecton Submit Success{% endblock %}
+
+{% block content %}
+    <h2 class="title">
+        The {{collection.title}} has been submitted to the Panopto {{folder}}.
+
+        This operation may take a few minutes to complete.
+
+        <a href="{% url 'collection' {{collection.id}} %}">
+            Return to the collection page
+        </a> 
+    </h2>
+{% endblock %}

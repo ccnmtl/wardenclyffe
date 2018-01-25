@@ -49,6 +49,7 @@ INSTALLED_APPS += [  # noqa
     's3sign',
     'wardenclyffe.drop',
     'wardenclyffe.streamlogs',
+    'bootstrap4'
 ]
 
 BROKER_URL = "amqp://localhost:5672//"

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load markup %}
+{% load waffle_tags %}
 
 {% block js %}
 
@@ -33,7 +34,9 @@ var removeTag = function(tagName,tagId) {
     </button>
     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
       <a class="dropdown-item" href="mediathread_submit/">to Mediathread</a>
-      <a class="dropdown-item" href="panopto_submit" disabled="disabled">to Panopto</a>
+      {% flag "panopto_bulk_upload" %}
+      <a class="dropdown-item" href="{% url 'panopto-collection-submit' collection.id %}">to Panopto</a>
+      {% endflag %}
     </div>
   </div>
   <div class="btn-group" role="group" aria-label="Fourth group">
@@ -72,60 +75,6 @@ var removeTag = function(tagName,tagId) {
         </div>
     </div>
 </div>
-
-<!-- @todo - do we need the sense of active?
-<form action="toggle_active/" method="post">
-{% if collection.active %}
-<input type="submit" value="de-activate collection" />
-{% else %}
-<input type="submit" value="re-activate collection" />
-{% endif %}
-</form>
- 
- 
- <h2>Audio Encode?</h2>
-
-<form action="{% url 'collection-edit-audio' collection.id %}" method="post">
-  {% if collection.audio %}
-    <label><input type="radio" name="audio" value="1" checked="checked"/>
-      This is an audio collection. Send uploads through the MP3 -> MP4 conversion process.
-    </label><br />
-    <label><input type="radio" name="audio" value="0" />
-      This is not an audio collection
-    </label><br />
-  {% else %}
-    <label><input type="radio" name="audio" value="1" />
-      This is an audio collection. Send uploads through the MP3 -> MP4 conversion process.
-    </label><br />
-    <label><input type="radio" name="audio" value="0" checked="checked" />
-      This is not an audio collection
-    </label><br />
-  {% endif %}
-  <input type="submit" value="update" />
-</form>
-
-<h2>Public/Secure</h2>
-
-<form action="{% url 'collection-edit-public' collection.id %}" method="post">
-    {% if collection.is_public %}
-        <label><input type="radio" name="public" value="1" checked="checked"/>
-            This is a public Collection. Videos uploaded to it will not require authentication.
-        </label><br />
-        <label><input type="radio" name="public" value="0" />
-            This is a secure Collection. Videos uploaded to it will require authentication.
-        </label><br />
-    {% else %}
-        <label><input type="radio" name="public" value="1" />
-            This is a public Collection. Videos uploaded to it will not require authentication.
-        </label><br />
-        <label><input type="radio" name="public" value="0" checked="checked" />
-            This is a secure Collection. Videos uploaded to it will require authentication.
-        </label><br />
-    {% endif %}
-    <input type="submit" value="update" />
-</form>
--->
-
 
 <div class="object-search">
     {% if object_list|length < 1 %}
