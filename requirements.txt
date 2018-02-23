@@ -80,7 +80,7 @@ simplejson==3.13.2
 httpretty==0.8.14
 contextlib2==0.5.5
 ipaddress==1.0.19
-text-unidecode==1.1  # for faker
+text-unidecode==1.2  # for faker
 Faker==0.8.11
 factory_boy==2.10.0
 rcssmin==1.0.6
