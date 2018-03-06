@@ -102,7 +102,7 @@ django-compressor==2.2
 django-extensions==2.0.0
 typing==3.6.4 # needed for django-extensions
 django-markwhat==1.6.0
-tornado==4.5.3
+tornado==4.5.3 # pyup: <5.0
 django-storages==1.6.5
 django-cacheds3storage==0.1.2
 gunicorn==19.7.1
