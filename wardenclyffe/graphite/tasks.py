@@ -24,9 +24,9 @@ def minutes_video():
     statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
-@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*/3", minute="10", day_of_week="*"))
 def hourly_s3_usage_report():
-    print "hourly_s3_report()"
+    print "trihourly_s3_report()"
     (cnt, total) = s3_stats()
     statsd.gauge("s3.total", total)
     statsd.gauge("s3.cnt", cnt)
