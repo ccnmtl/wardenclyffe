@@ -21,7 +21,7 @@ pytz==2018.3
 python-dateutil==2.7.2
 librabbitmq==1.6.1
 
-celery==3.1.25 # pyup: <4.0.0
+celery==3.1.26.post2 # pyup: <4.0.0
 
 oauth2client==4.0.0 # pyup: <4.1
 pyasn1==0.4.2
