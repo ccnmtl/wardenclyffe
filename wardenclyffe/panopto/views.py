@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import get_object_or_404
+from django.urls.base import reverse
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django_statsd.clients import statsd
 
@@ -11,10 +13,22 @@ from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 from wardenclyffe.panopto.forms import CollectionSubmitForm
 
 
+class CollectionSubmitSuccessView(TemplateView):
+    template_name = 'panopto/collection_submit_success.html'
+
+    def get_collection(self):
+        pk = self.kwargs.get('pk', None)
+        return get_object_or_404(Collection, id=pk)
+
+    def get_context_data(self, **kwargs):
+        context = TemplateView.get_context_data(self, **kwargs)
+        context['collection'] = self.get_collection()
+        return context
+
+
 class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
     form_class = CollectionSubmitForm
     template_name = 'panopto/collection_submit.html'
-    success_url = 'panopto/collection_submit_success.html'
 
     def submit_video_to_panopto(self, video, folder_id):
         statsd.incr("panopto.submit")
@@ -47,3 +61,9 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
 
         for video in collection.video_set.all():
             self.submit_video_to_panopto(video, folder_id)
+
+        return FormView.form_valid(self, form)
+
+    def get_success_url(self):
+        return reverse('panopto-collection-success-submit',
+                       kwargs={'pk': self.kwargs.get('pk', None)})

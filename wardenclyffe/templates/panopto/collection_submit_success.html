@@ -3,13 +3,15 @@
 {% block title %}Collecton Submit Success{% endblock %}
 
 {% block content %}
-    <h2 class="title">
+    <h2 class="title">Submitted</h2>
+    
+    <p>
         The {{collection.title}} has been submitted to the Panopto {{folder}}.
 
         This operation may take a few minutes to complete.
 
-        <a href="{% url 'collection' {{collection.id}} %}">
+        <a href="{% url 'collection-view' collection.id %}">
             Return to the collection page
         </a> 
-    </h2>
+    </p>
 {% endblock %}
