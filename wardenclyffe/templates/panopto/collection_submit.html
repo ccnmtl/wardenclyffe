@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Collecton Submit Success{% endblock %}
+
+{% block pagetitle %}Panopto Collection Submit{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/">Home</a>
+        </li>
+        {% if collection %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'collection' {{collection.id}}">{{collection.title}}</a>
+            </li>
+        {% endif %}
+        <li class="breadcrumb-item active" aria-current="page">
+            Submit to Panopto
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-6">
+<form action="." method="post" class="form">{% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    {% endbuttons %}
+</form>
+</div>
+</div>
+{% endblock %}

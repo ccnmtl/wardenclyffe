@@ -95,6 +95,7 @@ urlpatterns = [
     url(r'^mediathread/$', mediathread_views.mediathread),
     url(r'^mediathread/post/$', mediathread_views.mediathread_post),
     url(r'^youtube/', include('wardenclyffe.youtube.urls')),
+    url(r'^panopto/', include('wardenclyffe.panopto.urls')),
     url(r'^received/$', views.ReceivedView.as_view()),
     url(r'^surelink/$', views.SureLinkView.as_view()),
     url(r'^video/$', views.VideoIndexView.as_view()),
