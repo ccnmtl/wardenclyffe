@@ -5,7 +5,7 @@ from django.test.client import Client
 from wardenclyffe.main.models import (
     Collection, Operation, File)
 from wardenclyffe.main.views import VideoYoutubeUploadView, key_from_s3url
-from factories import (
+from wardenclyffe.main.tests.factories import (
     FileFactory, OperationFactory, ServerFactory,
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)

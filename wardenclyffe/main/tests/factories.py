@@ -58,6 +58,7 @@ class UserFactory(factory.DjangoModelFactory):
         model = User
     username = factory.Sequence(lambda n: "user%03d" % n)
     is_staff = True
+    password = factory.PostGenerationMethodCall('set_password', 'test')
 
 
 METADATA = """ID_AUDIO_BITRATE,128000
