@@ -1,24 +1,30 @@
 {% extends 'base.html' %}
+
+{% block pagetitle %}Streaming Logs{% endblock %}
+
 {% block content %}
-
-    <h2>FLV Streaming Logs</h2>
-
-    <p>Total: {{total_count}}</p>
-
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'streamlogs-report' %}">Graph</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'streamlogs-list' %}">List</a>
+      </li>
+    </ul>
 
     <div id="container" style="width:100%; height:400px;"></div>
     <p>Streams per day for the last {{days}} days</p>
-        
+    <p>Total: {{total_count}}</p>
 {% endblock %}
 
 {% block js %}
     <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+
 <script>
  var dailyCounts = [];
  {% for d in daily_counts %}
  dailyCounts.push([Date.UTC({{d.date.year}},{{d.date.month}}-1,{{d.date.day}}), {{d.count}}]);{% endfor %}
-     
 
  $(function () { 
     $('#container').highcharts({
