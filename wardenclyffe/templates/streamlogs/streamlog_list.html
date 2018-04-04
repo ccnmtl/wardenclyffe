@@ -1,67 +1,85 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block pagetitle %}Streaming Logs{% endblock %}
 
-    {% if is_paginated %}
-        <div class="pagination">
-            <span class="page-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}">&lt; previous</a>
-                {% endif %}
-                <span class="page-current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">next &gt;</a>
-                {% endif %}
-            </span>
+{% block content %}
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'streamlogs-report' %}">Graph</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'streamlogs-list' %}">List</a>
+      </li>
+    </ul>
+    <hr />
+
+    <form class="form-inline" action="{% url 'streamlogs-list' %}">
+        <input type="hidden" name="sort_by" value="{{sort_by}}" />
+        <input type="hidden" name="direction" value="{{direction}}" />
+        <input type="hidden" name="page" value="{{page}}" />
+
+        <div class="form-group{% if form.q.errors %} has-error{% endif %}">
+            <label for="keyword-search">Keyword:</span></label>
+            <input class="form-control" type="text" name="q" placeholder="Find..." value="{{q}}">
+        </div>&nbsp;
+        <button type="submit" class="btn btn-default">
+            <i class="fa fa-search" aria-hidden="true"></i> Search
+        </button>&nbsp;
+        <button type="reset" class="btn btn-default">
+            <i class="fa fa-times" aria-hidden="true"></i> Clear
+        </button>
+    </form>
+
+    <!-- Results navigation  -->
+    <div class="visualclear"></div>
+    <div>
+        <div class="float-right">
+            {% include 'main/pagination.html' %}
         </div>
-    {% endif %}
-    
-    <table>
+    </div>
+    <div class="visualclear"></div>
+    <br />
+
+    <div class="table-responsive">
+        <table class="table table-striped table-videos">
         <thead>
             <tr>
-                <th>timestamp</th>
-                <th>filename</th>
-                <th>video</th>
+                <th data-sort-by="request_at" >timestamp</th>
+                <th data-sort-by="filename">filename</th>
+                <th data-sort-by="video__title">video</th>
             </tr>
         </thead>
         <tbody>
-    {% for object in object_list %}
-        <tr>
-            <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
-            <td><tt>{{object.filename}}</tt></td>
-            <td>
-                {% with video=object.video %}
-                    {% if video %}
-                        <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
-                    {% else %}
-                        <form action="{% url 'import-flv' %}" method="POST">
-                            <input type="hidden" name="flv" value="{{object.filename}}" />
-                            <input type="submit" value="import flv" />
-                        </form>
-                    {% endif %}
-                {% endwith %}
-            </td>
-        </tr>
-    {% endfor %}
+        {% for object in object_list %}
+            <tr>
+                <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
+                <td><tt>{{object.filename}}</tt></td>
+                <td>
+                    {% with video=object.video %}
+                        {% if video %}
+                            <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
+                        {% else %}
+                            <form action="{% url 'import-flv' %}" method="POST">
+                                <input type="hidden" name="flv" value="{{object.filename}}" />
+                                <input type="submit" value="import flv" />
+                            </form>
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 
-    {% if is_paginated %}
-        <div class="pagination">
-            <span class="page-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}">&lt; previous</a>
-                {% endif %}
-                <span class="page-current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">next &gt;</a>
-                {% endif %}
-            </span>
+    <!-- Results navigation  -->
+    <div class="visualclear"></div>
+    <div>
+        <div class="float-right">
+            {% include 'main/pagination.html' %}
         </div>
-    {% endif %}
+    </div>
+    <div class="visualclear"></div>
+    <br />
+
 
 {% endblock %}
