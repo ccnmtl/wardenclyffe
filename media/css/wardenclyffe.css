@@ -148,3 +148,284 @@ footer {
 }
 
 .dc {font-size: .8em; font-style: italic; color: #666;}
+
+/* Mediathread Upload Page */
+
+body.vital input.regButton,
+body.mediathread input.regButton
+{
+  margin: 0;
+  padding: 1px;
+  background-color: #e0e0e0;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-right: 2px solid #666;
+  border-bottom: 2px solid #666;
+  font: normal 11px Arial, Helvetica, Verdana, "Lucida Grande", Lucida, sans-serif;
+  cursor: pointer;
+}
+
+body.vital input.regButton:active,
+body.mediathread input.regButton:active
+{
+  background-color: #ccc;
+  border-top: 2px solid #666;
+  border-left: 2px solid #666;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+body.vital #admincontent,
+body.mediathread #admincontent
+{
+  width: 730px;
+  background: url('../img/grey-line.gif') top left repeat-y;
+}
+
+body.vital #admincontent-inner,
+body.mediathread #admincontent-inner
+{
+  background: url('../img/grey-line.gif') top right repeat-y;
+}
+
+body.vital #admincontent-top,
+body.mediathread #admincontent-top
+{
+  background: url('../img/grey-line.gif') top repeat-x;
+}
+
+body.vital #admincontent-top-inner,
+body.mediathread #admincontent-top-inner
+{
+  background: url('../img/bg-adminform-tl.gif') top left no-repeat;
+}
+
+body.vital #admincontent-top-body,
+body.mediathread #admincontent-top-body
+{
+  background: url('../img/bg-adminform-tr.gif') top right no-repeat;
+  height: 10px;
+}
+
+body.vital #admincontent-bottom,
+body.mediathread #admincontent-bottom
+{
+  background: url('../img/grey-line.gif') bottom repeat-x;
+}
+
+body.vital #admincontent-bottom-inner,
+body.mediathread #admincontent-bottom-inner
+{
+  background: url('../img/bg-adminform-bl.gif') bottom left no-repeat;
+}
+
+body.vital #admincontent-bottom-body,
+body.mediathread #admincontent-bottom-body
+{
+  background: url('../img/bg-adminform-br.gif') bottom right no-repeat;
+  height: 10px;
+}
+
+body.vital .adminformtable,
+body.mediathread .adminformtable
+{
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-collapse: collapse !important;
+  font-size: 100%;
+  width: 100%;
+}
+
+body.mediathread .adminformcontainer {
+    margin: 25px 50px;
+}
+
+body.vital .adminformtable td,
+body.vital .adminformtable th,
+body.vital #adminformtable td,
+body.vital #adminformtable th,
+body.mediathread .adminformtable td,
+body.mediathread .adminformtable th,
+body.mediathread #adminformtable td,
+body.mediathread #adminformtable th
+{
+  border: 0 !important;
+  border-bottom: 1px solid #ccc !important;
+  border-collapse: collapse !important;
+  border: 0 !important;
+}
+
+body.vital input.regButton,
+body.mediathread input.regButton
+{
+  margin: 0;
+  padding: 1px;
+  background-color: #e0e0e0;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-right: 2px solid #666;
+  border-bottom: 2px solid #666;
+  font: normal 11px Arial, Helvetica, Verdana, "Lucida Grande", Lucida, sans-serif;
+  cursor: pointer;
+}
+
+body.vital input.regButton:active,
+body.mediathread input.regButton:active
+{
+  background-color: #ccc;
+  border-top: 2px solid #666;
+  border-left: 2px solid #666;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+body.mediathread
+{
+  /*
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: #fff;
+  font: normal 12px/120% 'lucida grande', arial, verdana, sans-serif;
+  color: #000;
+  */
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: #fff;
+    font: .875em/1.5em 'helvetica neue', helvetica, arial, sans-serif !important;
+    color: #383838;
+    width: 100% auto;
+}
+
+body.mediathread h1
+{
+  font-family: 'helvetica neue', helvetica, arial, sans-serif !important;
+  font-size: 200%;
+  font-weight: normal;
+}
+
+body.mediathread #container
+{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: #fff;
+  border-top: none;
+}
+
+body.mediathread #header
+{
+    display: block;
+    overflow: hidden;
+    margin: 0;
+    padding:0;
+    border: 0;
+    width: auto;
+    height: auto;
+}
+
+body.mediathread #standardnav_container {
+    display: block;
+    float: left;
+    margin: 0;
+    width: 100%;
+    padding: 0;
+    background-color: #383838;
+}
+
+body.mediathread #mediathread_logo {
+    float: left;
+    height: 35px;
+    overflow: hidden;
+    padding: 0 0 0 10px;
+    position: relative;
+    top: -3px;
+}
+
+body.mediathread #content
+{
+  display: block;
+  margin: 0;
+  padding: 0 0 0 1em;
+  border: 0;
+  float: none;
+   width: 980px;
+}
+
+
+body.mediathread #footer_m
+{
+  display: block;
+    height: 33px;
+    width: 100%;
+  clear: both;
+  margin: 0;
+  padding: 3px 0;
+  border: 0;
+    background: transparent url('../img/logo_ccnmtl_mediathread_bw.gif') 10px top no-repeat;
+}
+
+
+
+.uploadifyQueueItem
+{
+  width: 250px !important;
+  margin-left: 125px;
+    margin-top: -30px !important;
+}
+
+.uploadifyQueueItem.completed {
+    margin-left: 0px !important;
+    margin-top: 0px !important;
+}
+
+
+td.step.one,
+td.step.two,
+td.step.three {
+    width: 37px;
+    vertical-align: top;
+    padding: 3px;
+}
+
+td.step.one img {
+    position: absolute;
+    clip:rect(0px, 35px, 42px, 0px);
+    margin-top: -16px;
+}
+
+td.step.two img {
+    position: absolute;
+    clip:rect(42px, 35px, 84px, 0px);
+    margin-top: -58px;
+}
+
+td.step.three img {
+    position: absolute;
+    clip:rect(84px, 35px, 126px, 0px);
+    margin-top: -96px;
+}
+
+td.step.three input {
+    background-color: #4e4e4e;
+    border: #4e4e4e;
+    color: white;
+    height: 30px;
+    width: 120px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    font-size: 12px;
+}
+
+td.step h4 {
+    padding: 1.2em 0 0.7em 0;
+    margin: 0;
+    border: 0;
+    padding-top: 0;
+    font-weight: bold;
+    font-size: 12px;
+    font-style: normal;
+}
+
