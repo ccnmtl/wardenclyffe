@@ -29,6 +29,13 @@ class StreamLog(models.Model):
             location_type='cuit', filename=self.full_filename()).first()
         if f is not None:
             return f.video
+
+        sf = self.secure_filename()
+        f = File.objects.filter(
+            location_type='cuit', filename=sf).first()
+        if f is not None:
+            return f.video
+
         return None
 
     def full_filename(self):
@@ -38,6 +45,10 @@ class StreamLog(models.Model):
         pattern = re.compile(r'^broadcast/')
         filename = pattern.sub("", self.filename)
         return os.path.join(settings.CUNIX_BROADCAST_DIRECTORY, filename)
+
+    def secure_filename(self):
+        return os.path.join(settings.H264_SECURE_STREAM_DIRECTORY,
+                            self.filename.strip('/'))
 
 
 def counts_by_date():

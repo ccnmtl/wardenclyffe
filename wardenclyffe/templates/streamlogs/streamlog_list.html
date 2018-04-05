@@ -58,12 +58,12 @@
                     {% with video=object.video %}
                         {% if video %}
                             <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
-                        {% else %}
+                        {% else %}{% if '.flv' in object.filename %}
                             <form action="{% url 'import-flv' %}" method="POST">
                                 <input type="hidden" name="flv" value="{{object.filename}}" />
                                 <input type="submit" value="import flv" />
                             </form>
-                        {% endif %}
+                        {% endif %}{% endif %}
                     {% endwith %}
                 </td>
             </tr>

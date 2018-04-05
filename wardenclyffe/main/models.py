@@ -309,15 +309,23 @@ class Video(TimeStampedModel):
             return False
 
     def streamlogs(self):
-        if not self.has_flv():
-            return None
-        filename = self.flv_filename()
-        # convert to the partial filename that streamlogs have
-        base = settings.CUNIX_BROADCAST_DIRECTORY
-        # strip off up to the 'broadcast/'
-        filename = filename.replace(base, "broadcast/")
         StreamLog = apps.get_model('streamlogs', 'StreamLog')
-        return StreamLog.objects.filter(filename=filename)
+
+        if self.has_flv():
+            filename = self.flv_filename()
+            # convert to the partial filename that streamlogs have
+            base = settings.CUNIX_BROADCAST_DIRECTORY
+            # strip off up to the 'broadcast/'
+            filename = filename.replace(base, "broadcast/")
+            return StreamLog.objects.filter(filename=filename)
+        elif self.has_mp4():
+            f = self.file_set.filter(
+                location_type="cuit", filename__endswith='.mp4').first()
+
+            filename = f.filename
+            if f.is_h264_secure_streamable():
+                filename = f.h264_secure_path()
+            return StreamLog.objects.filter(filename=filename)
 
     def make_mediathread_submit_file(self, filename, user, set_course,
                                      redirect_to, audio=False):
