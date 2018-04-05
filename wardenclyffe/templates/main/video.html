@@ -14,7 +14,6 @@ var removeTag = function(tagName,tagId) {
    context: li,
    success: function (){this.hide();}
 });
-//   jQuery("#tag-" + tagId).hide();
 };
 </script>
 
@@ -29,59 +28,56 @@ var removeTag = function(tagName,tagId) {
 <h1>{{video.title}}</h1>
 
 
-<div id="tabs">
-
-<ul>
-  <li><a href="#basics">Basics</a></li> 
-  <li><a href="#frames">Frames</a></li>
-  <li><a href="#operations">Operations/History</a></li>
-  <li><a href="#files">Files</a></li>
-  <li><a href="#actions">Actions</a></li>
+<ul class="nav nav-tabs" role="tablist">
+  <li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#basics">Basics</a></li> 
+  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#streams">Views</a></li> 
+  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#frames">Frames</a></li>
+  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#operations">Operations</a></li>
+  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#files">Files</a></li>
+  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#actions">Actions</a></li>
 </ul>
 
-<div id="basics">
+<div class="tab-content p-3">
 
-<table>
-<tr>
-<td>{% with video.poster as poster %}
-{% if poster.dummy %}
-<img src="{% static 'img/vidthumb_480x360.jpg' %}" />
-{% else %}
-<img src="{{poster.image.src}}" width="480" />
-{% endif %}
-{% endwith %}
-</td>
-<td>
-<table>
-<tr><th>creator<br /><span class="dc">dcterms:creator</span></th><td><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
-<tr><th>description<br /><span class="dc">dcterms:description</span></th><td><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
-<tr><th>language<br /><span class="dc">dcterms:language</span></th><td><a href="/video/?language={{video.language}}">{{video.language}}</a></td></tr>
-<tr><th>subject<br /><span class="dc">dcterms:subject</span></th><td><a href="/video/?subject={{video.subject}}">{{video.subject}}</a></td></tr>
-<tr><th>license<br /><span class="dc">dcterms:license</span></th><td><a href="/video/?license={{video.license}}">{{video.license}}</a></td></tr>
-<tr><th>created<br /><span class="dc">dcterms:created</span></th><td>{{video.created|date:"r"}}</td></tr>
-<tr><th>last modified<br /><span class="dc">dcterms:modified</span></th><td>{{video.modified|date:"r"}}</td></tr>
-{% if video.tags.count %}
-<tr><th>tags</th>
-  <td>
-    <ul>
-      {% for tag in video.tags.all %}
-      <li id="tag-{{tag.id}}">
-	<a href="/tag/{{tag}}/">{{tag}}</a>
-	[<a href="remove_tag/{{tag}}/"
-	onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]
-      </li>{% endfor %}
-    </ul>
-  </td>
-</tr>
-{% endif %}
-</table>
-<p><a href="edit/">edit video metadata</a></p>
-</td></tr></table>
+<div class="tab-pane fade show active" role="tabpanel" id="basics">
+<div class="row">
+    <div class="col-md-5">
+    {% with video.poster as poster %}
+    {% if poster.dummy %}
+    <img src="{% static 'img/vidthumb_480x360.jpg' %}" />
+    {% else %}
+    <img src="{{poster.image.src}}" width="480" />
+    {% endif %}
+    {% endwith %}
+    </div>
+    <div class="col-md-7">
+    <dl>
+        <dt class="col-sm-3">creator</dt><dd class="col-sm-9"><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
+        <dt class="col-sm-3">description</dt><dd class="col-sm-9"><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
+        <dt class="col-sm-3">language</dt><dd class="col-sm-9"><a href="/video/?language={{video.language}}">{{video.language}}</a></td></tr>
+        <dt class="col-sm-3">subject</dt><dd class="col-sm-9"><a href="/video/?subject={{video.subject}}">{{video.subject}}</a></td></tr>
+        <dt class="col-sm-3">license</dt><dd class="col-sm-9"><a href="/video/?license={{video.license}}">{{video.license}}</a></td></tr>
+        <dt class="col-sm-3">created</dt><dd class="col-sm-9">{{video.created|date:"r"}}</td></tr>
+        <dt class="col-sm-3">last modified</dt><dd class="col-sm-9">{{video.modified|date:"r"}}</td></tr>
+        {% if video.tags.count %}
+            <dt class="col-sm-3">tags</dt>
+            <dd class="col-sm-9">
+              {% for tag in video.tags.all %}
+                <a href="/tag/{{tag}}/">{{tag}}</a>[<a href="remove_tag/{{tag}}/" onclick="removeTag('{{tag}}',{{tag.id}});return false">X</a>]{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </dd>
+        {% endif %}
+     </dl>
 
+     <p><a href="edit/">edit video metadata</a></p>
+    </div>
+</div>
+</div>
+
+<div class="tab-pane fade" role="tabpanel" id="streams">
+<div class="row">
 {% with streamlogs=video.streamlogs %}
     {% if streamlogs %}
-        <h2>Recent Streams</h2>
-        <p>(only implemented for flv streaming currently)</p>
         <table>
             <thead>
                 <tr>
@@ -96,25 +92,22 @@ var removeTag = function(tagName,tagId) {
                 {% endfor %}
             </tbody>
         </table>
-
     {% endif %}
 {% endwith %}
-
+</div>
 </div>
 
-
-<div id="frames">
+<div  class="tab-pane fade" role="tabpanel" id="frames">
 {% if video.image_set.count %}
 {% for image in video.upto_hundred_images %}
-<div style="float: left; width: 200px"><img src="{{image.src}}"
-																						width="200" /><br />
+<div style="float: left; width: 200px"><img src="{{image.src}}" width="200" /><br />
 <a href="select_poster/{{image.id}}/">make poster</a></div>
 {% endfor %}
 <br style="clear:both" />
 {% endif %}
 </div>
 
-<div id="files">
+<div  class="tab-pane fade" role="tabpanel" id="files">
 {% if video.file_set.count %}
 <table>
 <tr>
@@ -133,61 +126,60 @@ var removeTag = function(tagName,tagId) {
 {% endif %}
 </div>
 
-<div id="operations">
+<div class="tab-pane fade" role="tabpanel" id="operations">
 {% if video.operation_set.count %}
-<h2>Operations</h2>
 
 <table>
 {% for operation in video.operation_set.all %}
 <tr>
-	<td class="{{operation.status}}">&nbsp;&nbsp;&nbsp;</td>
-	<td><b><a href="{{operation.get_absolute_url}}">{{operation.action}}</a></b></td>
-	<td>
-		<a href="/user/{{operation.owner.username}}/">
-			{% if operation.owner.first_name %}
-			{{operation.owner.first_name}} {{operation.owner.last_name}}
-			{% else %}
-			{{operation.owner.username}}
-			{% endif %}
-		</a>
-		<tt>{{operation.uuid}}</tt>
-	</td>
-	<td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
-	<td><form action="/operation/{{operation.id}}/rerun/"
-					method="post"><input type="submit" value="RERUN"/></form>
-	</td>
+    <td class="{{operation.status}} pl-3"></td>
+    <td><b><a href="{{operation.get_absolute_url}}">{{operation.action}}</a></b></td>
+    <td>
+        <a href="/user/{{operation.owner.username}}/">
+            {% if operation.owner.first_name %}
+            {{operation.owner.first_name}} {{operation.owner.last_name}}
+            {% else %}
+            {{operation.owner.username}}
+            {% endif %}
+        </a>
+        <tt>{{operation.uuid}}</tt>
+    </td>
+    <td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
+    <td><form action="/operation/{{operation.id}}/rerun/"
+                    method="post"><input type="submit" value="RERUN"/></form>
+    </td>
 
 </tr>
 
 <tr>
-	<td></td>
-	<td colspan="4">started: <b><tt>{{operation.created|date:"Y-m-d H:i:s"}}</tt></b> 
-	last update: <b><tt>{{operation.modified|date:"Y-m-d H:i:s"}}</tt></b></td>
+    <td></td>
+    <td colspan="4">started: <b><tt>{{operation.created|date:"Y-m-d H:i:s"}}</tt></b> 
+    last update: <b><tt>{{operation.modified|date:"Y-m-d H:i:s"}}</tt></b></td>
 </tr>
 
 {% if operation.params %}
 <tr>
-	<td></td>
-	<td colspan="4">
-		<tt style="font-size: 90%">
-			<pre>
+    <td></td>
+    <td colspan="4">
+        <tt style="font-size: 90%">
+            <pre>
 {{operation.formatted_params}}
-			</pre>
-		</tt>
-	</td>
+            </pre>
+        </tt>
+    </td>
 </tr>
 {% endif %}
 
 {% if operation.operationlog_set.count %}
 {% for log in operation.operationlog_set.all %}
 <tr>
-	<td></td>
-	<td>
-		<b>{{log.created|date:"Y-m-d H:i:s"}}</b>
-	</td>
-	<td colspan="3">
-		{{log.info}}
-	</td>
+    <td></td>
+    <td>
+        <b>{{log.created|date:"Y-m-d H:i:s"}}</b>
+    </td>
+    <td colspan="3">
+        {{log.info}}
+    </td>
 </tr>
 {% endfor %}
 {% endif %}
@@ -199,7 +191,7 @@ var removeTag = function(tagName,tagId) {
 {% endif %}
 </div>
 
-<div id="actions">
+<div  class="tab-pane fade" role="tabpanel" id="actions">
 <p><a href="add_file/">manually add a file/location -&gt;</a></p>
 <p><a href="mediathread_submit/">import into mediathread -&gt;</a></p>
 
