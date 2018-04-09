@@ -111,6 +111,9 @@ var removeTag = function(tagName,tagId) {
                     <th>Tags</th>
                     <th data-sort-by="added" class="sortable added">Added</th>
                     <th data-sort-by="complete" class="sortable">Modified</th>
+                    <th data-sort-by="views" class="sortable views">
+                        Views
+                    </th>
                 </tr>
                 {% for video in object_list %}
                     {% with file=video.file_set.first %}
@@ -146,6 +149,7 @@ var removeTag = function(tagName,tagId) {
                     </td>
                     <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
                     <td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
+                    <td>{{video.streamlogs.count}}
                     </tr>
                     {% endwith %}
                 {% endfor %}
@@ -159,4 +163,5 @@ var removeTag = function(tagName,tagId) {
     </div></div>
     {% endif %}
 </div>
+
 {% endblock %}
