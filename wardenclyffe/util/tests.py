@@ -65,11 +65,15 @@ class BodyTest(TestCase):
         assert "for testuni" in body
 
     def test_mediathread_uploaded_body(self):
-        body = mediathread_uploaded_body("test video", "testuni",
-                                         "http://example.com/")
-        assert "confirms that test video" in body
-        assert "for testuni" in body
-        assert "http://example.com/" in body
+        with self.settings(
+                MEDIATHREAD_BASE='https://mediathread.ccnmtl.columbia.edu/'):
+
+            body = mediathread_uploaded_body("test video", "testuni",
+                                             "/asset/1")
+            assert "confirms that test video" in body
+            assert "for testuni" in body
+            assert (
+                "https://mediathread.ccnmtl.columbia.edu/asset/1" in body)
 
     def test_youtube_submitted_body(self):
         body = youtube_submitted_body("fake video title", "fakeuni",
@@ -112,11 +116,16 @@ class MailTest(TestCase):
                          "Mediathread submission received")
 
     def test_send_mediathread_uploaded_mail(self):
-        send_mediathread_uploaded_mail("fake video", "fakeuni",
-                                       "http://example.com/")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         "Mediathread submission now available")
+        with self.settings(
+                MEDIATHREAD_BASE='https://mediathread.ccnmtl.columbia.edu/'):
+            send_mediathread_uploaded_mail("fake video", "fakeuni",
+                                           "/asset/1/")
+            assert len(mail.outbox) > 1
+            self.assertEqual(mail.outbox[0].subject,
+                             "Mediathread submission now available")
+            self.assertTrue(
+                mail.outbox[0].body.find(
+                    "https://mediathread.ccnmtl.columbia.edu/asset/1") > 0)
 
     def test_send_youtube_submitted_mail(self):
         send_youtube_submitted_mail("fake video title", "fakeuni",
