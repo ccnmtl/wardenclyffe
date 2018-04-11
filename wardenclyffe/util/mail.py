@@ -79,6 +79,8 @@ def send_mediathread_received_mail(video_title, uni):
 
 
 def mediathread_uploaded_body(video_title, uni, url):
+    if not url.startswith(settings.MEDIATHREAD_BASE):
+        url = settings.MEDIATHREAD_BASE[0:-1] + url
     t = get_template("util/mediathread_uploaded_email_body.txt")
     d = dict(video_title=video_title, uni=uni, url=url)
     return t.render(d)
