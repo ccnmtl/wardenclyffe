@@ -9,10 +9,10 @@ from wardenclyffe.main.tasks import pull_from_s3
 import wardenclyffe.main.tasks as tasks
 
 
-def panopto_upload(operation, video, folder_id, input_file):
+def panopto_upload(operation, video, folder, input_file):
     uploader = PanoptoUpload()
     uploader.server = settings.PANOPTO_SERVER
-    uploader.folder_id = folder_id
+    uploader.folder = folder
     uploader.username = settings.PANOPTO_API_USER
     uploader.instance_name = settings.PANOPTO_INSTANCE_NAME
     uploader.application_key = settings.PANOPTO_APPLICATION_KEY
@@ -57,7 +57,7 @@ def pull_from_s3_and_upload_to_panopto(operation):
 
     # the pull_from_s3 returns an open file pointer. Wait to close it
     # until the pypanopto library reads it
-    uploader = panopto_upload(operation, video, params['folder_id'], tmp.name)
+    uploader = panopto_upload(operation, video, params['folder'], tmp.name)
     tmp.close()
 
     if uploader:
@@ -75,6 +75,7 @@ def verify_upload_to_panopto(operation):
     params = loads(operation.params)
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
+    user = operation.owner
 
     upload_status = PanoptoUploadStatus()
     upload_status.server = settings.PANOPTO_SERVER
@@ -91,10 +92,9 @@ def verify_upload_to_panopto(operation):
         settings.PANOPTO_SERVER, panopto_id)
 
     File.objects.create(
-                video=video,
-                location_type="panopto",
-                url=url,
-                filename=panopto_id,
-                label="uploaded panopto file")
+        video=video, location_type="panopto", url=url,
+        filename=panopto_id, label="uploaded to panopto")
+
+    upload_status.set_viewer(panopto_id, [user.username])
 
     return ('complete', '')

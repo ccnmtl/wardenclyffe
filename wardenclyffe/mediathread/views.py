@@ -35,10 +35,12 @@ def mediathread(request):
     request.session['redirect_to'] = authenticator.redirect_to
     request.session['hmac'] = authenticator.hmc
     audio = request.GET.get('audio', False)
+    folder_name = request.GET.get('folder', '')
     template = 'mediathread/mediathread.html'
     return render(
         request, template,
-        dict(username=username, user=user, audio=audio))
+        dict(username=username, user=user, audio=audio,
+             folder_name=folder_name))
 
 
 @transaction.non_atomic_requests
@@ -63,6 +65,7 @@ def s3_upload(request):
         return HttpResponse("Bad file upload. Please try again.")
 
     audio = request.POST.get('audio', False)
+    folder_name = request.POST.get('folder', None)
     operations = []
     vuuid = uuid.uuid4()
     statsd.incr("mediathread.mediathread")
@@ -86,7 +89,7 @@ def s3_upload(request):
         )
 
         v.make_uploaded_source_file(key, audio=audio)
-        operations = v.initial_operations(key, user, audio)
+        operations = v.initial_operations(key, user, audio, folder_name)
     except (Collection.DoesNotExist, User.DoesNotExist, KeyError):
         statsd.incr("mediathread.mediathread.failure")
         raise
