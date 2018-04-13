@@ -3,13 +3,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
 {% compress css %}
-	<link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
-	<link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
+    <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
+    <link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
 {% endcompress %}
-	<link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
 
     {% include 'main/jquery.html' %}
 
@@ -26,13 +26,13 @@
 <body class="one_column fixed mediathread">
     <div id="container">
         <!-- ###### Site banner ###### -->
-		<div id="header">
-			<div id="standardnav_container">   
-				<div id="mediathread_logo">
-					<a href="http://mediathread.ccnmtl.columbia.edu/"><img src="{{STATIC_URL}}img/logo_mediathread_new.png" alt="mediathread logo" width="156" height="45"></a>
-				</div>
-			</div>
-		</div>
+        <div id="header">
+            <div id="standardnav_container">   
+                <div id="mediathread_logo">
+                    <a href="http://mediathread.ccnmtl.columbia.edu/"><img src="{{STATIC_URL}}img/logo_mediathread_new.png" alt="mediathread logo" width="156" height="45"></a>
+                </div>
+            </div>
+        </div>
 
         <!-- ###### Don't touch this ###### -->
         <div class="visualclear"></div>
@@ -42,12 +42,12 @@
             <h1>Mediathread {% if audio %}Audio{% else %}Video{% endif %} Upload</h1>
 
             <div id="admincontent" style="width: 600px;"> 
-            	<div id="admincontent-inner"> 
-            		<div id="admincontent-top"> 
-                		<div id="admincontent-top-inner"> 
-                			<div id="admincontent-top-body"></div> 
-                		</div> 
-            		</div> 
+                <div id="admincontent-inner"> 
+                    <div id="admincontent-top"> 
+                        <div id="admincontent-top-inner"> 
+                            <div id="admincontent-top-body"></div> 
+                        </div> 
+                    </div> 
                     <div style="padding: 5px 15px 0 15px;">
                         <p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
                         {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
@@ -66,7 +66,7 @@
 {% endif %}
                     <div id="vitaldropform" class="adminformcontainer">
                         <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
-                        	<tr>
+                            <tr>
                                 <td class="step one">
                                     <img src="{{STATIC_URL}}img/steps.png" alt="step one"></img>
                                 </td>
@@ -85,24 +85,24 @@
                             </tr>
                             <tr style="height: 30px"><td></td></tr>
                         
-                        	<tr class="post-upload" style="display: none">
+                            <tr class="post-upload" style="display: none">
                                 <td class="step two">
                                     <img src="{{STATIC_URL}}img/steps.png" alt="step two"></img>
                                 </td>
-                        	    <td class="step">
+                                <td class="step">
                                     <h4>UPDATE the {% if audio %}audio{% else %}video{% endif %} title</h4>
                                     <input type="text" name="title" value="Mediathread {% if audio %}audio{% else %}video{% endif %} uploaded by {{user.username}}" size="50" />
                                 </td>
-                        	</tr> 
+                            </tr> 
                             <tr style="height: 30px"><td></td></tr>
-                        	<tr class="post-upload" style="display: none">
+                            <tr class="post-upload" style="display: none">
                                 <td class="step three">
                                     <img src="{{STATIC_URL}}img/steps.png" alt="step three"></img>
                                 </td>
                                 <td class="step three" colspan="2">
                                     <h4>UPLOAD the {% if audio %}audio{% else %}video{% endif %}</h4>
-                        	        <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
-                        	   </td>
+                                    <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
+                               </td>
                             </tr> 
                         
                         
@@ -116,12 +116,12 @@
                       <p>if you encounter a problem converting or uploading a {% if audio %}audio{% else %}video{% endif %}, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
                     </div>
             
-            		<div id="admincontent-bottom"> 
-            		<div id="admincontent-bottom-inner"> 
-            			<div id="admincontent-bottom-body"></div> 
-            		</div> 
-            		</div> 
-            	</div><!-- End id="admincontent-inner" --> 
+                    <div id="admincontent-bottom"> 
+                    <div id="admincontent-bottom-inner"> 
+                        <div id="admincontent-bottom-body"></div> 
+                    </div> 
+                    </div> 
+                </div><!-- End id="admincontent-inner" --> 
             </div><!-- End id="admincontent" --> 
 
 </div>
@@ -130,8 +130,8 @@
 {% else %}
 {% include 'main/maintenance_mode.html' %}
 {% endflag %}
-	<!-- ###### Footer ###### -->
-	<div id="footer_m"><div></div>
+    <!-- ###### Footer ###### -->
+    <div id="footer_m"><div></div>
 
 </div>
 <script type="text/javascript">
