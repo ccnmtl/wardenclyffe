@@ -35,12 +35,11 @@ def mediathread(request):
     request.session['redirect_to'] = authenticator.redirect_to
     request.session['hmac'] = authenticator.hmc
     audio = request.GET.get('audio', False)
-    folder_name = request.GET.get('folder', '')
+    folder = request.GET.get('folder', '')
     template = 'mediathread/mediathread.html'
     return render(
         request, template,
-        dict(username=username, user=user, audio=audio,
-             folder_name=folder_name))
+        dict(username=username, user=user, audio=audio, folder=folder))
 
 
 @transaction.non_atomic_requests
