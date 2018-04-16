@@ -1121,7 +1121,8 @@ class SearchView(StaffMixin, ListView):
                 Q(language__icontains=q) |
                 Q(description__icontains=q) |
                 Q(subject__icontains=q) |
-                Q(license__icontains=q)
+                Q(license__icontains=q) |
+                Q(file__filename__icontains=q)
             )
 
         sort_by = self.request.GET.get('sort_by', 'modified')
