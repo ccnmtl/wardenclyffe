@@ -139,6 +139,9 @@ class EmptyVideoTest(TestCase):
     def test_has_flv(self):
         self.assertFalse(self.video.has_flv())
 
+    def test_has_panopto_source(self):
+        self.assertFalse(self.video.has_panopto_source())
+
     def test_has_mp4(self):
         self.assertFalse(self.video.has_mp4())
 
@@ -318,6 +321,10 @@ class MediathreadVideoTest(TestCase):
             "40e67868-41f1-11e1-aaa7-0017f20ea192-"
             "Mediathread_video_uploaded_by_anp8.flv")
 
+    def test_has_panopto_source(self):
+        f = FileFactory(location_type='panopto')
+        self.assertTrue(f.video.has_panopto_source())
+
     def test_mediathread_url(self):
         f = CUITFLVFileFactory(
             filename=("/www/data/ccnmtl/broadcast/secure/courses/"
@@ -331,6 +338,9 @@ class MediathreadVideoTest(TestCase):
                 "/OPTIONS/secure/courses/"
                 "40e67868-41f1-11e1-aaa7-0017f20ea192"
                 "-Mediathread_video_uploaded_by_anp8.flv"))
+
+        f = FileFactory(location_type='panopto', filename='foo')
+        self.assertEquals(f.video.mediathread_url(), 'foo')
 
     def test_poster_url(self):
         f = CUITFLVFileFactory()

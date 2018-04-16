@@ -1,7 +1,8 @@
 from django.test import TestCase
-from wardenclyffe.mediathread.tasks import mediathread_submit_params
+
 from wardenclyffe.main.tests.factories import (
-    VideoFactory, UserFactory, CUITFLVFileFactory)
+    VideoFactory, UserFactory, CUITFLVFileFactory, FileFactory)
+from wardenclyffe.mediathread.tasks import mediathread_submit_params
 
 
 class TestMediathreadSubmitParams(TestCase):
@@ -37,3 +38,17 @@ class TestMediathreadSubmitParams(TestCase):
         self.assertTrue('mp4_pseudo' not in p)
         self.assertTrue('flv_pseudo' in p)
         self.assertEqual(p['flv_pseudo-metadata'], 'w100h200')
+
+    def test_panopto(self):
+        f = FileFactory(location_type='panopto', filename='foo')
+        v = f.video
+        u = UserFactory()
+        p = mediathread_submit_params(
+            v, "a course id", u.username,
+            "a mediathread secret",
+            False, 100, 200
+        )
+        self.assertTrue('mp4_audio' not in p)
+        self.assertTrue('mp4_pseudo' not in p)
+        self.assertTrue('flv_pseudo' not in p)
+        self.assertTrue('mp4_panopto' in p)
