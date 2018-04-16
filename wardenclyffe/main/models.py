@@ -96,6 +96,9 @@ class Video(TimeStampedModel):
     def has_s3_source(self):
         return self.s3_file() is not None
 
+    def has_panopto_source(self):
+        return self.file_set.filter(location_type='panopto').exists()
+
     def s3_transcoded(self):
         r = self.file_set.filter(
             location_type='s3', label="transcoded 480p file (S3)")
@@ -160,6 +163,10 @@ class Video(TimeStampedModel):
     def mediathread_url(self):
         for f in self.file_set.filter(location_type="cuit"):
             return f.mediathread_public_url()
+
+        for f in self.file_set.filter(location_type="panopto"):
+            return f.filename
+
         return ""
 
     def h264_secure_stream_file(self):
@@ -404,8 +411,8 @@ class Video(TimeStampedModel):
                             action="pull from s3 and upload to youtube")
 
     def make_pull_from_s3_and_upload_to_panopto_operation(
-            self, video_id, folder_id, user):
-        params = dict(video_id=video_id, folder_id=folder_id)
+            self, video_id, folder, user):
+        params = dict(video_id=video_id, folder=folder)
         return self.make_op(user, params,
                             action="pull from s3 and upload to panopto")
 
@@ -437,8 +444,13 @@ class Video(TimeStampedModel):
         ought to be enough to select a poster from """
         return self.image_set.all()[:100]
 
-    def initial_operations(self, key, user, audio):
-        if audio:
+    def initial_operations(self, key, user, audio, folder=None):
+        if folder:
+            return [
+                self.make_pull_from_s3_and_upload_to_panopto_operation(
+                    self.id, folder, user)
+            ]
+        elif audio:
             return [self.make_local_audio_encode_operation(
                 key, user=user)]
         else:
@@ -879,9 +891,15 @@ class PullFromS3AndUploadToPanoptoOperation(OperationType):
 
 
 class VerifyUploadToPanoptoOperation(OperationType):
+
     def get_task(self):
         import wardenclyffe.panopto.tasks
         return wardenclyffe.panopto.tasks.verify_upload_to_panopto
+
+    def post_process(self):
+        ops = self.operation.video.handle_mediathread_submit()
+        ops.extend(self.operation.video.handle_mediathread_update())
+        return ops
 
 
 class CreateElasticTranscoderJobOperation(OperationType):

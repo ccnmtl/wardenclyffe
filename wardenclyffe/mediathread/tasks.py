@@ -41,6 +41,8 @@ def mediathread_submit_params(video, course_id, username, mediathread_secret,
         else:
             params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
+    elif video.has_panopto_source():
+        params['mp4_panopto'] = video.mediathread_url()
     elif video.mediathread_url():
         # try flv pseudo stream as a fallback
         params['flv_pseudo'] = video.mediathread_url()
@@ -80,10 +82,6 @@ def submit_to_mediathread(operation):
     mediathread_base = settings.MEDIATHREAD_BASE
 
     (width, height) = guess_dimensions(video, audio)
-    if not width or not height:
-        statsd.incr(
-            "mediathread.tasks.submit_to_mediathread.failure.dimensions")
-        return ("failed", "could not figure out dimensions")
     if not video.mediathread_url():
         statsd.incr(
             "mediathread.tasks.submit_to_mediathread.failure.video_url")

@@ -527,10 +527,10 @@ def upload(request):
     v.make_uploaded_source_file(key)
 
     if request.POST.get("submit_to_panopto", False):
-        folder_name = request.POST.get('folder_id', None)
+        folder = request.POST.get('folder', None)
         operations = [
             v.make_pull_from_s3_and_upload_to_panopto_operation(
-                v.id, folder_name, request.user)
+                v.id, folder, request.user)
         ]
     else:
         operations = v.initial_operations(key, request.user,
