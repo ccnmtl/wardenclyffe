@@ -80,7 +80,7 @@ httpretty==0.9.4
 contextlib2==0.5.5
 ipaddress==1.0.21
 text-unidecode==1.2  # for faker
-Faker==0.8.14
+Faker==0.8.15
 factory_boy==2.11.1
 rcssmin==1.0.6
 rjsmin==1.0.12
