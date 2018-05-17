@@ -14,8 +14,7 @@ def panopto_upload(operation, video, folder, input_file):
     uploader.server = settings.PANOPTO_SERVER
     uploader.folder = folder
     uploader.username = settings.PANOPTO_API_USER
-    uploader.instance_name = settings.PANOPTO_INSTANCE_NAME
-    uploader.application_key = settings.PANOPTO_APPLICATION_KEY
+    uploader.password = settings.PANOPTO_API_PASSWORD
     uploader.input_file = input_file
     uploader.title = video.title
     uploader.description = video.description
@@ -75,13 +74,11 @@ def verify_upload_to_panopto(operation):
     params = loads(operation.params)
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
-    user = operation.owner
 
     upload_status = PanoptoUploadStatus()
     upload_status.server = settings.PANOPTO_SERVER
     upload_status.username = settings.PANOPTO_API_USER
-    upload_status.instance_name = settings.PANOPTO_INSTANCE_NAME
-    upload_status.application_key = settings.PANOPTO_APPLICATION_KEY
+    upload_status.password = settings.PANOPTO_API_PASSWORD
     upload_status.upload_id = params['upload_id']
 
     (state, panopto_id) = upload_status.check()
@@ -94,7 +91,5 @@ def verify_upload_to_panopto(operation):
     File.objects.create(
         video=video, location_type="panopto", url=url,
         filename=panopto_id, label="uploaded to panopto")
-
-    upload_status.set_viewer(panopto_id, [user.username])
 
     return ('complete', '')
