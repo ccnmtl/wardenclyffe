@@ -1,4 +1,5 @@
 from json import loads, dumps
+import os
 import tempfile
 
 from django.conf import settings
@@ -9,7 +10,7 @@ from wardenclyffe.main.models import Video, File
 from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 
 
-def panopto_upload(operation, video, folder, input_file):
+def panopto_upload(operation, video, folder, input_file, extension):
     uploader = PanoptoUpload()
     uploader.server = settings.PANOPTO_SERVER
     uploader.folder = folder
@@ -18,7 +19,7 @@ def panopto_upload(operation, video, folder, input_file):
     uploader.input_file = input_file
     uploader.title = video.title
     uploader.description = video.description
-    uploader.dest_filename = '{}.{}'.format(video.uuid, video.extension())
+    uploader.dest_filename = '{}.{}'.format(video.uuid, extension)
 
     if not uploader.create_session():
         operation.fail('Failed to create a Panopto upload session')
@@ -56,7 +57,8 @@ def pull_from_s3_and_upload_to_panopto(operation):
 
     # the pull_from_s3 returns an open file pointer. Wait to close it
     # until the pypanopto library reads it
-    uploader = panopto_upload(operation, video, params['folder'], tmp.name)
+    uploader = panopto_upload(
+        operation, video, params['folder'], tmp.name, suffix)
     tmp.close()
 
     if uploader:
@@ -71,22 +73,26 @@ def pull_from_cunix_and_upload_to_panopto(operation):
     statsd.incr('pull_from_cunix_and_upload_to_panopto')
 
     params = loads(operation.params)
-    video_id = params['video_id']
-    video = Video.objects.get(id=video_id)
-    suffix = video.extension()
 
-    # pull the flv down from cunix
-    tmp = tempfile.NamedTemporaryFile(suffix=suffix)
+    # pull the file down from cunix
     try:
-        file = video.cuit_file()
+        video_id = params['video_id']
+        video = Video.objects.get(id=video_id)
+        f = video.cuit_file()
+    except Video.DoesNotExist:
+        operation.fail('Unable to find video')
+        return None
     except AttributeError:
         operation.fail('Unable to get cunix file')
         return None
 
-    sftp_get(file.filename, tmp.name)
+    suffix = os.path.splitext(f.filename)[1]
+    tmp = tempfile.NamedTemporaryFile(suffix=suffix)
+    sftp_get(f.filename, tmp.name)
+    tmp.seek(0)
 
-    # open a file pointer to the CUNIX file
-    uploader = panopto_upload(operation, video, params['folder'], tmp.name)
+    uploader = panopto_upload(
+        operation, video, params['folder'], tmp.name, suffix[1:])
     tmp.close()
 
     if uploader:
