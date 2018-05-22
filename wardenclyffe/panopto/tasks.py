@@ -1,12 +1,12 @@
-from json import loads
+from json import loads, dumps
+import tempfile
 
 from django.conf import settings
 from django_statsd.clients import statsd
 from panopto.upload import PanoptoUpload, PanoptoUploadStatus
 
 from wardenclyffe.main.models import Video, File
-from wardenclyffe.main.tasks import pull_from_s3
-import wardenclyffe.main.tasks as tasks
+from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 
 
 def panopto_upload(operation, video, folder, input_file):
@@ -60,10 +60,39 @@ def pull_from_s3_and_upload_to_panopto(operation):
     tmp.close()
 
     if uploader:
-        # queue another operation
-        op = video.make_verify_upload_to_panopto_operation(
-            operation.owner, video.id, uploader.get_upload_id())
-        tasks.process_operation.delay(op.id)
+        params['upload_id'] = uploader.get_upload_id()
+        operation.params = dumps(params)
+        operation.save()
+
+    return ('complete', '')
+
+
+def pull_from_cunix_and_upload_to_panopto(operation):
+    statsd.incr('pull_from_cunix_and_upload_to_panopto')
+
+    params = loads(operation.params)
+    video_id = params['video_id']
+    video = Video.objects.get(id=video_id)
+    suffix = video.extension()
+
+    # pull the flv down from cunix
+    tmp = tempfile.NamedTemporaryFile(suffix=suffix)
+    try:
+        file = video.cuit_file()
+    except AttributeError:
+        operation.fail('Unable to get cunix file')
+        return None
+
+    sftp_get(file.filename, tmp.name)
+
+    # open a file pointer to the CUNIX file
+    uploader = panopto_upload(operation, video, params['folder'], tmp.name)
+    tmp.close()
+
+    if uploader:
+        params['upload_id'] = uploader.get_upload_id()
+        operation.params = dumps(params)
+        operation.save()
 
     return ('complete', '')
 

@@ -33,10 +33,16 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
     def submit_video_to_panopto(self, video, folder_id):
         statsd.incr("panopto.submit")
 
-        operations = [
-            video.make_pull_from_s3_and_upload_to_panopto_operation(
-                video.id, folder_id, self.request.user)
-        ]
+        if video.has_s3_source():
+            operations = [
+                video.make_pull_from_s3_and_upload_to_panopto_operation(
+                    video.id, folder_id, self.request.user)
+            ]
+        elif video.cuit_file():
+            operations = [
+                video.make_pull_from_cunix_and_upload_to_panopto_operation(
+                    video.id, folder_id, self.request.user)
+            ]
 
         enqueue_operations(operations)
 
