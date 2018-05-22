@@ -96,9 +96,6 @@ class Video(TimeStampedModel):
     def has_s3_source(self):
         return self.s3_file() is not None
 
-    def has_panopto_source(self):
-        return self.file_set.filter(location_type='panopto').exists()
-
     def s3_transcoded(self):
         r = self.file_set.filter(
             location_type='s3', label="transcoded 480p file (S3)")
@@ -113,6 +110,9 @@ class Video(TimeStampedModel):
             return t.cap
         else:
             return None
+
+    def has_panopto_source(self):
+        return self.file_set.filter(location_type='panopto').exists()
 
     def source_file(self):
         return self.file_set.filter(label='source file').first()
@@ -415,6 +415,12 @@ class Video(TimeStampedModel):
         params = dict(video_id=video_id, folder=folder)
         return self.make_op(user, params,
                             action="pull from s3 and upload to panopto")
+
+    def make_pull_from_cunix_and_upload_to_panopto_operation(
+            self, video_id, folder, user):
+        params = dict(video_id=video_id, folder=folder)
+        return self.make_op(user, params,
+                            action="pull from cunix and upload to panopto")
 
     def make_verify_upload_to_panopto_operation(
             self, user, video_id, upload_id):
@@ -889,6 +895,31 @@ class PullFromS3AndUploadToPanoptoOperation(OperationType):
         import wardenclyffe.panopto.tasks
         return wardenclyffe.panopto.tasks.pull_from_s3_and_upload_to_panopto
 
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 'upload_id' not in params:
+            return []
+
+        return [operation.video.make_verify_upload_to_panopto_operation(
+            operation.owner, operation.video.id, params['upload_id'])]
+
+
+class PullFromCunixAndUploadToPanoptoOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.panopto.tasks
+        return \
+            wardenclyffe.panopto.tasks.pull_from_cunix_and_upload_to_panopto
+
+    def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+        if 'upload_id' not in params:
+            return []
+
+        return [operation.video.make_verify_upload_to_panopto_operation(
+            operation.owner, operation.video.id, params['upload_id'])]
+
 
 class VerifyUploadToPanoptoOperation(OperationType):
 
@@ -991,6 +1022,8 @@ OPERATION_TYPE_MAPPER = {
     PullFromS3AndUploadToYoutubeOperation,
     'pull from s3 and upload to panopto':
     PullFromS3AndUploadToPanoptoOperation,
+    'pull from cunix and upload to panopto':
+    PullFromCunixAndUploadToPanoptoOperation,
     'verify upload to panopto':
     VerifyUploadToPanoptoOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
