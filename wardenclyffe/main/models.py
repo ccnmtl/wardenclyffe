@@ -88,6 +88,9 @@ class Video(TimeStampedModel):
     objects = VideoManager()
     tags = TaggableManager(blank=True)
 
+    def __str__(self):
+        return self.title
+
     def s3_file(self):
         r = self.file_set.filter(
             location_type='s3', label="uploaded source file (S3)")
@@ -545,6 +548,9 @@ class File(TimeStampedModel):
                                               ('panopto', 'panopto'),
                                               ('none', 'none')))
     objects = FileManager()
+
+    def __str__(self):
+        return self.filename
 
     def filetype(self):
         tmap = dict(
