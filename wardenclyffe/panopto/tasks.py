@@ -24,22 +24,22 @@ def panopto_upload(operation, video, folder, input_file, extension):
     if not uploader.create_session():
         operation.fail('Failed to create a Panopto upload session')
         return None
-    operation.log(info="Panopto upload initialized")
+    operation.log(info='Panopto upload initialized')
 
     uploader.create_bucket()
-    operation.log(info="Upload bucket created")
+    operation.log(info='Upload bucket created')
 
     uploader.upload_manifest()
-    operation.log(info="Manifest uploaded")
+    operation.log(info='Manifest uploaded')
 
     uploader.upload_media()
-    operation.log(info="Media file uploaded")
+    operation.log(info='Media file uploaded')
 
     if not uploader.complete_session():
         operation.fail('Panopto complete session failed')
         return None
 
-    operation.log(info="Panopto upload completed")
+    operation.log(info='Panopto upload completed')
     return uploader
 
 
@@ -124,7 +124,7 @@ def verify_upload_to_panopto(operation):
         settings.PANOPTO_SERVER, panopto_id)
 
     File.objects.create(
-        video=video, location_type="panopto", url=url,
-        filename=panopto_id, label="uploaded to panopto")
+        video=video, location_type='panopto', url=url,
+        filename=panopto_id, label='uploaded to panopto')
 
     return ('complete', '')
