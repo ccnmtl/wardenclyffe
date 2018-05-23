@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from wardenclyffe.panopto.views import (
-    CollectionSubmitView, CollectionSubmitSuccessView)
+    CollectionSubmitView, CollectionSubmitSuccessView, VideoSubmitView)
 
 
 urlpatterns = [
@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^collection/(?P<pk>\d+)/success/$',
         CollectionSubmitSuccessView.as_view(),
         name='panopto-collection-success-submit'),
+    url(r'^video/(?P<pk>\d+)/$', VideoSubmitView.as_view(),
+        name='panopto-video-submit'),
 ]

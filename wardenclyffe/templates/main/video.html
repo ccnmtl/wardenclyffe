@@ -192,18 +192,20 @@ var removeTag = function(tagName,tagId) {
 </div>
 
 <div  class="tab-pane fade" role="tabpanel" id="actions">
+
 <p><a href="add_file/">manually add a file/location -&gt;</a></p>
 <p><a href="mediathread_submit/">import into mediathread -&gt;</a></p>
+<p><a href="{% url 'panopto-video-submit' video.id %}">submit to panopto -&gt;</a></p>
 
 {% flag "s3_to_youtube" %}
-<form action="{% url 's3-to-youtube' video.id %}" method="post">
+<form action="{% url 's3-to-youtube' video.id %}" method="post" class="mt-1">
     <input type="submit" value="pull from S3 and upload to youtube" />
 </form>
 {% endflag %}
 
 {% if video.flv_convertable %}
-    <form action="{% url 'video-flv-to-mp4' video.id %}" method="post">
-        <input type="submit" value="convert flv to mp4" />        
+    <form action="{% url 'video-flv-to-mp4' video.id %}" method="post" class="mt-1">
+        <input type="submit" value="convert flv to mp4" />
     </form>
 {% endif %}
 </div>
