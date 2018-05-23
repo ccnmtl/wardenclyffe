@@ -10,3 +10,8 @@ class CollectionSubmitForm(forms.Form):
 
     folder_id = forms.CharField(required=True,
                                 help_text="Panoptop Folder UUID")
+
+
+class VideoSubmitForm(forms.Form):
+    folder_id = forms.CharField(required=True,
+                                help_text="Panoptop Folder UUID")
