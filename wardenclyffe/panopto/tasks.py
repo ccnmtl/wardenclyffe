@@ -4,9 +4,10 @@ import tempfile
 
 from django.conf import settings
 from django_statsd.clients import statsd
+from panopto.session import PanoptoSessionManager
 from panopto.upload import PanoptoUpload, PanoptoUploadStatus
 
-from wardenclyffe.main.models import Video, File
+from wardenclyffe.main.models import Video, File, Image, Poster
 from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 
 
@@ -117,7 +118,7 @@ def verify_upload_to_panopto(operation):
     upload_status.upload_id = params['upload_id']
 
     (state, panopto_id) = upload_status.check()
-    if panopto_id is None:
+    if state != 4:  # Panopto "Complete" State
         raise Exception('Panopto is not yet finished.')
 
     url = 'https://{}/Panopto/Pages/Viewer.aspx?id={}'.format(
@@ -127,4 +128,32 @@ def verify_upload_to_panopto(operation):
         video=video, location_type='panopto', url=url,
         filename=panopto_id, label='uploaded to panopto')
 
+    params['panopto_id'] = panopto_id
+    operation.params = dumps(params)
+    operation.save()
+
+    return ('complete', '')
+
+
+def pull_thumb_from_panopto(operation):
+    statsd.incr('verify upload to panopto')
+
+    params = loads(operation.params)
+    video_id = params['video_id']
+    video = Video.objects.get(id=video_id)
+    panopto_id = params['panopto_id']
+
+    session_mgr = PanoptoSessionManager(
+        settings.PANOPTO_SERVER, settings.PANOPTO_API_USER,
+        instance_name=settings.PANOPTO_INSTANCE_NAME,
+        password=settings.PANOPTO_API_PASSWORD)
+
+    thumb_url = session_mgr.get_thumb_url(panopto_id)
+
+    if not thumb_url or thumb_url.endswith('no_thumbnail.png'):
+        raise Exception('Panopto thumbnail is not yet ready.')
+
+    url = 'https://{}{}'.format(settings.PANOPTO_SERVER, thumb_url)
+    img = Image.objects.create(video=operation.video, image=url)
+    Poster.objects.create(video=video, image=img)
     return ('complete', '')

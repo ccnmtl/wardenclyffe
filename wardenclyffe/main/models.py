@@ -431,6 +431,11 @@ class Video(TimeStampedModel):
         return self.make_op(user, params,
                             action="verify upload to panopto")
 
+    def make_pull_thumb_from_panopto_operation(
+            self, user, video_id, panopto_id):
+        params = dict(video_id=video_id, panopto_id=panopto_id)
+        return self.make_op(user, params, action="pull thumb from panopto")
+
     def make_flv_to_mp4_operation(self, user):
         return self.make_op(user, dict(), action="copy flv from cunix to s3")
 
@@ -934,6 +939,20 @@ class VerifyUploadToPanoptoOperation(OperationType):
         return wardenclyffe.panopto.tasks.verify_upload_to_panopto
 
     def post_process(self):
+        operation = self.operation
+        params = loads(operation.params)
+
+        return [operation.video.make_pull_thumb_from_panopto_operation(
+            operation.owner, operation.video.id, params['panopto_id'])]
+
+
+class PullThumbFromPanoptoOperation(OperationType):
+
+    def get_task(self):
+        import wardenclyffe.panopto.tasks
+        return wardenclyffe.panopto.tasks.pull_thumb_from_panopto
+
+    def post_process(self):
         ops = self.operation.video.handle_mediathread_submit()
         ops.extend(self.operation.video.handle_mediathread_update())
         return ops
@@ -1030,8 +1049,8 @@ OPERATION_TYPE_MAPPER = {
     PullFromS3AndUploadToPanoptoOperation,
     'pull from cunix and upload to panopto':
     PullFromCunixAndUploadToPanoptoOperation,
-    'verify upload to panopto':
-    VerifyUploadToPanoptoOperation,
+    'verify upload to panopto': VerifyUploadToPanoptoOperation,
+    'pull thumb from panopto': PullThumbFromPanoptoOperation,
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,
     'delete from cunix': DeleteFromCunixOperation,
@@ -1054,13 +1073,16 @@ class OperationLog(TimeStampedModel):
 
 class Image(TimeStampedModel):
     video = models.ForeignKey(Video)
-    image = models.CharField(max_length=100)
+    image = models.CharField(max_length=1024)
 
     class Meta:
         order_with_respect_to = "video"
 
     def src(self):
-        return settings.IMAGES_URL_BASE + str(self.image)
+        if self.image.startswith('http'):
+            return self.image
+        else:
+            return settings.IMAGES_URL_BASE + str(self.image)
 
 
 class Poster(models.Model):
