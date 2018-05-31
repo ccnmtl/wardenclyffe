@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import base64
 import hmac
 from json import dumps, loads
@@ -11,6 +13,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import smart_text, python_2_unicode_compatible
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
 from surelink import SureLink
@@ -74,6 +77,7 @@ class VideoManager(models.Manager):
         )
 
 
+@python_2_unicode_compatible
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
