@@ -38,7 +38,7 @@ idna==2.6
 bcrypt==3.1.4
 pynacl==1.2.1
 paramiko==2.4.1
-raven==6.8.0
+raven==6.9.0
 pyOpenSSL==18.0.0
 ndg-httpsclient==0.5.0
 
