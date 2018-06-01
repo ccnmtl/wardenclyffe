@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import base64
 import hmac
 from json import dumps, loads
@@ -11,6 +13,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
 from surelink import SureLink
@@ -21,6 +24,7 @@ from taggit.managers import TaggableManager
 from wardenclyffe.util.mail import send_failed_operation_mail
 
 
+@python_2_unicode_compatible
 class Collection(TimeStampedModel):
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256, default="", blank=True)
@@ -37,7 +41,7 @@ class Collection(TimeStampedModel):
 
     tags = TaggableManager(blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -74,6 +78,7 @@ class VideoManager(models.Manager):
         )
 
 
+@python_2_unicode_compatible
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection)
     title = models.CharField(max_length=256)
@@ -1100,6 +1105,7 @@ class DummyPoster:
         return settings.DEFAULT_POSTER_URL
 
 
+@python_2_unicode_compatible
 class Server(models.Model):
     name = models.CharField(max_length=256)
     hostname = models.CharField(max_length=256)
@@ -1109,7 +1115,7 @@ class Server(models.Model):
     base_url = models.CharField(max_length=256, default="")
     server_type = models.CharField(max_length=256, default="sftp")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
