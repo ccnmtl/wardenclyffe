@@ -58,7 +58,7 @@ flake8==3.5.0
 logilab-common==1.4.1
 logilab-astng==0.24.3
 editdistance==0.4
-pylint==1.9.1
+pylint==1.9.2
 ldap3==2.5
 surelink==1.0.1
 boto==2.48.0
@@ -126,5 +126,6 @@ requests-toolbelt==0.8.0
 isodate==0.6.0
 cached-property==1.4.2
 zeep==2.5.0
-pypanopto==0.0.3
+pypanopto==0.0.4
 django-bootstrap4==0.0.6
+
