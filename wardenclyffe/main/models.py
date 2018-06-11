@@ -87,7 +87,6 @@ class Video(TimeStampedModel):
     subject = models.TextField(default="", blank=True, null=True)
     license = models.CharField(max_length=256, default="", blank=True)
     language = models.CharField(max_length=256, default="", blank=True)
-
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = VideoManager()
@@ -496,6 +495,12 @@ class FileType(object):
 
     def s3_download_url(self):
         return None
+
+
+class VideoReference(models.Model):
+    video = models.ForeignKey(Video)
+    url = models.URLField()
+    name = models.CharField(max_length=1024, blank=True, null=True)
 
 
 class CUITFile(FileType):
