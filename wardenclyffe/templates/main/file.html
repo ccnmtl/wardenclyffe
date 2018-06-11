@@ -121,17 +121,27 @@ S3 Key
 
 
 {% if file.url %}
-{% ifequal file.location_type "mediathread" %}
-{% else %}
-<div id="embed">
-<p>Raw HTML Embed code:</p>
-<textarea rows="5" cols="100">
-{% oembed %}{{file.url}}{% endoembed %}
-</textarea>
-<p>Preview</p>
-{% oembed %}{{file.url}}{% endoembed %}
-</div>
-{% endifequal %}
+    {% if file.location_type == "mediathread" %}
+    {% else %}{% if file.location_type == "panopto" %}
+        <div><b>Link</b>:{{file.url}}</div>
+        <div id="embed">
+        <p>Embed Code:</p>
+        <textarea rows="5" cols="100">
+            <iframe src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{file.filename}}&v=1" width="720" height="405" style="padding: 0px; border: 1px solid #464646;" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+        </textarea>
+        <p>Preview</p>
+        <iframe src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{file.filename}}&v=1" width="720" height="405" style="padding: 0px; border: 1px solid #464646;" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+        </div>
+    {% else %}
+    <div id="embed">
+    <p>Raw HTML Embed code:</p>
+    <textarea rows="5" cols="100">
+    {% oembed %}{{file.url}}{% endoembed %}
+    </textarea>
+    <p>Preview</p>
+    {% oembed %}{{file.url}}{% endoembed %}
+    </div>
+    {% endif %}{% endif %}
 {% endif %}
 
 {% if file.metadata_set.count %}

@@ -1,18 +1,21 @@
+import json
+import os.path
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
-from django.test.utils import override_settings
 from django.test.client import Client
+from django.test.utils import override_settings
+from httpretty import HTTPretty, httprettified
+import httpretty
+
 from wardenclyffe.main.models import (
     Collection, Operation, File)
-from wardenclyffe.main.views import VideoYoutubeUploadView, key_from_s3url
 from wardenclyffe.main.tests.factories import (
     FileFactory, OperationFactory, ServerFactory,
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
-from httpretty import HTTPretty, httprettified
-import json
-import os.path
-import httpretty
+from wardenclyffe.main.views import (
+    CollectionPanoptoReportView, VideoYoutubeUploadView, key_from_s3url)
 
 
 class SimpleTest(TestCase):
@@ -819,3 +822,33 @@ class FLVImportTest(TestCase):
             self.assertEqual(r.status_code, 302)
             self.assertEqual(self.secure_collection.video_set.count(), 1)
             self.assertEqual(self.public_collection.video_set.count(), 1)
+
+
+class CollectionPanoptoReportViewTest(TestCase):
+
+    def test_cuit_filename(self):
+        f = FileFactory()
+        view = CollectionPanoptoReportView()
+        self.assertEquals(
+            view.cuit_filename(f.video),
+            ("56d27944-4131-11e1-8164-0017f20ea192"
+             "-Mediathread_video_uploaded_by_mlp55.mp4"))
+
+    def test_rows(self):
+        f = FileFactory()
+        FileFactory(location_type='panopto', video=f.video, filename='alpha')
+
+        with self.settings(
+            PANOPTO_LINK_URL='http://testserver/link/{}/',
+                PANOPTO_EMBED_URL='http://testserver/embed/{}/'):
+            view = CollectionPanoptoReportView()
+            rows = view.rows(f.video.collection)
+            self.assertEquals(len(rows), 1)
+            self.assertEquals(rows[0][0], 'test video')
+            self.assertEquals(
+                rows[0][1],
+                ("56d27944-4131-11e1-8164-0017f20ea192"
+                 "-Mediathread_video_uploaded_by_mlp55.mp4"))
+            self.assertEquals(rows[0][2], 'alpha')
+            self.assertEquals(rows[0][3], 'http://testserver/link/alpha/')
+            self.assertEquals(rows[0][4], 'http://testserver/embed/alpha/')

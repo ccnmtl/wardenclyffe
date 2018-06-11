@@ -121,6 +121,9 @@ class Video(TimeStampedModel):
     def has_panopto_source(self):
         return self.file_set.filter(location_type='panopto').exists()
 
+    def panopto_file(self):
+        return self.file_set.filter(location_type='panopto').first()
+
     def source_file(self):
         return self.file_set.filter(label='source file').first()
 

@@ -34,15 +34,15 @@ def mediathread_submit_params(video, course_id, username, mediathread_secret,
         "metadata-tag": "upload",
     }
     params['thumb'] = video.cuit_poster_url() or video.poster_url()
-    if video.h264_secure_stream_url():
+    if video.has_panopto_source():
+        params['mp4_panopto'] = video.mediathread_url()
+    elif video.h264_secure_stream_url():
         # prefer h264 secure pseudo stream
         if audio:
             params['mp4_audio'] = video.h264_secure_stream_url()
         else:
             params['mp4_pseudo'] = video.h264_secure_stream_url()
         params["mp4-metadata"] = "w%dh%d" % (width, height)
-    elif video.has_panopto_source():
-        params['mp4_panopto'] = video.mediathread_url()
     elif video.mediathread_url():
         # try flv pseudo stream as a fallback
         params['flv_pseudo'] = video.mediathread_url()

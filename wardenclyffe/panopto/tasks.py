@@ -121,8 +121,7 @@ def verify_upload_to_panopto(operation):
     if state != 4:  # Panopto "Complete" State
         raise Exception('Panopto is not yet finished.')
 
-    url = 'https://{}/Panopto/Pages/Viewer.aspx?id={}'.format(
-        settings.PANOPTO_SERVER, panopto_id)
+    url = settings.PANOPTO_LINK_URL.format(panopto_id)
 
     File.objects.create(
         video=video, location_type='panopto', url=url,
