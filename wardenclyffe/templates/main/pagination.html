@@ -3,7 +3,7 @@
         <div class="float-right">
             <a class="btn btn-light btn-sm btn-paginate {% if not page_obj.has_next %}disabled{% endif %}"
                 {% if page_obj.has_next %}
-                    href="{{base_url}}{{page_obj.next_page_number}}"
+                    href="{{base_url}}{{page_obj.next_page_number}}&q={{q}}"
                     data-page-number="{{page_obj.next_page_number}}"
                 {% else %}
                     href="#"
@@ -12,7 +12,7 @@
             </a>
 
             <a class="btn btn-light btn-sm btn-paginate {% if not page_obj.has_next %}disabled{% endif %}"
-                href="{{base_url}}{{paginator.num_pages}}"
+                href="{{base_url}}{{paginator.num_pages}}&q={{q}}"
                 data-page-number="{{paginator.num_pages}}">
                  Last <span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>
             </a>
@@ -22,12 +22,12 @@
         </div>
         <div class="float-right">
             <a class="btn btn-light btn-sm btn-paginate {% if not page_obj.has_previous %}disabled{% endif %}"
-                data-page-number="1" href="{{base_url}}1">
+                data-page-number="1" href="{{base_url}}1&q={{q}}">
                 <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span> First
             </a>
             <a class="btn btn-light btn-sm btn-paginate {% if not page_obj.has_previous %}disabled{% endif %}"
                 {% if page_obj.has_previous %} 
-                    href="{{base_url}}{{page_obj.previous_page_number}}"
+                    href="{{base_url}}{{page_obj.previous_page_number}}&q={{q}}"
                     data-page-number="{{page_obj.previous_page_number}}"
                 {% else %}
                     href="#"
