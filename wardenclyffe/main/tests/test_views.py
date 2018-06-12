@@ -557,6 +557,16 @@ class TestStaff(TestCase):
                                                  active="on"))
         self.assertEqual(r.status_code, 302)
 
+    def test_add_collection_and_initialize(self):
+        v = VideoFactory(title='alpha')
+        r = self.c.post(
+            "/add_collection/",
+            dict(title="new collection", active="on", q="alpha"))
+        self.assertEqual(r.status_code, 302)
+
+        c = Collection.objects.get(title='new collection')
+        self.assertEquals(c.video_set.first(), v)
+
     def test_operation(self):
         o = OperationFactory()
         response = self.c.get("/operation/%s/" % o.uuid)

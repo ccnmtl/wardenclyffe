@@ -26,7 +26,7 @@
         <div class="visualclear"></div>
         <div>
             <div class="total-results-count float-left">
-                {{paginator.count}} videos
+                {{paginator.count}} videos <a href="{% url 'add-collection'%}?q={{q}}" class="btn btn-default btn-sm">Collect</button>
             </div>
             <div class="float-right">
                 {% include 'main/pagination.html' %}
