@@ -370,6 +370,17 @@ class MediathreadVideoTest(TestCase):
         f.video.remove_mediathread_asset()
         self.assertFalse(f.video.has_mediathread_asset())
 
+    def test_handle_mediathread_delete(self):
+        f = FileFactory(location_type="mediathread")
+        pf = FileFactory(location_type="panopto", video=f.video)
+        self.assertTrue(f.video.has_mediathread_asset())
+        f.video.handle_mediathread_delete()
+        self.assertTrue(f.video.has_mediathread_asset())
+
+        pf.delete()
+        f.video.handle_mediathread_delete()
+        self.assertFalse(f.video.has_mediathread_asset())
+
     def test_mediathread_submit(self):
         f = MediathreadFileFactory()
         assert f.video.mediathread_submit() == (None, None, None)
