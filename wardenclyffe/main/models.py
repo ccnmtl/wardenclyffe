@@ -7,12 +7,13 @@ import os.path
 import sha
 import time
 import urllib
-import uuid
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.deletion import SET
+from django.db.models.query_utils import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
@@ -20,6 +21,7 @@ from surelink import SureLink
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink.helpers import PROTECTION_OPTIONS
 from taggit.managers import TaggableManager
+import uuid
 
 from wardenclyffe.util.mail import send_failed_operation_mail
 
@@ -57,6 +59,7 @@ class Collection(TimeStampedModel):
 
 
 class VideoManager(models.Manager):
+
     def video_from_form(self, form, username, collection_id):
         v = form.save(commit=False)
         vuuid = uuid.uuid4()
@@ -77,10 +80,29 @@ class VideoManager(models.Manager):
             uuid=vuuid,
         )
 
+    def search(self, q):
+        qs = Video.objects.all()
+
+        if q:
+            qs = qs.filter(
+                Q(title__icontains=q) |
+                Q(creator__icontains=q) |
+                Q(language__icontains=q) |
+                Q(description__icontains=q) |
+                Q(subject__icontains=q) |
+                Q(license__icontains=q) |
+                Q(file__filename__icontains=q)
+            ).distinct()
+        return qs
+
+
+def unclassified():
+    return Collection.objects.get_or_create(title='Unclassified')[0]
+
 
 @python_2_unicode_compatible
 class Video(TimeStampedModel):
-    collection = models.ForeignKey(Collection)
+    collection = models.ForeignKey(Collection, on_delete=SET(unclassified))
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256, default="", blank=True)
     description = models.TextField(default="", blank=True, null=True)

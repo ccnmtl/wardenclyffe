@@ -11,9 +11,17 @@
 {% block content %}
 
 <form action="." method="post" enctype="multipart/form-data">
+<input type="hidden" name="q" value="{{q}}" />
 <table>
 {{ form.as_table }}
 </table>
+{% if q %}
+    <br />
+    <div>
+        <strong>Videos:</strong> This collection will be initialized with videos that match "{{q}}".
+    </div>
+    <br />
+{% endif %}
 <input type="submit" value="add" />
 </form>
 

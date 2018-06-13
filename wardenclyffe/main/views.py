@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
 from django.http import (HttpResponseRedirect, HttpResponse,
                          HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
@@ -476,12 +475,24 @@ class AddCollectionView(StaffMixin, CreateView):
     form_class = AddCollectionForm
     template_name = 'main/add_collection.html'
 
+    def get_context_data(self, **kwargs):
+        ctx = CreateView.get_context_data(self, **kwargs)
+        ctx['q'] = self.request.GET.get('q', '')
+        return ctx
+
     def form_valid(self, form):
         suuid = uuid.uuid4()
-        s = form.save(commit=False)
-        s.uuid = suuid
-        s.save()
+        collection = form.save(commit=False)
+        collection.uuid = suuid
+        collection.save()
         form.save_m2m()
+
+        if 'q' in form.data:
+            # add existing videos to this collection
+            for v in Video.objects.search(form.data['q']):
+                v.collection = collection
+                v.save()
+
         return super(AddCollectionView, self).form_valid(form)
 
 
@@ -1111,19 +1122,8 @@ class SearchView(StaffMixin, ListView):
     template_name = 'main/search.html'
 
     def get_queryset(self):
-        qs = Video.objects.all()
-
         q = self.request.GET.get('q', '')
-        if q:
-            qs = qs.filter(
-                Q(title__icontains=q) |
-                Q(creator__icontains=q) |
-                Q(language__icontains=q) |
-                Q(description__icontains=q) |
-                Q(subject__icontains=q) |
-                Q(license__icontains=q) |
-                Q(file__filename__icontains=q)
-            )
+        qs = Video.objects.search(q)
 
         sort_by = self.request.GET.get('sort_by', 'modified')
         direction = self.request.GET.get('direction', 'desc')

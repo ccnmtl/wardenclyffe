@@ -5,9 +5,11 @@ unittest). These will both pass when you run "manage.py test".
 Replace these with more appropriate tests for your application.
 """
 
+from json import loads
+
 from django.test import TestCase
 from django.test.utils import override_settings
-from wardenclyffe.main.tasks import strip_special_characters
+
 from factories import (
     CollectionFactory, VideoFactory, CUITFLVFileFactory,
     SourceFileFactory, MediathreadFileFactory, S3FileFactory, FileFactory,
@@ -15,7 +17,8 @@ from factories import (
     ServerFactory, UserFactory, SecureFileFactory, PosterFactory,
     MediathreadSubmitFileFactory,
 )
-from json import loads
+from wardenclyffe.main.models import Video
+from wardenclyffe.main.tasks import strip_special_characters
 
 
 class CUITFileTest(TestCase):
@@ -74,6 +77,23 @@ class CollectionTest(TestCase):
 
         c = CollectionFactory(title="make sure default is secure")
         self.assertFalse(c.is_public())
+
+    def test_delete_collection(self):
+        v = VideoFactory()
+        v.collection.delete()
+        v.refresh_from_db()
+        self.assertEquals(v.collection.title, 'Unclassified')
+
+
+class VideoTest(TestCase):
+
+    def test_search(self):
+        video = VideoFactory(title='alpha')
+        VideoFactory(title='beta')
+
+        qs = Video.objects.search('alpha')
+        self.assertEquals(qs.count(), 1)
+        self.assertEquals(qs.first(), video)
 
 
 class EmptyVideoTest(TestCase):
