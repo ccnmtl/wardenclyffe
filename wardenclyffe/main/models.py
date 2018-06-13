@@ -266,6 +266,11 @@ class Video(TimeStampedModel):
         self.clear_mediathread_update()
         return [o]
 
+    def handle_mediathread_delete(self):
+        if self.has_mediathread_asset() and not self.has_panopto_source():
+            self.remove_mediathread_asset()
+        return []
+
     def create_mediathread_update(self):
         """ add a temporary File that indicates that an update to Meth
         is expected """
@@ -989,6 +994,10 @@ class DeleteFromCunixOperation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
         return wardenclyffe.main.tasks.delete_from_cunix
+
+    def post_process(self):
+        ops = self.operation.video.handle_mediathread_delete()
+        return ops
 
 
 class CopyFlvFromCunixToS3Operation(OperationType):
