@@ -138,3 +138,6 @@ GOOGLE_OAUTH2_CLIENT_ID = ""
 GOOGLE_OAUTH2_CLIENT_SECRET = ""
 
 PRIMARY_YOUTUBE_ACCOUNT = "ccnmtl@gmail.com"
+
+PANOPTO_LINK_URL = 'http://testserver/link/{}/'
+PANOPTO_EMBED_URL = 'http://testserver/embed/{}/'
