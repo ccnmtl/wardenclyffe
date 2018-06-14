@@ -279,11 +279,12 @@ class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
         rows = []
         for video in collection.video_set.all():
             pf = video.panopto_file()
-            link_url = settings.PANOPTO_LINK_URL.format(pf.filename)
-            embed_url = settings.PANOPTO_EMBED_URL.format(pf.filename)
-            rows.append([
-                video.title, self.cuit_filename(video),
-                pf.filename, link_url, embed_url])
+            if pf:
+                link_url = settings.PANOPTO_LINK_URL.format(pf.filename)
+                embed_url = settings.PANOPTO_EMBED_URL.format(pf.filename)
+                rows.append([
+                    video.title, self.cuit_filename(video),
+                    pf.filename, link_url, embed_url])
 
         return rows
 
