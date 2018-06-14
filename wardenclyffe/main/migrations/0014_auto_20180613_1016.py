@@ -20,7 +20,7 @@ def remove_orphan_mediathread_asset(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0012_videoreference'),
+        ('main', '0013_auto_20180612_1515'),
     ]
 
     operations = [

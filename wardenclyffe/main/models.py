@@ -292,7 +292,9 @@ class Video(TimeStampedModel):
         return [o]
 
     def handle_mediathread_delete(self):
-        if self.has_mediathread_asset() and not self.has_panopto_source():
+        if (self.has_mediathread_asset() and
+            not self.has_panopto_source() and
+                not self.has_cuit_source()):
             self.remove_mediathread_asset()
         return []
 
@@ -312,6 +314,9 @@ class Video(TimeStampedModel):
 
     def clear_mediathread_update(self):
         self.file_set.filter(location_type="mediathreadupdate").delete()
+
+    def has_cuit_source(self):
+        return self.file_set.filter(location_type="cuit").exists()
 
     def cuit_file(self):
         try:
