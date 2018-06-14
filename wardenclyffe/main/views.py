@@ -4,6 +4,7 @@ from json import dumps, loads
 import os
 import re
 import urlparse
+import uuid
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -28,10 +29,10 @@ from surelink import SureLink
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink.helpers import PROTECTION_OPTIONS
 from taggit.models import Tag
-import uuid
 
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
+from wardenclyffe.main.mixins import CSVResponseMixin
 from wardenclyffe.main.models import Metadata, Image, Poster
 from wardenclyffe.main.models import OperationFile
 from wardenclyffe.main.models import Server
@@ -255,6 +256,42 @@ class CollectionEditPublicView(StaffMixin, View):
         collection.public = request.POST.get('public', '') == '1'
         collection.save()
         return HttpResponseRedirect(collection.get_absolute_url())
+
+
+class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
+
+    def cuit_filename(self, video):
+        fname = None
+        cf = video.cuit_file()
+        if cf:
+            fname = os.path.basename(cf.filename)
+        return fname
+
+    def filename(self, collection):
+        return '{}_panopto'.format(collection.title)
+
+    def headers(self):
+        return ['Title', 'CUNIX Filename', 'Panopto Id',
+                'Panopto Link', 'Panopto Embed Code']
+
+    def rows(self, collection):
+        rows = []
+        for video in collection.video_set.all():
+            pf = video.panopto_file()
+            if pf:
+                link_url = settings.PANOPTO_LINK_URL.format(pf.filename)
+                embed_url = settings.PANOPTO_EMBED_URL.format(pf.filename)
+                rows.append([
+                    video.title, self.cuit_filename(video),
+                    pf.filename, link_url, embed_url])
+
+        return rows
+
+    def get(self, request, *args, **kwargs):
+        collection = get_object_or_404(Collection, pk=kwargs.get('pk'))
+
+        return self.render_csv_response(
+            self.filename(collection), self.headers(), self.rows(collection))
 
 
 class ChildrenView(TemplateView):
