@@ -124,7 +124,7 @@ defusedxml==0.5.0
 lxml==4.2.1
 requests-toolbelt==0.8.0
 isodate==0.6.0
-cached-property==1.4.2
+cached-property==1.4.3
 zeep==2.5.0
 pypanopto==0.0.4
 django-bootstrap4==0.0.6
