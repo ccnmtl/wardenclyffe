@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from smoketest import SmokeTest
 from models import Collection
 from django.conf import settings

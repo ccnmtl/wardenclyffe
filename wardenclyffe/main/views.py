@@ -1,9 +1,16 @@
+from __future__ import unicode_literals
+
 # stdlib imports
 from datetime import datetime, timedelta
 from json import dumps, loads
 import os
 import re
-import urlparse
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    import urlparse
+
 import uuid
 
 from django.conf import settings

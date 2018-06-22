@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django_statsd.clients import statsd
 from django.conf import settings
 
@@ -47,7 +49,7 @@ def youtube_upload(video, user, tmpfilename):
 
 def pull_from_s3_and_upload_to_youtube(operation):
     statsd.incr("pull_from_s3_and_upload_to_youtube")
-    print "pulling from S3"
+    print("pulling from S3")
     params = loads(operation.params)
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
@@ -56,7 +58,7 @@ def pull_from_s3_and_upload_to_youtube(operation):
                      video.s3_key())
 
     operation.log(info="downloaded from S3")
-    print "uploading to Youtube"
+    print("uploading to Youtube")
     youtube_upload(video, operation.owner, t.name)
     t.close()
     return ("complete", "")

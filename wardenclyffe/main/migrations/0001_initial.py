@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import sorl.thumbnail.fields
 import django.utils.timezone
 from django.conf import settings
 import taggit.managers
@@ -79,7 +78,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', django_extensions.db.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='created', editable=False, blank=True)),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(default=django.utils.timezone.now, verbose_name='modified', editable=False, blank=True)),
-                ('image', sorl.thumbnail.fields.ImageWithThumbnailsField(upload_to=b'images')),
+                ('image', models.CharField(default=b'', max_length=100)),
             ],
             options={
             },

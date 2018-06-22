@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.syndication.views import Feed
 from wardenclyffe.main.models import Collection
 from django.shortcuts import get_object_or_404

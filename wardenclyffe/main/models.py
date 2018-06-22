@@ -4,7 +4,7 @@ import base64
 import hmac
 from json import dumps, loads
 import os.path
-import sha
+import hashlib
 import time
 import urllib
 
@@ -555,7 +555,7 @@ class S3File(FileType):
         h = hmac.new(
             settings.AWS_SECRET_KEY,
             "".join(["GET\n\n\n", expiry, "\n", filename]),
-            sha)
+            hashlib.sha1())
         signature = urllib.quote_plus(base64.encodestring(h.digest()).strip())
         return "".join([
             "https://s3.amazonaws.com",
@@ -847,7 +847,7 @@ class Operation(TimeStampedModel):
                 self.fail(message)
             else:
                 self.post_process()
-        except Exception, e:
+        except (Exception, e):
             self.log(info=str(e))
             # re-raise so Celery's retry logic can deal with it
             raise

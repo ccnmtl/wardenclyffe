@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.auth.models import User
 from wardenclyffe.main.models import (
     Collection, Video, File, Operation,

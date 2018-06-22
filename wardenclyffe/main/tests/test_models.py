@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This file demonstrates two different styles of tests (one doctest and one
 unittest). These will both pass when you run "manage.py test".
@@ -10,7 +12,7 @@ from json import loads
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from factories import (
+from wardenclyffe.main.tests.factories import (
     CollectionFactory, VideoFactory, CUITFLVFileFactory,
     SourceFileFactory, MediathreadFileFactory, S3FileFactory, FileFactory,
     PublicFileFactory, OperationFactory, DimensionlessSourceFileFactory,

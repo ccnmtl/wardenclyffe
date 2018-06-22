@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import json
 import os.path
 
@@ -52,18 +54,18 @@ class SimpleTest(TestCase):
 
     def test_received_invalid(self):
         response = self.c.post("/received/")
-        assert response.content == "expecting a title"
+        self.assertContains(response, 'expecting a title')
 
     def test_received(self):
         response = self.c.post("/received/",
                                {'title': 'some title. not a uuid'})
-        assert response.content == "ok"
+        self.assertContains(response, 'ok')
 
     def test_received_with_operation(self):
         o = OperationFactory()
         response = self.c.post("/received/",
                                {'title': str(o.uuid)})
-        assert response.content == "ok"
+        self.assertContains(response, 'ok')
 
     def test_recent_operations(self):
         self.c.login(username=self.u.username, password="bar")
@@ -306,9 +308,9 @@ class TestSurelink(TestCase):
              'player': 'v4',
              })
         self.assertEquals(response.status_code, 200)
-        assert "&lt;iframe" in response.content
-        assert "file=/media/h264/ccnmtl/" not in response.content
-        assert "file=/course" in response.content
+        self.assertContains(response, "&lt;iframe")
+        self.assertNotContains(response, "file=/media/h264/ccnmtl/")
+        self.assertContains(response, "file=/course")
 
     def test_file_surelink_extra_chars_in_dimensions(self):
         """ regression test for PMT #87084 """
@@ -332,9 +334,9 @@ class TestSurelink(TestCase):
              'player': 'v4',
              })
         self.assertEquals(response.status_code, 200)
-        assert "&lt;iframe" in response.content
-        assert "file=/media/h264/ccnmtl/" not in response.content
-        assert "file=/course" in response.content
+        self.assertContains(response, "&lt;iframe")
+        self.assertNotContains(response, "file=/media/h264/ccnmtl/")
+        self.assertContains(response, "file=/course")
 
 
 class TestFeed(TestCase):
@@ -378,7 +380,7 @@ class TestStaff(TestCase):
         o = OperationFactory()
         r = self.c.get("/most_recent_operation/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(str(o.modified.year) in r.content)
+        self.assertContains(r, str(o.modified.year))
 
     def test_most_recent_operation_empty(self):
         r = self.c.get("/most_recent_operation/")
@@ -392,39 +394,39 @@ class TestStaff(TestCase):
         s = ServerFactory()
         r = self.c.get("/server/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
 
     def test_server(self):
         s = ServerFactory()
         r = self.c.get(s.get_absolute_url())
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
 
     def test_edit_server(self):
         s = ServerFactory()
         r = self.c.get(s.get_absolute_url() + "edit/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
-        self.assertTrue("<form " in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
+        self.assertContains(r, "<form ")
 
     def test_delete_server(self):
         s = ServerFactory()
         # make sure it appears in the list
         r = self.c.get("/server/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
         # delete it
         r = self.c.post("/server/%d/delete/" % s.id, {})
         self.assertEqual(r.status_code, 302)
         # now it should be gone
         r = self.c.get("/server/")
         self.assertEqual(r.status_code, 200)
-        self.assertFalse(s.name in r.content)
-        self.assertFalse(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
 
     def test_delete_server_get(self):
         """ GET request should just be confirm form, not actually delete """
@@ -432,16 +434,16 @@ class TestStaff(TestCase):
         # make sure it appears in the list
         r = self.c.get("/server/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
 
         r = self.c.get("/server/%d/delete/" % s.id)
         self.assertEqual(r.status_code, 200)
         # it should not be gone
         r = self.c.get("/server/")
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(s.name in r.content)
-        self.assertTrue(s.hostname in r.content)
+        self.assertContains(r, s.name)
+        self.assertContains(r, s.hostname)
 
     def test_tags(self):
         r = self.c.get("/tag/")
@@ -537,7 +539,7 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.c.get(c.get_absolute_url() + "remove_tag/foo/?ajax=1")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "ok")
+        self.assertContains(r, "ok")
 
     def test_remove_tag_from_video(self):
         c = VideoFactory()
@@ -545,7 +547,7 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.c.get(c.get_absolute_url() + "remove_tag/foo/?ajax=1")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "ok")
+        self.assertContains(r, "ok")
 
     def test_tag(self):
         r = self.c.get("/tag/foo/")
@@ -706,7 +708,7 @@ class SNSTest(TestCase):
             **confirmation_headers
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "OK")
+        self.assertContains(r, "OK")
         self.assertEqual(httpretty.last_request().method, "GET")
         self.assertEqual(httpretty.last_request().path,
                          "/?Action=ConfirmSubscription")
@@ -744,7 +746,7 @@ class SNSTest(TestCase):
             **notification_headers
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "OK")
+        self.assertContains(r, "OK")
 
         no = Operation.objects.get(id=o.id)
         self.assertEqual(no.status, 'complete')
@@ -774,7 +776,7 @@ class SNSTest(TestCase):
             **notification_headers
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, "OK")
+        self.assertContains(r, "OK")
 
         no = Operation.objects.get(id=o.id)
         self.assertEqual(no.status, 'complete')

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -79,9 +81,8 @@ class SimpleTest(TestCase):
 
     def test_invalid_auth(self):
         response = self.c.get("/mediathread/")
-        self.assertEquals(
-            response.content,
-            "invalid authentication token")
+        self.assertContains(
+            response, "invalid authentication token")
 
     def test_upload_form(self):
         # make a correct one
@@ -104,9 +105,8 @@ class SimpleTest(TestCase):
                 'hmac': hmc
             }
         )
-        self.assertNotEquals(
-            response.content,
-            "invalid authentication token")
+        self.assertNotContains(
+            response, "invalid authentication token")
 
 
 class TestS3Upload(TestCase):
@@ -154,8 +154,7 @@ class TestInvalidUpload(TestCase):
             dict(tmpfilename=''))
         request.session = dict(username='foo', set_course='bar')
         response = mediathread_post(request)
-        self.assertEqual(response.content,
-                         "Bad file upload. Please try again.")
+        self.assertContains(response, "Bad file upload. Please try again.")
 
 
 class TestInvalidSessions(TestCase):
@@ -164,8 +163,8 @@ class TestInvalidSessions(TestCase):
 
     def test_get(self):
         r = self.c.get("/mediathread/post/")
-        self.assertEqual(r.content, "post only")
+        self.assertContains(r, "post only")
 
     def test_no_session(self):
         r = self.c.post("/mediathread/post/", {})
-        self.assertEqual(r.content, "invalid session")
+        self.assertContains(r, "invalid session")

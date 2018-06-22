@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
 import os
@@ -21,5 +23,5 @@ class Command(BaseCommand):
             if mtime > ARCHIVE_CUTOFF:
                 continue
             else:
-                print "deleting %s" % (f,)
+                print("deleting %s" % (f,))
                 os.unlink(os.path.join(BASE, f))

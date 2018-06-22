@@ -2,7 +2,6 @@ Django==1.11.13 # pyup: <2.0
 httplib2==0.11.3
 Markdown==2.6.11
 smartypants==2.0.1
-uuid==1.30
 psycopg2==2.7.5
 olefile==0.45.1
 Pillow==5.1.0
@@ -19,7 +18,7 @@ pyparsing==2.2.0
 six==1.11.0
 pytz==2018.4
 python-dateutil==2.7.3
-librabbitmq==1.6.1 # pyup: <2.0.0
+librabbitmq==2.0.0
 
 celery==3.1.26.post2 # pyup: <4.0.0
 
@@ -29,7 +28,7 @@ pyasn1_modules==0.2.1
 rsa==3.4.2
 uritemplate==3.0.0
 google-api-python-client==1.7.3
-enum34==1.1.6
+enum34==1.1.6; python_version < '3.4'
 asn1crypto==0.24.0
 cryptography==2.2.2
 ecdsa==0.13
@@ -86,7 +85,6 @@ rcssmin==1.0.6
 rjsmin==1.0.12
 
 djangowind==1.1.0
-requirements/src/sorl-3.1.tar.gz
 django-staticmedia==0.2.2
 django-celery==3.2.2
 django-oembed==0.1.3
