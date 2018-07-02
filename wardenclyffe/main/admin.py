@@ -15,7 +15,7 @@ class VideoReferenceInline(admin.TabularInline):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'collection', 'creator', )
+    list_display = ('title', 'collection', 'creator', 'created', 'modified')
     search_fields = ('title', 'collection__title')
     inlines = [
         VideoReferenceInline,
