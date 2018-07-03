@@ -46,6 +46,16 @@ S3 Key
 <p><a href="{{file.url}}">Annotate this video in mediathread</a></p>
 {% endifequal %}
 
+{% if file.location_type == 'rtsp_url' %}
+<div>
+    <h2>Delete File From CUNIX</h2>
+
+    <form action="{% url 'delete-file-from-cunix' file.id %}" method="post">
+        <input type="submit" value="delete this file from CUNIX" />
+    </form>
+</div>
+{% endif %}
+
 {% if file.surelinkable %}
 <div id="surelink">
 <h2>SureLink</h2> 
