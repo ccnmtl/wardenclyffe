@@ -118,7 +118,15 @@ S3 Key
 
 {% endif %}
 
+{% if file.cap and file.location_type == 's3' %}
+<div id="delete-from-S3">
+    <h2>Delete File From S3</h2>
 
+    <form action="{% url 'delete-file-from-s3' file.id %}" method="post">
+        <input type="submit" value="delete this file from s3" />
+    </form>
+</div>
+{% endif %}
 
 {% if file.url %}
     {% if file.location_type == "mediathread" %}
