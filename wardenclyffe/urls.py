@@ -67,6 +67,9 @@ urlpatterns = [
     url(r'^file/(?P<pk>\d+)/delete_from_cunix/$',
         views.DeleteFromCunix.as_view(),
         name='delete-file-from-cunix'),
+    url(r'^file/(?P<pk>\d+)/delete_from_s3/$',
+        views.DeleteFromS3.as_view(),
+        name='delete-file-from-s3'),
 
     url(r'^file/filter/$', views.FileFilterView.as_view()),
     url((r'^operation/(?P<uuid>[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-'

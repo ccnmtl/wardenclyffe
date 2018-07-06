@@ -411,6 +411,10 @@ class Video(TimeStampedModel):
                       audio=audio)
         return self.make_op(user, params, action="save file to S3")
 
+    def make_delete_from_s3_operation(self, file_id, user):
+        params = dict(file_id=file_id)
+        return self.make_op(user, params, action="delete from s3")
+
     def make_copy_from_s3_to_cunix_operation(self, file_id, user):
         params = dict(file_id=file_id)
         return self.make_op(user, params, action="copy from s3 to cunix")
@@ -1030,6 +1034,13 @@ class DeleteFromCunixOperation(OperationType):
         return ops
 
 
+class DeleteFromS3Operation(OperationType):
+
+    def get_task(self):
+        import wardenclyffe.main.tasks
+        return wardenclyffe.main.tasks.delete_from_s3
+
+
 class CopyFlvFromCunixToS3Operation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
@@ -1089,6 +1100,7 @@ OPERATION_TYPE_MAPPER = {
     'extract metadata': ExtractMetadataOperation,
     'pull from s3 and extract metadata': PullFromS3AndExtractMetadataOperation,
     'save file to S3': SaveFileToS3Operation,
+    'delete from s3': DeleteFromS3Operation,
     'upload to youtube': UploadToYoutubeOperation,
     'submit to mediathread': SubmitToMediathreadOperation,
     'update mediathread': UpdateMediathreadOperation,
