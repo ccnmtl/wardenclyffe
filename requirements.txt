@@ -59,7 +59,7 @@ logilab-common==1.4.2
 logilab-astng==0.24.3
 editdistance==0.4
 pylint==1.9.3 # pyup: <2.0.0
-ldap3==2.5
+ldap3==2.5.1
 surelink==1.0.1
 boto==2.49.0
 traitlets==4.3.2
