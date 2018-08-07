@@ -107,7 +107,7 @@ var removeTag = function(tagName,tagId) {
         </div>
         <div class="visualclear"></div>
         <br />
-    
+
         <div class="table-responsive">
             <table class="table table-striped table-videos">
                 <tr>
@@ -141,15 +141,17 @@ var removeTag = function(tagName,tagId) {
                             {% endwith %}</a>
                     </td>
                     <td style="width: 25%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
-                    <td>{{video.extension}}</td>
                     <td>
+                        {{video.cuit_file_extension}}
+                    </td>
+                    <td>
+                        {% with cuit_file=video.cuit_file %}
                         <div style="word-wrap: break-word; width: 275px">
-                        {% for file in video.file_set.all %}
-                            {% if file.location_type == "cuit" %}
-                                <a href="{{file.get_absolute_url}}">{{file.filename}}</a>
-                            {% endif %}
-                        {% endfor %}
+                        {% if cuit_file %}
+                            <a href="{{cuit_file.get_absolute_url}}">{{cuit_file.filename}}</a>
+                        {% endif %}
                         </div>
+                        {% endwith %}
                     </td>
                     <td>
                     {% if video.tags.count %}
