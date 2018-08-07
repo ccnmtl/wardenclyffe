@@ -425,6 +425,29 @@ def delete_from_cunix(operation):
         return ("failed", "failed to delete %s from cunix" % remote_filename)
 
 
+def delete_from_s3(operation):
+    print("delete file from s3")
+    params = loads(operation.params)
+    file_id = params['file_id']
+    f = File.objects.get(id=file_id)
+
+    bucket_name = settings.AWS_S3_UPLOAD_BUCKET
+    if 'transcode' in f.label:
+        bucket_name = settings.AWS_S3_OUTPUT_BUCKET
+
+    key = f.cap
+
+    conn = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
+    bucket = conn.get_bucket(bucket_name)
+    k = Key(bucket)
+    k.key = key
+    bucket.delete_key(k)
+
+    f.delete()
+    operation.log(info="deleted file %s from s3" % key)
+    return ("complete", "")
+
+
 def copy_from_s3_to_cunix(operation):
     statsd.incr("copy_from_s3_to_cunix")
     print("pulling from S3")

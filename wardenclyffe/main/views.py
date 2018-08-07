@@ -952,6 +952,17 @@ class DeleteFromCunix(StaffMixin, View):
 
 
 @transaction.non_atomic_requests()
+class DeleteFromS3(StaffMixin, View):
+    def post(self, request, pk):
+        f = get_object_or_404(File, pk=pk)
+        video = f.video
+        o = video.make_delete_from_s3_operation(file_id=f.id,
+                                                user=request.user)
+        tasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(reverse('video-details', args=[video.id]))
+
+
+@transaction.non_atomic_requests()
 class APICunixDelete(View):
     def post(self, request):
         # for this situation, authenticator expects
