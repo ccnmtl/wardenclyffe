@@ -42,12 +42,21 @@ var removeTag = function(tagName,tagId) {
 <div class="tab-pane fade show active" role="tabpanel" id="basics">
 <div class="row">
     <div class="col-md-5">
+
     {% with video.poster as poster %}
-    {% if poster.dummy %}
-    <img src="{% static 'img/vidthumb_480x360.jpg' %}" />
+    {% if video.h264_secure_stream_file %}
+        <h3>Secure Stream</h3>
+        <iframe class="iframe-video-detail"
+            src="https://surelink.ccnmtl.columbia.edu/video/?player=mp4_secure_stream&file={{video.h264_secure_stream_file.h264_secure_path}}&width=480&height=360&authtype=wind"></iframe>
+    {% else %}{% if video.h264_public_stream_file %}
+        <h3>Public Stream</h3>
+        <video controls
+            src="http://stream.ccnmtl.columbia.edu/public/{{video.h264_public_stream_file.h264_public_path}}"></video>
+    {% else %}{% if poster.dummy %}
+        <img src="{% static 'img/vidthumb_480x360.jpg' %}" />
     {% else %}
-    <img src="{{poster.image.src}}" width="480" />
-    {% endif %}
+        <img src="{{poster.image.src}}" width="480" />
+    {% endif %}{% endif %}{% endif %}
     {% endwith %}
     </div>
     <div class="col-md-7">

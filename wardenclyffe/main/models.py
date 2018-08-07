@@ -213,6 +213,12 @@ class Video(TimeStampedModel):
                 return f.h264_secure_stream_url()
         return ""
 
+    def h264_public_stream_file(self):
+        for f in self.file_set.filter(location_type="cuit"):
+            if f.is_h264_public_streamable():
+                return f
+        return None
+
     def h264_public_stream_url(self):
         for f in self.file_set.filter(location_type="cuit"):
             if f.is_h264_public_streamable():

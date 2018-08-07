@@ -429,3 +429,8 @@ td.step h4 {
     font-style: normal;
 }
 
+.iframe-video-detail {
+    width: 100%;
+    height: 115%;
+    border: 0;
+}
