@@ -97,7 +97,8 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
         folder_id = form.cleaned_data['folder_id']
 
         for video in collection.video_set.all():
-            submit_video_to_panopto(self.request.user, video, folder_id)
+            if not video.has_panopto_source():
+                submit_video_to_panopto(self.request.user, video, folder_id)
 
         return FormView.form_valid(self, form)
 
