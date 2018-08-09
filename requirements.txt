@@ -85,7 +85,7 @@ factory_boy==2.11.1
 rcssmin==1.0.6
 rjsmin==1.0.12
 
-djangowind==1.1.0
+djangowind==1.2.1
 requirements/src/sorl-3.1.tar.gz
 django-staticmedia==0.2.2
 django-celery==3.2.2
