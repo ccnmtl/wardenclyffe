@@ -330,6 +330,13 @@ class Video(TimeStampedModel):
         except IndexError:
             return None
 
+    def cuit_file_extension(self):
+        try:
+            f = self.file_set.filter(location_type="cuit")[0]
+            return os.path.splitext(f.filename)[1]
+        except IndexError:
+            return None
+
     def has_flv(self):
         return self.file_set.filter(
             location_type="cuit", filename__endswith='.flv').count() > 0

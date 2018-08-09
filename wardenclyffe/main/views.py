@@ -230,7 +230,7 @@ class CollectionView(StaffMixin, ListView):
         self.collection = get_object_or_404(
             Collection, pk=self.kwargs.get('pk', None))
         return Video.objects.filter(
-            collection=self.collection).order_by("-modified")
+            collection=self.collection).order_by("title")
 
     def get_context_data(self, **kwargs):
         context = super(CollectionView, self).get_context_data(**kwargs)
