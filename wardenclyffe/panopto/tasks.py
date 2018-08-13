@@ -1,6 +1,7 @@
 from json import loads, dumps
 import os
 import tempfile
+import unicodedata
 
 from django.conf import settings
 from django_statsd.clients import statsd
@@ -11,6 +12,13 @@ from wardenclyffe.main.models import Video, File, Image, Poster
 from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 
 
+def prepare_description(description):
+    # Panopto accepts line feeds in the description field
+    # but they must be properly encoded
+    description = description.replace('\n', '&#10;&#10;')
+    return unicodedata.normalize('NFKD', description)
+
+
 def panopto_upload(operation, video, folder, input_file, extension):
     uploader = PanoptoUpload()
     uploader.server = settings.PANOPTO_SERVER
@@ -19,7 +27,7 @@ def panopto_upload(operation, video, folder, input_file, extension):
     uploader.password = settings.PANOPTO_API_PASSWORD
     uploader.input_file = input_file
     uploader.title = video.title
-    uploader.description = video.description
+    uploader.description = prepare_description(video.description)
     uploader.dest_filename = '{}.{}'.format(video.uuid, extension)
 
     if not uploader.create_session():
