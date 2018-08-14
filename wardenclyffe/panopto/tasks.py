@@ -12,11 +12,19 @@ from wardenclyffe.main.models import Video, File, Image, Poster
 from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 
 
-def prepare_description(description):
+def prepare_description(descript):
     # Panopto accepts line feeds in the description field
     # but they must be properly encoded
-    description = description.replace('\n', '&#10;&#10;')
-    return unicodedata.normalize('NFKD', description)
+    html_escape_table = {
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&apos;',
+        '>': '&gt;',
+        '<': '&lt;',
+    }
+    descript = ''.join(html_escape_table.get(c, c) for c in descript)
+    descript = descript.replace('\n', '&#10;&#10;')
+    return unicodedata.normalize('NFKD', descript)
 
 
 def panopto_upload(operation, video, folder, input_file, extension):
