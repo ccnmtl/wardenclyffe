@@ -22,7 +22,7 @@ def prepare_description(descript):
         '>': '&gt;',
         '<': '&lt;',
     }
-    descript = ''.join(html_escape_table.get(c, c) for c in descript)
+    descript = u''.join(html_escape_table.get(c, c) for c in descript)
     descript = descript.replace('\n', '&#10;&#10;')
     return unicodedata.normalize('NFKD', descript)
 
