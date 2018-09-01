@@ -4,7 +4,6 @@ from json import dumps, loads
 import os
 import re
 import urlparse
-import uuid
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -18,6 +17,7 @@ from django.http import (HttpResponseRedirect, HttpResponse,
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.utils.encoding import smart_str
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -29,6 +29,7 @@ from surelink import SureLink
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink.helpers import PROTECTION_OPTIONS
 from taggit.models import Tag
+import uuid
 
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
@@ -271,7 +272,7 @@ class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
         return '{}_panopto'.format(collection.title)
 
     def headers(self):
-        return ['Title', 'CUNIX Filename', 'Panopto Id',
+        return ['Id', 'Title', 'CUNIX Filename', 'Panopto Id',
                 'Panopto Link', 'Panopto Embed Code']
 
     def rows(self, collection):
@@ -282,7 +283,8 @@ class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
                 link_url = settings.PANOPTO_LINK_URL.format(pf.filename)
                 embed_url = settings.PANOPTO_EMBED_URL.format(pf.filename)
                 rows.append([
-                    video.title, self.cuit_filename(video),
+                    video.id, smart_str(video.title),
+                    self.cuit_filename(video),
                     pf.filename, link_url, embed_url])
 
         return rows

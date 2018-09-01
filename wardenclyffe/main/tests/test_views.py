@@ -854,11 +854,12 @@ class CollectionPanoptoReportViewTest(TestCase):
             view = CollectionPanoptoReportView()
             rows = view.rows(f.video.collection)
             self.assertEquals(len(rows), 1)
-            self.assertEquals(rows[0][0], 'test video')
+            self.assertEquals(rows[0][0], f.video.id)
+            self.assertEquals(rows[0][1], 'test video')
             self.assertEquals(
-                rows[0][1],
+                rows[0][2],
                 ("56d27944-4131-11e1-8164-0017f20ea192"
                  "-Mediathread_video_uploaded_by_mlp55.mp4"))
-            self.assertEquals(rows[0][2], 'alpha')
-            self.assertEquals(rows[0][3], 'http://testserver/link/alpha/')
-            self.assertEquals(rows[0][4], 'http://testserver/embed/alpha/')
+            self.assertEquals(rows[0][3], 'alpha')
+            self.assertEquals(rows[0][4], 'http://testserver/link/alpha/')
+            self.assertEquals(rows[0][5], 'http://testserver/embed/alpha/')
