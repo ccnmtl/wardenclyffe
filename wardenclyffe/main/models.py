@@ -118,8 +118,9 @@ class Video(TimeStampedModel):
         return self.title
 
     def s3_file(self):
+        labels = ["uploaded source file (S3)", "uploaded source audio (S3)"]
         r = self.file_set.filter(
-            location_type='s3', label="uploaded source file (S3)")
+            location_type='s3', label__in=labels)
         return r.first()
 
     def has_s3_source(self):
