@@ -1,13 +1,15 @@
-from django_statsd.clients import statsd
-from django.conf import settings
-
 from json import loads
+import os
+import tempfile
 
-from wardenclyffe.main.tasks import pull_from_s3
+from django.conf import settings
+from django_statsd.clients import statsd
+
+from wardenclyffe.main.models import Video, File
+from wardenclyffe.main.tasks import pull_from_s3, sftp_get
 from wardenclyffe.util.mail import send_youtube_submitted_mail
 from wardenclyffe.youtube.util import (
     get_authenticated_service, initialize_upload, Args)
-from wardenclyffe.main.models import Video, File
 
 
 def upload_to_youtube(operation):
@@ -59,4 +61,32 @@ def pull_from_s3_and_upload_to_youtube(operation):
     print "uploading to Youtube"
     youtube_upload(video, operation.owner, t.name)
     t.close()
+    return ("complete", "")
+
+
+def pull_from_cunix_and_upload_to_youtube(operation):
+    statsd.incr("pull_from_cunix_and_upload_to_youtube")
+    print "pulling from cunix"
+    params = loads(operation.params)
+
+    # pull the file down from cunix
+    try:
+        video_id = params['video_id']
+        video = Video.objects.get(id=video_id)
+        f = video.cuit_file()
+    except Video.DoesNotExist:
+        operation.fail('Unable to find video')
+        return None
+    except AttributeError:
+        operation.fail('Unable to get cunix file')
+        return None
+
+    suffix = os.path.splitext(f.filename)[1]
+    tmp = tempfile.NamedTemporaryFile(suffix=suffix)
+    sftp_get(f.filename, tmp.name)
+    tmp.seek(0)
+
+    print "uploading to Youtube"
+    youtube_upload(video, operation.owner, tmp.name)
+    tmp.close()
     return ("complete", "")
