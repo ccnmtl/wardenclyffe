@@ -470,6 +470,12 @@ class Video(TimeStampedModel):
         return self.make_op(user, params,
                             action="pull from s3 and upload to youtube")
 
+    def make_pull_from_cunix_and_upload_to_youtube_operation(self, video_id,
+                                                             user):
+        params = dict(video_id=video_id)
+        return self.make_op(user, params,
+                            action="pull from cunix and upload to youtube")
+
     def make_pull_from_s3_and_upload_to_panopto_operation(
             self, video_id, folder, user):
         params = dict(video_id=video_id, folder=folder)
@@ -964,6 +970,13 @@ class PullFromS3AndUploadToYoutubeOperation(OperationType):
         return wardenclyffe.youtube.tasks.pull_from_s3_and_upload_to_youtube
 
 
+class PullFromCunixAndUploadToYoutubeOperation(OperationType):
+    def get_task(self):
+        import wardenclyffe.youtube.tasks
+        return \
+            wardenclyffe.youtube.tasks.pull_from_cunix_and_upload_to_youtube
+
+
 class PullFromS3AndUploadToPanoptoOperation(OperationType):
     def get_task(self):
         import wardenclyffe.panopto.tasks
@@ -1120,6 +1133,8 @@ OPERATION_TYPE_MAPPER = {
     'update mediathread': UpdateMediathreadOperation,
     'pull from s3 and upload to youtube':
     PullFromS3AndUploadToYoutubeOperation,
+    'pull from cunix and upload to youtube':
+    PullFromCunixAndUploadToYoutubeOperation,
     'pull from s3 and upload to panopto':
     PullFromS3AndUploadToPanoptoOperation,
     'pull from cunix and upload to panopto':

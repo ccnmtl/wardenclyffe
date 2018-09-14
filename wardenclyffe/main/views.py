@@ -876,9 +876,16 @@ class VideoYoutubeUploadView(StaffMixin, View):
         video = get_object_or_404(Video, id=id)
 
         statsd.incr('main.video_youtube_upload')
-        o = video.make_pull_from_s3_and_upload_to_youtube_operation(
-            video.id, request.user)
-        tasks.process_operation.delay(o.id)
+
+        if video.has_s3_source():
+            o = video.make_pull_from_s3_and_upload_to_youtube_operation(
+                video.id, request.user)
+            tasks.process_operation.delay(o.id)
+        elif video.cuit_file():
+            o = video.make_pull_from_cunix_and_upload_to_youtube_operation(
+                video.id, request.user)
+            tasks.process_operation.delay(o.id)
+
         return HttpResponseRedirect(video.get_absolute_url())
 
 
