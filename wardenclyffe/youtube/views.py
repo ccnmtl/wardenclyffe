@@ -1,22 +1,23 @@
 import uuid
-import wardenclyffe.main.tasks
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import (
     HttpResponseBadRequest, HttpResponseRedirect, HttpResponse)
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import View
 from django_statsd.clients import statsd
-
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.contrib import xsrfutil
 from oauth2client.contrib.django_util.storage import DjangoORMStorage
 
-from wardenclyffe.main.views import key_from_s3url
 from wardenclyffe.main.models import Video, Collection, File
+import wardenclyffe.main.tasks
+from wardenclyffe.main.views import key_from_s3url, enqueue_operations
+from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 
 from .models import Credentials
 from .util import YOUTUBE_UPLOAD_SCOPE
@@ -111,3 +112,32 @@ class OauthCallback(View):
             'credential')
         storage.put(credential)
         return HttpResponseRedirect("/")
+
+
+class YouTubeCollectionSubmitView(AuthenticatedNonAtomic, View):
+
+    def submit_to_youtube(self, video):
+        if video.has_s3_source():
+            operations = [
+                video.make_pull_from_s3_and_upload_to_youtube_operation(
+                    video.id, self.request.user)]
+            enqueue_operations(operations)
+        elif video.cuit_file():
+            operations = [
+                video.make_pull_from_cunix_and_upload_to_youtube_operation(
+                    video.id, self.request.user)]
+            enqueue_operations(operations)
+
+    def get(self, *args, **kwargs):
+        collection_id = kwargs.get('pk', None)
+        collection = get_object_or_404(Collection, id=collection_id)
+
+        for video in collection.video_set.all():
+            self.submit_to_youtube(video)
+
+        messages.add_message(
+            self.request, messages.INFO,
+            '{} was submitted to YouTube.'.format(collection))
+
+        url = reverse('collection-view', kwargs={'pk': collection_id})
+        return HttpResponseRedirect(url)

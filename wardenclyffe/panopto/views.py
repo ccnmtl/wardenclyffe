@@ -22,13 +22,13 @@ def submit_video_to_panopto(user, video, folder_id):
             video.make_pull_from_s3_and_upload_to_panopto_operation(
                 video.id, folder_id, user)
         ]
+        enqueue_operations(operations)
     elif video.cuit_file():
         operations = [
             video.make_pull_from_cunix_and_upload_to_panopto_operation(
                 video.id, folder_id, user)
         ]
-
-    enqueue_operations(operations)
+        enqueue_operations(operations)
 
 
 class VideoSubmitView(AuthenticatedNonAtomic, FormView):
