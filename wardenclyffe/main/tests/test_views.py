@@ -15,7 +15,7 @@ from wardenclyffe.main.tests.factories import (
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
 from wardenclyffe.main.views import (
-    CollectionPanoptoReportView, VideoYoutubeUploadView, key_from_s3url)
+    CollectionReportView, VideoYoutubeUploadView, key_from_s3url)
 
 
 class SimpleTest(TestCase):
@@ -834,11 +834,11 @@ class FLVImportTest(TestCase):
             self.assertEqual(self.public_collection.video_set.count(), 1)
 
 
-class CollectionPanoptoReportViewTest(TestCase):
+class CollectionReportViewTest(TestCase):
 
     def test_cuit_filename(self):
         f = FileFactory()
-        view = CollectionPanoptoReportView()
+        view = CollectionReportView()
         self.assertEquals(
             view.cuit_filename(f.video),
             ("56d27944-4131-11e1-8164-0017f20ea192"
@@ -847,11 +847,13 @@ class CollectionPanoptoReportViewTest(TestCase):
     def test_rows(self):
         f = FileFactory()
         FileFactory(location_type='panopto', video=f.video, filename='alpha')
+        FileFactory(location_type='youtube', video=f.video,
+                    url='http://www.youtube.com/watch?v=fS4qBPdhr8A')
 
         with self.settings(
             PANOPTO_LINK_URL='http://testserver/link/{}/',
                 PANOPTO_EMBED_URL='http://testserver/embed/{}/'):
-            view = CollectionPanoptoReportView()
+            view = CollectionReportView()
             rows = view.rows(f.video.collection)
             self.assertEquals(len(rows), 1)
             self.assertEquals(rows[0][0], f.video.id)
@@ -863,3 +865,7 @@ class CollectionPanoptoReportViewTest(TestCase):
             self.assertEquals(rows[0][3], 'alpha')
             self.assertEquals(rows[0][4], 'http://testserver/link/alpha/')
             self.assertEquals(rows[0][5], 'http://testserver/embed/alpha/')
+            self.assertEquals(
+                rows[0][6], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+            self.assertEquals(
+                rows[0][7], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')

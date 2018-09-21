@@ -147,6 +147,9 @@ class Video(TimeStampedModel):
     def panopto_file(self):
         return self.file_set.filter(location_type='panopto').first()
 
+    def youtube_file(self):
+        return self.file_set.filter(location_type='youtube').first()
+
     def source_file(self):
         return self.file_set.filter(label='source file').first()
 

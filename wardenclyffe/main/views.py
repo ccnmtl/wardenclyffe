@@ -4,6 +4,7 @@ from json import dumps, loads
 import os
 import re
 import urlparse
+import uuid
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -23,13 +24,13 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
+from oembed.core import replace
 import requests
 from s3sign.views import SignS3View as BaseSignS3View
 from surelink import SureLink
 from surelink.helpers import AUTHTYPE_OPTIONS
 from surelink.helpers import PROTECTION_OPTIONS
 from taggit.models import Tag
-import uuid
 
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
@@ -259,7 +260,7 @@ class CollectionEditPublicView(StaffMixin, View):
         return HttpResponseRedirect(collection.get_absolute_url())
 
 
-class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
+class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
 
     def cuit_filename(self, video):
         fname = None
@@ -269,7 +270,7 @@ class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
         return fname
 
     def filename(self, collection):
-        return '{}_panopto'.format(collection.title)
+        return '{}_embed'.format(collection.title)
 
     def headers(self):
         return ['Id', 'Title', 'CUNIX Filename', 'Panopto Id',
@@ -278,14 +279,22 @@ class CollectionPanoptoReportView(StaffMixin,  CSVResponseMixin, View):
     def rows(self, collection):
         rows = []
         for video in collection.video_set.all():
+            row = [video.id, smart_str(video.title),
+                   self.cuit_filename(video),
+                   '', '', '', '', '']
+
             pf = video.panopto_file()
             if pf:
-                link_url = settings.PANOPTO_LINK_URL.format(pf.filename)
-                embed_url = settings.PANOPTO_EMBED_URL.format(pf.filename)
-                rows.append([
-                    video.id, smart_str(video.title),
-                    self.cuit_filename(video),
-                    pf.filename, link_url, embed_url])
+                row[3] = pf.filename
+                row[4] = settings.PANOPTO_LINK_URL.format(pf.filename)
+                row[5] = settings.PANOPTO_EMBED_URL.format(pf.filename)
+
+            yt = video.youtube_file()
+            if yt and yt.url:
+                row[6] = yt.url
+                row[7] = replace(yt.url, max_width=560, max_height=320)
+
+            rows.append(row)
 
         return rows
 
