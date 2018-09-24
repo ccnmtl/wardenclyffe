@@ -37,7 +37,7 @@ cffi==1.11.5
 idna==2.6
 bcrypt==3.1.4
 pynacl==1.2.1
-paramiko==2.4.1
+paramiko==2.4.2
 raven==6.9.0
 pyOpenSSL==18.0.0
 ndg-httpsclient==0.5.1
@@ -57,7 +57,7 @@ configparser==3.5.0
 flake8==3.5.0
 logilab-common==1.4.2
 logilab-astng==0.24.3
-editdistance==0.5
+editdistance==0.5.2
 pylint==1.9.3 # pyup: <2.0.0
 ldap3==2.5.1
 surelink==1.0.1
@@ -69,7 +69,7 @@ ptyprocess==0.6.0
 pexpect==4.6.0
 pickleshare==0.7.4
 simplegeneric==0.8.1
-path.py==11.1.0
+path.py==11.2.0
 
 ipython==5.8.0 # pyup: <6.0.0
 

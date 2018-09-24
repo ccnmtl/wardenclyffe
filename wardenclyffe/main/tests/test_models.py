@@ -156,6 +156,12 @@ class EmptyVideoTest(TestCase):
     def test_cuit_file(self):
         assert self.video.cuit_file() is None
 
+    def test_panopto_file(self):
+        assert self.video.panopto_file() is None
+
+    def test_youtube_file(self):
+        assert self.video.youtube_file() is None
+
     def test_has_flv(self):
         self.assertFalse(self.video.has_flv())
 
@@ -417,6 +423,14 @@ class MediathreadVideoTest(TestCase):
     def test_cuit_file(self):
         f = CUITFLVFileFactory()
         assert f.video.cuit_file() == f
+
+    def test_panopto_file(self):
+        f = FileFactory(location_type='panopto')
+        assert f.video.panopto_file() == f
+
+    def test_youtube_file(self):
+        f = FileFactory(location_type='youtube')
+        assert f.video.youtube_file() == f
 
     def test_mediathread_update(self):
         v = VideoFactory()
