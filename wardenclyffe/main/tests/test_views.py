@@ -254,6 +254,11 @@ class SimpleTest(TestCase):
     def test_flv_to_mp4_convert(self):
         v = VideoFactory()
         FileFactory(video=v, location_type="mediathread", label="mediathread")
+        FileFactory(
+            video=v, location_type="cuit", label="flv",
+            filename=("/media/h264/ccnmtl/public/"
+                      "courses/56d27944-4131-11e1-8164-0017f20ea192"
+                      "-Mediathread_video_uploaded_by_mlp55.flv"))
         self.c.login(username=self.u.username, password="bar")
         response = self.c.post(reverse('video-flv-to-mp4', args=[v.pk]))
         self.assertEquals(response.status_code, 302)

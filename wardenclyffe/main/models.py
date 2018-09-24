@@ -351,6 +351,16 @@ class Video(TimeStampedModel):
         return self.file_set.filter(
             location_type="cuit", filename__endswith='.flv').first().filename
 
+    def has_mov(self):
+        return self.file_set.filter(
+            location_type="cuit", filename__endswith='.mov').count() > 0
+
+    def mov_filename(self):
+        # only valid if video has an mov attached.
+        # expect an exception otherwise
+        return self.file_set.filter(
+            location_type="cuit", filename__endswith='.mov').first().filename
+
     def has_mp4(self):
         return self.file_set.filter(
             location_type="cuit", filename__endswith='.mp4').count() > 0
@@ -364,6 +374,10 @@ class Video(TimeStampedModel):
     def flv_convertable(self):
         # there's an associated flv, but no mp4 yet
         return self.has_flv() and not self.has_mp4()
+
+    def mov_convertable(self):
+        # there's an associated flv, but no mp4 yet
+        return self.has_mov() and not self.has_mp4()
 
     def is_audio_file(self):
         """ is this one of the weird mp3s that are
@@ -502,8 +516,13 @@ class Video(TimeStampedModel):
         params = dict(video_id=video_id, panopto_id=panopto_id)
         return self.make_op(user, params, action="pull thumb from panopto")
 
-    def make_flv_to_mp4_operation(self, user):
-        return self.make_op(user, dict(), action="copy flv from cunix to s3")
+    def make_flv_to_mp4_operation(self, user, suffix, filename):
+        params = dict(suffix=suffix, filename=filename)
+        return self.make_op(user, params, action="copy from cunix to s3")
+
+    def make_mov_to_mp4_operation(self, user, suffix, filename):
+        params = dict(suffix=suffix, filename=filename)
+        return self.make_op(user, params, action="copy from cunix to s3")
 
     def make_source_file(self, filename):
         return File.objects.create(video=self,
@@ -1071,10 +1090,10 @@ class DeleteFromS3Operation(OperationType):
         return wardenclyffe.main.tasks.delete_from_s3
 
 
-class CopyFlvFromCunixToS3Operation(OperationType):
+class CopyFromCunixToS3Operation(OperationType):
     def get_task(self):
         import wardenclyffe.main.tasks
-        return wardenclyffe.main.tasks.copy_flv_from_cunix_to_s3
+        return wardenclyffe.main.tasks.copy_from_cunix_to_s3
 
     def post_process(self):
         o = self.operation
@@ -1147,7 +1166,7 @@ OPERATION_TYPE_MAPPER = {
     'create elastic transcoder job': CreateElasticTranscoderJobOperation,
     'copy from s3 to cunix': CopyFromS3ToCunixOperation,
     'delete from cunix': DeleteFromCunixOperation,
-    'copy flv from cunix to s3': CopyFlvFromCunixToS3Operation,
+    'copy from cunix to s3': CopyFromCunixToS3Operation,
     'audio encode': AudioEncodeOperation,
     'local audio encode': LocalAudioEncodeOperation,
     'pull thumbs from s3': PullThumbsFromS3Operation

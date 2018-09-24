@@ -480,21 +480,16 @@ def copy_from_s3_to_cunix(operation):
     return ("complete", "")
 
 
-def copy_flv_from_cunix_to_s3(operation):
-    print("copy flv from cunix to S3")
+def copy_from_cunix_to_s3(operation):
+    print("copy file from cunix to S3")
     video = operation.video
     params = loads(operation.params)
+    suffix = params['suffix']
+    filename = params['filename']
 
     # pull the flv down from cunix
-    t = tempfile.NamedTemporaryFile(suffix=".flv")
-    try:
-        flv_filename = video.flv_filename()
-    except AttributeError:
-        # there are a few videos that are streamed by
-        # the flv server, but are actually mp4s
-        # so fall-back to trying that
-        flv_filename = video.mp4_filename()
-    sftp_get(flv_filename, t.name)
+    t = tempfile.NamedTemporaryFile(suffix=suffix)
+    sftp_get(filename, t.name)
 
     # upload it to S3
     conn = boto.connect_s3(

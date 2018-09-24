@@ -900,6 +900,17 @@ class VideoYoutubeUploadView(StaffMixin, View):
 
 @transaction.non_atomic_requests
 class FlvToMp4View(StaffMixin, View):
+
+    def get_filename(self, video):
+        try:
+            flv_filename = video.flv_filename()
+        except AttributeError:
+            # there are a few videos that are streamed by
+            # the flv server, but are actually mp4s
+            # so fall-back to trying that
+            flv_filename = video.mp4_filename()
+        return flv_filename
+
     def post(self, request, id):
         video = get_object_or_404(Video, id=id)
         if video.has_mediathread_asset():
@@ -914,7 +925,37 @@ class FlvToMp4View(StaffMixin, View):
             )
         else:
             # have to pull it down
-            o = video.make_flv_to_mp4_operation(request.user)
+            o = video.make_flv_to_mp4_operation(
+                request.user, '.flv', self.get_filename(video))
+        tasks.process_operation.delay(o.id)
+        return HttpResponseRedirect(video.get_absolute_url())
+
+
+@transaction.non_atomic_requests
+class MovToMp4View(StaffMixin, View):
+
+    def get_filename(self, video):
+        try:
+            return video.mov_filename()
+        except AttributeError:
+            return None
+
+    def post(self, request, id):
+        video = get_object_or_404(Video, id=id)
+        if video.has_mediathread_asset():
+            video.create_mediathread_update()
+        if video.has_s3_source():
+            # we don't need to pull down the flv, there's
+            # already a copy in S3. instead, just
+            # kick off the elastic transcode job
+            o = video.make_create_elastic_transcoder_job_operation(
+                video.s3_key(),
+                request.user,
+            )
+        else:
+            # have to pull it down
+            o = video.make_mov_to_mp4_operation(
+                request.user, '.mov', self.get_filename(video))
         tasks.process_operation.delay(o.id)
         return HttpResponseRedirect(video.get_absolute_url())
 
@@ -952,7 +993,7 @@ class ImportFlv(StaffMixin, View):
 
         # now we can just pretend that it was originally uploaded
         # through WC and someone has now hit the 'FLV to MP4' button
-        o = v.make_flv_to_mp4_operation(user)
+        o = v.make_flv_to_mp4_operation(user, '.flv', full_filename)
         tasks.process_operation.delay(o.id)
 
         return HttpResponseRedirect(v.get_absolute_url())

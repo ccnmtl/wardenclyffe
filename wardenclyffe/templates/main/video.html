@@ -204,19 +204,31 @@ var removeTag = function(tagName,tagId) {
 
 <p><a href="add_file/">manually add a file/location -&gt;</a></p>
 <p><a href="mediathread_submit/">import into mediathread -&gt;</a></p>
-<p><a href="{% url 'panopto-video-submit' video.id %}">submit to panopto -&gt;</a></p>
-
-{% flag "s3_to_youtube" %}
-<form action="{% url 's3-to-youtube' video.id %}" method="post" class="mt-1">
-    <input type="submit" value="upload to youtube" />
-</form>
-{% endflag %}
 
 {% if video.flv_convertable %}
     <form action="{% url 'video-flv-to-mp4' video.id %}" method="post" class="mt-1">
         <input type="submit" value="convert flv to mp4" />
     </form>
 {% endif %}
+
+{% if video.mov_convertable %}
+<p>
+<form action="{% url 'video-mov-to-mp4' video.id %}" method="post" class="mt-1">
+    <button class="btn btn-link pl-0" type="submit">submit to elastic transcoder -&gt;</button>
+</form>
+</p>
+{% endif %}
+
+<p><a href="{% url 'panopto-video-submit' video.id %}">submit to panopto -&gt;</a></p>
+
+{% flag "s3_to_youtube" %}
+<p>
+<form action="{% url 's3-to-youtube' video.id %}" method="post" class="mt-1">
+    <button class="btn btn-link pl-0" type="submit">submit to youtube -&gt</button> 
+</form>
+</p>
+{% endflag %}
+
 </div>
 </div>
 {% endblock %}
