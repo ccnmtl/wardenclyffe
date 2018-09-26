@@ -67,9 +67,15 @@ def pull_from_s3_and_upload_to_panopto(operation):
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
 
-    suffix = video.extension()
+    if video.has_s3_transcoded():
+        suffix = '.mp4'
+        s3_key = video.s3_transcoded().cap
+    else:
+        suffix = video.extension()
+        s3_key = video.s3_key()
+
     tmp = pull_from_s3(
-        suffix, settings.AWS_S3_UPLOAD_BUCKET, video.s3_key())
+        suffix, settings.AWS_S3_UPLOAD_BUCKET, s3_key)
     operation.log(info='downloaded from S3')
 
     # the pull_from_s3 returns an open file pointer. Wait to close it
