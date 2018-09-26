@@ -7,6 +7,7 @@ import urlparse
 import uuid
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
@@ -41,6 +42,7 @@ from wardenclyffe.main.models import Server
 from wardenclyffe.main.models import Video, Operation, Collection, File
 import wardenclyffe.main.tasks as tasks
 from wardenclyffe.mediathread.auth import MediathreadAuthenticator
+from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
 
@@ -303,6 +305,44 @@ class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
 
         return self.render_csv_response(
             self.filename(collection), self.headers(), self.rows(collection))
+
+
+class ElasticTranscoderCollectionSubmitView(AuthenticatedNonAtomic, View):
+
+    def submit_to_elastic_transcoder(self, video):
+        if not video.mov_convertable():
+            return
+
+        if video.has_mediathread_asset():
+            video.create_mediathread_update()
+
+        if video.has_s3_source():
+            # we don't need to pull down the flv, there's
+            # already a copy in S3. instead, just
+            # kick off the elastic transcode job
+            o = [video.make_create_elastic_transcoder_job_operation(
+                video.s3_key(),
+                self.request.user)]
+            enqueue_operations(o)
+        else:
+            # have to pull it down
+            o = [video.make_mov_to_mp4_operation(
+                self.request.user, '.mov', video.mov_filename())]
+            enqueue_operations(o)
+
+    def get(self, *args, **kwargs):
+        collection_id = kwargs.get('pk', None)
+        collection = get_object_or_404(Collection, id=collection_id)
+
+        for video in collection.video_set.all():
+            self.submit_to_elastic_transcoder(video)
+
+        messages.add_message(
+            self.request, messages.INFO,
+            '{} was submitted to the Elastic Transcoder.'.format(collection))
+
+        url = reverse('collection-view', kwargs={'pk': collection_id})
+        return HttpResponseRedirect(url)
 
 
 class ChildrenView(TemplateView):

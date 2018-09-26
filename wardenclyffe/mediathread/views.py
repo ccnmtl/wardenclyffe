@@ -8,7 +8,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from wardenclyffe.main.models import Video, Collection
-from wardenclyffe.main.views import key_from_s3url
 from django.contrib.auth.models import User
 from django_statsd.clients import statsd
 from django.conf import settings
@@ -59,6 +58,8 @@ def mediathread_post(request):
 
 
 def s3_upload(request):
+    from wardenclyffe.main.views import key_from_s3url
+
     s3url = request.POST.get('s3_url')
     if s3url is None:
         return HttpResponse("Bad file upload. Please try again.")
