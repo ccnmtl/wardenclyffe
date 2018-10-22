@@ -1273,16 +1273,20 @@ class SearchView(StaffMixin, ListView):
         qs = Video.objects.search(q)
 
         sort_by = self.request.GET.get('sort_by', 'modified')
+        if sort_by == 'collection':
+            sort_by = 'collection__title'
+
         direction = self.request.GET.get('direction', 'desc')
         if direction == 'desc':
             qs = qs.order_by('-' + sort_by)
         else:
             qs = qs.order_by(sort_by)
 
-        return qs
+        return qs.select_related('collection').prefetch_related(
+            'file_set', 'poster_set')
 
     def get_context_data(self, **kwargs):
-        context = ListView.get_context_data(self, **kwargs)
+        context = super(SearchView, self).get_context_data(**kwargs)
 
         base = reverse('search')
         context['base_url'] = u'{}?page='.format(base)

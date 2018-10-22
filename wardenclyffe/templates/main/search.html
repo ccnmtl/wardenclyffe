@@ -22,88 +22,107 @@
             </button>
     </form>
 
-        <!-- Results navigation  -->
-        <div class="visualclear"></div>
-        <div>
-            <div class="total-results-count float-left">
-                {{paginator.count}} videos <a href="{% url 'add-collection'%}?q={{q}}" class="btn btn-default btn-sm">Collect</button>
-            </div>
-            <div class="float-right">
+    <!-- Results navigation  -->
+    <div class="visualclear"></div>
+    <div>
+        <div class="total-results-count float-left">
+            {{paginator.count}} videos <a href="{% url 'add-collection'%}?q={{q}}" class="btn btn-default btn-sm">Collect</a>
+        </div>
+        <div class="float-right">
+            {% include 'main/pagination.html' %}
+        </div>
+    </div>
+    <div class="visualclear"></div>
+    <br />
+    {% if object_list|length < 1 %}
+        <h4 class="well">No matching videos</h4>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-videos">
+                <tr>
+                    <th>Poster</th>
+                    <th data-sort-by="title" class="sortable title">
+                        Title
+                    </th>
+                    <th>Extension</th>
+                    <th data-sort-by="collection" class="sortable collection">
+                        Collection
+                    </th>
+                    <th>
+                        CUIT Location
+                    </th>
+                    <th>
+                        Views
+                    </th>
+                    <th data-sort-by="created" class="sortable created">Added</th>
+                </tr>
+                {% for video in object_list %}
+                    {% with cuit_file=video.cuit_file %}
+                    <tr>
+                    <td>
+                        <a href="{{video.get_absolute_url}}">
+                            {% with video.poster as poster %}
+                            {% if poster.dummy %}
+                                <img src="{% static 'img/vidthumb_480x360.jpg' %}"
+                                     style="width: 80px; height: auto" />
+                            {% else %}
+                                <img src="{{poster.image.src}}" style="width: 80px; height: auto" />
+                            {% endif %}
+                            {% endwith %}</a>
+                    </td>
+                    <td align="left"  style="width: 25%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
+                    <td>
+                        {% if cuit_file %}
+                            {{ cuit_file|make_list|slice:"-3:"|join:""}}
+                        {% endif %}
+                    </td>
+                    <td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
+                    <td>
+                        <div style="word-wrap: break-word; width: 275px">
+                        {% if cuit_file %}
+                            <a href="{{cuit_file.get_absolute_url}}">{{cuit_file.filename}}</a>
+                        {% endif %}
+                        </div>
+                    </td>
+                    <td>{{video.streamlogs.count}}</td>
+                    <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </table>
+        </div>
+        <div class="row tools">
+            <div class="col-md-12">
                 {% include 'main/pagination.html' %}
             </div>
         </div>
-        <div class="visualclear"></div>
-        <br />
-        {% if object_list|length < 1 %}
-            <h4 class="well">No matching videos</h4>
-        {% else %}
-            <div class="table-responsive">
-                <table class="table table-striped table-videos">
-                    <tr>
-                        <th>Poster</th>
-                        <th data-sort-by="ftitle" class="sortable ftitle">
-                            Title
-                        </th>
-                        <th>Extension</th>
-                        <th data-sort-by="fdate" class="sortable fdate">
-                            Collection
-                        </th>
-                        <th data-sort-by="flocation" class="sortable flocation">
-                            CUIT Location
-                        </th>
-                        <th>Tags</th>
-                        <th data-sort-by="added" class="sortable added">Added</th>
-                        <th data-sort-by="complete" class="sortable">Modified</th>
-                    </tr>
-                    {% for video in object_list %}
-                        {% with file=video.file_set.first %}
-                        <tr>
-                        <td>
-                            <a href="{{video.get_absolute_url}}">
-                                {% with video.poster as poster %}
-                                {% if poster.dummy %}
-                                    <img src="{% static 'img/vidthumb_480x360.jpg' %}"
-                                         style="width: 80px; height: auto" />
-                                {% else %}
-                                    <img src="{{poster.image.src}}" style="width: 80px; height: auto" />
-                                {% endif %}
-                                {% endwith %}</a>
-                        </td>
-                        <td align="left"  style="width: 25%"><a href="{{video.get_absolute_url}}">{{video.title}}</a></td>
-                        <td>
-                            {{video.cuit_file_extension}}
-                        </td>
-                        <td><a href="{{video.collection.get_absolute_url}}">{{video.collection.title}}</a></td>
-                        <td>
-                            {% with cuit_file=video.cuit_file %}
-                            <div style="word-wrap: break-word; width: 275px">
-                            {% if cuit_file %}
-                                <a href="{{cuit_file.get_absolute_url}}">{{cuit_file.filename}}</a>
-                            {% endif %}
-                            </div>
-                            {% endwith %}
-                        </td>
-                        <td>
-                        {% if video.tags.count %}
-                            {% for tag in video.tags.all %}
-                                <a href="/tag/{{tag}}/">{{tag}}</a>{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        </td>
-                        <td><i>{{video.created|date:"M d, Y H:i:s"}}</i></td>
-                        <td><i>{{video.modified|date:"M d, Y H:i:s"}}</i></td>
-                        </tr>
-                        {% endwith %}
-                    {% endfor %}
-                </table>
-            </div>
-            <div class="row tools">
-                <div class="col-md-12">
-                    {% include 'main/pagination.html' %}
-                </div>
-            </div>
-        {% endif %}
-
+    {% endif %}
 </div>
+
+<script type="text/javascript">
+    var selectedSort = "{{sort_by}}";
+    var selectedDirection = "{{direction}}";
+
+    jQuery('th.sortable').each(function() {
+        var sortBy = jQuery(this).data('sort-by');
+        if (sortBy === selectedSort) {
+            jQuery(this)
+                .addClass('selected')
+                .addClass(selectedDirection);
+        }
+    });
+
+    jQuery('th.sortable').click(function(evt) {
+        var direction = 'asc';
+        var sortBy = jQuery(evt.currentTarget).data('sort-by');
+        if (sortBy === selectedSort) {
+            direction = selectedDirection === 'asc' ? 'desc' : 'asc';
+        }
+        jQuery('[name="page"]').val(1);
+        jQuery('[name="direction"]').val(direction);
+        jQuery('[name="sort_by"]').val(sortBy);
+        jQuery('form').submit();
+    });
+</script>
 {% endblock %}
 
