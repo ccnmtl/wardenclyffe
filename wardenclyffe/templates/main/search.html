@@ -123,6 +123,13 @@
         jQuery('[name="sort_by"]').val(sortBy);
         jQuery('form').submit();
     });
+
+    jQuery('.btn-paginate').click(function(evt) {
+        evt.preventDefault();
+        var pageNo = jQuery(evt.currentTarget).data('page-number');
+        jQuery('[name="page"]').val(pageNo);
+        jQuery('form').submit();
+    });
 </script>
 {% endblock %}
 
