@@ -9,9 +9,14 @@ class CollectionSubmitForm(forms.Form):
         queryset=Collection.objects.all())
 
     folder_id = forms.CharField(required=True,
-                                help_text="Panoptop Folder UUID")
+                                help_text="Panopto Folder UUID")
+
+    viewed = forms.BooleanField(
+        required=False,
+        help_text="Only submit videos with views > 0")
 
 
 class VideoSubmitForm(forms.Form):
-    folder_id = forms.CharField(required=True,
-                                help_text="Panoptop Folder UUID")
+    folder_id = forms.CharField(
+        required=True,
+        help_text="Panopto Folder UUID")
