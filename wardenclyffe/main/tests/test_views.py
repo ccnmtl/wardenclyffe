@@ -863,14 +863,19 @@ class CollectionReportViewTest(TestCase):
             self.assertEquals(len(rows), 1)
             self.assertEquals(rows[0][0], f.video.id)
             self.assertEquals(rows[0][1], 'test video')
+            self.assertEquals(rows[0][2], 0)
             self.assertEquals(
-                rows[0][2],
+                rows[0][3],
+                'https://wardenclyffe.ccnmtl.columbia.edu/video/{}/'.format(
+                    f.video.id))
+            self.assertEquals(
+                rows[0][4],
                 ("56d27944-4131-11e1-8164-0017f20ea192"
                  "-Mediathread_video_uploaded_by_mlp55.mp4"))
-            self.assertEquals(rows[0][3], 'alpha')
-            self.assertEquals(rows[0][4], 'http://testserver/link/alpha/')
-            self.assertEquals(rows[0][5], 'http://testserver/embed/alpha/')
+            self.assertEquals(rows[0][5], 'alpha')
+            self.assertEquals(rows[0][6], 'http://testserver/link/alpha/')
+            self.assertEquals(rows[0][7], 'http://testserver/embed/alpha/')
             self.assertEquals(
-                rows[0][6], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+                rows[0][8], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
             self.assertEquals(
-                rows[0][7], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+                rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')

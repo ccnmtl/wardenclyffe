@@ -275,26 +275,30 @@ class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
         return '{}_embed'.format(collection.title)
 
     def headers(self):
-        return ['Id', 'Title', 'CUNIX Filename', 'Panopto Id',
+        return ['Id', 'Title', 'Views', 'Url',
+                'CUNIX Filename', 'Panopto Id',
                 'Panopto Link', 'Panopto Embed Code']
 
     def rows(self, collection):
         rows = []
         for video in collection.video_set.all():
             row = [video.id, smart_str(video.title),
+                   video.streamlogs().count(),
+                   'https://wardenclyffe.ccnmtl.columbia.edu{}'.format(
+                       reverse('video-details', kwargs={'pk': video.id})),
                    self.cuit_filename(video),
                    '', '', '', '', '']
 
             pf = video.panopto_file()
             if pf:
-                row[3] = pf.filename
-                row[4] = settings.PANOPTO_LINK_URL.format(pf.filename)
-                row[5] = settings.PANOPTO_EMBED_URL.format(pf.filename)
+                row[5] = pf.filename
+                row[6] = settings.PANOPTO_LINK_URL.format(pf.filename)
+                row[7] = settings.PANOPTO_EMBED_URL.format(pf.filename)
 
             yt = video.youtube_file()
             if yt and yt.url:
-                row[6] = yt.url
-                row[7] = replace(yt.url, max_width=560, max_height=320)
+                row[8] = yt.url
+                row[9] = replace(yt.url, max_width=560, max_height=320)
 
             rows.append(row)
 
