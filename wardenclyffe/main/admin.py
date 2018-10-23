@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from wardenclyffe.main.models import File, Video, VideoReference
+from wardenclyffe.main.models import (
+    File, Video, VideoReference, Image, Collection)
 
 
 @admin.register(File)
@@ -20,3 +21,7 @@ class VideoAdmin(admin.ModelAdmin):
     inlines = [
         VideoReferenceInline,
     ]
+
+
+admin.site.register(Image)
+admin.site.register(Collection)
