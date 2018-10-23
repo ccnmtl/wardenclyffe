@@ -14,8 +14,11 @@ from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 from wardenclyffe.panopto.forms import CollectionSubmitForm, VideoSubmitForm
 
 
-def submit_video_to_panopto(user, video, folder_id):
+def submit_video_to_panopto(user, video, folder_id, viewed=False):
     statsd.incr("panopto.submit")
+
+    if viewed and video.streamlogs().count() < 1:
+        return False
 
     if video.has_s3_source():
         operations = [
@@ -46,8 +49,9 @@ class VideoSubmitView(AuthenticatedNonAtomic, FormView):
 
     def form_valid(self, form):
         video = self.get_video()
-        folder_id = form.cleaned_data['folder_id']
-        submit_video_to_panopto(self.request.user, video, folder_id)
+        submit_video_to_panopto(
+            self.request.user, video,
+            form.cleaned_data['folder_id'])
 
         messages.add_message(
             self.request, messages.INFO,
@@ -98,7 +102,8 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
 
         for video in collection.video_set.all():
             if not video.has_panopto_source():
-                submit_video_to_panopto(self.request.user, video, folder_id)
+                submit_video_to_panopto(self.request.user, video, folder_id,
+                                        form.cleaned_data['viewed'])
 
         return FormView.form_valid(self, form)
 
