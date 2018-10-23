@@ -402,6 +402,8 @@ class Video(TimeStampedModel):
                 filename = f.h264_secure_path()
             return StreamLog.objects.filter(filename=filename)
 
+        return StreamLog.objects.none()
+
     def make_mediathread_submit_file(self, filename, user, set_course,
                                      redirect_to, audio=False):
         submit_file = File.objects.create(video=self,
