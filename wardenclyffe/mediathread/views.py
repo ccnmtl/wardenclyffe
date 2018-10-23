@@ -102,7 +102,7 @@ def s3_upload(request):
 
 
 def mediathread_url(username):
-    return (settings.MEDIATHREAD_BASE + "/api/user/courses?secret=" +
+    return (settings.MEDIATHREAD_BASE + "api/user/courses?secret=" +
             settings.MEDIATHREAD_SECRET + "&user=" +
             username)
 
