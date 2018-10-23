@@ -434,3 +434,18 @@ td.step h4 {
     height: 115%;
     border: 0;
 }
+
+th.sortable {
+    background-image: url(../img/bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+
+th.sortable.asc {
+    background-image: url(../img/asc.gif) !important;
+}
+
+th.sortable.desc {
+    background-image: url(../img/desc.gif) !important;
+}

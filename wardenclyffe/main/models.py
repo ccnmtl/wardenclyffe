@@ -87,7 +87,6 @@ class VideoManager(models.Manager):
             qs = qs.filter(
                 Q(title__icontains=q) |
                 Q(creator__icontains=q) |
-                Q(language__icontains=q) |
                 Q(description__icontains=q) |
                 Q(subject__icontains=q) |
                 Q(license__icontains=q) |
@@ -230,15 +229,14 @@ class Video(TimeStampedModel):
         return ""
 
     def has_poster(self):
-        return Poster.objects.filter(video=self).count()
+        return self.poster_set.count()
 
     def poster_url(self):
         return self.poster().url()
 
     def poster(self):
-        r = Poster.objects.filter(video=self)
-        if r.count() > 0:
-            return r[0]
+        if self.poster_set.count() > 0:
+            return self.poster_set.first()
         else:
             return DummyPoster()
 
@@ -329,16 +327,13 @@ class Video(TimeStampedModel):
         return self.file_set.filter(location_type="cuit").exists()
 
     def cuit_file(self):
-        try:
-            return self.file_set.filter(location_type="cuit")[0]
-        except IndexError:
-            return None
+        return self.file_set.filter(location_type="cuit").first()
 
     def cuit_file_extension(self):
         try:
-            f = self.file_set.filter(location_type="cuit")[0]
+            f = self.file_set.filter(location_type="cuit").first()
             return os.path.splitext(f.filename)[1]
-        except IndexError:
+        except AttributeError:
             return None
 
     def has_flv(self):
