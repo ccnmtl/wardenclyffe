@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from wardenclyffe.main.models import File, Video, VideoReference, Image, Collection
+from wardenclyffe.main.models import (
+    File, Video, VideoReference, Image, Collection)
 
 
 @admin.register(File)
