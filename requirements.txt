@@ -17,7 +17,7 @@ kombu==3.0.37 # pyup: <4.0.0
 django-picklefield==1.1.0
 pyparsing==2.2.2
 six==1.11.0
-pytz==2018.5
+pytz==2018.6
 python-dateutil==2.7.3
 librabbitmq==1.6.1 # pyup: <2.0.0
 
