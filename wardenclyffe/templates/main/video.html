@@ -211,7 +211,7 @@ var removeTag = function(tagName,tagId) {
     </form>
 {% endif %}
 
-{% if video.mov_convertable %}
+{% if not video.has_s3_transcoded %}
 <p>
 <form action="{% url 'video-mov-to-mp4' video.id %}" method="post" class="mt-1">
     <button class="btn btn-link pl-0" type="submit">submit to elastic transcoder -&gt;</button>
