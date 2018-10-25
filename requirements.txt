@@ -18,7 +18,7 @@ django-picklefield==1.1.0
 pyparsing==2.2.2
 six==1.11.0
 pytz==2018.6
-python-dateutil==2.7.3
+python-dateutil==2.7.4
 librabbitmq==1.6.1 # pyup: <2.0.0
 
 celery==3.1.26.post2 # pyup: <4.0.0
