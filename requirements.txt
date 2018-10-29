@@ -18,7 +18,7 @@ django-picklefield==1.1.0
 pyparsing==2.2.2
 six==1.11.0
 pytz==2018.7
-python-dateutil==2.7.3
+python-dateutil==2.7.5
 librabbitmq==1.6.1 # pyup: <2.0.0
 
 celery==3.1.26.post2 # pyup: <4.0.0
@@ -52,9 +52,9 @@ coverage==4.5.1
 pep8==1.7.1
 pyflakes==2.0.0
 mccabe==0.6.1
-pycodestyle==2.3.1 # pyup: <2.4.0
+pycodestyle==2.4.0
 configparser==3.5.0
-flake8==3.5.0
+flake8==3.6.0
 logilab-common==1.4.2
 logilab-astng==0.24.3
 editdistance==0.5.2
