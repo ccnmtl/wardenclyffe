@@ -46,7 +46,7 @@ chardet==3.0.4
 idna==2.6
 urllib3==1.24.1
 
-requests==2.20.0
+requests==2.20.1
 statsd==3.3.0
 coverage==4.5.1
 pep8==1.7.1
