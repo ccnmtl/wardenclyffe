@@ -1,6 +1,6 @@
 # flake8: noqa
 import sys
-from settings_shared import *
+from wardenclyffe.settings_shared import *
 
 if 'test' not in sys.argv and 'jenkins' not in sys.argv:
     try:

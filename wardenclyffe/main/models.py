@@ -4,7 +4,7 @@ import base64
 import hmac
 from json import dumps, loads
 import os.path
-import sha
+import hashlib
 import time
 import urllib
 
@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import SET
 from django.db.models.query_utils import Q
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import python_2_unicode_compatible, smart_bytes
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
 from surelink import SureLink
@@ -596,9 +596,9 @@ class S3File(FileType):
         filename = "/" + bucket + "/" + self.file.cap
         expiry = str(int(time.time()) + 3600)
         h = hmac.new(
-            settings.AWS_SECRET_KEY,
+            smart_bytes(settings.AWS_SECRET_KEY),
             "".join(["GET\n\n\n", expiry, "\n", filename]),
-            sha)
+            hashlib.sha1)
         signature = urllib.quote_plus(base64.encodestring(h.digest()).strip())
         return "".join([
             "https://s3.amazonaws.com",
@@ -890,7 +890,7 @@ class Operation(TimeStampedModel):
                 self.fail(message)
             else:
                 self.post_process()
-        except Exception, e:
+        except Exception as e:
             self.log(info=str(e))
             # re-raise so Celery's retry logic can deal with it
             raise

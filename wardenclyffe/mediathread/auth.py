@@ -1,6 +1,7 @@
 import hmac
 import hashlib
 from django.conf import settings
+from django.utils.encoding import smart_bytes
 
 
 class MediathreadAuthenticator(object):
@@ -13,7 +14,7 @@ class MediathreadAuthenticator(object):
 
     def is_valid(self):
         verify = hmac.new(
-            settings.MEDIATHREAD_SECRET,
+            smart_bytes(settings.MEDIATHREAD_SECRET),
             '%s:%s:%s' % (self.username, self.redirect_to,
                           self.nonce),
             hashlib.sha1

@@ -275,7 +275,7 @@ def parse_metadata(output):
                 continue
             (f, v) = line.split("=")
             yield f, v
-        except Exception, e:
+        except Exception as e:
             # just ignore any parsing issues
             print("exception in extract_metadata: " + str(e))
             print(line)
@@ -382,7 +382,7 @@ def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
                             filename=remote_path,
                             location_type='cuit',
                             )
-    except Exception, e:
+    except Exception as e:
         print("sftp put failed")
         print(str(e))
     else:
@@ -398,7 +398,7 @@ def sftp_delete(remote_path):
     try:
         sftp.remove(remote_path)
         success = True
-    except Exception, e:
+    except Exception as e:
         print("sftp delete failed")
         print(str(e))
     else:
@@ -527,7 +527,7 @@ def sftp_get(remote_filename, local_filename):
 
     try:
         sftp.get(remote_filename, local_filename)
-    except Exception, e:
+    except Exception as e:
         print("sftp fetch failed")
         print(str(e))
         raise
@@ -539,7 +539,7 @@ def sftp_get(remote_filename, local_filename):
 
 
 def strip_special_characters(title):
-    return re.sub('[\W_]+', '_', title)
+    return re.sub(r'[\W_]+', '_', title)
 
 
 def slow_operations():

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This file demonstrates two different styles of tests (one doctest and one
 unittest). These will both pass when you run "manage.py test".
@@ -82,7 +84,7 @@ class CollectionTest(TestCase):
         v = VideoFactory()
         v.collection.delete()
         v.refresh_from_db()
-        self.assertEquals(v.collection.title, 'Unclassified')
+        self.assertEqual(v.collection.title, 'Unclassified')
 
 
 class VideoTest(TestCase):
@@ -92,8 +94,8 @@ class VideoTest(TestCase):
         VideoFactory(title='beta')
 
         qs = Video.objects.search('alpha')
-        self.assertEquals(qs.count(), 1)
-        self.assertEquals(qs.first(), video)
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), video)
 
 
 class EmptyVideoTest(TestCase):
@@ -132,7 +134,7 @@ class EmptyVideoTest(TestCase):
         assert self.video.mediathread_url() == ""
 
     def test_poster_url(self):
-        self.assertEquals(
+        self.assertEqual(
             self.video.poster_url(),
             ("http://ccnmtl.columbia.edu/broadcast/posters/"
              "vidthumb_480x360.jpg"))
@@ -178,7 +180,7 @@ class EmptyVideoTest(TestCase):
         self.assertFalse(self.video.flv_convertable())
 
     def test_streamlogs_no_flv(self):
-        self.assertEquals(self.video.streamlogs().count(), 0)
+        self.assertEqual(self.video.streamlogs().count(), 0)
 
     def test_streamlogs_with_flv(self):
         CUITFLVFileFactory(video=self.video)
@@ -309,7 +311,7 @@ class MediathreadVideoTest(TestCase):
     """ test the behavior for a video that was uploaded to Mediathread """
     def test_extension(self):
         f = CUITFLVFileFactory()
-        self.assertEquals(f.video.extension(), ".flv")
+        self.assertEqual(f.video.extension(), ".flv")
 
     def test_source_file(self):
         source_file = SourceFileFactory()
@@ -356,7 +358,7 @@ class MediathreadVideoTest(TestCase):
             filename=("/www/data/ccnmtl/broadcast/secure/courses/"
                       "40e67868-41f1-11e1-aaa7-0017f20ea192-"
                       "Mediathread_video_uploaded_by_anp8.flv"))
-        self.assertEquals(
+        self.assertEqual(
             f.video.mediathread_url(),
             (
                 "http://ccnmtl.columbia.edu/stream/flv/"
@@ -366,7 +368,7 @@ class MediathreadVideoTest(TestCase):
                 "-Mediathread_video_uploaded_by_anp8.flv"))
 
         f = FileFactory(location_type='panopto', filename='foo')
-        self.assertEquals(f.video.mediathread_url(), 'foo')
+        self.assertEqual(f.video.mediathread_url(), 'foo')
 
     def test_poster_url(self):
         f = CUITFLVFileFactory()
@@ -458,11 +460,11 @@ class MissingDimensionsTest(TestCase):
 
 class SpecialCharacterTests(TestCase):
     def test_strip_characters(self):
-        self.assertEquals(strip_special_characters("video file"), "video_file")
-        self.assertEquals(strip_special_characters("video \"foo\" file"),
-                          "video_foo_file")
-        self.assertEquals(strip_special_characters("a.b.c"), "a_b_c")
-        self.assertEquals(strip_special_characters("(foo)"), "_foo_")
+        self.assertEqual(strip_special_characters("video file"), "video_file")
+        self.assertEqual(strip_special_characters("video \"foo\" file"),
+                         "video_foo_file")
+        self.assertEqual(strip_special_characters("a.b.c"), "a_b_c")
+        self.assertEqual(strip_special_characters("(foo)"), "_foo_")
 
 
 class H264SecureStreamFileTest(TestCase):
@@ -477,16 +479,16 @@ class H264SecureStreamFileTest(TestCase):
 class H264PublicStreamFileTest(TestCase):
     def test_h264_public_stream_url(self):
         f = PublicFileFactory()
-        self.assertEquals(f.video.h264_public_stream_url(),
-                          ("http://stream.ccnmtl.columbia.edu/public/"
-                           "courses/56d27944-4131-11e1-8164-0017f20ea192-"
-                           "Mediathread_video_uploaded_by_mlp55.mp4"))
+        self.assertEqual(f.video.h264_public_stream_url(),
+                         ("http://stream.ccnmtl.columbia.edu/public/"
+                          "courses/56d27944-4131-11e1-8164-0017f20ea192-"
+                          "Mediathread_video_uploaded_by_mlp55.mp4"))
 
     def test_h264_public_path(self):
         f = PublicFileFactory()
-        self.assertEquals(f.h264_public_path(),
-                          ("/courses/56d27944-4131-11e1-8164-0017f20ea192-"
-                           "Mediathread_video_uploaded_by_mlp55.mp4"))
+        self.assertEqual(f.h264_public_path(),
+                         ("/courses/56d27944-4131-11e1-8164-0017f20ea192-"
+                          "Mediathread_video_uploaded_by_mlp55.mp4"))
 
     def test_h264_public_stream_url_non_cuit(self):
         f = SourceFileFactory()
@@ -504,11 +506,11 @@ class SubmitFilesTest(TestCase):
         v.make_mediathread_submit_file(
             "file.mp4", u, "course-id",
             "http://example.com/", audio=False)
-        self.assertEquals(
+        self.assertEqual(
             v.mediathread_submit(),
             ("course-id", u.username, None))
         v.clear_mediathread_submit()
-        self.assertEquals(
+        self.assertEqual(
             v.mediathread_submit(),
             (None, None, None))
 
@@ -518,12 +520,12 @@ class SubmitFilesTest(TestCase):
         v.make_mediathread_submit_file(
             "file.mp4", u, "course-id",
             "http://example.com/", audio=True)
-        self.assertEquals(
+        self.assertEqual(
             v.mediathread_submit(),
             ("course-id", u.username, u'True'))
         self.assertTrue(v.is_audio_file())
         v.clear_mediathread_submit()
-        self.assertEquals(
+        self.assertEqual(
             v.mediathread_submit(),
             (None, None, None))
 
@@ -531,11 +533,11 @@ class SubmitFilesTest(TestCase):
 class OperationTest(TestCase):
     def test_basics(self):
         o = OperationFactory()
-        self.assertEquals(o.get_absolute_url().startswith("/operation/"),
-                          True)
+        self.assertEqual(o.get_absolute_url().startswith("/operation/"),
+                         True)
         d = o.as_dict()
-        self.assertEquals(d['status'], o.status)
-        self.assertEquals(o.formatted_params(), '{}')
+        self.assertEqual(d['status'], o.status)
+        self.assertEqual(o.formatted_params(), '{}')
 
     @override_settings(YOUTUBE_EMAIL="foo@bar.com", YOUTUBE_PASSWORD="foo",
                        YOUTUBE_SOURCE="foo", YOUTUBE_DEVELOPER_KEY="foo",
@@ -573,8 +575,8 @@ class OperationTest(TestCase):
 class ServerTest(TestCase):
     def test_unicode(self):
         s = ServerFactory()
-        self.assertEquals(str(s), s.name)
+        self.assertEqual(str(s), s.name)
 
     def test_url(self):
         s = ServerFactory()
-        self.assertEquals(s.get_absolute_url(), "/server/%d/" % s.id)
+        self.assertEqual(s.get_absolute_url(), "/server/%d/" % s.id)

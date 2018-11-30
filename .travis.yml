@@ -1,9 +1,10 @@
 language: python
-sudo: false
 python:
   - "2.7.6"
   - "2.7"
 before_install:
+  # https://github.com/travis-ci/travis-ci/issues/7940#issuecomment-310759657
+  - sudo rm -f /etc/boto.cfg
   - pip install --upgrade setuptools pip wheel
 script:
   - make

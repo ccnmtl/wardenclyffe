@@ -9,7 +9,12 @@ with a few improvements and simplifications.
 from django.conf import settings
 
 import httplib2
-import httplib
+
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
+
 import random
 import time
 
@@ -133,13 +138,13 @@ def attempt_upload(insert_request, response, retry):
         print("Uploading file...")
         status, response = insert_request.next_chunk()
         youtube_id = get_youtube_id_from_response(response)
-    except HttpError, e:
+    except HttpError as e:
         if e.resp.status in RETRIABLE_STATUS_CODES:
             error = "A retriable HTTP error %d occurred:\n%s" % (
                 e.resp.status, e.content)
         else:
             raise
-    except RETRIABLE_EXCEPTIONS, e:
+    except RETRIABLE_EXCEPTIONS as e:
         error = "A retriable error occurred: %s" % e
 
     retry = handle_upload_error(error, retry)
@@ -149,13 +154,13 @@ def attempt_upload(insert_request, response, retry):
 def handle_upload_error(error, retry):
     if error is None:
         return retry
-    print error
+    print(error)
     retry += 1
     if retry > MAX_RETRIES:
         exit("No longer attempting to retry.")
 
     max_sleep = 2 ** retry
     sleep_seconds = random.random() * max_sleep  # nosec
-    print "Sleeping %f seconds and then retrying..." % sleep_seconds
+    print("Sleeping %f seconds and then retrying..." % sleep_seconds)
     time.sleep(sleep_seconds)
     return retry

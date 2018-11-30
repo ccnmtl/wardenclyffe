@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase
 from wardenclyffe.graphite.models import operation_count_by_status
 from wardenclyffe.graphite.models import minutes_video_stats

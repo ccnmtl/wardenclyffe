@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
@@ -56,10 +58,10 @@ class StreamLogListViewTest(TestCase):
         self.client.login(username=user, password='test')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEquals(response.context_data['object_list'].count(), 3)
+        self.assertEqual(response.context_data['object_list'].count(), 3)
 
         response = self.client.get(url + '?q=foo')
         self.assertEqual(response.status_code, 200)
-        self.assertEquals(response.context_data['object_list'].count(), 1)
-        self.assertEquals(response.context_data['object_list'].first(),
-                          self.log)
+        self.assertEqual(response.context_data['object_list'].count(), 1)
+        self.assertEqual(response.context_data['object_list'].first(),
+                         self.log)

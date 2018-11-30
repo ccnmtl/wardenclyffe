@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from .factories import DropBucketFactory
 from django.test import TestCase
 
