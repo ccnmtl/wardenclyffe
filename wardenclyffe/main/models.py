@@ -400,7 +400,7 @@ class Video(TimeStampedModel):
             filename = f.filename
             if f.is_h264_secure_streamable():
                 filename = f.h264_secure_path()
-            return StreamLog.objects.filter(filename=filename)
+            return StreamLog.objects.filter(filename__contains=filename)
 
         return StreamLog.objects.none()
 
