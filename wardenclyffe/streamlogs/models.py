@@ -26,13 +26,15 @@ class StreamLog(models.Model):
         not all files will have a match, so it can also return None
         """
         f = File.objects.filter(
-            location_type='cuit', filename=self.full_filename()).first()
+            location_type='cuit',
+            filename__contains=self.full_filename()).first()
         if f is not None:
             return f.video
 
         sf = self.secure_filename()
         f = File.objects.filter(
-            location_type='cuit', filename=sf).first()
+            location_type='cuit',
+            filename__contains=sf).first()
         if f is not None:
             return f.video
 
