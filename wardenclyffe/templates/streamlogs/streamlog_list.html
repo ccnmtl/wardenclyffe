@@ -19,7 +19,7 @@
         <input type="hidden" name="page" value="{{page}}" />
 
         <div class="form-group{% if form.q.errors %} has-error{% endif %}">
-            <label for="keyword-search">Keyword:</span></label>
+            <label class="mr-1" for="keyword-search">Keyword:</label>
             <input class="form-control" type="text" name="q" placeholder="Find..." value="{{q}}">
         </div>&nbsp;
         <button type="submit" class="btn btn-default">
@@ -47,6 +47,7 @@
                 <th data-sort-by="request_at" >timestamp</th>
                 <th data-sort-by="filename">filename</th>
                 <th data-sort-by="video__title">video</th>
+                <th>migrated</th>
             </tr>
         </thead>
         <tbody>
@@ -64,6 +65,13 @@
                                 <input type="submit" value="import flv" />
                             </form>
                         {% endif %}{% endif %}
+                    {% endwith %}
+                </td>
+                <td>
+                    {% with video=object.video %}
+                        {% if video %}
+                            {{video.has_panopto_source}}
+                        {% endif %}
                     {% endwith %}
                 </td>
             </tr>
