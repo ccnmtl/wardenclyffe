@@ -32,22 +32,22 @@ class Command(BaseCommand):
 
         for f in File.objects.filter(location_type='s3'):
             video = f.video
-            print "Video: " + video.title
+            print("Video: " + video.title)
             try:
-                print "  pulling down from old bucket"
+                print("  pulling down from old bucket")
                 k = Key(old_bucket)
                 k.key = video.s3_key()
                 suffix = video.extension()
                 t = tempfile.NamedTemporaryFile(suffix=suffix)
                 k.get_contents_to_file(t)
                 t.seek(0)
-                print "  done"
+                print("  done")
 
-                print "  uploading to new bucket"
+                print("  uploading to new bucket")
                 k = Key(new_bucket)
                 k.key = video.s3_key()
                 k.set_contents_from_file(t)
                 t.close()
-                print "  done"
-            except Exception, e:
-                print "Failed: " + str(e)
+                print("  done")
+            except Exception as e:
+                print("Failed: " + str(e))

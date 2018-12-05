@@ -21,5 +21,5 @@ class Command(BaseCommand):
             if mtime > ARCHIVE_CUTOFF:
                 continue
             else:
-                print "deleting %s" % (f,)
+                print("deleting %s" % (f,))
                 os.unlink(os.path.join(BASE, f))

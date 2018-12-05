@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -79,7 +81,7 @@ class SimpleTest(TestCase):
 
     def test_invalid_auth(self):
         response = self.c.get("/mediathread/")
-        self.assertEquals(
+        self.assertEqual(
             response.content,
             "invalid authentication token")
 

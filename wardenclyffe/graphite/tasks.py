@@ -8,7 +8,7 @@ from .models import minutes_video_stats
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def operations_report():
-    print "operations_report()"
+    print("operations_report()")
     r = operation_count_by_status()
     statsd.gauge("operations.failed", r['failed'])
     statsd.gauge("operations.complete", r['complete'])
@@ -20,13 +20,13 @@ def operations_report():
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def minutes_video():
-    print "minutes_video()"
+    print("minutes_video()")
     statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
 @periodic_task(run_every=crontab(hour="*/3", minute="10", day_of_week="*"))
 def hourly_s3_usage_report():
-    print "trihourly_s3_report()"
+    print("trihourly_s3_report()")
     (cnt, total) = s3_stats()
     statsd.gauge("s3.total", total)
     statsd.gauge("s3.cnt", cnt)

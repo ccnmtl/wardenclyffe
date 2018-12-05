@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import json
 import os.path
 
@@ -36,11 +38,11 @@ class SimpleTest(TestCase):
 
     def test_index(self):
         response = self.c.get('/')
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get('/')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_smoke(self):
         self.c.get('/smoketest/')
@@ -48,7 +50,7 @@ class SimpleTest(TestCase):
     def test_dashboard(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/dashboard/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_received_invalid(self):
         response = self.c.post("/received/")
@@ -68,78 +70,78 @@ class SimpleTest(TestCase):
     def test_recent_operations(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/recent_operations/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_upload_form(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_batch_upload_form(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/batch/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_upload_form_for_collection(self):
         c = CollectionFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/upload/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         response = self.c.get("/upload/?collection=%d" % c.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_upload_errors(self):
         # if we try to post without logging in, should get redirected
         response = self.c.post("/upload/post/")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         self.c.login(username=self.u.username, password="bar")
         # GET should not work
         response = self.c.get("/upload/post/")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         # invalid form
         response = self.c.post("/upload/post/")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_batch_upload_errors(self):
         # if we try to post without logging in, should get redirected
         response = self.c.post("/upload/batch/post/")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         self.c.login(username=self.u.username, password="bar")
         # GET should not work
         response = self.c.get("/upload/batch/post/")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         # invalid form
         response = self.c.post("/upload/batch/post/", dict(collection=1))
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_subject_autocomplete(self):
         response = self.c.get("/api/subjectautocomplete/", dict(q="test"))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_uuid_search(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/uuid_search/", dict(uuid=f.video.uuid))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_uuid_search_empty(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/uuid_search/", dict(uuid=""))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_search(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/search/", dict(q="test"))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_search_empty(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/search/", dict(q=""))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_filter(self):
         f = FileFactory()
@@ -149,102 +151,102 @@ class SimpleTest(TestCase):
             dict(
                 include_collection=f.video.collection.id,
             ))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_video_index(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/video/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_video_index_nan(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/video/?page=foo")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_video_index_offtheend(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/video/?page=200")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_video_index_with_params(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/video/?creator=c&description=d&"
                               "language=l&subject=s&licence=l")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_index(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_index_nan(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/?page=foo")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_index_offtheend(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/?page=200")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_index_with_params(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/file/?foo=bar")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_user_page(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/user/%s/" % self.u.username)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_collection_videos(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/videos/" % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_collection_videos_pagination_nan(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/videos/?page=foo" % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_collection_videos_pagination_offtheend(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/videos/?page=200" % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_collection_operations(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/collection/%d/operations/"
                               % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_collection_page(self):
         f = FileFactory()
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get(
             "/collection/%d/" % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_slow_operations(self):
         self.c.login(username=self.u.username, password="bar")
         response = self.c.get("/slow_operations/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_tagautocomplete(self):
         response = self.c.get("/api/tagautocomplete/?q=foo")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_subjectautocomplete(self):
         VideoFactory(title="thread")
         response = self.c.get("/api/subjectautocomplete/?q=thread")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_operation_info(self):
         o = OperationFactory()
@@ -261,7 +263,7 @@ class SimpleTest(TestCase):
                       "-Mediathread_video_uploaded_by_mlp55.flv"))
         self.c.login(username=self.u.username, password="bar")
         response = self.c.post(reverse('video-flv-to-mp4', args=[v.pk]))
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertTrue(v.has_mediathread_update())
 
 
@@ -275,19 +277,19 @@ class TestSurelink(TestCase):
 
     def test_surelink_form(self):
         response = self.c.get("/surelink/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_surelink_with_files(self):
         response = self.c.get("/surelink/", dict(files="foo.mp4"))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_surelink_form(self):
         f = FileFactory()
         response = self.c.get("/file/%d/" % f.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         response = self.c.get("/file/%d/surelink/" % f.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_file_surelink_public_stream(self):
         """ regression test for PMT #87084 """
@@ -296,7 +298,7 @@ class TestSurelink(TestCase):
                       "courses/56d27944-4131-11e1-8164-0017f20ea192"
                       "-Mediathread_video_uploaded_by_mlp55.mp4"))
         response = self.c.get("/file/%d/" % public_file.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         response = self.c.get(
             "/file/%d/surelink/" % public_file.id,
@@ -310,7 +312,7 @@ class TestSurelink(TestCase):
              'authtype': '',
              'player': 'v4',
              })
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         assert "&lt;iframe" in response.content
         assert "file=/media/h264/ccnmtl/" not in response.content
         assert "file=/course" in response.content
@@ -322,7 +324,7 @@ class TestSurelink(TestCase):
                       "courses/56d27944-4131-11e1-8164-0017f20ea192"
                       "-Mediathread_video_uploaded_by_mlp55.mp4"))
         response = self.c.get("/file/%d/" % public_file.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         response = self.c.get(
             "/file/%d/surelink/" % public_file.id,
@@ -336,7 +338,7 @@ class TestSurelink(TestCase):
              'authtype': '',
              'player': 'v4',
              })
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         assert "&lt;iframe" in response.content
         assert "file=/media/h264/ccnmtl/" not in response.content
         assert "file=/course" in response.content
@@ -347,14 +349,14 @@ class TestFeed(TestCase):
         self.c = Client()
         f = FileFactory()
         response = self.c.get("/collection/%d/rss/" % f.video.collection.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestStats(TestCase):
     def test_stats_page(self):
         self.c = Client()
         response = self.c.get("/stats/")
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestSignS3View(TestCase):
@@ -573,7 +575,7 @@ class TestStaff(TestCase):
         self.assertEqual(r.status_code, 302)
 
         c = Collection.objects.get(title='new collection')
-        self.assertEquals(c.video_set.first(), v)
+        self.assertEqual(c.video_set.first(), v)
 
     def test_operation(self):
         o = OperationFactory()
@@ -640,7 +642,7 @@ class TestStaff(TestCase):
     def test_bulk_file_operation_invalid(self):
         response = self.c.post(
             reverse('bulk-operation'))
-        self.assertEquals(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
     def test_bulk_surelink_empty(self):
         r = self.c.get(reverse('bulk-surelink'))
@@ -844,7 +846,7 @@ class CollectionReportViewTest(TestCase):
     def test_cuit_filename(self):
         f = FileFactory()
         view = CollectionReportView()
-        self.assertEquals(
+        self.assertEqual(
             view.cuit_filename(f.video),
             ("56d27944-4131-11e1-8164-0017f20ea192"
              "-Mediathread_video_uploaded_by_mlp55.mp4"))
@@ -860,22 +862,22 @@ class CollectionReportViewTest(TestCase):
                 PANOPTO_EMBED_URL='http://testserver/embed/{}/'):
             view = CollectionReportView()
             rows = view.rows(f.video.collection)
-            self.assertEquals(len(rows), 1)
-            self.assertEquals(rows[0][0], f.video.id)
-            self.assertEquals(rows[0][1], 'test video')
-            self.assertEquals(rows[0][2], 0)
-            self.assertEquals(
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0][0], f.video.id)
+            self.assertEqual(rows[0][1], 'test video')
+            self.assertEqual(rows[0][2], 0)
+            self.assertEqual(
                 rows[0][3],
                 'https://wardenclyffe.ccnmtl.columbia.edu/video/{}/'.format(
                     f.video.id))
-            self.assertEquals(
+            self.assertEqual(
                 rows[0][4],
                 ("56d27944-4131-11e1-8164-0017f20ea192"
                  "-Mediathread_video_uploaded_by_mlp55.mp4"))
-            self.assertEquals(rows[0][5], 'alpha')
-            self.assertEquals(rows[0][6], 'http://testserver/link/alpha/')
-            self.assertEquals(rows[0][7], 'http://testserver/embed/alpha/')
-            self.assertEquals(
+            self.assertEqual(rows[0][5], 'alpha')
+            self.assertEqual(rows[0][6], 'http://testserver/link/alpha/')
+            self.assertEqual(rows[0][7], 'http://testserver/embed/alpha/')
+            self.assertEqual(
                 rows[0][8], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
-            self.assertEquals(
+            self.assertEqual(
                 rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
