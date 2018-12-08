@@ -11,6 +11,7 @@ import os
 import tempfile
 import subprocess  # nosec
 from django.conf import settings
+from django.utils.encoding import smart_text
 from json import loads, dumps
 import paramiko
 import random
@@ -258,7 +259,7 @@ def extract_metadata(operation):
 
 def do_extract_metadata(source_file, filename):
     statsd.incr("extract_metadata")
-    output = unicode(
+    output = smart_text(
         subprocess.Popen(  # nosec
             [midentify_path(), filename],
             stdout=subprocess.PIPE).communicate()[0],

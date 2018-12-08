@@ -6,7 +6,11 @@ from json import dumps, loads
 import os.path
 import hashlib
 import time
-import urllib
+
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from django.apps import apps
 from django.conf import settings
@@ -595,9 +599,9 @@ class S3File(FileType):
         expiry = str(int(time.time()) + 3600)
         h = hmac.new(
             smart_bytes(settings.AWS_SECRET_KEY),
-            "".join(["GET\n\n\n", expiry, "\n", filename]),
+            smart_bytes("".join(["GET\n\n\n", expiry, "\n", filename])),
             hashlib.sha1)
-        signature = urllib.quote_plus(base64.encodestring(h.digest()).strip())
+        signature = quote_plus(base64.encodestring(h.digest()).strip())
         return "".join([
             "https://s3.amazonaws.com",
             filename,
