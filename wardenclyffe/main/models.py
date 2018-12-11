@@ -17,9 +17,7 @@ from django.db.models.query_utils import Q
 from django.utils.encoding import python_2_unicode_compatible, smart_bytes
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
-from surelink import SureLink
-from surelink.helpers import AUTHTYPE_OPTIONS
-from surelink.helpers import PROTECTION_OPTIONS
+from surelink.helpers import SureLink, AUTHTYPE_OPTIONS, PROTECTION_OPTIONS
 from taggit.managers import TaggableManager
 import uuid
 

@@ -33,9 +33,7 @@ from django_statsd.clients import statsd
 from oembed.core import replace
 import requests
 from s3sign.views import SignS3View as BaseSignS3View
-from surelink import SureLink
-from surelink.helpers import AUTHTYPE_OPTIONS
-from surelink.helpers import PROTECTION_OPTIONS
+from surelink.helpers import SureLink, AUTHTYPE_OPTIONS, PROTECTION_OPTIONS
 from taggit.models import Tag
 
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
