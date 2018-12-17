@@ -15,8 +15,8 @@ class MediathreadAuthenticator(object):
     def is_valid(self):
         verify = hmac.new(
             smart_bytes(settings.MEDIATHREAD_SECRET),
-            '%s:%s:%s' % (self.username, self.redirect_to,
-                          self.nonce),
+            smart_bytes(
+                '%s:%s:%s' % (self.username, self.redirect_to, self.nonce)),
             hashlib.sha1
         ).hexdigest()
         return verify == self.hmc

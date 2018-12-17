@@ -7,7 +7,7 @@ import re
 try:
     from urllib.parse import urlparse
 except ImportError:
-    import urlparse
+    from urlparse import urlparse
 
 import uuid
 
@@ -89,8 +89,8 @@ class DashboardView(StaffMixin, TemplateView):
                 get_param, not submitted)
 
         user_filter = self.request.GET.get('user', '')
-        collection_filter = int(self.request.GET.get('collection',
-                                                     False) or '0')
+        collection_filter = int(
+            self.request.GET.get('collection', False) or '0')
         d = dict(
             all_collection=Collection.objects.all().order_by("title"),
             all_users=User.objects.all(),
@@ -656,7 +656,7 @@ def key_from_s3url(s3url):
     #   https://s3.amazonaws.com/<bucket>/2016/02/29/filename.mp4
     # and returns
     #   2016/02/29/filename.mp4
-    r = urlparse.urlparse(s3url)
+    r = urlparse(s3url)
     if r.netloc == 's3.amazonaws.com':
         return '/'.join(s3url.split('/')[4:])
     else:
