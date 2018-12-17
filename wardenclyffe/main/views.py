@@ -582,7 +582,7 @@ class AddCollectionView(StaffMixin, CreateView):
         collection.save()
         form.save_m2m()
 
-        if 'q' in form.data:
+        if 'q' in form.data and len(form.data['q']) > 0:
             # add existing videos to this collection
             for v in Video.objects.search(form.data['q']):
                 v.collection = collection
