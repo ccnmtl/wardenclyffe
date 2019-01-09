@@ -90,7 +90,7 @@ requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
 django-taggit==0.23.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.1.0
-django-waffle==0.15.0
+django-waffle==0.15.1
 django-debug-toolbar==1.11
 django-jenkins==0.110.0
 django-appconf==1.0.2
