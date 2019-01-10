@@ -1,33 +1,33 @@
-Django==1.11.17 # pyup: <2.0
+Django==1.11.18 # pyup: <2.0
 httplib2==0.12.0
 Markdown==2.6.11 # pypu: <3.0.0
 smartypants==2.0.1
 psycopg2==2.7.6.1
 olefile==0.46
-Pillow==5.3.0
+Pillow==5.4.1
 anyjson==0.3.3
 billiard==3.5.0.5
 
-vine==1.1.4
+vine==1.2.0
 amqp==2.3.2
 
 amqplib==1.0.2
 kombu==3.0.37 # pyup: <4.0.0
-django-picklefield==1.1.0
+django-picklefield==2.0
 pyparsing==2.3.0
 six==1.12.0
-pytz==2018.7
+pytz==2018.9
 python-dateutil==2.7.5
 librabbitmq==2.0.0
 
 celery==3.1.26.post2 # pyup: <4.0.0
 
 oauth2client==4.0.0 # pyup: <4.1
-pyasn1==0.4.4
+pyasn1==0.4.5
 pyasn1_modules==0.2.3
 rsa==4.0
 uritemplate==3.0.0
-google-api-python-client==1.7.6
+google-api-python-client==1.7.7
 enum34==1.1.6; python_version < '3.4'
 asn1crypto==0.24.0
 cryptography==2.4.2
@@ -56,7 +56,7 @@ flake8==3.6.0
 logilab-common==1.4.2
 logilab-astng==0.24.3
 editdistance==0.5.2
-pylint==1.9.3 # pyup: <2.0.0
+pylint==1.9.4 # pyup: <2.0.0
 ldap3==2.5.1
 surelink==1.1.1
 boto==2.49.0
@@ -90,7 +90,7 @@ requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
 django-taggit==0.23.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.1.0
-django-waffle==0.15.0
+django-waffle==0.15.1
 django-debug-toolbar==1.11
 django-jenkins==0.110.0
 django-appconf==1.0.2
@@ -117,7 +117,7 @@ stevedore>=1.20.0 # Apache-2.0
 bandit==1.5.1
 
 defusedxml==0.5.0
-lxml==4.2.5
+lxml==4.3.0
 requests-toolbelt==0.8.0
 isodate==0.6.0
 cached-property==1.5.1
