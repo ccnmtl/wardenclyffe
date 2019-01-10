@@ -4,7 +4,7 @@ Markdown==2.6.11 # pypu: <3.0.0
 smartypants==2.0.1
 psycopg2==2.7.6.1
 olefile==0.46
-Pillow==5.3.0
+Pillow==5.4.1
 anyjson==0.3.3
 billiard==3.5.0.5
 
