@@ -107,7 +107,10 @@ urlpatterns = [
     url(r'^youtube/', include('wardenclyffe.youtube.urls')),
     url(r'^panopto/', include('wardenclyffe.panopto.urls')),
     url(r'^received/$', views.ReceivedView.as_view()),
+
+    url(r'^surelink/video/$', views.SureLinkVideoView.as_view()),
     url(r'^surelink/$', views.SureLinkView.as_view()),
+
     url(r'^video/$', views.VideoIndexView.as_view()),
     url(r'^video/(?P<pk>\d+)/$', views.VideoView.as_view(),
         name='video-details'),

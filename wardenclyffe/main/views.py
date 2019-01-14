@@ -3,12 +3,6 @@ from datetime import datetime, timedelta
 from json import dumps, loads
 import os
 import re
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-
 import uuid
 
 from django.conf import settings
@@ -46,8 +40,15 @@ from wardenclyffe.main.models import Video, Operation, Collection, File
 import wardenclyffe.main.tasks as tasks
 from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
+from wardenclyffe.streamlogs.models import StreamLog
 from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
+
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 
 def is_staff(user):
@@ -1499,3 +1500,41 @@ class SignS3View(BaseSignS3View):
             request.GET.get(self.get_name_field(), 'unknown.obj'))
         (_, extension) = os.path.splitext(object_name)
         return extension
+
+
+class SureLinkVideoView(TemplateView):
+    template_name = 'main/surelink_video.html'
+
+    def add_streamlog(self):
+        return StreamLog.objects.create(
+            filename=self.request.GET.get('file', ''),
+            remote_addr=self.request.GET.get('remote_addr', ''),
+            offset=self.request.GET.get('offset', ''),
+            referer=self.request.GET.get('referer', ''),
+            user_agent=self.request.GET.get('user_agent', ''),
+            access=self.request.GET.get('access', ''),
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = TemplateView.get_context_data(self, **kwargs)
+        stream_log = self.add_streamlog()
+        video = stream_log.video()
+
+        if video and video.has_panopto_source():
+            ctx['video'] = video
+            f = video.panopto_file()
+            ctx['embed'] = settings.PANOPTO_EMBED_URL.format(f.filename)
+        else:
+            # submit the video for conversion if not already being converted
+            ops = Operation.objects.filter(
+                video_id=video.id, action__contains='panopto').exclude(
+                    status='complete')
+            if ops.count() == 0:
+                from wardenclyffe.panopto.views import submit_video_to_panopto
+                user = User.objects.get(
+                    username=settings.PANOPTO_MIGRATIONS_USER)
+                submit_video_to_panopto(
+                    user, video, settings.PANOPTO_MIGRATIONS_FOLDER)
+            ctx['converting'] = True
+
+        return ctx
