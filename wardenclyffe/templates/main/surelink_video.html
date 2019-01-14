@@ -11,8 +11,12 @@
     <link rel="stylesheet" href="{{STATIC_URL}}js/lib/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
-{% if embed %}
-    {{embed|safe}}
+{% if youtube %}
+    <iframe width="560" height="315" src="{{youtube}}" frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+{% else %}{% if panopto %}
+    {{panopto|safe}}
 {% else %}{% if converting %}
     <div class="row">
         <div class="col-md-12 text-center no-gutters">
@@ -46,6 +50,6 @@
             </p>
         </div>
     </div>
-{% endif %}{% endif %}
+{% endif %}{% endif %}{% endif %}
 </body>
 </html>

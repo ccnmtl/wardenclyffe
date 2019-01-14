@@ -1520,10 +1520,15 @@ class SureLinkVideoView(TemplateView):
         stream_log = self.add_streamlog()
         video = stream_log.video()
 
-        if video and video.has_panopto_source():
+        if video and video.youtube_file():
+            ctx['video'] = video
+            f = video.youtube_file()
+            url = f.url.replace('watch?v=', 'embed/')
+            ctx['youtube'] = url.replace('http://', 'https://')
+        elif video and video.has_panopto_source():
             ctx['video'] = video
             f = video.panopto_file()
-            ctx['embed'] = settings.PANOPTO_EMBED_URL.format(f.filename)
+            ctx['panopto'] = settings.PANOPTO_EMBED_URL.format(f.filename)
         else:
             # submit the video for conversion if not already being converted
             ops = Operation.objects.filter(
