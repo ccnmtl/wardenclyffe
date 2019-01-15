@@ -122,6 +122,6 @@ requests-toolbelt==0.8.0
 isodate==0.6.0
 cached-property==1.5.1
 zeep==2.5.0 # pyup: <3.0.0
-pypanopto==0.0.5
+pypanopto==0.0.6
 django-bootstrap4==0.0.7
 
