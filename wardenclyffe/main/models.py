@@ -635,6 +635,7 @@ class File(TimeStampedModel):
     cap = models.CharField(max_length=256, default="", blank=True, null=True)
     filename = models.CharField(max_length=256, blank=True, null=True,
                                 default="")
+    st_size = models.IntegerField(default=0)
     location_type = models.CharField(max_length=256, default="s3",
                                      choices=(('pcp', 'pcp'),
                                               ('cuit', 'cuit'),
