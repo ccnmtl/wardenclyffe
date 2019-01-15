@@ -33,7 +33,7 @@ from django_statsd.clients import statsd
 from oembed.core import replace
 import requests
 from s3sign.views import SignS3View as BaseSignS3View
-from surelink.helpers import SureLink, AUTHTYPE_OPTIONS, PROTECTION_OPTIONS
+from surelink.helpers import SureLink
 from taggit.models import Tag
 
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
@@ -1366,41 +1366,6 @@ POSTER_OPTIONS = [
 
 class SureLinkView(TemplateView):
     template_name = "main/surelink.html"
-
-    def get_context_data(self):
-        PROTECTION_KEY = settings.SURELINK_PROTECTION_KEY
-        results = []
-        if self.request.GET.get('files', ''):
-            for filename in self.request.GET.get('files', '').split('\n'):
-                filename = filename.strip()
-                s = SureLink(
-                    filename,
-                    positive_int(self.request.GET.get('width', '0')),
-                    positive_int(self.request.GET.get('height', '0')),
-                    self.request.GET.get('captions', ''),
-                    self.request.GET.get('poster', ''),
-                    self.request.GET.get('protection', ''),
-                    self.request.GET.get('authtype', ''),
-                    PROTECTION_KEY)
-                results.append(s)
-        return dict(
-            protection=self.request.GET.get('protection', ''),
-            public=self.request.GET.get(
-                'protection', '').startswith('public'),
-            public_mp4_download=self.request.GET.get(
-                'protection', '') == "public-mp4-download",
-            width=self.request.GET.get('width', ''),
-            height=self.request.GET.get('height', ''),
-            captions=self.request.GET.get('captions', ''),
-            results=results,
-            rows=len(results) * 3,
-            files=self.request.GET.get('files', ''),
-            poster=self.request.GET.get('poster', ''),
-            poster_options=POSTER_OPTIONS,
-            protection_options=PROTECTION_OPTIONS,
-            authtype_options=AUTHTYPE_OPTIONS,
-            authtype=self.request.GET.get('authtype', ''),
-        )
 
 
 class SNSView(View):

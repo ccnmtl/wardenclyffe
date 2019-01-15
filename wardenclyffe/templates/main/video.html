@@ -44,19 +44,26 @@ var removeTag = function(tagName,tagId) {
     <div class="col-md-5">
 
     {% with video.poster as poster %}
-    {% if video.h264_secure_stream_file %}
-        <h3>Secure Stream</h3>
-        <iframe class="iframe-video-detail"
-            src="https://surelink.ccnmtl.columbia.edu/video/?player=mp4_secure_stream&file={{video.h264_secure_stream_file.h264_secure_path}}&width=480&height=360&authtype=wind"></iframe>
+    {% if video.has_panopto_source %}
+        <iframe src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{video.panopto_file.filename}}&v=1" width="480" height="360" style="padding: 0px; border: 1px solid #464646;" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+    {% else %}{% if video.has_youtube_source %}
+        {% oembed %}{{video.youtube_file.url}}{% endoembed %}
+    {% else %}{% if video.h264_secure_stream_file %}
+        {% with file=video.h264_secure_stream_file %}
+            <h3>Secure Stream</h3>
+            <video src="{{file.h264_secure_internal_url}}" controls="" width="480" height="384"></video>
+        {% endwith %}
     {% else %}{% if video.h264_public_stream_file %}
         <h3>Public Stream</h3>
-        <video controls
-            src="http://stream.ccnmtl.columbia.edu/public/{{video.h264_public_stream_file.h264_public_path}}"></video>
+        <video src="{{video.h264_public_stream_url}}" controls="" width="480" height="384"></video>
+    {% else %}{% if video.cuit_url %}
+        <h3>Public CUIT Stream</h3>
+        <video src="{{video.cuit_url}}" controls="" width="480" height="384"></video>
     {% else %}{% if poster.dummy %}
         <img src="{% static 'img/vidthumb_480x360.jpg' %}" />
     {% else %}
         <img src="{{poster.image.src}}" width="480" />
-    {% endif %}{% endif %}{% endif %}
+    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
     {% endwith %}
     </div>
     <div class="col-md-7">
