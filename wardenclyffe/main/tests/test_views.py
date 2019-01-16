@@ -17,7 +17,8 @@ from wardenclyffe.main.tests.factories import (
     UserFactory, VideoFactory, CollectionFactory,
     ImageFactory, OperationFileFactory)
 from wardenclyffe.main.views import (
-    CollectionReportView, VideoYoutubeUploadView, key_from_s3url)
+    CollectionReportView, VideoYoutubeUploadView, key_from_s3url,
+    SureLinkVideoView)
 
 
 class SimpleTest(TestCase):
@@ -881,3 +882,19 @@ class CollectionReportViewTest(TestCase):
                 rows[0][8], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
             self.assertEqual(
                 rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+
+
+class SureLinkVideoViewTest(TestCase):
+
+    def test_add_video(self):
+        CollectionFactory(title='Unclassified')
+        fname = '/www/data/ccnmtl/broadcast/foo.flv'
+
+        view = SureLinkVideoView()
+        view.st_size = 700000  # mock attrs
+        v = view.add_video(fname, view)
+        self.assertIsNotNone(v)
+
+        f = v.cuit_file()
+        self.assertEquals(f.filename, fname)
+        self.assertEquals(f.st_size, 700000)

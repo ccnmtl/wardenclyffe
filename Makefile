@@ -1,6 +1,6 @@
 APP=wardenclyffe
 JS_FILES=media/js/dashboard.js media/js/help_windows.js
-MAX_COMPLEXITY=5
+MAX_COMPLEXITY=8
 FLAKE8_IGNORE=W605
 
 all: jenkins

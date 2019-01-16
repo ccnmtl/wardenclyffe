@@ -1,27 +1,30 @@
 from datetime import datetime, timedelta
-from celery.decorators import task
+from json import loads, dumps
+import os
+import os.path
+import random
+import re
+import subprocess  # nosec
+import tempfile
+import uuid
+
+import boto
+import boto.elastictranscoder
+from boto.s3.key import Key
+from django.conf import settings
+from django.utils.encoding import smart_text
+from django_statsd.clients import statsd
+import paramiko
+from paramiko.sftp import SFTPError
+import waffle
+
 from celery.decorators import periodic_task
+from celery.decorators import task
 from celery.task.schedules import crontab
 from wardenclyffe.main.models import File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
 from wardenclyffe.util.mail import send_slow_operations_to_videoteam_email
-import os.path
-import os
-import tempfile
-import subprocess  # nosec
-from django.conf import settings
-from django.utils.encoding import smart_text
-from json import loads, dumps
-import paramiko
-import random
-import re
-from django_statsd.clients import statsd
-import boto
-import boto.elastictranscoder
-from boto.s3.key import Key
-import waffle
-import uuid
 
 
 def exp_backoff(tries):
@@ -363,6 +366,21 @@ def sftp_client():
     transport = paramiko.Transport((sftp_hostname, 22))
     transport.connect(username=sftp_user, pkey=mykey)
     return (paramiko.SFTPClient.from_transport(transport), transport)
+
+
+def sftp_stat(filename):
+    try:
+        sftp, transport = sftp_client()
+        stat = sftp.stat(filename)
+        return stat
+    except SFTPError:
+        return None
+    except IOError:
+        return None
+    finally:
+        sftp.close()
+        transport.close()
+    return stat
 
 
 def sftp_put(filename, suffix, fileobj, video, file_label="CUIT H264",
