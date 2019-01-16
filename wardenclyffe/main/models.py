@@ -762,6 +762,17 @@ class File(TimeStampedModel):
             filename = filename[len(settings.H264_SECURE_STREAM_DIRECTORY):]
         return settings.H264_SECURE_STREAM_BASE + "SECURE/" + filename
 
+    def h264_secure_internal_url(self):
+        url = self.h264_secure_stream_url()
+        url_slashed = url.split("?")[0].split("/")
+        filename = "/%s" % url_slashed[5]
+        t_hex = "%08x" % time.time()
+
+        m = hashlib.md5(  # nosec
+            settings.SURELINK_ACCESS + filename + t_hex).hexdigest()
+        return "%s%s/%s/%s" % (
+            settings.H264_SECURE_STREAM_BASE, m, t_hex, filename)
+
     def is_h264_public_streamable(self):
         return self.filename.startswith(settings.H264_PUBLIC_STREAM_DIRECTORY)
 
