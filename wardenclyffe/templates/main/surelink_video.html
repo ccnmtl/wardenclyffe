@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if video %}
+        <title>{{video.title}}</title>
+    {% else %}
+        <title>Surelink Retirement</title>
+    {% endif %}
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{STATIC_URL}}js/lib/bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+{% if youtube %}
+    <iframe width="560" height="315" src="{{youtube}}" frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+{% else %}{% if panopto %}
+    {{panopto|safe}}
+{% else %}{% if converting %}
+    <div class="row">
+        <div class="col-md-12 text-center no-gutters">
+            <div style="background-color: #073654; height: 20px; width: 100%; margin-bottom: 20px;"></div>
+            <a href="https://ctl.columbia.edu/"> <img
+                src="{{STATIC_URL}}IMG/ctllogo.png" alt="Columbia CTL">
+            </a>
+            <hr />
+            <h5>Video migration in progress</h5>
+            <p class="px-5">
+            The media streaming service that plays this video is no longer available.
+            This video is now being converted to the new system, and will be available in about 30 minutes.<br /><br />
+            If you have any questions, please contact us at <a href="mailto:ColumbiaCTL@columbia.edu">ColumbiaCTL@columbia.edu</a>
+            or call our support number 1-212-854-1692.
+            </p>
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-md-12 text-center no-gutters">
+            <div style="background-color: #073654; height: 20px; width: 100%; margin-bottom: 20px;"></div>
+            <a href="https://ctl.columbia.edu/"> <img
+                src="{{STATIC_URL}}IMG/ctllogo.png" alt="Columbia CTL">
+            </a>
+            <hr />
+            <h5>We're Sorry</h5>
+            <p class="px-5">
+            The media streaming service that plays this video is no longer available.<br />
+            If you would like your media converted, please contact us at <a href="mailto:ColumbiaCTL@columbia.edu">ColumbiaCTL@columbia.edu</a>
+            or call our support number 1-212-854-1692.
+            </p>
+        </div>
+    </div>
+{% endif %}{% endif %}{% endif %}
+</body>
+</html>
