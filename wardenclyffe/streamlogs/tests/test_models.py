@@ -17,6 +17,12 @@ class StreamLogTest(TestCase):
             f.full_filename(),
             settings.CUNIX_BROADCAST_DIRECTORY + "foo/bar.flv")
 
+    def test_full_secure_filename(self):
+        s = StreamLogFactory(filename='broadcast/secure/foo/bar.flv')
+        self.assertEqual(
+            s.full_secure_filename(),
+            settings.CUNIX_SECURE_DIRECTORY + "foo/bar.flv")
+
     def test_video_no_match(self):
         f = StreamLogFactory()
         self.assertIsNone(f.video())
@@ -27,3 +33,10 @@ class StreamLogTest(TestCase):
             filename=settings.CUNIX_BROADCAST_DIRECTORY + "foo/bar.flv",
             location_type='cuit')
         self.assertEqual(s.video(), f.video)
+
+    def test_similar_video(self):
+        s = StreamLogFactory(filename="broadcast/foo/bar.flv")
+        self.assertFalse(s.similar_video())
+
+        FileFactory(filename="foo/bar.flv", location_type='cuit')
+        self.assertTrue(s.similar_video())

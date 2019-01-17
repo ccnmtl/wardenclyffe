@@ -142,3 +142,4 @@ PRIMARY_YOUTUBE_ACCOUNT = "ccnmtl@gmail.com"
 PANOPTO_LINK_URL = 'http://testserver/link/{}/'
 PANOPTO_EMBED_URL = 'http://testserver/embed/{}/'
 PANOPTO_MIGRATIONS_USER = 'migrations'
+PANOPTO_COLLECTION = 'Automatic Panopto Migrations'

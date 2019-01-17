@@ -21,6 +21,12 @@ class StreamLog(models.Model):
     class Meta:
         ordering = ['-request_at']
 
+    def similar_video(self):
+        fname = self.filename.split('/')[-1]
+        return File.objects.filter(
+            location_type='cuit',
+            filename__endswith=fname).count() > 0
+
     def video(self):
         """ try to find a Video that matches this entry.
         not all files will have a match, so it can also return None
@@ -38,6 +44,13 @@ class StreamLog(models.Model):
         if f is not None:
             return f.video
 
+        sf = self.full_secure_filename()
+        f = File.objects.filter(
+            location_type='cuit',
+            filename__contains=sf).first()
+        if f is not None:
+            return f.video
+
         return None
 
     def full_filename(self):
@@ -47,6 +60,15 @@ class StreamLog(models.Model):
         pattern = re.compile(r'^broadcast/')
         filename = pattern.sub("", self.filename)
         return os.path.join(settings.CUNIX_BROADCAST_DIRECTORY, filename)
+
+    def full_secure_filename(self):
+        # unfortunately, streamlogs filenames start with a 'broadcast/secure'
+        # and the broadcast directory also includes it. So we need to
+        # to strip it first.
+        pattern = re.compile(r'^broadcast/secure/')
+        filename = pattern.sub("", self.filename)
+        return os.path.join(
+            settings.CUNIX_SECURE_DIRECTORY, filename)
 
     def secure_filename(self):
         return os.path.join(settings.H264_SECURE_STREAM_DIRECTORY,
