@@ -2,14 +2,18 @@
 from __future__ import unicode_literals
 
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.db import transaction
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls.base import reverse
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import FormView
 from django_statsd.clients import statsd
 
 from wardenclyffe.main.models import Collection, Video
 from wardenclyffe.main.views import enqueue_operations
+from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 from wardenclyffe.panopto.forms import CollectionSubmitForm, VideoSubmitForm
 
@@ -110,3 +114,38 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
     def get_success_url(self):
         return reverse('panopto-collection-success-submit',
                        kwargs={'pk': self.kwargs.get('pk', None)})
+
+
+@transaction.non_atomic_requests()
+class APIPanoptoConversion(View):
+
+    def post(self, request, *args, **kwargs):
+        # for this situation, authenticator expects
+        # the usual `hmac` and `nonce`, plus
+        # `as` to give a username (WC needs to associate operations with users)
+        # and `redirect_to` set to the video_id
+        # (that prevents the token from being intercepted and changed
+        # to migrate a different video than specified)
+
+        authenticator = MediathreadAuthenticator(request.POST)
+        if not authenticator.is_valid():
+            statsd.incr("mediathread.auth_failure")
+            return HttpResponse("invalid authentication token")
+
+        user, created = User.objects.get_or_create(
+            username=authenticator.username)
+        if created:
+            statsd.incr("mediathread.user_created")
+
+        # remember, we're overloading the `redirect_to` field
+        pk = authenticator.redirect_to
+        video = get_object_or_404(Video, pk=pk)
+        if video.has_panopto_source():
+            return HttpResponse('migration completed')
+
+        folder = request.POST.get('folder', '')
+
+        video.create_mediathread_update()
+
+        submit_video_to_panopto(user, video, folder)
+        return HttpResponse('ok')

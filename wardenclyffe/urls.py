@@ -1,12 +1,15 @@
-import django.views.static
-
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.conf import settings
+from django.views.generic import TemplateView
+import django.views.static
+
 from wardenclyffe.main.feeds import CollectionFeed
 import wardenclyffe.main.views as views
 import wardenclyffe.mediathread.views as mediathread_views
-from django.views.generic import TemplateView
+import wardenclyffe.panopto.views as panopto_views
+
+
 admin.autodiscover()
 
 urlpatterns = [
@@ -134,6 +137,9 @@ urlpatterns = [
     url(r'^api/sns/$', views.SNSView.as_view()),
     url(r'^api/cunixdelete/$', views.APICunixDelete.as_view(),
         name='api-cunix-delete'),
+    url(r'^api/panopto/convert/$',
+        panopto_views.APIPanoptoConversion.as_view(),
+        name='api-panopto-conversion'),
     url(r'^celery/', include('djcelery.urls')),
     url('smoketest/', include('smoketest.urls')),
     url(r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),
