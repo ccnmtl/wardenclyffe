@@ -18,7 +18,7 @@ pyparsing==2.3.1
 six==1.12.0
 pytz==2018.9
 python-dateutil==2.7.5
-librabbitmq==2.0.0
+librabbitmq==1.6.1
 
 celery==3.1.26.post2 # pyup: <4.0.0
 

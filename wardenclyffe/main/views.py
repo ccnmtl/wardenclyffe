@@ -1482,7 +1482,8 @@ class SureLinkVideoView(TemplateView):
         )
 
     def add_video(self, fname, attrs):
-        collection = Collection.objects.get(title='Unclassified')
+        (collection, created) = Collection.objects.get_or_create(
+            title=settings.PANOPTO_COLLECTION)
         title = fname.split('/')[-1]
         v = Video.objects.simple_create(
             collection, title, settings.PANOPTO_MIGRATIONS_USER)
@@ -1531,7 +1532,7 @@ class SureLinkVideoView(TemplateView):
         stream_log = self.add_streamlog()
         video = stream_log.video()
 
-        if not video and fname:
+        if fname and not video and not stream_log.similar_video():
             video = self.find_video(fname)
 
         if video and video.youtube_file():
