@@ -1525,6 +1525,9 @@ class SureLinkVideoView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = TemplateView.get_context_data(self, **kwargs)
         fname = self.request.GET.get('file', None)
+        if fname is None:
+            return ctx
+
         stream_log = self.add_streamlog()
         video = stream_log.video()
 
@@ -1539,7 +1542,7 @@ class SureLinkVideoView(TemplateView):
         elif video and video.has_panopto_source():
             ctx['video'] = video
             f = video.panopto_file()
-            ctx['panopto'] = settings.PANOPTO_EMBED_URL.format(f.filename)
+            ctx['panopto'] = f.filename
         elif video and video.cuit_file().st_size < self.MAX_SIZE:
             # submit the video for conversion if not already being converted
             ops = Operation.objects.filter(
