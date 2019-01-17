@@ -369,8 +369,9 @@ def sftp_client():
 
 
 def sftp_stat(filename):
+    sftp, transport = sftp_client()
+
     try:
-        sftp, transport = sftp_client()
         stat = sftp.stat(filename)
         return stat
     except SFTPError:
