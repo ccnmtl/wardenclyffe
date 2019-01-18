@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
 import json
+from mock import patch
 import os.path
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
@@ -11,7 +13,7 @@ from httpretty import HTTPretty, httprettified
 import httpretty
 
 from wardenclyffe.main.models import (
-    Collection, Operation, File)
+    Collection, Operation, File, Video)
 from wardenclyffe.main.tests.factories import (
     FileFactory, OperationFactory, ServerFactory,
     UserFactory, VideoFactory, CollectionFactory,
@@ -19,6 +21,7 @@ from wardenclyffe.main.tests.factories import (
 from wardenclyffe.main.views import (
     CollectionReportView, VideoYoutubeUploadView, key_from_s3url,
     SureLinkVideoView)
+from wardenclyffe.streamlogs.models import StreamLog
 
 
 class SimpleTest(TestCase):
@@ -884,17 +887,139 @@ class CollectionReportViewTest(TestCase):
                 rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
 
 
+class MockSftpStatAttrs(object):
+
+    def __init__(self, sz=700000):
+        self.st_size = sz
+
+
 class SureLinkVideoViewTest(TestCase):
 
     def test_add_video(self):
-        CollectionFactory(title='Unclassified')
         fname = '/www/data/ccnmtl/broadcast/foo.flv'
 
         view = SureLinkVideoView()
-        view.st_size = 700000  # mock attrs
-        v = view.add_video(fname, view)
+        v = view.add_video(fname, MockSftpStatAttrs())
         self.assertIsNotNone(v)
 
         f = v.cuit_file()
         self.assertEquals(f.filename, fname)
         self.assertEquals(f.st_size, 700000)
+
+    def test_validate_size(self):
+        view = SureLinkVideoView()
+
+        attrs = MockSftpStatAttrs()
+        with patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=attrs):
+            f = FileFactory()
+            self.assertTrue(view.validate_size(f.video))
+
+        attrs = MockSftpStatAttrs(view.MAX_SIZE + 1)
+        with patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=attrs):
+            f = FileFactory()
+            self.assertFalse(view.validate_size(f.video))
+
+    def test_find_video(self):
+        view = SureLinkVideoView()
+
+        with patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=None):
+            self.assertIsNone(view.find_video('foo'))
+
+        attrs = MockSftpStatAttrs()
+        with patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=attrs):
+            fname = settings.CUNIX_BROADCAST_DIRECTORY + 'foo.html'
+            v = view.find_video(fname)
+            self.assertEquals(v.cuit_file().filename, fname)
+            self.assertEquals(v.title, 'foo.html')
+
+    def test_get_context_data_bad_params(self):
+        view = SureLinkVideoView()
+        view.request = RequestFactory().get('/')
+
+        ctx = view.get_context_data()
+        self.assertEquals(len(ctx), 0)
+        self.assertEquals(StreamLog.objects.count(), 0)
+
+    def test_get_context_data_youtube(self):
+        cuit = FileFactory()
+        FileFactory(
+            location_type='youtube', video=cuit.video,
+            url='http://www.youtube.com/watch?v=fS4qBPdhr8A')
+
+        view = SureLinkVideoView()
+        view.request = RequestFactory().get('/', {'file': cuit.filename})
+        ctx = view.get_context_data()
+        self.assertEquals(
+            ctx['youtube'], 'https://www.youtube.com/embed/fS4qBPdhr8A')
+        self.assertEquals(
+            StreamLog.objects.filter(filename=cuit.filename).count(), 1)
+
+    def test_get_context_data_panopto(self):
+        cuit = FileFactory()
+        FileFactory(
+            location_type='panopto', filename='alpha', video=cuit.video)
+
+        view = SureLinkVideoView()
+        view.request = RequestFactory().get('/', {'file': cuit.filename})
+        ctx = view.get_context_data()
+        self.assertEquals(ctx['panopto'], 'alpha')
+        self.assertEquals(
+            StreamLog.objects.filter(filename=cuit.filename).count(), 1)
+
+    def test_get_context_data_bigfile(self):
+        view = SureLinkVideoView()
+        cuit = FileFactory(st_size=view.MAX_SIZE)
+
+        view.request = RequestFactory().get('/', {'file': cuit.filename})
+        ctx = view.get_context_data()
+        self.assertEquals(len(ctx), 0)
+        self.assertEquals(
+            StreamLog.objects.filter(filename=cuit.filename).count(), 1)
+
+    def test_get_context_data_inprogress(self):
+        view = SureLinkVideoView()
+        cuit = FileFactory(st_size=view.MAX_SIZE - 1)
+        OperationFactory(video=cuit.video,
+                         action='pull from cunix and upload to panopto')
+
+        view.request = RequestFactory().get('/', {'file': cuit.filename})
+        ctx = view.get_context_data()
+        self.assertTrue(ctx['converting'])
+        self.assertEquals(
+            StreamLog.objects.filter(filename=cuit.filename).count(), 1)
+
+    def test_get_context_data_submitted(self):
+        view = SureLinkVideoView()
+        cuit = FileFactory(st_size=view.MAX_SIZE - 1)
+        UserFactory(username=settings.PANOPTO_MIGRATIONS_USER)
+
+        fx1 = 'wardenclyffe.panopto.views.submit_video_to_panopto'
+        with patch(fx1, return_value=True) as mock_submit:
+            view.request = RequestFactory().get('/', {'file': cuit.filename})
+            ctx = view.get_context_data()
+            self.assertFalse('video' in ctx)
+            self.assertTrue(ctx['converting'])
+            self.assertEquals(mock_submit.call_count, 1)
+            self.assertEquals(
+                StreamLog.objects.filter(filename=cuit.filename).count(), 1)
+
+    def test_get_context_data_findfile(self):
+        UserFactory(username=settings.PANOPTO_MIGRATIONS_USER)
+
+        attrs = MockSftpStatAttrs()
+        fx1 = 'wardenclyffe.main.tasks.sftp_stat'
+        fx2 = 'wardenclyffe.panopto.views.submit_video_to_panopto'
+        with patch(fx1, return_value=attrs), \
+                patch(fx2, return_value=True) as mock_submit:
+            view = SureLinkVideoView()
+            view.request = RequestFactory().get('/', {'file': 'alpha'})
+            ctx = view.get_context_data()
+            self.assertTrue(ctx['converting'])
+            self.assertEquals(mock_submit.call_count, 1)
+            self.assertEquals(StreamLog.objects.count(), 1)
+            self.assertEquals(
+                Video.objects.filter(file__filename='alpha').count(), 1)
