@@ -1531,11 +1531,23 @@ class SureLinkVideoView(TemplateView):
 
         return None
 
+    def in_progress(self, video):
+        ops = Operation.objects.filter(
+            video_id=video.id, action__contains='panopto').exclude(
+                status='complete')
+        return ops.count() > 0
+
+    def convert(self, video):
+        from wardenclyffe.panopto.views import submit_video_to_panopto
+        user = User.objects.get(
+            username=settings.PANOPTO_MIGRATIONS_USER)
+        submit_video_to_panopto(
+            user, video, settings.PANOPTO_MIGRATIONS_FOLDER)
+
     def get_context_data(self, **kwargs):
-        ctx = TemplateView.get_context_data(self, **kwargs)
         fname = self.request.GET.get('file', None)
         if fname is None:
-            return ctx
+            return {}
 
         stream_log = self.add_streamlog()
         video = stream_log.video()
@@ -1543,26 +1555,24 @@ class SureLinkVideoView(TemplateView):
         if fname and not video and not stream_log.similar_video():
             video = self.find_video(fname)
 
-        if video and video.youtube_file():
-            ctx['video'] = video
+        if not video:
+            return {}
+
+        if video.youtube_file():
             f = video.youtube_file()
             url = f.url.replace('watch?v=', 'embed/')
-            ctx['youtube'] = url.replace('http://', 'https://')
-        elif video and video.has_panopto_source():
-            ctx['video'] = video
-            f = video.panopto_file()
-            ctx['panopto'] = f.filename
-        elif video and self.validate_size(video):
-            # submit the video for conversion if not already being converted
-            ops = Operation.objects.filter(
-                video_id=video.id, action__contains='panopto').exclude(
-                    status='complete')
-            if ops.count() == 0 and video.cuit_file().st_size < self.MAX_SIZE:
-                from wardenclyffe.panopto.views import submit_video_to_panopto
-                user = User.objects.get(
-                    username=settings.PANOPTO_MIGRATIONS_USER)
-                submit_video_to_panopto(
-                    user, video, settings.PANOPTO_MIGRATIONS_FOLDER)
-            ctx['converting'] = True
+            return {'youtube': url.replace('http://', 'https://')}
 
-        return ctx
+        if video.has_panopto_source():
+            return {'panopto': video.panopto_file().filename}
+
+        if self.in_progress(video):
+            # conversion is likely in progress. don't duplicate
+            return {'converting': True}
+
+        if not self.validate_size(video):
+            # video is possibly a full-length film. block auto migration
+            return {}
+
+        self.convert(video)
+        return {'converting': True}
