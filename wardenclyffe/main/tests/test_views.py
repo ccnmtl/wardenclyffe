@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+import mock
 import os.path
 
 from django.core.urlresolvers import reverse
@@ -884,17 +885,35 @@ class CollectionReportViewTest(TestCase):
                 rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
 
 
+class MockSftpStatAttrs(object):
+    def __init__(self, sz=700000):
+        self.st_size = sz
+
+
 class SureLinkVideoViewTest(TestCase):
 
     def test_add_video(self):
-        CollectionFactory(title='Unclassified')
         fname = '/www/data/ccnmtl/broadcast/foo.flv'
 
         view = SureLinkVideoView()
-        view.st_size = 700000  # mock attrs
-        v = view.add_video(fname, view)
+        v = view.add_video(fname, MockSftpStatAttrs())
         self.assertIsNotNone(v)
 
         f = v.cuit_file()
         self.assertEquals(f.filename, fname)
         self.assertEquals(f.st_size, 700000)
+
+    def test_validate_size(self):
+        view = SureLinkVideoView()
+
+        attrs = MockSftpStatAttrs()
+        with mock.patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=attrs):
+            f = FileFactory()
+            self.assertTrue(view.validate_size(f.video))
+
+        attrs = MockSftpStatAttrs(view.MAX_SIZE + 1)
+        with mock.patch(
+                'wardenclyffe.main.tasks.sftp_stat', return_value=attrs):
+            f = FileFactory()
+            self.assertFalse(view.validate_size(f.video))

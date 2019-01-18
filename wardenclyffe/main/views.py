@@ -1497,6 +1497,14 @@ class SureLinkVideoView(TemplateView):
         v.tags.add('migrated')
         return v
 
+    def validate_size(self, video):
+        f = video.cuit_file()
+        if f.st_size == 0:
+            attrs = tasks.sftp_stat(f.filename)
+            f.st_size = attrs.st_size
+            f.save()
+        return f.st_size < self.MAX_SIZE
+
     def find_video(self, fname):
         # The StreamLog logic that discovers a video failed to find a match
         # within Wardenclyffe's database. Now attempt to find this file on
@@ -1544,7 +1552,7 @@ class SureLinkVideoView(TemplateView):
             ctx['video'] = video
             f = video.panopto_file()
             ctx['panopto'] = f.filename
-        elif video and video.cuit_file().st_size < self.MAX_SIZE:
+        elif video and self.validate_size(video):
             # submit the video for conversion if not already being converted
             ops = Operation.objects.filter(
                 video_id=video.id, action__contains='panopto').exclude(
