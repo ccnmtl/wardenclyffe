@@ -30,7 +30,6 @@ var removeTag = function(tagName,tagId) {
 
 <ul class="nav nav-tabs" role="tablist">
   <li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#basics">Basics</a></li> 
-  <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#streams">Views</a></li> 
   <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#frames">Frames</a></li>
   <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#operations">Operations</a></li>
   <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#files">Files</a></li>
@@ -42,7 +41,6 @@ var removeTag = function(tagName,tagId) {
 <div class="tab-pane fade show active" role="tabpanel" id="basics">
 <div class="row">
     <div class="col-md-5">
-
     {% with video.poster as poster %}
     {% if video.has_panopto_source %}
         <iframe src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{video.panopto_file.filename}}&v=1" width="480" height="360" style="padding: 0px; border: 1px solid #464646;" frameborder="0" allowfullscreen allow="autoplay"></iframe>
@@ -67,7 +65,14 @@ var removeTag = function(tagName,tagId) {
     {% endwith %}
     </div>
     <div class="col-md-7">
+
     <dl>
+        {% with streamlogs=video.streamlogs %}
+            {% if video.streamlogs %}
+            <dt class="col-sm-3">streamlogs</dt><dd class="col-sm-9"><a href="{% url 'streamlogs-detail' %}?f=/{{video.cuit_file.file_base}}">Stream Logs (streamlogs.count)</a></td></tr>
+            {% endif %}
+        {% endwith %}
+
         <dt class="col-sm-3">creator</dt><dd class="col-sm-9"><a href="/video/?creator={{video.creator}}">{{video.creator}}</a></td></tr>
         <dt class="col-sm-3">description</dt><dd class="col-sm-9"><a href="/video/?description={{video.description}}">{{video.description}}</a></td></tr>
         <dt class="col-sm-3">language</dt><dd class="col-sm-9"><a href="/video/?language={{video.language}}">{{video.language}}</a></td></tr>
@@ -87,29 +92,6 @@ var removeTag = function(tagName,tagId) {
 
      <p><a href="edit/">edit video metadata</a></p>
     </div>
-</div>
-</div>
-
-<div class="tab-pane fade" role="tabpanel" id="streams">
-<div class="row">
-{% with streamlogs=video.streamlogs %}
-    {% if streamlogs %}
-        <table>
-            <thead>
-                <tr>
-                    <th>timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for object in streamlogs %}
-                    <tr>
-                        <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-{% endwith %}
 </div>
 </div>
 

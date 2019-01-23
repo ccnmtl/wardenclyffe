@@ -836,6 +836,9 @@ class File(TimeStampedModel):
             ]
         return AUTHTYPE_OPTIONS
 
+    def file_base(self):
+        return self.filename.split('/')[-1]
+
 
 class Metadata(models.Model):
     """ metadata that we've extracted. more about
