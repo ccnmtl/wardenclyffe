@@ -1,11 +1,9 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import user_passes_test
-from django.views.generic.detail import DetailView
 
 from wardenclyffe.main.views import is_staff
-from wardenclyffe.streamlogs.models import StreamLog
 from wardenclyffe.streamlogs.views import (
-    LogView, ReportView, StreamLogListView)
+    LogView, ReportView, StreamLogListView, StreamLogDetailView)
 
 
 staff_only = user_passes_test(lambda u: is_staff(u))
@@ -17,8 +15,6 @@ urlpatterns = [
         name='streamlogs-report'),
     url(r'list/$', staff_only(
         StreamLogListView.as_view()), name='streamlogs-list'),
-    url(r'(?P<pk>\d+)/$', staff_only(
-        DetailView.as_view(
-            model=StreamLog,
-        )), name='streamlogs-detail'),
+    url(r'detail/$', staff_only(
+        StreamLogDetailView.as_view()), name='streamlogs-detail')
 ]

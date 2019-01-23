@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
@@ -44,9 +46,13 @@ class ReportViewTest(TestCase):
 class StreamLogListViewTest(TestCase):
 
     def setUp(self):
-        StreamLogFactory()
         StreamLogFactory(filename="bar.mp4")
+        StreamLogFactory(filename="bar.mp4")
+        StreamLogFactory(filename="bar.mp4")
+
         self.log = StreamLogFactory(filename="foo.mp4")
+        self.log.request_at = datetime.now() - timedelta(1)
+        self.log.save()
 
     def test_anonymous(self):
         response = self.client.get(reverse('streamlogs-list'))
@@ -56,12 +62,39 @@ class StreamLogListViewTest(TestCase):
         user = UserFactory()
         url = reverse('streamlogs-list')
         self.client.login(username=user, password='test')
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data['object_list'].count(), 3)
+        qs = response.context_data['object_list']
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual(qs.first()['filename'], 'bar.mp4')
+        self.assertEqual(qs.first()['views'], 3)
 
         response = self.client.get(url + '?q=foo')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data['object_list'].count(), 1)
-        self.assertEqual(response.context_data['object_list'].first(),
-                         self.log)
+        qs = response.context_data['object_list']
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first()['filename'], 'foo.mp4')
+        self.assertEqual(qs.first()['views'], 1)
+
+
+class StreamLogDetailViewTest(TestCase):
+
+    def setUp(self):
+        StreamLogFactory()
+        StreamLogFactory(filename="bar.mp4")
+        StreamLogFactory(filename="bar.mp4")
+        StreamLogFactory(filename="bar.mp4")
+
+    def test_anonymous(self):
+        response = self.client.get(reverse('streamlogs-detail'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_get(self):
+        user = UserFactory()
+        url = '{}?f=bar.mp4'.format(reverse('streamlogs-detail'))
+        self.client.login(username=user, password='test')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context_data['object_list'].count(), 3)
