@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load streamlog_tags %}
 
 {% block pagetitle %}Streaming Logs{% endblock %}
 
@@ -44,35 +45,34 @@
         <table class="table table-striped table-videos">
         <thead>
             <tr>
-                <th data-sort-by="request_at" >timestamp</th>
-                <th data-sort-by="filename">filename</th>
-                <th data-sort-by="video__title">video</th>
-                <th>migrated</th>
+                <th>Last View</th>
+                <th>Filename</th>
+                <th>Views</th>
+                <th>Video</th>
+                <th>Migrated</th>
             </tr>
         </thead>
         <tbody>
         {% for object in object_list %}
+            {% find_video object.filename as video %}
             <tr>
-                <td><a href="{% url 'streamlogs-detail' object.pk %}">{{object.request_at}}</a></td>
-                <td><tt>{{object.filename}}</tt></td>
+                <td style="width: 210px"><a>{{object.last_view}}</a></td>
+                <td><a href="{% url 'streamlogs-detail' %}?f={{object.filename}}">{{object.filename}}</a></td>
+                <td><tt>{{object.views}}</tt></td>
                 <td>
-                    {% with video=object.video %}
-                        {% if video %}
-                            <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
-                        {% else %}{% if '.flv' in object.filename %}
-                            <form action="{% url 'import-flv' %}" method="POST">
-                                <input type="hidden" name="flv" value="{{object.filename}}" />
-                                <input type="submit" value="import flv" />
-                            </form>
-                        {% endif %}{% endif %}
-                    {% endwith %}
+                    {% if video %}
+                        <a href="{% url 'video-details' video.pk %}">{{video.title}}</a>
+                    {% else %}{% if '.flv' in object.filename %}
+                        <form action="{% url 'import-flv' %}" method="POST">
+                            <input type="hidden" name="flv" value="{{object.filename}}" />
+                            <input type="submit" value="import flv" />
+                        </form>
+                    {% endif %}{% endif %}
                 </td>
                 <td>
-                    {% with video=object.video %}
-                        {% if video %}
-                            {{video.has_panopto_source}}
-                        {% endif %}
-                    {% endwith %}
+                    {% if video %}
+                        {{video.has_panopto_source}}
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

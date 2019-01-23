@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.db.models.aggregates import Count, Max
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.urls.base import reverse
@@ -50,7 +51,11 @@ class StreamLogListView(ListView):
                 Q(referer__icontains=q)
             )
 
-        sort_by = self.request.GET.get('sort_by', 'request_at')
+        # aggregate
+        qs = qs.values('filename').annotate(
+            views=Count('id'), last_view=Max('request_at'))
+
+        sort_by = 'last_view'
         direction = self.request.GET.get('direction', 'desc')
         if direction == 'desc':
             qs = qs.order_by('-' + sort_by)
@@ -67,6 +72,31 @@ class StreamLogListView(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['sort_by'] = self.request.GET.get('sort_by', 'request_at')
         context['direction'] = self.request.GET.get('direction', 'desc')
+        context['page'] = self.request.GET.get('page', '1')
+
+        return context
+
+
+class StreamLogDetailView(ListView):
+    model = StreamLog
+    paginate_by = 50
+    template_name = 'streamlogs/streamlog_detail.html'
+
+    def get_queryset(self):
+        qs = StreamLog.objects.all()
+
+        f = self.request.GET.get('f', '')
+        if f:
+            qs = qs.filter(filename=f)
+
+        qs.order_by('-request_at')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = ListView.get_context_data(self, **kwargs)
+
+        base = reverse('streamlogs-detail')
+        context['base_url'] = u'{}?page='.format(base)
         context['page'] = self.request.GET.get('page', '1')
 
         return context

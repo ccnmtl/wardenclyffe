@@ -2,7 +2,8 @@
 
 {% block content %}
     <p><a href="{% url 'streamlogs-list' %}">Back to List</a></p>
-    
+
+    {% with object=object_list.first %}
     <table>
         <tbody>
             <tr>
@@ -23,22 +24,38 @@
             <tr>
                 <th>Filename</th><td><tt>{{object.filename}}</tt></td>
             </tr>
-            <tr>
-                <th>Remote Address</th><td><tt>{{object.remote_addr}}</tt></td>
-            </tr>
-            <tr>
-                <th>Offset</th><td>{{object.offset}}</td>
-            </tr>
-            <tr>
-                <th>Referer</th><td><tt>{{object.referer}}</tt></td>
-            </tr>
-            <tr>
-                <th>User Agent</th><td>{{object.user_agent}}</td>
-            </tr>
-            <tr>
-                <th>Access Mode</th><td>{{object.access}}</td>
-            </tr>
         </tbody>
     </table>
-    
+    {% endwith %}
+
+    <!-- Results navigation  -->
+    <div class="visualclear"></div>
+    <div>
+        <div class="float-right">
+            {% include 'main/pagination.html' %}
+        </div>
+    </div>
+    <div class="visualclear"></div>
+    <br />
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Request At</th>
+                <th>Remote Address</th>
+                <th>User Agent</th>
+                <th>Referer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+            <tr>
+                <td style="width: 150px">{{object.request_at}}</td>
+                <td>{{object.remote_addr}}</td>
+                <td>{{object.user_agent}}</td>
+                <td>{{object.referer}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
