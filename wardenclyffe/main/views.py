@@ -1520,9 +1520,12 @@ class SureLinkVideoView(TemplateView):
         if not fname.startswith(settings.CUNIX_SECURE_DIRECTORY):
             fnames.append(
                 '{}{}'.format(settings.CUNIX_SECURE_DIRECTORY, fname))
-        if not fname.startswith(settings.CUNIX_H264_DIRECTORY):
+        if not fname.startswith(settings.H264_SECURE_STREAM_DIRECTORY):
             fnames.append(
-                '{}{}'.format(settings.CUNIX_H264_DIRECTORY, fname))
+                '{}{}'.format(settings.H264_SECURE_STREAM_DIRECTORY, fname))
+        if not fname.startswith(settings.H264_PUBLIC_STREAM_DIRECTORY):
+            fnames.append(
+                '{}{}'.format(settings.H264_PUBLIC_STREAM_DIRECTORY, fname))
 
         for f in fnames:
             attrs = tasks.sftp_stat(f)
