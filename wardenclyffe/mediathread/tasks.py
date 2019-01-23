@@ -65,9 +65,13 @@ def mediathread_update_params(video, mediathread_secret):
     params['asset-url'] = video.mediathread_asset_url()
     # the thumbnail may also have changed
     params['thumb'] = video.cuit_poster_url() or video.poster_url()
-    # only handle the non-audio parameter. afaik, we didn't do audio
-    # conversions with the flv, so they shouldn't ever be converted
-    params['mp4_pseudo'] = video.h264_secure_stream_url()
+
+    if video.has_panopto_source():
+        params['mp4_panopto'] = video.panopto_file().filename
+    else:
+        # only handle the non-audio parameter. afaik, we didn't do audio
+        # conversions with the flv, so they shouldn't ever be converted
+        params['mp4_pseudo'] = video.h264_secure_stream_url()
     return params
 
 
