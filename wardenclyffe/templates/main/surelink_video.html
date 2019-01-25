@@ -1,22 +1,54 @@
+{% load compress %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Surelink Proxy</title>
 
+    {% include 'main/jquery.html' %}
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{STATIC_URL}}js/lib/bootstrap/css/bootstrap.min.css">
+
+    {% compress css %}
+        <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?site=wardenclyffe" media="screen" />
+    {% endcompress %}
 </head>
 <body>
 {% if youtube %}
-    <iframe width="560" height="315" src="{{youtube}}" frameborder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen></iframe>
+    <div class="surelink-youtube">
+        <iframe width="560" height="315" src="{{youtube}}" frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        <div class="surelink-footer">
+            <div>
+                <a class="btn btn-link small" data-toggle="collapse" href="#showEmbed" aria-expanded="false" aria-controls="show-embed">
+                    <code>&lt;/&gt; embed</code>
+                </a>
+            </div>
+            <div class="collapse" id="show-embed">
+                <textarea class="w-100"><iframe width="560" height="315" src="{{youtube}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></textarea>
+            </div>
+        </div>
+    </div>
 {% else %}{% if panopto %}
-    <iframe width="480" height="360" 
-        src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{panopto}}&v=1"
-        width="480" height="360" style="padding: 0px;
-        border: 1px solid #464646;" frameborder="0" allowfullscreen
-        allow="autoplay"></iframe>
+    <div class="surelink-panopto">
+        <iframe width="480" height="360" 
+            src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{panopto}}&v=1"
+            width="480" height="360" style="padding: 0px;
+            border: 1px solid #464646;" frameborder="0" allowfullscreen
+            allow="autoplay"></iframe>
+        <div class="surelink-footer">
+            <div>
+                <a class="btn btn-link text-right" data-toggle="collapse" href="#show-embed" aria-expanded="false" aria-controls="show-embed">
+                    &lt;/&gt; embed
+                </a>
+            </div>
+            <div class="collapse p-2" id="show-embed">
+                <textarea class="w-100"><iframe width="480" height="360" src="https://columbia.hosted.panopto.com/Panopto/Pages/Embed.aspx?id={{panopto}}&v=1" width="480" height="360" style="padding: 0px; border: 1px solid #464646;" frameborder="0" allowfullscreen allow="autoplay"></iframe></textarea>
+            </div>
+        </div>
+    </div>
 {% else %}{% if converting %}
     <div class="row">
         <div class="col-md-12 text-center no-gutters">
@@ -51,5 +83,9 @@
         </div>
     </div>
 {% endif %}{% endif %}{% endif %}
+
+<script src="{{STATIC_URL}}js/lib/popper/popper.min.js"></script>
+<script src="{{STATIC_URL}}js/lib/bootstrap/js/bootstrap.min.js"></script>
+
 </body>
 </html>
