@@ -449,3 +449,33 @@ th.sortable.asc {
 th.sortable.desc {
     background-image: url(../img/desc.gif) !important;
 }
+
+.surelink-youtube {
+    width: 560px;
+}
+
+.surelink-panopto {
+    width: 480px;
+}
+
+.surelink-footer {
+    background-color: black;
+    width: 100%;
+    color: white;
+    margin-top: -7px;
+}
+
+.surelink-footer a {
+    color: white;
+    display: block;
+    height: 36px;
+}
+
+.surelink-footer a:hover,
+.surelink-footer a:visited {
+    color: white;
+}
+
+.surelink-footer #show-embed textarea {
+    height: 150px;
+}
