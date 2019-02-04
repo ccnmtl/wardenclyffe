@@ -27,7 +27,7 @@ pyasn1==0.4.5
 pyasn1_modules==0.2.3
 rsa==4.0
 uritemplate==3.0.0
-google-api-python-client==1.7.7
+google-api-python-client==1.7.8
 enum34==1.1.6; python_version < '3.4'
 asn1crypto==0.24.0
 cryptography==2.5
@@ -51,7 +51,7 @@ pep8==1.7.1
 pyflakes==2.1.0
 mccabe==0.6.1
 pycodestyle==2.5.0
-configparser==3.5.0
+configparser==3.7.1
 flake8==3.6.0
 logilab-common==1.4.2
 logilab-astng==0.24.3
@@ -95,7 +95,7 @@ django-debug-toolbar==1.11
 django-jenkins==0.110.0
 django-appconf==1.0.2
 django-compressor==2.2
-django-extensions==2.1.4
+django-extensions==2.1.5
 typing==3.6.6 # needed for django-extensions
 django-markwhat==1.6.1
 tornado==4.5.3 # pyup: <5.0
@@ -111,14 +111,14 @@ certifi==2018.11.29
 
 ccnmtlsettings==1.3.0 # pyup: <1.4.0
 
-pbr==5.1.1
+pbr==5.1.2
 PyYAML>=3.10.0 # MIT
 stevedore>=1.20.0 # Apache-2.0
 bandit==1.5.1
 
 defusedxml==0.5.0
 lxml==4.3.0
-requests-toolbelt==0.8.0
+requests-toolbelt==0.9.1
 isodate==0.6.0
 cached-property==1.5.1
 zeep==2.5.0 # pyup: <3.0.0
