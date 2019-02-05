@@ -6,7 +6,7 @@ psycopg2==2.7.7
 olefile==0.46
 Pillow==5.4.1
 anyjson==0.3.3
-billiard==3.5.0.5
+billiard==3.6.0.0
 
 vine==1.2.0
 amqp==2.4.0
