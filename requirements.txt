@@ -52,7 +52,7 @@ pyflakes==2.1.0
 mccabe==0.6.1
 pycodestyle==2.5.0
 configparser==3.7.1
-flake8==3.6.0
+flake8==3.7.5
 logilab-common==1.4.2
 logilab-astng==0.24.3
 editdistance==0.5.2
@@ -125,5 +125,5 @@ zeep==2.5.0 # pyup: <3.0.0
 pypanopto==0.0.6
 django-bootstrap4==0.0.7
 
-funcsigs==1.0.2
+funcsigs==1.0.2; python_version < '3'
 mock==2.0.0
