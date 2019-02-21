@@ -173,7 +173,7 @@ def pull_thumb_from_panopto(operation):
 
     thumb_url = session_mgr.get_thumb_url(panopto_id)
 
-    if not thumb_url or thumb_url.endswith('no_thumbnail.png'):
+    if not thumb_url or 'no_thumbnail' in thumb_url:
         raise Exception('Panopto thumbnail is not yet ready.')
 
     url = 'https://{}{}'.format(settings.PANOPTO_SERVER, thumb_url)
