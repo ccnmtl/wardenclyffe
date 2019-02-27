@@ -30,7 +30,7 @@ uritemplate==3.0.0
 google-api-python-client==1.7.8
 enum34==1.1.6; python_version < '3.4'
 asn1crypto==0.24.0
-cryptography==2.5
+cryptography==2.6
 ecdsa==0.13
 cffi==1.12.1
 idna==2.8
