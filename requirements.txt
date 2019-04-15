@@ -16,7 +16,7 @@ kombu==3.0.37 # pyup: <4.0.0
 django-picklefield==2.0
 pyparsing==2.4.0
 six==1.12.0
-pytz==2019.1
+pytz==2f019.1
 python-dateutil==2.8.0
 librabbitmq==2.0.0
 
@@ -67,7 +67,7 @@ ptyprocess==0.6.0
 pexpect==4.7.0
 pickleshare==0.7.5
 simplegeneric==0.8.1
-path.py==12.0.1
+path.py==11.5.2 # pyup: <12
 
 ipython==5.8.0 # pyup: <6.0.0
 
