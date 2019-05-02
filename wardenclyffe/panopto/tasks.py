@@ -169,7 +169,8 @@ def pull_thumb_from_panopto(operation):
     session_mgr = PanoptoSessionManager(
         settings.PANOPTO_SERVER, settings.PANOPTO_API_USER,
         instance_name=settings.PANOPTO_INSTANCE_NAME,
-        password=settings.PANOPTO_API_PASSWORD)
+        password=settings.PANOPTO_API_PASSWORD,
+        cache_dir=getattr(settings, 'ZEEP_CACHE_DIR', None))
 
     thumb_url = session_mgr.get_thumb_url(panopto_id)
 
