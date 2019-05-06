@@ -126,7 +126,7 @@ pypanopto==0.0.7
 django-bootstrap4==0.0.8
 
 funcsigs==1.0.2; python_version < '3'
-mock==3.0.3
+mock==3.0.4
 
 entrypoints==0.3
 functools32==3.2.3-2; python_version < '3'
