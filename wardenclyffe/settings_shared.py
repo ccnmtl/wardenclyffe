@@ -18,7 +18,7 @@ TMP_DIR = "/tmp"  # nosec
 
 if 'test' in sys.argv or 'jenkins' in sys.argv:
     SURELINK_PROTECTION_KEY = "test-dummy-key"
-    MEDIATHREAD_SECRET = "test-dummy-secret"
+    MEDIATHREAD_SECRET = "test-dummy-secret"  # nosec
     WATCH_DIRECTORY = "/tmp/"  # nosec
     TMP_DIR = "/tmp"  # nosec
     PCP_BASE_URL = ""
@@ -135,7 +135,7 @@ SOUTH_MIGRATION_MODULES = {
 
 # dummy these out for now
 GOOGLE_OAUTH2_CLIENT_ID = ""
-GOOGLE_OAUTH2_CLIENT_SECRET = ""
+GOOGLE_OAUTH2_CLIENT_SECRET = ""  # nosec
 
 PRIMARY_YOUTUBE_ACCOUNT = "ccnmtl@gmail.com"
 
