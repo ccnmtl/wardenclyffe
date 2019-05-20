@@ -44,7 +44,7 @@ ndg-httpsclient==0.5.1
 chardet==3.0.4
 urllib3==1.25.2
 
-requests==2.21.0
+requests==2.22.0
 statsd==3.3.0
 coverage==4.5.3
 pep8==1.7.1
