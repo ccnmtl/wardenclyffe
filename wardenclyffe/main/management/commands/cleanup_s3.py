@@ -1,0 +1,45 @@
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
+from wardenclyffe.main.models import Video, File
+import wardenclyffe.main.tasks as tasks
+
+
+class Command(BaseCommand):
+    args = ''
+    help = ''
+
+    def add_arguments(self, parser):
+        # we need to specify a user to associate with the operations
+        parser.add_argument('uni', type=str)
+        parser.add_argument('dryrun', type=int, default=1)
+
+    def s3_files(self):
+        valid_types = ['cuit', 'panopto', 'youtube', 'mediathread', 'rtsp_url']
+
+        qs = Video.objects.exclude(file__location_type__in=valid_types)
+        qs = qs.filter(file__location_type__in=['s3']).distinct()
+        vids = qs.values_list('id', flat=True)
+        return File.objects.filter(location_type='s3', video__id__in=vids)
+
+    def handle(self, *args, **kwargs):
+        user = User.objects.get(username=kwargs['uni'])
+        print('{} executing job'.format(user.get_full_name()))
+
+        dryrun = kwargs['dryrun']
+        if dryrun:
+            print('This is a dryrun')
+        else:
+            print('This is not a dryrun')
+
+        qs = self.s3_files()
+        print('Found {} files to delete'.format(qs.count()))
+        for f in qs:
+            print('Video {}'.format(f.video.id))
+            print('  {}: {}: {}'.format(f.label, f.location_type, f.id))
+
+            if not dryrun:
+                o = f.video.make_delete_from_s3_operation(file_id=f.id,
+                                                          user=user)
+                tasks.process_operation.delay(o.id)
+                print('  deleted')
