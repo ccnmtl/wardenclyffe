@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
@@ -17,7 +18,10 @@ class Command(BaseCommand):
     def redundant_files(self):
         # Videos that have both an "uploaded source file (S3)" and a
         # "transcoded file (S3)" can have the "uploaded" file removed
+        # after a year or so
+        ayearago = datetime.now() - timedelta(days=365)
         qs = Video.objects.filter(
+            created__lte=ayearago,
             file__label__startswith='transcoded').filter(
                 file__label='uploaded source file (S3)').distinct()
         vids = qs.values_list('id', flat=True)
@@ -48,10 +52,10 @@ class Command(BaseCommand):
         qs = self.orphaned_files()
         print('Found {} files to delete'.format(qs.count()))
         for f in qs:
-            if not dryrun:
-                print('Video {}'.format(f.video.id))
-                print('  {}: {}: {}'.format(f.label, f.location_type, f.id))
+            print('Video {}  {}: {}: {}'.format(
+                f.video.id, f.label, f.location_type, f.id))
 
+            if not dryrun:
                 o = f.video.make_delete_from_s3_operation(file_id=f.id,
                                                           user=user)
                 tasks.process_operation.delay(o.id)
@@ -60,10 +64,10 @@ class Command(BaseCommand):
         qs = self.redundant_files()
         print('Found {} redundant files to delete'.format(qs.count()))
         for f in qs:
-            if not dryrun:
-                print('Video {}'.format(f.video.id))
-                print('  {}: {}: {}'.format(f.label, f.location_type, f.id))
+            print('Video {} {}: {}: {}'.format(
+                f.video.id, f.label, f.location_type, f.id))
 
+            if not dryrun:
                 o = f.video.make_delete_from_s3_operation(file_id=f.id,
                                                           user=user)
                 tasks.process_operation.delay(o.id)
