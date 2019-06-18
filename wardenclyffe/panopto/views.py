@@ -24,7 +24,7 @@ def submit_video_to_panopto(user, video, folder_id, viewed=False):
     if viewed and video.streamlogs().count() < 1:
         return False
 
-    if video.has_s3_source():
+    if video.has_s3_source() or video.has_s3_transcoded():
         operations = [
             video.make_pull_from_s3_and_upload_to_panopto_operation(
                 video.id, folder_id, user)
