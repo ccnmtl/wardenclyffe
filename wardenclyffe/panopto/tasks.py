@@ -135,7 +135,9 @@ def verify_upload_to_panopto(operation):
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
 
-    if not video.has_panopto_source():
+    f = video.panopto_file()
+
+    if not f:
         upload_status = PanoptoUploadStatus()
         upload_status.server = settings.PANOPTO_SERVER
         upload_status.username = settings.PANOPTO_API_USER
@@ -148,11 +150,11 @@ def verify_upload_to_panopto(operation):
 
         url = settings.PANOPTO_LINK_URL.format(panopto_id)
 
-        File.objects.create(
+        f = File.objects.create(
             video=video, location_type='panopto', url=url,
             filename=panopto_id, label='uploaded to panopto')
 
-    params['panopto_id'] = video.filename
+    params['panopto_id'] = f.filename
     operation.params = dumps(params)
     operation.save()
 
