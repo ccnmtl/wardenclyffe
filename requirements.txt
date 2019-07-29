@@ -4,7 +4,10 @@ Markdown==2.6.11 # pyup: <3.0.0
 smartypants==2.0.1
 psycopg2==2.8.3
 olefile==0.46
-Pillow==6.1.0
+
+# for python 3.4
+Pillow==5.4.1 # pyup: <6.0.0
+
 anyjson==0.3.3
 billiard==3.6.0.0
 
@@ -44,7 +47,9 @@ ndg-httpsclient==0.5.1
 chardet==3.0.4
 urllib3==1.25.3
 
-requests==2.22.0
+requests==2.21.0 # pyup: <2.22.0
+# pinning requests here for python 3.4 support
+
 statsd==3.3.0
 coverage==4.5.4
 pep8==1.7.1
@@ -119,8 +124,12 @@ PyYAML>=3.10.0 # MIT
 stevedore>=1.20.0 # Apache-2.0
 bandit==1.6.2
 
-defusedxml==0.6.0
-lxml==4.4.0
+defusedxml==0.5.0  # pyup: <0.6.0
+# for py3.4
+
+lxml==4.3.4  # pyup: <4.4.0
+#  for python 3.4
+
 requests-toolbelt==0.9.1
 isodate==0.6.0
 cached-property==1.5.1
