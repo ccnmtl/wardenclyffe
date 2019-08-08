@@ -81,7 +81,7 @@ text-unidecode==1.2  # for faker
 Faker==2.0.0
 factory_boy==2.12.0
 rcssmin==1.0.6
-rjsmin==1.0.12
+rjsmin==1.1.0
 
 djangowind==1.2.1
 django-staticmedia==0.2.2
