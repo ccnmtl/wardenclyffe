@@ -1,8 +1,10 @@
-from smoketest import SmokeTest
-from models import Collection
-from django.conf import settings
 import os.path
 import subprocess  # nosec
+
+from django.conf import settings
+from smoketest import SmokeTest
+
+from wardenclyffe.main.models import Collection
 
 
 class DBConnectivityTest(SmokeTest):
