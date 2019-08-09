@@ -4,7 +4,7 @@ from django.conf import settings
 from oauth2client.contrib.django_util.storage import DjangoORMStorage
 from smoketest import SmokeTest
 
-from .models import Credentials
+from wardenclyffe.youtube.models import Credentials
 
 
 class YoutubeTest(SmokeTest):
