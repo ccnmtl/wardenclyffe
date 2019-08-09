@@ -49,22 +49,23 @@
             <p>Process steps</p>
 
             <div class="form-check">
-                <input type="checkbox" name="submit_to_youtube" id="submit_to_youtube"/>
-                <label class="form-check-label pl-1">
+                <label class="form-check-label">
+                    <input type="checkbox" name="submit_to_youtube" id="submit_to_youtube"/>
                     Submit file to Youtube
                 </label>
             </div>
 
             <div class="form-check">
-                <input type="checkbox" name="submit_to_mediathread" disabled="disabled" />
-                <label class="form-check-label pl-1">
+
+                <label class="form-check-label">
+                    <input type="checkbox" name="submit_to_mediathread" disabled="disabled" />
                     Submit file to Mediathread
                 </label>
             </div>
 
             <div class="form-check">
-                <input type="checkbox" name="submit_to_panopto" />
-                <label class="form-check-label pl-1">
+                <label class="form-check-label">
+                    <input type="checkbox" name="submit_to_panopto" />
                     Submit file to Panopto
                 </label>
                 <div class="ml-4 mt-2">
@@ -97,8 +98,8 @@ function s3_upload() {
     });
 }
 
-jQuery(document).ready(function() 
-    { 
+jQuery(document).ready(function()
+    {
         jQuery('#id_tags').tagsInput({
             autocomplete_url:'/api/tagautocomplete',
             defaultText: 'Add a tag...'

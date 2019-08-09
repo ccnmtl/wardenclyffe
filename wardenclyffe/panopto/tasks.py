@@ -135,23 +135,26 @@ def verify_upload_to_panopto(operation):
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
 
-    upload_status = PanoptoUploadStatus()
-    upload_status.server = settings.PANOPTO_SERVER
-    upload_status.username = settings.PANOPTO_API_USER
-    upload_status.password = settings.PANOPTO_API_PASSWORD
-    upload_status.upload_id = params['upload_id']
+    f = video.panopto_file()
 
-    (state, panopto_id) = upload_status.check()
-    if state != 4:  # Panopto "Complete" State
-        raise Exception('Panopto is not yet finished.')
+    if not f:
+        upload_status = PanoptoUploadStatus()
+        upload_status.server = settings.PANOPTO_SERVER
+        upload_status.username = settings.PANOPTO_API_USER
+        upload_status.password = settings.PANOPTO_API_PASSWORD
+        upload_status.upload_id = params['upload_id']
 
-    url = settings.PANOPTO_LINK_URL.format(panopto_id)
+        (state, panopto_id) = upload_status.check()
+        if state != 4:  # Panopto "Complete" State
+            raise Exception('Panopto is not yet finished.')
 
-    File.objects.create(
-        video=video, location_type='panopto', url=url,
-        filename=panopto_id, label='uploaded to panopto')
+        url = settings.PANOPTO_LINK_URL.format(panopto_id)
 
-    params['panopto_id'] = panopto_id
+        f = File.objects.create(
+            video=video, location_type='panopto', url=url,
+            filename=panopto_id, label='uploaded to panopto')
+
+    params['panopto_id'] = f.filename
     operation.params = dumps(params)
     operation.save()
 
