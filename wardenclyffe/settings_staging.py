@@ -1,5 +1,5 @@
 # flake8: noqa
-from settings_shared import *
+from wardenclyffe.settings_shared import *
 from ccnmtlsettings.staging import common
 
 locals().update(
@@ -17,6 +17,6 @@ WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 FFMPEG_PATH = "/usr/local/bin/ffmpeg"
 
 try:
-    from local_settings import *
+    from wardenclyffe.local_settings import *
 except ImportError:
     pass

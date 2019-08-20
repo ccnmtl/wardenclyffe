@@ -1,5 +1,5 @@
 # flake8: noqa
-from settings_shared import *
+from wardenclyffe.settings_shared import *
 
 DEBUG = True
 DATABASES = {
@@ -34,7 +34,7 @@ class MyDummyRouter(object):
 CELERY_ROUTES = (MyDummyRouter(),)
 
 try:
-    from local_settings import *
+    from wardenclyffe.local_settings import *
 except ImportError:
     pass
 AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY
