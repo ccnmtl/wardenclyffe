@@ -1,5 +1,5 @@
 # flake8: noqa
-from settings_shared import *
+from wardenclyffe.settings_shared import *
 from ccnmtlsettings.production import common
 
 locals().update(
@@ -25,6 +25,6 @@ FLV_PUBLIC_IMPORT_COLLECTION_ID = 31
 
 
 try:
-    from local_settings import *
+    from wardenclyffe.local_settings import *
 except ImportError:
     pass
