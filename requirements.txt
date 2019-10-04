@@ -68,7 +68,7 @@ jmespath==0.9.4
 botocore>=1.12.194,<1.13.0
 boto3>=1.9.194,<1.10.0
 
-traitlets==4.3.2
+traitlets==4.3.3
 ipython_genutils==0.2.0
 decorator==4.4.0
 ptyprocess==0.6.0
