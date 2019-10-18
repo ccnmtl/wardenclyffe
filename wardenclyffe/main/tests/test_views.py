@@ -308,7 +308,7 @@ class TestSurelink(TestCase):
             "/file/%d/surelink/" % public_file.id,
             {'file': public_file.filename,
              'captions': '',
-             'poster': ('http://wardenclyffe.ccnmtl.columbia.edu/'
+             'poster': ('https://wardenclyffe.ccnmtl.columbia.edu/'
                         'uploads/images/11213/00000238.jpg'),
              'width': public_file.guess_width(),
              'height': public_file.guess_height(),
@@ -334,7 +334,7 @@ class TestSurelink(TestCase):
             "/file/%d/surelink/" % public_file.id,
             {'file': public_file.filename,
              'captions': '',
-             'poster': ('http://wardenclyffe.ccnmtl.columbia.edu/'
+             'poster': ('https://wardenclyffe.ccnmtl.columbia.edu/'
                         'uploads/images/11213/00000238.jpg'),
              'width': "480-",
              'height': " 720 ",
