@@ -39,7 +39,7 @@ def send_slow_operations_email(operations):
     cnt = operations.count()
     subject = "Slow operations detected"
     body = slow_operations_email_body(cnt)
-    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'wardenclyffe@mail.ctl.columbia.edu'
     send_to_everyone(subject, body, None, fromaddress)
 
 
@@ -47,7 +47,7 @@ def send_slow_operations_to_videoteam_email(operations):
     cnt = operations.count()
     subject = "Slow operations detected"
     body = slow_operations_email_body(cnt)
-    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'wardenclyffe@mail.ctl.columbia.edu'
     send_to_videoteam(subject, body, None, fromaddress)
 
 
@@ -60,7 +60,7 @@ def failed_operation_body(operation, error_message):
 def send_failed_operation_mail(operation, error_message):
     subject = 'Video upload failed'
     body = failed_operation_body(operation, error_message)
-    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'wardenclyffe@mail.ctl.columbia.edu'
     send_to_everyone(subject, body, None, fromaddress)
 
 
@@ -73,7 +73,7 @@ def mediathread_received_body(video_title, uni):
 def send_mediathread_received_mail(video_title, uni):
     subject = "Mediathread submission received"
     body = mediathread_received_body(video_title, uni)
-    fromaddress = 'mediathread@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'mediathread@mail.ctl.columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
 
@@ -89,7 +89,7 @@ def mediathread_uploaded_body(video_title, uni, url):
 def send_mediathread_uploaded_mail(video_title, uni, url):
     subject = 'Mediathread submission now available'
     body = mediathread_uploaded_body(video_title, uni, url)
-    fromaddress = 'mediathread@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'mediathread@mail.ctl.columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
 
@@ -103,6 +103,6 @@ def youtube_submitted_body(video_title, uni, url):
 def send_youtube_submitted_mail(video_title, uni, url):
     subject = "\"%s\" was submitted to Columbia on YouTube EDU" % video_title
     body = youtube_submitted_body(video_title, uni, url)
-    fromaddress = 'wardenclyffe@wardenclyffe.ccnmtl.columbia.edu'
+    fromaddress = 'wardenclyffe@mail.ctl.columbia.edu'
     toaddress = "%s@columbia.edu" % uni
     send_to_everyone(subject, body, toaddress, fromaddress)
