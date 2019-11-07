@@ -15,7 +15,7 @@ amqplib==1.0.2
 kombu==3.0.37 # pyup: <4.0.0
 django-picklefield==2.0
 pyparsing==2.4.4
-six==1.12.0
+six==1.13.0
 pytz==2019.2
 python-dateutil==2.8.1
 librabbitmq==2.0.0
@@ -33,7 +33,7 @@ google-api-python-client==1.7.11
 enum34==1.1.6; python_version < '3.4'
 asn1crypto==1.2.0
 cryptography==2.8
-ecdsa==0.13.3
+ecdsa==0.14.1
 cffi==1.13.2
 idna==2.8
 bcrypt==3.1.7
