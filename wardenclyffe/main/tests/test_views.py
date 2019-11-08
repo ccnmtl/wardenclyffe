@@ -308,7 +308,7 @@ class TestSurelink(TestCase):
             "/file/%d/surelink/" % public_file.id,
             {'file': public_file.filename,
              'captions': '',
-             'poster': ('https://wardenclyffe.ccnmtl.columbia.edu/'
+             'poster': ('https://wardenclyffe.ctl.columbia.edu/'
                         'uploads/images/11213/00000238.jpg'),
              'width': public_file.guess_width(),
              'height': public_file.guess_height(),
@@ -334,7 +334,7 @@ class TestSurelink(TestCase):
             "/file/%d/surelink/" % public_file.id,
             {'file': public_file.filename,
              'captions': '',
-             'poster': ('https://wardenclyffe.ccnmtl.columbia.edu/'
+             'poster': ('https://wardenclyffe.ctl.columbia.edu/'
                         'uploads/images/11213/00000238.jpg'),
              'width': "480-",
              'height': " 720 ",
@@ -872,7 +872,7 @@ class CollectionReportViewTest(TestCase):
             self.assertEqual(rows[0][2], 0)
             self.assertEqual(
                 rows[0][3],
-                'https://wardenclyffe.ccnmtl.columbia.edu/video/{}/'.format(
+                'https://wardenclyffe.ctl.columbia.edu/video/{}/'.format(
                     f.video.id))
             self.assertEqual(
                 rows[0][4],

@@ -19,7 +19,7 @@ readable.
 ### WC DropBucket
 
 In the
-[Wardenclyffe Admin](https://wardenclyffe.ccnmtl.columbia.edu/admin/),
+[Wardenclyffe Admin](https://wardenclyffe.ctl.columbia.edu/admin/),
 look for 'Drop bucket' and hit 'add'.
 
 You need to give it a name, an optional description, then specify the

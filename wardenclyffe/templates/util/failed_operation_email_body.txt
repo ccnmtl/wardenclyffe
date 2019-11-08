@@ -3,7 +3,7 @@ An error has occurred while processing the video:
 
 at:
 
-   https://wardenclyffe.ccnmtl.columbia.edu{{operation.video.get_absolute_url}}
+   https://wardenclyffe.ctl.columbia.edu{{operation.video.get_absolute_url}}
 
 During the {{operation.action}} step. The error encountered was:
 

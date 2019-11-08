@@ -4,7 +4,7 @@ complete.
 This may indicate a problem or just an unusually high workload. Either way,
 someone should probably investigate:
 
-    https://wardenclyffe.ccnmtl.columbia.edu/slow_operations/
+    https://wardenclyffe.ctl.columbia.edu/slow_operations/
 
 Wardenclyffe will continue sending these emails hourly as long as there are
 any slow operations detected, so remember to clear out fixed or

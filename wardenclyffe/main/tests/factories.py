@@ -150,7 +150,7 @@ class DimensionlessSourceFileFactory(FileFactory):
 class MediathreadFileFactory(FileFactory):
     label = "mediathread"
     location_type = "mediathread"
-    url = "http://mediathread.ccnmtl.columbia.edu/asset/5684/"
+    url = "http://mediathread.ctl.columbia.edu/asset/5684/"
 
 
 class S3FileFactory(FileFactory):

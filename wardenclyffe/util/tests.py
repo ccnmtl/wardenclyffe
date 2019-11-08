@@ -59,7 +59,7 @@ class BodyTest(TestCase):
                                   video=DummyVideo("dummy video"))
         body = failed_operation_body(dummy_op, "fake error message")
         assert "fake error message" in body
-        assert "https://wardenclyffe.ccnmtl.columbia.edu/video/1/" in body
+        assert "https://wardenclyffe.ctl.columbia.edu/video/1/" in body
 
     def test_mediathread_received_body(self):
         body = mediathread_received_body("test video", "testuni")
@@ -68,14 +68,14 @@ class BodyTest(TestCase):
 
     def test_mediathread_uploaded_body(self):
         with self.settings(
-                MEDIATHREAD_BASE='https://mediathread.ccnmtl.columbia.edu/'):
+                MEDIATHREAD_BASE='https://mediathread.ctl.columbia.edu/'):
 
             body = mediathread_uploaded_body("test video", "testuni",
                                              "/asset/1")
             assert "confirms that test video" in body
             assert "for testuni" in body
             assert (
-                "https://mediathread.ccnmtl.columbia.edu/asset/1" in body)
+                "https://mediathread.ctl.columbia.edu/asset/1" in body)
 
     def test_youtube_submitted_body(self):
         body = youtube_submitted_body("fake video title", "fakeuni",
@@ -119,7 +119,7 @@ class MailTest(TestCase):
 
     def test_send_mediathread_uploaded_mail(self):
         with self.settings(
-                MEDIATHREAD_BASE='https://mediathread.ccnmtl.columbia.edu/'):
+                MEDIATHREAD_BASE='https://mediathread.ctl.columbia.edu/'):
             send_mediathread_uploaded_mail("fake video", "fakeuni",
                                            "/asset/1/")
             assert len(mail.outbox) > 1
@@ -127,7 +127,7 @@ class MailTest(TestCase):
                              "Mediathread submission now available")
             self.assertTrue(
                 mail.outbox[0].body.find(
-                    "https://mediathread.ccnmtl.columbia.edu/asset/1") > 0)
+                    "https://mediathread.ctl.columbia.edu/asset/1") > 0)
 
     def test_send_youtube_submitted_mail(self):
         send_youtube_submitted_mail("fake video title", "fakeuni",
