@@ -1,6 +1,9 @@
 # flake8: noqa
+from django.conf import settings
 from wardenclyffe.settings_shared import *
 from ccnmtlsettings.production import common
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 locals().update(
     common(
@@ -28,3 +31,9 @@ try:
     from wardenclyffe.local_settings import *
 except ImportError:
     pass
+
+if hasattr(settings, 'SENTRY_DSN'):
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,  # noqa: F405
+        integrations=[DjangoIntegration()],
+    )
