@@ -288,7 +288,7 @@ class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
         for video in collection.video_set.all():
             row = [video.id, smart_str(video.title),
                    video.streamlogs().count(),
-                   'https://wardenclyffe.ccnmtl.columbia.edu{}'.format(
+                   'https://wardenclyffe.ctl.columbia.edu{}'.format(
                        reverse('video-details', kwargs={'pk': video.id})),
                    self.cuit_filename(video),
                    '', '', '', '', '']
