@@ -1,16 +1,15 @@
-# flake8: noqa
 from django.conf import settings
-from wardenclyffe.settings_shared import *
+from wardenclyffe.settings_shared import *  # noqa: F403
 from ccnmtlsettings.production import common
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 locals().update(
     common(
-        project=project,
-        base=base,
-        INSTALLED_APPS=INSTALLED_APPS,
-        STATIC_ROOT=STATIC_ROOT,
+        project=project,  # noqa: F405
+        base=base,  # noqa: F405
+        INSTALLED_APPS=INSTALLED_APPS,  # noqa: F405
+        STATIC_ROOT=STATIC_ROOT,  # noqa: F405
         cloudfront="d32f8np9uyk4f2",
     ))
 
@@ -28,7 +27,7 @@ FLV_PUBLIC_IMPORT_COLLECTION_ID = 31
 
 
 try:
-    from wardenclyffe.local_settings import *
+    from wardenclyffe.local_settings import *  # noqa: F403
 except ImportError:
     pass
 
