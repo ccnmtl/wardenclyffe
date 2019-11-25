@@ -1,9 +1,8 @@
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 from django_statsd.clients import statsd
-from .models import operation_count_by_status
-from .models import s3_stats
-from .models import minutes_video_stats
+from wardenclyffe.graphite.models import operation_count_by_status, \
+    minutes_video_stats, s3_stats
 
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))

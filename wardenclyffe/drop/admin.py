@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DropBucket
+from wardenclyffe.drop.models import DropBucket
 
 
 admin.site.register(DropBucket)

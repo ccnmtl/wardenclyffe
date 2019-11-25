@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Credentials
+from wardenclyffe.youtube.models import Credentials
 
 
 class CredentialsAdmin(admin.ModelAdmin):

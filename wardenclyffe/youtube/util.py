@@ -6,25 +6,23 @@ https://developers.google.com/youtube/v3/code_samples/python#upload_a_video
 with a few improvements and simplifications.
 
 """
-from django.conf import settings
-
-import httplib2
-
-try:
-    import http.client as httplib
-except ImportError:
-    import httplib
-
 import random
 import time
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-
+from django.conf import settings
+import httplib2
 from oauth2client.contrib.django_util.storage import DjangoORMStorage
+from wardenclyffe.youtube.models import Credentials
 
-from .models import Credentials
+
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
+
 
 YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
 YOUTUBE_API_SERVICE_NAME = "youtube"

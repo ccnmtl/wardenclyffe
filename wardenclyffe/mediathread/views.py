@@ -1,19 +1,18 @@
-import requests
 import uuid
-import wardenclyffe.main.tasks as maintasks
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import View
-from wardenclyffe.main.models import Video, Collection
-from django.contrib.auth.models import User
 from django_statsd.clients import statsd
-from django.conf import settings
-from django.db import transaction
-
-from .auth import MediathreadAuthenticator
+import requests
+from wardenclyffe.main.models import Video, Collection
+import wardenclyffe.main.tasks as maintasks
+from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 
 
 def mediathread(request):

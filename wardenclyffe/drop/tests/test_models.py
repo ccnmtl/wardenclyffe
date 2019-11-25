@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from .factories import DropBucketFactory
 from django.test import TestCase
+from wardenclyffe.drop.tests.factories import DropBucketFactory
 
 
 class DropBucketTest(TestCase):

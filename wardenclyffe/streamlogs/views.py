@@ -6,8 +6,7 @@ from django.http import HttpResponse
 from django.urls.base import reverse
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
-
-from .models import StreamLog, daily_counts
+from wardenclyffe.streamlogs.models import StreamLog, daily_counts
 
 
 class LogView(View):

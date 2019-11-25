@@ -13,14 +13,12 @@ from django_statsd.clients import statsd
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.contrib import xsrfutil
 from oauth2client.contrib.django_util.storage import DjangoORMStorage
-
 from wardenclyffe.main.models import Video, Collection, File
 import wardenclyffe.main.tasks
 from wardenclyffe.main.views import key_from_s3url, enqueue_operations
 from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
-
-from .models import Credentials
-from .util import YOUTUBE_UPLOAD_SCOPE
+from wardenclyffe.youtube.models import Credentials
+from wardenclyffe.youtube.util import YOUTUBE_UPLOAD_SCOPE
 
 
 @login_required

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import os.path
 import unittest
 
-from ..snsparser import SNSMessage, SNSMessageError
+from wardenclyffe.drop.snsparser import SNSMessage, SNSMessageError
 
 
 def sample_message():

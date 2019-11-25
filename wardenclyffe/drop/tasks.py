@@ -1,12 +1,10 @@
 import boto
-
 from celery.decorators import task
 from django.conf import settings
-
+from wardenclyffe.drop.models import DropBucket
 from wardenclyffe.main.models import Video
 from wardenclyffe.main.tasks import exp_backoff
 from wardenclyffe.main.views import enqueue_operations
-from .models import DropBucket
 
 
 @task(ignore_results=True, bind=True, max_retries=None)

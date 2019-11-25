@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import factory
-from ..models import StreamLog
+from wardenclyffe.streamlogs.models import StreamLog
 
 
 class StreamLogFactory(factory.DjangoModelFactory):
