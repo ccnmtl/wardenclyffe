@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StreamLog
+from wardenclyffe.streamlogs.models import StreamLog
 
 
 admin.site.register(StreamLog)

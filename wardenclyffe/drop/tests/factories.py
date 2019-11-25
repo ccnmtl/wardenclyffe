@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import factory
-from ..models import DropBucket
+from wardenclyffe.drop.models import DropBucket
 from wardenclyffe.main.tests.factories import CollectionFactory, UserFactory
 
 

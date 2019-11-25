@@ -4,10 +4,10 @@ import unittest
 
 from django.http import Http404
 from django.test import TestCase, RequestFactory
-
-from .factories import DropBucketFactory
-from ..views import SNSView, is_encodable_file
-from .test_snsparser import sample_message, sample_video_message
+from wardenclyffe.drop.tests.factories import DropBucketFactory
+from wardenclyffe.drop.tests.test_snsparser import sample_video_message, \
+    sample_message
+from wardenclyffe.drop.views import SNSView, is_encodable_file
 
 
 class TestSNSView(TestCase):

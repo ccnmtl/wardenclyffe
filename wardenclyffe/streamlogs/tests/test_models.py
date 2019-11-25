@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.test import TestCase
 from wardenclyffe.main.tests.factories import FileFactory
-from .factories import StreamLogFactory
+from wardenclyffe.streamlogs.tests.factories import StreamLogFactory
 
 
 class StreamLogTest(TestCase):

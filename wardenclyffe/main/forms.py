@@ -1,5 +1,5 @@
 from django import forms
-from .models import Video, Collection, Server, File
+from wardenclyffe.main.models import Collection, Video, Server, File
 
 
 class AddCollectionForm(forms.ModelForm):

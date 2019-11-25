@@ -4,10 +4,9 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
-
-from .models import DropBucket
-from .snsparser import SNSMessage, SNSMessageError
-from .tasks import move_from_dropbucket_to_upload_bucket
+from wardenclyffe.drop.models import DropBucket
+from wardenclyffe.drop.snsparser import SNSMessage, SNSMessageError
+from wardenclyffe.drop.tasks import move_from_dropbucket_to_upload_bucket
 
 
 def is_encodable_file(fname):
