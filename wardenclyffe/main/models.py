@@ -767,10 +767,10 @@ class File(TimeStampedModel):
         url = self.h264_secure_stream_url()
         url_slashed = url.split("?")[0].split("/")
         filename = "/%s" % url_slashed[5]
-        t_hex = "%08x" % time.time()
+        t_hex = "%08x" % int(time.time())
 
-        m = hashlib.md5(  # nosec
-            settings.SURELINK_ACCESS + filename + t_hex).hexdigest()
+        enc = (settings.SURELINK_ACCESS + filename + t_hex).encode('utf-8')
+        m = hashlib.md5(enc).hexdigest()
         return "%s%s/%s/%s" % (
             settings.H264_SECURE_STREAM_BASE, m, t_hex, filename)
 
