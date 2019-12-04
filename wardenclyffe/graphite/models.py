@@ -1,6 +1,6 @@
 from django.conf import settings
 from wardenclyffe.main.models import Operation, File, Metadata
-import boto
+import boto3
 
 
 def operation_count_by_status():
@@ -23,10 +23,10 @@ def s3_stats():
     """
     total = 0
     cnt = 0
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+    bucket = s3.Bucket(settings.AWS_S3_UPLOAD_BUCKET)
     for f in File.objects.filter(location_type="s3"):
         k = bucket.get_key(f.video.s3_key())
         if k is not None:

@@ -1,4 +1,4 @@
-import boto
+import boto3
 from celery.decorators import task
 from django.conf import settings
 from wardenclyffe.drop.models import DropBucket
@@ -14,11 +14,11 @@ def move_from_dropbucket_to_upload_bucket(self, bucket_id, s3key, title,
         bucket_id, s3key, title))
     try:
         b = DropBucket.objects.get(pk=bucket_id)
-        conn = boto.connect_s3(
-            settings.AWS_ACCESS_KEY,
-            settings.AWS_SECRET_KEY)
-        drop_bucket = conn.get_bucket(b.bucket_id)
-        upload_bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
+        s3 = boto3.resource(
+            's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+            aws_secret_access_key=settings.AWS_SECRET_KEY)
+        drop_bucket = s3.Bucket(b.bucket_id)
+        upload_bucket = s3.Bucket(settings.AWS_S3_UPLOAD_BUCKET)
         # TODO: filename santization
         upload_bucket.copy_key(s3key, drop_bucket.name, s3key)
 
