@@ -8,9 +8,7 @@ import subprocess  # nosec
 import tempfile
 import uuid
 
-import boto
-import boto.elastictranscoder
-from boto.s3.key import Key
+import boto3
 from django.conf import settings
 from django.utils.encoding import smart_text
 from django_statsd.clients import statsd
@@ -86,11 +84,11 @@ def save_file_to_s3(operation):
         return ("complete", "S3 uploads temporarily disabled")
     statsd.incr("save_file_to_s3")
     params = loads(operation.params)
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    k = Key(bucket)
+
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+
     # make a YYYY/MM/DD directory to put the file in
     source_file = open(params['tmpfilename'], "rb")
 
@@ -98,8 +96,7 @@ def save_file_to_s3(operation):
     key = "%04d/%02d/%02d/%s" % (
         n.year, n.month, n.day,
         os.path.basename(params['tmpfilename']))
-    k.key = key
-    k.set_contents_from_file(source_file)
+    s3.Object(settings.AWS_S3_UPLOAD_BUCKET, key).put(Body=source_file)
     source_file.close()
     label = "uploaded source file (S3)"
     if params['audio']:
@@ -119,10 +116,10 @@ def save_file_to_s3(operation):
 def create_elastic_transcoder_job(operation):
     statsd.incr('create_transcoder_job')
     params = loads(operation.params)
-    et = boto.elastictranscoder.connect_to_region(
-        settings.AWS_ET_REGION,
-        aws_access_key_id=settings.AWS_ACCESS_KEY,
-        aws_secret_access_key=settings.AWS_SECRET_KEY)
+    boto3.setup_default_session(region_name=settings.AWS_ET_REGION)
+    et = boto3.client('elastictranscoder',
+                      aws_access_key_id=settings.AWS_ACCESS_KEY,
+                      aws_secret_access_key=settings.AWS_SECRET_KEY)
 
     n = datetime.now()
     output_base = "%04d/%02d/%02d/%s" % (
@@ -153,9 +150,9 @@ def create_elastic_transcoder_job(operation):
             }
         )
     job = et.create_job(
-        settings.AWS_ET_PIPELINE_ID,
-        input_name=input_object,
-        outputs=output_objects)
+        PipelineId=settings.AWS_ET_PIPELINE_ID,
+        Input=input_object,
+        Outputs=output_objects)
     job_id = str(job['Job']['Id'])
     print(job_id)
     f = File.objects.create(
@@ -194,10 +191,10 @@ def pull_thumbs_from_s3(operation):
     bucket for images that match the pattern,
     and create Image objects to correspond to them """
     params = loads(operation.params)
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.IMAGES_BUCKET)
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+    bucket = s3.Bucket(settings.IMAGES_BUCKET)
 
     # will be something like:
     #  "thumbs/2015/05/29/e573cfeb-e32c-45c0-8caa-326c394b04b9-{count}"
@@ -286,15 +283,14 @@ def parse_metadata(output):
 
 
 def pull_from_s3(suffix, bucket_name, key):
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(bucket_name)
-    k = Key(bucket)
-    k.key = key
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+    bucket = s3.Bucket(settings.AWS_S3_UPLOAD_BUCKET)
+    k = bucket.Object(key)
 
     t = tempfile.NamedTemporaryFile(suffix=suffix)
-    k.get_contents_to_file(t)
+    k.download_fileobj(t)
     t.seek(0)
     return t
 
@@ -455,13 +451,13 @@ def delete_from_s3(operation):
     if 'transcode' in f.label:
         bucket_name = settings.AWS_S3_OUTPUT_BUCKET
 
-    key = f.cap
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+    bucket = s3.Bucket(bucket_name)
 
-    conn = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(bucket_name)
-    k = Key(bucket)
-    k.key = key
-    bucket.delete_key(k)
+    key = f.cap
+    bucket.delete_object(Key=key)
 
     f.delete()
     operation.log(info="deleted file %s from s3" % key)
@@ -512,20 +508,20 @@ def copy_from_cunix_to_s3(operation):
     sftp_get(filename, t.name)
 
     # upload it to S3
-    conn = boto.connect_s3(
-        settings.AWS_ACCESS_KEY,
-        settings.AWS_SECRET_KEY)
-    bucket = conn.get_bucket(settings.AWS_S3_UPLOAD_BUCKET)
-    k = Key(bucket)
+    s3 = boto3.resource(
+        's3', aws_access_key_id=settings.AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY)
+
     # make a YYYY/MM/DD directory to put the file in
     n = datetime.now()
     key = "%04d/%02d/%02d/%s" % (
         n.year, n.month, n.day,
         os.path.basename(t.name))
-    k.key = key
 
     source_file = open(t.name, "rb")
-    k.set_contents_from_file(source_file)
+    s3.Object(settings.AWS_S3_UPLOAD_BUCKET, key).put(
+        Body=source_file)
+
     source_file.close()
     label = "uploaded source file (S3)"
     f = File.objects.create(video=video, url="", cap=key,

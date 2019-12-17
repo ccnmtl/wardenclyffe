@@ -62,7 +62,7 @@ editdistance==0.5.3
 pylint==1.9.5 # pyup: <2.0.0
 ldap3==2.6.1
 surelink==1.1.1
-boto==2.49.0
+
 
 s3transfer==0.2.1
 jmespath==0.9.4
@@ -135,7 +135,7 @@ requests-toolbelt==0.9.1
 isodate==0.6.0
 cached-property==1.5.1
 zeep==2.5.0 # pyup: <3.0.0
-pypanopto==0.1.1
+pypanopto==0.2.0
 django-bootstrap4==0.0.8 # pyup: <1.0
 
 funcsigs==1.0.2; python_version < '3'
