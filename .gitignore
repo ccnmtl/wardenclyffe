@@ -19,3 +19,4 @@ node_modules
 wheelhouse
 gunicorn.sh
 .settings
+media/CACHE
