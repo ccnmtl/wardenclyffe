@@ -770,7 +770,7 @@ class File(TimeStampedModel):
         t_hex = "%08x" % int(time.time())
 
         enc = (settings.SURELINK_ACCESS + filename + t_hex).encode('utf-8')
-        m = hashlib.md5(enc).hexdigest()
+        m = hashlib.md5(enc).hexdigest()  # nosec
         return "%s%s/%s/%s" % (
             settings.H264_SECURE_STREAM_BASE, m, t_hex, filename)
 
