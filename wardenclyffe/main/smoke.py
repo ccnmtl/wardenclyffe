@@ -103,4 +103,4 @@ class FFMPEGTest(SmokeTest):
         output = subprocess.Popen(  # nosec
             [settings.FFMPEG_PATH, "-version"],
             stdout=subprocess.PIPE).communicate()[0]
-        self.assertFalse("the Libav developers" in output)
+        self.assertFalse(b"the Libav developers" in output)
