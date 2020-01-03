@@ -91,7 +91,7 @@ factory_boy==2.12.0
 rcssmin==1.0.6
 rjsmin==1.1.0
 
-djangowind==1.2.2
+djangowind==1.2.3
 django-staticmedia==0.2.2
 django-celery==3.2.2 # pyup: <3.3.0
 requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
