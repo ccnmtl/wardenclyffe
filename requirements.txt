@@ -24,7 +24,7 @@ celery==3.1.26.post2 # pyup: <4.0.0
 
 jsonpickle==1.2  # oauth2client
 pyasn1==0.4.8  # oauth2client
-pyasn1_modules==0.2.7  # oauth2client
+pyasn1_modules==0.2.8  # oauth2client
 rsa==4.0  # oauth2client
 oauth2client==4.1.3
 
