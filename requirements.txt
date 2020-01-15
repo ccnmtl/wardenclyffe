@@ -62,11 +62,11 @@ ldap3==2.6.1
 surelink==1.1.1
 
 
-s3transfer==0.2.1
+s3transfer==0.3.0
 jmespath==0.9.4
 
 botocore>=1.14.0,<1.15.0
-boto3>=1.10.0,<1.11.0
+boto3>=1.11.0,<1.12.0
 
 traitlets==4.3.3
 ipython_genutils==0.2.0
