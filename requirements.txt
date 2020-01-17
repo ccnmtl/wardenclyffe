@@ -103,7 +103,7 @@ django-debug-toolbar==1.11 # pyup: < 2
 django-jenkins==0.110.0
 django-appconf==1.0.3
 django-compressor==2.4
-django-extensions==2.2.5
+django-extensions==2.2.6
 
 django-markwhat==1.6.2
 tornado==4.5.3 # pyup: <5.0
