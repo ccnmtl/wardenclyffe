@@ -72,7 +72,7 @@ traitlets==4.3.3
 ipython_genutils==0.2.0
 decorator==4.4.1
 ptyprocess==0.6.0
-pexpect==4.7.0
+pexpect==4.8.0
 pickleshare==0.7.5
 simplegeneric==0.8.1
 path.py==11.5.2 # pyup: <12
