@@ -116,7 +116,7 @@ django-s3sign==0.1.4
 django-smtp-ssl==1.0
 certifi==2019.11.28  # sentry-sdk
 
-ccnmtlsettings==1.6.0
+ccnmtlsettings==1.8.0
 
 pbr==5.4.4
 PyYAML>=3.10.0 # MIT
