@@ -79,7 +79,7 @@ path.py==11.5.2 # pyup: <12
 
 ipython==5.9.0 # pyup: <6.0.0
 
-sqlparse==0.3.0
+sqlparse==0.3.1
 filechunkio==1.8
 simplejson==3.17.0
 httpretty==0.9.4 # pyup: <0.9.5
