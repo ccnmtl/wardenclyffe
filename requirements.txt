@@ -76,7 +76,7 @@ ptyprocess==0.6.0
 pexpect==4.8.0
 pickleshare==0.7.5
 simplegeneric==0.8.1
-path.py==11.5.2 # pyup: <12
+path.py==12.4.0 # pyup: <12
 
 ipython==5.9.0 # pyup: <6.0.0
 
