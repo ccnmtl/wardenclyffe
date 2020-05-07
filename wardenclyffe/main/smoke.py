@@ -37,7 +37,7 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.YOUTUBE_EMAIL)
         self.assertIsNotNone(settings.YOUTUBE_PASSWORD)
         self.assertIsNotNone(settings.YOUTUBE_SOURCE)
-        self.assertIsNotNone(settings.YOUTUBE_DEVELOPER_KEY)
+        # self.assertIsNotNone(settings.YOUTUBE_DEVELOPER_KEY)
         self.assertIsNotNone(settings.YOUTUBE_CLIENT_ID)
 
     def test_sshsftp_settings(self):
@@ -52,9 +52,6 @@ class ExpectedSettings(SmokeTest):
     def test_sentry_settings(self):
         if not settings.DEBUG:
             self.assertIsNotNone(settings.RAVEN_CONFIG)
-
-    def test_surelink_settings(self):
-        self.assertIsNotNone(settings.SURELINK_PROTECTION_KEY)
 
     def test_executables(self):
         self.assertIsNotNone(settings.IONICE_PATH)
