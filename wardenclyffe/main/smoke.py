@@ -33,13 +33,6 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.MEDIATHREAD_POST_URL)
         self.assertIsNotNone(settings.MEDIATHREAD_COLLECTION_ID)
 
-    def test_youtube_settings(self):
-        self.assertIsNotNone(settings.YOUTUBE_EMAIL)
-        self.assertIsNotNone(settings.YOUTUBE_PASSWORD)
-        self.assertIsNotNone(settings.YOUTUBE_SOURCE)
-        # self.assertIsNotNone(settings.YOUTUBE_DEVELOPER_KEY)
-        self.assertIsNotNone(settings.YOUTUBE_CLIENT_ID)
-
     def test_sshsftp_settings(self):
         self.assertIsNotNone(settings.SFTP_HOSTNAME)
         self.assertIsNotNone(settings.SFTP_USER)
