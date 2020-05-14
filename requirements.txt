@@ -69,17 +69,6 @@ jmespath==0.10.0
 botocore>=1.15.0,<1.16.0
 boto3>=1.12.0,<1.14.0
 
-traitlets==4.3.3
-ipython_genutils==0.2.0
-decorator==4.4.2
-ptyprocess==0.6.0
-pexpect==4.8.0
-pickleshare==0.7.5
-simplegeneric==0.8.1
-path.py==11.5.2 # pyup: <12
-
-ipython==5.10.0 # pyup: <6.0.0
-
 sqlparse==0.3.1
 filechunkio==1.8
 simplejson==3.17.0
