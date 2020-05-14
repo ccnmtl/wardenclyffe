@@ -1152,9 +1152,9 @@ class FileFilterView(StaffMixin, TemplateView):
         all_collection = [(s, str(s.id) in include_collection)
                           for s in Collection.objects.all()]
 
-        all_file_types = [(l, l in include_file_types)
-                          for l in list(set([f.location_type
-                                             for f in File.objects.all()]))]
+        all_file_types = [(lt, lt in include_file_types)
+                          for lt in list(set([f.location_type
+                                              for f in File.objects.all()]))]
 
         all_video_formats, excluded_video_formats = self.get_video_formats()
         all_audio_formats, excluded_audio_formats = self.get_audio_formats()
