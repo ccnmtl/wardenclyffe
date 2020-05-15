@@ -127,4 +127,4 @@ django-bootstrap4==0.0.8 # pyup: <1.0
 mock==4.0.2
 
 entrypoints==0.3
-appdirs==1.4.3
+appdirs==1.4.4
