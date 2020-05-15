@@ -57,7 +57,7 @@ configparser==5.0.0
 importlib-metadata==1.6.0  # for flake8
 zipp==3.1.0  # for flake8
 flake8==3.8.1
-logilab-common==1.4.4 # pyup: < 1.5
+logilab-common==1.6.3 # pyup: < 1.5
 logilab-astng==0.24.3
 editdistance==0.5.3
 pylint==1.9.4 # pyup: <1.9.5
