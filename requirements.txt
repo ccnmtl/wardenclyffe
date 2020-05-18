@@ -1,4 +1,4 @@
-Django==1.11.29 # pyup: <2.0
+Django==3.0.6 # pyup: <2.0
 httplib2==0.17.3
 Markdown==3.2.2 # pyup: <3.0.0
 smartypants==2.0.1
