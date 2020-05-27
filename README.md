@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ccnmtl/wardenclyffe.svg?branch=master)](https://travis-ci.org/ccnmtl/wardenclyffe) [![Greenkeeper badge](https://badges.greenkeeper.io/ccnmtl/wardenclyffe.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/ccnmtl/wardenclyffe.svg?branch=master)](https://travis-ci.org/ccnmtl/wardenclyffe)
 
 Wardenclyffe is a Django-based tool for orchestrating asynchronous
 workflows. The current implementation focuses on managing, encoding,
