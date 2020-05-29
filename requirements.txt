@@ -88,7 +88,7 @@ django-celery==3.2.2,<3.3.0
 requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
 django-taggit>=0.24.0,<1.0.0
 django-statsd-mozilla==0.4.0
-django-smoketest==1.1.0
+django-smoketest==1.1.2
 django-waffle==0.20.0
 django-debug-toolbar==1.11 # pyup: < 2
 django-appconf==1.0.4
