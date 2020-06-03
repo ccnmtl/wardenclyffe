@@ -578,7 +578,7 @@ class FileType(object):
 
 
 class VideoReference(models.Model):
-    video = models.ForeignKey(Video)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
     url = models.URLField()
     name = models.CharField(max_length=1024, blank=True, null=True)
 
@@ -629,7 +629,7 @@ class FileManager(models.Manager):
 
 
 class File(TimeStampedModel):
-    video = models.ForeignKey(Video)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
     label = models.CharField(max_length=256, blank=True, null=True, default="")
     url = models.URLField(default="", blank=True, null=True, max_length=2000)
     cap = models.CharField(max_length=256, default="", blank=True, null=True)
@@ -843,7 +843,7 @@ class File(TimeStampedModel):
 class Metadata(models.Model):
     """ metadata that we've extracted. more about
     encoding/file format kinds of stuff than dublin-core"""
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     field = models.CharField(max_length=256, default="")
     value = models.TextField(default="", blank=True, null=True)
 
@@ -852,9 +852,9 @@ class Metadata(models.Model):
 
 
 class Operation(TimeStampedModel):
-    video = models.ForeignKey(Video)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
     action = models.CharField(max_length=256, default="")
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=256, default="in progress")
     params = models.TextField(default="")
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -1188,17 +1188,17 @@ OPERATION_TYPE_MAPPER = {
 
 
 class OperationFile(models.Model):
-    operation = models.ForeignKey(Operation)
-    file = models.ForeignKey(File)
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
 
 
 class OperationLog(TimeStampedModel):
-    operation = models.ForeignKey(Operation)
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
     info = models.TextField(default="")
 
 
 class Image(TimeStampedModel):
-    video = models.ForeignKey(Video)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
     image = models.CharField(max_length=1024)
 
     class Meta:
@@ -1212,8 +1212,8 @@ class Image(TimeStampedModel):
 
 
 class Poster(models.Model):
-    video = models.ForeignKey(Video)
-    image = models.ForeignKey(Image)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
     def url(self):
         return self.image.src()
@@ -1244,5 +1244,5 @@ class Server(models.Model):
 
 
 class ServerFile(TimeStampedModel):
-    server = models.ForeignKey(Server)
-    file = models.ForeignKey(File)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)

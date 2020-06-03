@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('workflow', models.CharField(default=b'', max_length=256, blank=True)),
                 ('label', models.CharField(default=b'', max_length=256, blank=True)),
-                ('collection', models.ForeignKey(to='main.Collection')),
+                ('collection', models.ForeignKey(to='main.Collection', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('field', models.CharField(default=b'', max_length=256)),
                 ('value', models.TextField(default=b'', null=True, blank=True)),
-                ('file', models.ForeignKey(to='main.File')),
+                ('file', models.ForeignKey(to='main.File', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('field',),
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default=b'in progress', max_length=256)),
                 ('params', models.TextField(default=b'')),
                 ('uuid', models.UUIDField(max_length=36, editable=False, blank=True)),
-                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-modified', '-created'),
@@ -120,8 +120,8 @@ class Migration(migrations.Migration):
             name='OperationFile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('file', models.ForeignKey(to='main.File')),
-                ('operation', models.ForeignKey(to='main.Operation')),
+                ('file', models.ForeignKey(to='main.File', on_delete=models.CASCADE)),
+                ('operation', models.ForeignKey(to='main.Operation', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -134,7 +134,7 @@ class Migration(migrations.Migration):
                 ('created', django_extensions.db.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='created', editable=False, blank=True)),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(default=django.utils.timezone.now, verbose_name='modified', editable=False, blank=True)),
                 ('info', models.TextField(default=b'')),
-                ('operation', models.ForeignKey(to='main.Operation')),
+                ('operation', models.ForeignKey(to='main.Operation', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-modified', '-created'),
@@ -147,7 +147,7 @@ class Migration(migrations.Migration):
             name='Poster',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('image', models.ForeignKey(to='main.Image')),
+                ('image', models.ForeignKey(to='main.Image', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -175,8 +175,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', django_extensions.db.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='created', editable=False, blank=True)),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(default=django.utils.timezone.now, verbose_name='modified', editable=False, blank=True)),
-                ('file', models.ForeignKey(to='main.File')),
-                ('server', models.ForeignKey(to='main.Server')),
+                ('file', models.ForeignKey(to='main.File', on_delete=models.CASCADE)),
+                ('server', models.ForeignKey(to='main.Server', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-modified', '-created'),
@@ -198,7 +198,7 @@ class Migration(migrations.Migration):
                 ('license', models.CharField(default=b'', max_length=256, blank=True)),
                 ('language', models.CharField(default=b'', max_length=256, blank=True)),
                 ('uuid', models.UUIDField(max_length=36, editable=False, blank=True)),
-                ('collection', models.ForeignKey(to='main.Collection')),
+                ('collection', models.ForeignKey(to='main.Collection', on_delete=models.CASCADE)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={
@@ -211,19 +211,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poster',
             name='video',
-            field=models.ForeignKey(to='main.Video'),
+            field=models.ForeignKey(to='main.Video', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='operation',
             name='video',
-            field=models.ForeignKey(to='main.Video'),
+            field=models.ForeignKey(to='main.Video', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='image',
             name='video',
-            field=models.ForeignKey(to='main.Video'),
+            field=models.ForeignKey(to='main.Video', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterOrderWithRespectTo(
@@ -233,7 +233,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='file',
             name='video',
-            field=models.ForeignKey(to='main.Video'),
+            field=models.ForeignKey(to='main.Video', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
