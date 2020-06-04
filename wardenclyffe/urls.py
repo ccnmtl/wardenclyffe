@@ -20,7 +20,6 @@ urlpatterns = [
     url('^most_recent_operation/', views.MostRecentOperationView.as_view()),
     url('^accounts/', include('djangowind.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^drop/', include('wardenclyffe.drop.urls')),
     url(r'^streamlogs/', include('wardenclyffe.streamlogs.urls')),
     url(r'^capture/file_upload', views.test_upload),
     url(r'^add_collection/$', views.AddCollectionView.as_view(),
@@ -107,7 +106,6 @@ urlpatterns = [
 
     url(r'^mediathread/$', mediathread_views.mediathread),
     url(r'^mediathread/post/$', mediathread_views.mediathread_post),
-    url(r'^youtube/', include('wardenclyffe.youtube.urls')),
     url(r'^panopto/', include('wardenclyffe.panopto.urls')),
     url(r'^received/$', views.ReceivedView.as_view()),
 
