@@ -51,7 +51,7 @@ except ImportError:
 
 
 def is_staff(user):
-    return user and not user.is_anonymous() and user.is_staff
+    return user and not user.is_anonymous and user.is_staff
 
 
 class StaffMixin(object):

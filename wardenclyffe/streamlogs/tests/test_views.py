@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
 
-from django.core.urlresolvers import reverse
+from django.urls.base import reverse
 from django.test import TestCase, RequestFactory
 
 from wardenclyffe.main.tests.factories import UserFactory
