@@ -29,7 +29,6 @@ PROJECT_APPS = [
     'wardenclyffe.mediathread',
     'wardenclyffe.panopto',
     'wardenclyffe.util',
-    'wardenclyffe.youtube',
     'wardenclyffe.graphite',
 ]
 
@@ -40,14 +39,12 @@ INSTALLED_APPS += [  # noqa
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
     'wardenclyffe.panopto',
-    'wardenclyffe.youtube',
     'wardenclyffe.util',
     'oembed',
     'taggit',
     'wardenclyffe.graphite',
     'django_extensions',
     's3sign',
-    'wardenclyffe.drop',
     'wardenclyffe.streamlogs',
     'bootstrap4'
 ]
@@ -122,9 +119,6 @@ AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-devel"
 AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-dev"
 AWS_ET_REGION = 'us-east-1'
 
-DROPBOX_TOPIC_ARN = (
-    "arn:aws:sns:us-east-1:051882422638:ctl-wardenclyffe-dropbox")
-
 VIDEO_EXTENSIONS = [".mov", ".avi", ".mp4", ".flv", ".mpg", ".wmv", ".m4v"]
 AUDIO_EXTENSIONS = [".mp3"]
 ALLOWED_EXTENSIONS = VIDEO_EXTENSIONS + AUDIO_EXTENSIONS
@@ -132,12 +126,6 @@ ALLOWED_EXTENSIONS = VIDEO_EXTENSIONS + AUDIO_EXTENSIONS
 SOUTH_MIGRATION_MODULES = {
     'taggit': 'taggit.south_migrations',
 }
-
-# dummy these out for now
-GOOGLE_OAUTH2_CLIENT_ID = ""
-GOOGLE_OAUTH2_CLIENT_SECRET = ""  # nosec
-
-PRIMARY_YOUTUBE_ACCOUNT = "ccnmtl@gmail.com"
 
 PANOPTO_LINK_URL = 'http://testserver/link/{}/'
 PANOPTO_EMBED_URL = 'http://testserver/embed/{}/'

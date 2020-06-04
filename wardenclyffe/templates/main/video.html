@@ -210,14 +210,6 @@ var removeTag = function(tagName,tagId) {
 
 <p><a href="{% url 'panopto-video-submit' video.id %}">submit to panopto -&gt;</a></p>
 
-{% flag "s3_to_youtube" %}
-<p>
-<form action="{% url 's3-to-youtube' video.id %}" method="post" class="mt-1">
-    <button class="btn btn-link pl-0" type="submit">submit to youtube -&gt</button> 
-</form>
-</p>
-{% endflag %}
-
 </div>
 </div>
 {% endblock %}
