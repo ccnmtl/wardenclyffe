@@ -2,8 +2,6 @@
 from datetime import datetime, timedelta
 from json import dumps, loads
 import os
-import re
-import uuid
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,12 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import (HttpResponseRedirect, HttpResponse,
                          HttpResponseNotFound)
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.urls.base import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_str
 from django.views.generic.base import View, TemplateView
@@ -25,11 +23,12 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from oembed.core import replace
+import re
 import requests
 from s3sign.views import SignS3View as BaseSignS3View
 from surelink.helpers import SureLink
 from taggit.models import Tag
-
+import uuid
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
 from wardenclyffe.main.mixins import CSVResponseMixin
@@ -52,7 +51,7 @@ except ImportError:
 
 
 def is_staff(user):
-    return user and not user.is_anonymous() and user.is_staff
+    return user and not user.is_anonymous and user.is_staff
 
 
 class StaffMixin(object):

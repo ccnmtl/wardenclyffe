@@ -5,7 +5,7 @@ from mock import patch
 import os.path
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls.base import reverse
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -280,19 +280,19 @@ class TestSurelink(TestCase):
         self.c.login(username=self.u.username, password="bar")
 
     def test_surelink_form(self):
-        response = self.c.get(b"/surelink/")
+        response = self.c.get("/surelink/")
         self.assertEqual(response.status_code, 200)
 
     def test_surelink_with_files(self):
-        response = self.c.get(b"/surelink/", dict(files="foo.mp4"))
+        response = self.c.get("/surelink/", dict(files="foo.mp4"))
         self.assertEqual(response.status_code, 200)
 
     def test_file_surelink_form(self):
         f = FileFactory()
-        response = self.c.get(b"/file/%d/" % f.id)
+        response = self.c.get("/file/%d/" % f.id)
         self.assertEqual(response.status_code, 200)
 
-        response = self.c.get(b"/file/%d/surelink/" % f.id)
+        response = self.c.get("/file/%d/surelink/" % f.id)
         self.assertEqual(response.status_code, 200)
 
     def test_file_surelink_public_stream(self):
