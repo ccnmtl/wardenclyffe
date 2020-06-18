@@ -36,7 +36,7 @@ sentry-sdk==0.14.4
 chardet==3.0.4
 urllib3==1.25.9  # sentry-sdk
 
-requests==2.23.0
+requests==2.24.0
 statsd==3.3.0
 coverage==5.1
 pep8==1.7.1
