@@ -4,7 +4,7 @@ import factory
 from wardenclyffe.streamlogs.models import StreamLog
 
 
-class StreamLogFactory(factory.DjangoModelFactory):
+class StreamLogFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = StreamLog
     filename = "something.flv"
