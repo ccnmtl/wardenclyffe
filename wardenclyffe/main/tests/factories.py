@@ -8,7 +8,7 @@ import factory
 import uuid
 
 
-class CollectionFactory(factory.DjangoModelFactory):
+class CollectionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Collection
     title = "Mediathread Spring 2012"
@@ -16,7 +16,7 @@ class CollectionFactory(factory.DjangoModelFactory):
     uuid = factory.LazyAttribute(lambda t: uuid.uuid4())
 
 
-class VideoFactory(factory.DjangoModelFactory):
+class VideoFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Video
     title = "test video"
@@ -26,7 +26,7 @@ class VideoFactory(factory.DjangoModelFactory):
     collection = factory.SubFactory(CollectionFactory)
 
 
-class FileFactory(factory.DjangoModelFactory):
+class FileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = File
     label = "CUIT File"
@@ -55,7 +55,7 @@ class CUITFLVFileFactory(FileFactory):
                 "-Mediathread_video_uploaded_by_mlp55.flv")
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
     username = factory.Sequence(lambda n: "user%03d" % n)
@@ -159,7 +159,7 @@ class S3FileFactory(FileFactory):
     cap = "2011/09/28/t6009_005_2011_3_oppenheim_shear_kim1_edit.mov"
 
 
-class OperationFactory(factory.DjangoModelFactory):
+class OperationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Operation
     video = factory.SubFactory(VideoFactory)
@@ -169,14 +169,14 @@ class OperationFactory(factory.DjangoModelFactory):
     params = "{}"
 
 
-class OperationFileFactory(factory.DjangoModelFactory):
+class OperationFileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OperationFile
     operation = factory.SubFactory(OperationFactory)
     file = factory.SubFactory(FileFactory)
 
 
-class ServerFactory(factory.DjangoModelFactory):
+class ServerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Server
     name = "test server"
@@ -184,14 +184,14 @@ class ServerFactory(factory.DjangoModelFactory):
     credentials = ""
 
 
-class ImageFactory(factory.DjangoModelFactory):
+class ImageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Image
     video = factory.SubFactory(VideoFactory)
     image = "images/1234.jpg"
 
 
-class PosterFactory(factory.DjangoModelFactory):
+class PosterFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Poster
     video = factory.SubFactory(VideoFactory)
