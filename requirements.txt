@@ -88,7 +88,7 @@ django-compressor==2.4
 django-extensions==3.0.8
 
 django-markwhat==1.6.2
-django-storages==1.9.1
+django-storages==1.10
 tornado==6.0.3
 django-cacheds3storage==0.2.2
 gunicorn==20.0.4
