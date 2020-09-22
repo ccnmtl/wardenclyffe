@@ -110,7 +110,7 @@ defusedxml==0.6.0
 lxml==4.5.2
 requests-toolbelt==0.9.1
 isodate==0.6.0
-cached-property==1.5.1
+cached-property==1.5.2
 
 attrs==20.2.0
 zeep==3.4.0
