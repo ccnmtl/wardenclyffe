@@ -22,7 +22,7 @@ librabbitmq==2.0.0
 celery>=3.1.26.post2,<4.0.0
 
 asn1crypto==1.4.0
-cryptography==3.1
+cryptography==3.1.1
 ecdsa==0.16.0
 cffi==1.14.3
 idna==2.10
