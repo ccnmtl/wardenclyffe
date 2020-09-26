@@ -121,4 +121,4 @@ mock==4.0.2
 
 entrypoints==0.3
 appdirs==1.4.4
-beautifulsoup4==4.9.1
+beautifulsoup4==4.9.2
