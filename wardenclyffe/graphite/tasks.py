@@ -6,7 +6,7 @@ from wardenclyffe.graphite.models import operation_count_by_status, \
 
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
-def operations_report():
+def operations_report(args):
     print("operations_report()")
     r = operation_count_by_status()
     statsd.gauge("operations.failed", r['failed'])
@@ -18,13 +18,13 @@ def operations_report():
 
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
-def minutes_video():
+def minutes_video(args):
     print("minutes_video()")
     statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
 @periodic_task(run_every=crontab(hour="5", minute="0", day_of_week="0"))
-def weekly_s3_usage_report():
+def weekly_s3_usage_report(args):
     print("weekly_s3_report()")
     (cnt, total) = s3_stats()
     statsd.gauge("s3.total", total)
