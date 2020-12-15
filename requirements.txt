@@ -33,7 +33,7 @@ raven==6.10.0
 
 sentry-sdk==0.19.5
 
-chardet==3.0.4
+chardet==4.0.0
 urllib3==1.26.2  # sentry-sdk
 
 requests==2.25.0
