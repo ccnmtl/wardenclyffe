@@ -53,7 +53,7 @@ astroid==2.4.2
 
 editdistance==0.5.3
 pylint==2.6.0
-ldap3==2.8.1
+ldap3==2.9
 surelink==1.1.1
 
 
