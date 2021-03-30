@@ -52,7 +52,7 @@ logilab-common==1.8.1
 astroid==2.5.2
 
 editdistance==0.5.3
-pylint==2.7.2
+pylint==2.7.4
 ldap3==2.9
 surelink==1.1.1
 
