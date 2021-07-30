@@ -601,7 +601,7 @@ class S3File(FileType):
             smart_bytes(settings.AWS_SECRET_KEY),
             smart_bytes("".join(["GET\n\n\n", expiry, "\n", filename])),
             hashlib.sha1)
-        signature = quote_plus(base64.encodestring(h.digest()).strip())
+        signature = quote_plus(base64.encodebytes(h.digest()).strip())
         return "".join([
             "https://s3.amazonaws.com",
             filename,
