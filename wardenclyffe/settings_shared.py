@@ -2,7 +2,6 @@
 import os.path
 import sys
 from ccnmtlsettings.shared import common
-import djcelery
 
 project = 'wardenclyffe'
 base = os.path.dirname(__file__)
@@ -22,7 +21,7 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
     WATCH_DIRECTORY = "/tmp/"  # nosec
     TMP_DIR = "/tmp"  # nosec
     PCP_BASE_URL = ""
-    CELERY_ALWAYS_EAGER = True
+    broker_url = 'memory://localhost/'
 
 PROJECT_APPS = [
     'wardenclyffe.main',
@@ -32,10 +31,7 @@ PROJECT_APPS = [
     'wardenclyffe.graphite',
 ]
 
-djcelery.setup_loader()
-
 INSTALLED_APPS += [  # noqa
-    'djcelery',
     'wardenclyffe.main',
     'wardenclyffe.mediathread',
     'wardenclyffe.panopto',
@@ -46,11 +42,15 @@ INSTALLED_APPS += [  # noqa
     'django_extensions',
     's3sign',
     'wardenclyffe.streamlogs',
-    'bootstrap4'
+    'bootstrap4',
+    'django_celery_results',
 ]
 
-BROKER_URL = "amqp://localhost:5672//"
-CELERYD_CONCURRENCY = 4
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+broker_url = 'amqp://localhost:5672//'
+worker_concurrency = 1
 
 
 class MyRouter(object):
@@ -72,7 +72,7 @@ class MyRouter(object):
         return None
 
 
-CELERY_ROUTES = (MyRouter(),)
+task_routes = (MyRouter(),)
 
 # email addresses of video team members how want to
 # be annoyed by lots of status email

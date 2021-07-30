@@ -859,6 +859,9 @@ class Operation(TimeStampedModel):
     params = models.TextField(default="")
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
+    def __json__(self):
+        return self.as_dict()
+
     def as_dict(self):
         d = dict(action=self.action,
                  status=self.status,
