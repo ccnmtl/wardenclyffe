@@ -86,7 +86,7 @@ function s3_upload() {
             $("#submit").removeAttr("disabled");
         },
         onError: function(status) {
-            $('#status').html('Upload error: ' + status);
+            $('#status').text('Upload error: ' + status);
         }
     });
 }
