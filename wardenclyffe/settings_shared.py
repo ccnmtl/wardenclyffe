@@ -128,11 +128,11 @@ AUDIO_POSTER_IMAGE = os.path.join(
     os.path.dirname(__file__),
     "../media/img/audiothumb.jpg")
 
-IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-stage"
+IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-dev"
 IMAGES_URL_BASE = "https://s3.amazonaws.com/" + IMAGES_BUCKET + "/"
 
-AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-stage"
-AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-prod"
+AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-devel"
+AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-dev"
 AWS_ET_REGION = 'us-east-1'
 
 VIDEO_EXTENSIONS = [".mov", ".avi", ".mp4", ".flv", ".mpg", ".wmv", ".m4v"]
