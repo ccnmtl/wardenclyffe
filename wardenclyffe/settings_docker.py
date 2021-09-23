@@ -3,7 +3,7 @@ from wardenclyffe.settings_shared import *
 
 # required settings:
 SECRET_KEY = os.environ['SECRET_KEY']
-broker_url = os.environ['BROKER_URL']
+CELERY_BROKER_URL = os.environ['BROKER_URL']
 
 TMP_DIR = os.environ['TMP_DIR']
 WATCH_DIRECTORY = os.environ['WATCH_DIR']
