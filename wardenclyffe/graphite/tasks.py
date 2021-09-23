@@ -1,11 +1,12 @@
 from celery.task.schedules import crontab
 from django_statsd.clients import statsd
-from wardenclyffe.main.celery import app
+from wardenclyffe.celery import app
 from wardenclyffe.graphite.models import operation_count_by_status, \
     minutes_video_stats, s3_stats
 
 
-def operations_report(*args, **kwargs):
+@app.task
+def operations_report():
     print("operations_report()")
     r = operation_count_by_status()
     statsd.gauge("operations.failed", r['failed'])
@@ -16,12 +17,14 @@ def operations_report(*args, **kwargs):
     statsd.gauge("operations.total", sum(r.values()))
 
 
-def minutes_video(*args, **kwargs):
+@app.task
+def minutes_video():
     print("minutes_video()")
     statsd.gauge("minutes_video", int(minutes_video_stats()))
 
 
-def weekly_s3_usage_report(*args, **kwargs):
+@app.task
+def weekly_s3_usage_report():
     print("weekly_s3_report()")
     (cnt, total) = s3_stats()
     statsd.gauge("s3.total", total)
@@ -32,12 +35,12 @@ def weekly_s3_usage_report(*args, **kwargs):
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
         crontab(hour='*', minute='*', day_of_week='*'),
-        operations_report)
+        operations_report.s())
 
     sender.add_periodic_task(
         crontab(hour='*', minute='*', day_of_week='*'),
-        minutes_video)
+        minutes_video.s())
 
     sender.add_periodic_task(
         crontab(hour=5, minute=0, day_of_week=0),
-        weekly_s3_usage_report)
+        weekly_s3_usage_report.s())

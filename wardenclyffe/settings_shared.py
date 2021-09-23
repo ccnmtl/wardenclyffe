@@ -15,13 +15,56 @@ locals().update(
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 TMP_DIR = "/tmp"  # nosec
 
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//wardenclyffe'
+CELERY_WORKER_CONCURRENCY = 1
+
+
+class MyRouter(object):
+    def route_for_task(self, task, args=None, kwargs=None):
+        if task.startswith('wardenclyffe.graphite.tasks'):
+            return {
+                'exchange': 'graphite',
+                'exchange_type': 'direct',
+                'routing_key': 'graphite',
+            }
+        if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
+            return {'exchange': 'short',
+                    'exchange_type': 'direct',
+                    'routing_key': 'short'}
+        if task == 'wardenclyffe.main.tasks.move_file':
+            return {'exchange': 'batch',
+                    'exchange_type': 'direct',
+                    'routing_key': 'batch'}
+        return None
+
+
+CELERY_TASK_ROUTES = (MyRouter(),)
+
+
 if 'test' in sys.argv or 'jenkins' in sys.argv:
     SURELINK_PROTECTION_KEY = "test-dummy-key"
     MEDIATHREAD_SECRET = "test-dummy-secret"  # nosec
     WATCH_DIRECTORY = "/tmp/"  # nosec
     TMP_DIR = "/tmp"  # nosec
     PCP_BASE_URL = ""
-    broker_url = 'memory://localhost/'
+
+    from celery.contrib.testing.app import DEFAULT_TEST_CONFIG
+
+    CELERY_BROKER_URL = DEFAULT_TEST_CONFIG.get('broker_url')
+    CELERY_RESULT_BACKEND = DEFAULT_TEST_CONFIG.get('result_backend')
+    CELERY_BROKER_HEARTBEAT = DEFAULT_TEST_CONFIG.get('broker_heartbeat')
+
+    # don't bother with separate queues and routing when running
+    # dev environment
+    class MyDummyRouter(object):
+        def route_for_task(self, task, args=None, kwargs=None):
+            return None
+
+    CELERY_TASK_ROUTES = (MyDummyRouter(),)
+
 
 PROJECT_APPS = [
     'wardenclyffe.main',
@@ -46,33 +89,6 @@ INSTALLED_APPS += [  # noqa
     'django_celery_results',
 ]
 
-
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'
-broker_url = 'amqp://localhost:5672//'
-worker_concurrency = 1
-
-
-class MyRouter(object):
-    def route_for_task(self, task, args=None, kwargs=None):
-        if task.startswith('wardenclyffe.graphite.tasks'):
-            return {
-                'exchange': 'graphite',
-                'exchange_type': 'direct',
-                'routing_key': 'graphite',
-            }
-        if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
-            return {'exchange': 'short',
-                    'exchange_type': 'direct',
-                    'routing_key': 'short'}
-        if task == 'wardenclyffe.main.tasks.move_file':
-            return {'exchange': 'batch',
-                    'exchange_type': 'direct',
-                    'routing_key': 'batch'}
-        return None
-
-
-task_routes = (MyRouter(),)
 
 # email addresses of video team members how want to
 # be annoyed by lots of status email
@@ -112,11 +128,11 @@ AUDIO_POSTER_IMAGE = os.path.join(
     os.path.dirname(__file__),
     "../media/img/audiothumb.jpg")
 
-IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-dev"
+IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-stage"
 IMAGES_URL_BASE = "https://s3.amazonaws.com/" + IMAGES_BUCKET + "/"
 
-AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-devel"
-AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-dev"
+AWS_S3_UPLOAD_BUCKET = "ccnmtl-wardenclyffe-input-stage"
+AWS_S3_OUTPUT_BUCKET = "ccnmtl-wardenclyffe-output-prod"
 AWS_ET_REGION = 'us-east-1'
 
 VIDEO_EXTENSIONS = [".mov", ".avi", ".mp4", ".flv", ".mpg", ".wmv", ".m4v"]

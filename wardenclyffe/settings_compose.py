@@ -23,7 +23,7 @@ DATABASES = {
 # `AWS_ET_MP4_PRESET` and `AWS_ET_720_PRESET`
 
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-broker_url = "amqp://guest:guest@rabbitmq:5672/"
+CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672/"
 
 # don't bother with separate queues and routing when running
 # dev environment
@@ -31,7 +31,7 @@ class MyDummyRouter(object):
     def route_for_task(self, task, args=None, kwargs=None):
         return None
 
-task_routes = (MyDummyRouter(),)
+CELERY_TASK_ROUTES = (MyDummyRouter(),)
 
 try:
     from wardenclyffe.local_settings import *

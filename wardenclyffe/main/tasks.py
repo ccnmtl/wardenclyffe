@@ -17,7 +17,7 @@ from paramiko.sftp import SFTPError
 import waffle
 
 from celery.task.schedules import crontab
-from wardenclyffe.main.celery import app
+from wardenclyffe.celery import app
 from wardenclyffe.main.models import File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
@@ -572,6 +572,7 @@ def slow_operations_other_than_submitted():
     )
 
 
+@app.task
 def check_for_slow_operations():
     operations = slow_operations()
     if operations.count() > 0:
@@ -595,4 +596,4 @@ def setup_periodic_tasks(sender, **kwargs):
             hour='7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23',
             minute='3',
             day_of_week='*'),
-        check_for_slow_operations)
+        check_for_slow_operations.s())
