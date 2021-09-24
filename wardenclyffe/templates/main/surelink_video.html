@@ -49,23 +49,6 @@
             </div>
         </div>
     </div>
-{% else %}{% if converting %}
-    <div class="row">
-        <div class="col-md-12 text-center no-gutters">
-            <div style="background-color: #073654; height: 20px; width: 100%; margin-bottom: 20px;"></div>
-            <a href="https://ctl.columbia.edu/">
-                <img src="{{STATIC_URL}}img/ctllogo.png" alt="Columbia CTL">
-            </a>
-            <hr />
-            <h5>Video migration in progress</h5>
-            <p class="px-5">
-            The media streaming service that plays this video is no longer available.
-            This video is now being converted to the new system, and will be available in about 30 minutes.<br /><br />
-            If you have any questions, please contact us at <a href="mailto:ColumbiaCTL@columbia.edu">ColumbiaCTL@columbia.edu</a>
-            or call our support number <a href="tel:+12128541692">1-212-854-1692</a>.
-            </p>
-        </div>
-    </div>
 {% else %}
     <div class="row">
         <div class="col-md-12 text-center no-gutters">
@@ -82,7 +65,7 @@
             </p>
         </div>
     </div>
-{% endif %}{% endif %}{% endif %}
+{% endif %}{% endif %}
 
 <script src="{{STATIC_URL}}js/lib/popper/popper.min.js"></script>
 <script src="{{STATIC_URL}}js/lib/bootstrap/js/bootstrap.min.js"></script>
