@@ -1468,7 +1468,6 @@ class SignS3View(BaseSignS3View):
 
 class SureLinkVideoView(TemplateView):
     template_name = 'main/surelink_video.html'
-    MAX_SIZE = 500000000
 
     def add_streamlog(self):
         return StreamLog.objects.create(
@@ -1480,72 +1479,6 @@ class SureLinkVideoView(TemplateView):
             access=self.request.GET.get('access', ''),
         )
 
-    def add_video(self, fname, attrs):
-        (collection, created) = Collection.objects.get_or_create(
-            title=settings.PANOPTO_COLLECTION)
-        title = fname.split('/')[-1]
-        v = Video.objects.simple_create(
-            collection, title, settings.PANOPTO_MIGRATIONS_USER)
-        File.objects.create(
-           video=v,
-           filename=fname,
-           location_type='cuit',
-           label='source file',
-           st_size=attrs.st_size)
-
-        v.tags.add('migrated')
-        return v
-
-    def validate_size(self, video):
-        f = video.cuit_file()
-        if f.st_size == 0:
-            attrs = tasks.sftp_stat(f.filename)
-            f.st_size = attrs.st_size
-            f.save()
-        return f.st_size < self.MAX_SIZE
-
-    def find_video(self, fname):
-        # The StreamLog logic that discovers a video failed to find a match
-        # within Wardenclyffe's database. Now attempt to find this file on
-        # CUNIX by checking in all the known media directories
-        fnames = [fname]
-
-        if fname.startswith('/'):
-            fname = fname[1:]
-
-        if not fname.startswith(settings.CUNIX_BROADCAST_DIRECTORY):
-            fnames.append(
-                '{}{}'.format(settings.CUNIX_BROADCAST_DIRECTORY, fname))
-        if not fname.startswith(settings.CUNIX_SECURE_DIRECTORY):
-            fnames.append(
-                '{}{}'.format(settings.CUNIX_SECURE_DIRECTORY, fname))
-        if not fname.startswith(settings.H264_SECURE_STREAM_DIRECTORY):
-            fnames.append(
-                '{}{}'.format(settings.H264_SECURE_STREAM_DIRECTORY, fname))
-        if not fname.startswith(settings.H264_PUBLIC_STREAM_DIRECTORY):
-            fnames.append(
-                '{}{}'.format(settings.H264_PUBLIC_STREAM_DIRECTORY, fname))
-
-        for f in fnames:
-            attrs = tasks.sftp_stat(f)
-            if attrs:
-                return self.add_video(f, attrs)
-
-        return None
-
-    def in_progress(self, video):
-        ops = Operation.objects.filter(
-            video_id=video.id, action__contains='panopto').exclude(
-                status='complete')
-        return ops.count() > 0
-
-    def convert(self, video):
-        from wardenclyffe.panopto.views import submit_video_to_panopto
-        user = User.objects.get(
-            username=settings.PANOPTO_MIGRATIONS_USER)
-        submit_video_to_panopto(
-            user, video, settings.PANOPTO_MIGRATIONS_FOLDER)
-
     def get_context_data(self, **kwargs):
         fname = self.request.GET.get('file', None)
         if fname is None:
@@ -1553,9 +1486,6 @@ class SureLinkVideoView(TemplateView):
 
         stream_log = self.add_streamlog()
         video = stream_log.video()
-
-        if fname and not video and not stream_log.similar_video():
-            video = self.find_video(fname)
 
         if not video:
             return {}
@@ -1568,13 +1498,4 @@ class SureLinkVideoView(TemplateView):
         if video.has_panopto_source():
             return {'panopto': video.panopto_file().filename}
 
-        if self.in_progress(video):
-            # conversion is likely in progress. don't duplicate
-            return {'converting': True}
-
-        if not self.validate_size(video):
-            # video is possibly a full-length film. block auto migration
-            return {}
-
-        self.convert(video)
-        return {'converting': True}
+        return {}
