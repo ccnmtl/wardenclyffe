@@ -25,11 +25,9 @@ CELERY_WORKER_CONCURRENCY = 1
 class MyRouter(object):
     def route_for_task(self, task, args=None, kwargs=None):
         if task.startswith('wardenclyffe.graphite.tasks'):
-            return {
-                'exchange': 'graphite',
-                'exchange_type': 'direct',
-                'routing_key': 'graphite',
-            }
+            return {'exchange': 'graphite',
+                    'exchange_type': 'direct',
+                    'routing_key': 'graphite'}
         if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
             return {'exchange': 'short',
                     'exchange_type': 'direct',

@@ -20,3 +20,4 @@ wheelhouse
 gunicorn.sh
 .settings
 media/CACHE
+celerybeat.pid
