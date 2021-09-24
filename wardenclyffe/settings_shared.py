@@ -2,7 +2,6 @@
 import os.path
 import sys
 from ccnmtlsettings.shared import common
-import djcelery
 
 project = 'wardenclyffe'
 base = os.path.dirname(__file__)
@@ -16,51 +15,19 @@ locals().update(
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 TMP_DIR = "/tmp"  # nosec
 
-if 'test' in sys.argv or 'jenkins' in sys.argv:
-    SURELINK_PROTECTION_KEY = "test-dummy-key"
-    MEDIATHREAD_SECRET = "test-dummy-secret"  # nosec
-    WATCH_DIRECTORY = "/tmp/"  # nosec
-    TMP_DIR = "/tmp"  # nosec
-    PCP_BASE_URL = ""
-    CELERY_ALWAYS_EAGER = True
 
-PROJECT_APPS = [
-    'wardenclyffe.main',
-    'wardenclyffe.mediathread',
-    'wardenclyffe.panopto',
-    'wardenclyffe.util',
-    'wardenclyffe.graphite',
-]
-
-djcelery.setup_loader()
-
-INSTALLED_APPS += [  # noqa
-    'djcelery',
-    'wardenclyffe.main',
-    'wardenclyffe.mediathread',
-    'wardenclyffe.panopto',
-    'wardenclyffe.util',
-    'oembed',
-    'taggit',
-    'wardenclyffe.graphite',
-    'django_extensions',
-    's3sign',
-    'wardenclyffe.streamlogs',
-    'bootstrap4'
-]
-
-BROKER_URL = "amqp://localhost:5672//"
-CELERYD_CONCURRENCY = 4
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//wardenclyffe'
+CELERY_WORKER_CONCURRENCY = 1
 
 
 class MyRouter(object):
     def route_for_task(self, task, args=None, kwargs=None):
         if task.startswith('wardenclyffe.graphite.tasks'):
-            return {
-                'exchange': 'graphite',
-                'exchange_type': 'direct',
-                'routing_key': 'graphite',
-            }
+            return {'exchange': 'graphite',
+                    'exchange_type': 'direct',
+                    'routing_key': 'graphite'}
         if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
             return {'exchange': 'short',
                     'exchange_type': 'direct',
@@ -72,7 +39,54 @@ class MyRouter(object):
         return None
 
 
-CELERY_ROUTES = (MyRouter(),)
+CELERY_TASK_ROUTES = (MyRouter(),)
+
+
+if 'test' in sys.argv or 'jenkins' in sys.argv:
+    SURELINK_PROTECTION_KEY = "test-dummy-key"
+    MEDIATHREAD_SECRET = "test-dummy-secret"  # nosec
+    WATCH_DIRECTORY = "/tmp/"  # nosec
+    TMP_DIR = "/tmp"  # nosec
+    PCP_BASE_URL = ""
+
+    from celery.contrib.testing.app import DEFAULT_TEST_CONFIG
+
+    CELERY_BROKER_URL = DEFAULT_TEST_CONFIG.get('broker_url')
+    CELERY_RESULT_BACKEND = DEFAULT_TEST_CONFIG.get('result_backend')
+    CELERY_BROKER_HEARTBEAT = DEFAULT_TEST_CONFIG.get('broker_heartbeat')
+
+    # don't bother with separate queues and routing when running
+    # dev environment
+    class MyDummyRouter(object):
+        def route_for_task(self, task, args=None, kwargs=None):
+            return None
+
+    CELERY_TASK_ROUTES = (MyDummyRouter(),)
+
+
+PROJECT_APPS = [
+    'wardenclyffe.main',
+    'wardenclyffe.mediathread',
+    'wardenclyffe.panopto',
+    'wardenclyffe.util',
+    'wardenclyffe.graphite',
+]
+
+INSTALLED_APPS += [  # noqa
+    'wardenclyffe.main',
+    'wardenclyffe.mediathread',
+    'wardenclyffe.panopto',
+    'wardenclyffe.util',
+    'oembed',
+    'taggit',
+    'wardenclyffe.graphite',
+    'django_extensions',
+    's3sign',
+    'wardenclyffe.streamlogs',
+    'bootstrap4',
+    'django_celery_results',
+]
+
 
 # email addresses of video team members how want to
 # be annoyed by lots of status email

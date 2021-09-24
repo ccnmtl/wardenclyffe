@@ -138,7 +138,6 @@ urlpatterns = [
     url(r'^api/panopto/convert/$',
         panopto_views.APIPanoptoConversion.as_view(),
         name='api-panopto-conversion'),
-    url(r'^celery/', include('djcelery.urls')),
     url('smoketest/', include('smoketest.urls')),
     url(r'^stats/$', TemplateView.as_view(template_name="main/stats.html")),
     url(r'^sign_s3/$', views.SignS3View.as_view(), name='sign-s3'),

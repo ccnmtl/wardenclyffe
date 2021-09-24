@@ -16,9 +16,8 @@ import paramiko
 from paramiko.sftp import SFTPError
 import waffle
 
-from celery.decorators import periodic_task
-from celery.decorators import task
 from celery.task.schedules import crontab
+from wardenclyffe.celery import app
 from wardenclyffe.main.models import File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster
 from wardenclyffe.util.mail import send_slow_operations_email
@@ -38,7 +37,7 @@ def exp_backoff(tries):
     return int(backoff + jitter)
 
 
-@task(ignore_results=True, bind=True, max_retries=None)
+@app.task(ignore_result=True, bind=True, max_retries=None)
 def process_operation(self, operation_id, **kwargs):
     print("process_operation(%s)" % (operation_id))
     try:
@@ -573,10 +572,7 @@ def slow_operations_other_than_submitted():
     )
 
 
-@periodic_task(
-    run_every=crontab(
-        hour="7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23",
-        minute="3", day_of_week="*"))
+@app.task
 def check_for_slow_operations():
     operations = slow_operations()
     if operations.count() > 0:
@@ -591,3 +587,13 @@ def check_for_slow_operations():
             send_slow_operations_to_videoteam_email(operations)
 
     # else, no slow operations to warn about. excellent.
+
+
+@app.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(
+        crontab(
+            hour='7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23',
+            minute='3',
+            day_of_week='*'),
+        check_for_slow_operations.s())

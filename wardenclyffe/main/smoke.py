@@ -40,7 +40,7 @@ class ExpectedSettings(SmokeTest):
         self.assertIsNotNone(settings.CREDENTIALS)
 
     def test_rabbitmq_settings(self):
-        self.assertIsNotNone(settings.BROKER_URL)
+        self.assertIsNotNone(settings.CELERY_BROKER_URL)
 
     def test_sentry_settings(self):
         if not settings.DEBUG:

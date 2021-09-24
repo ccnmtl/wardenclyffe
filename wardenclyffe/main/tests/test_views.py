@@ -374,7 +374,7 @@ class TestSignS3View(TestCase):
                 "/sign_s3/?s3_object_name=default_name&s3_object_type=foo")
             self.assertEqual(r.status_code, 200)
             j = json.loads(r.content)
-            self.assertTrue('signed_request' in j)
+            self.assertTrue('presigned_post_url' in j)
 
 
 class TestStaff(TestCase):
