@@ -122,4 +122,4 @@ entrypoints==0.3
 appdirs==1.4.4
 beautifulsoup4==4.10.0
 requests_file==1.5.1
-platformdirs==2.3.0
+platformdirs==2.4.0
