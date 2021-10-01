@@ -134,7 +134,6 @@ $(document).ready(
                 refreshOperations(data);
             }
             currentRefresh = defaultRefresh;
-            // eslint-disable-next-line scanjs-rules/call_setTimeout
             setTimeout(WCRefresh, defaultRefresh);
         };
 
@@ -144,7 +143,6 @@ $(document).ready(
             if (currentRefresh > maxRefresh) {
                 currentRefresh = maxRefresh;
             }
-            // eslint-disable-next-line scanjs-rules/call_setTimeout
             setTimeout(WCRefresh, currentRefresh);
         };
 
