@@ -23,7 +23,7 @@ asn1crypto==1.4.0
 cryptography==35.0.0
 ecdsa==0.17.0
 cffi==1.14.6
-idna==3.2
+idna==3.3
 bcrypt==3.2.0
 pynacl==1.4.0
 paramiko==2.7.2
