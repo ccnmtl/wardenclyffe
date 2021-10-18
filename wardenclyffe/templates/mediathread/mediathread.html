@@ -5,29 +5,29 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
-{% compress css %}
-    <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
-    <link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
-{% endcompress %}
+    {% compress css %}
+        <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
+        <link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
+    {% endcompress %}
     <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
 
     {% include 'main/jquery.html' %}
 
-{% compress js %}
-<script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
-<script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-<script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
-<script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
-{% endcompress %}
-
+    {% compress js %}
+        <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
+        <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
+    {% endcompress %}
 </head>
+
 <body class="one_column fixed mediathread">
     <div id="container">
         <!-- ###### Site banner ###### -->
         <div id="header">
-            <div id="standardnav_container">   
+            <div id="standardnav_container">
                 <div id="mediathread_logo">
                     <a href="http://mediathread.ctl.columbia.edu/"><img src="{{STATIC_URL}}img/logo_mediathread_new.png" alt="mediathread logo" width="156" height="45"></a>
                 </div>
@@ -38,7 +38,7 @@
         <div class="visualclear"></div>
 
         <div id="content">
-{% flag allow_uploads %}
+            {% flag allow_uploads %}
             <h1>Mediathread {% if audio %}Audio{% else %}Video{% endif %} Upload</h1>
 
             <div id="admincontent" style="width: 600px;"> 
@@ -51,73 +51,69 @@
                     <div style="padding: 5px 15px 0 15px;">
                         <p>Welcome, <b>{% if user.first_name %}{{user.first_name}}
                         {{user.last_name}}{% else %}{{user.username}}{% endif %}</b>.</p>
-                    {% if audio %}
-                        <p>Use this form to upload audio. Mediathread supports audio files that end in <b><i>.mp3</i></b>. 
-                        Any other audio should be converted to a mp3 before uploading.</p>
-                    {% else %}
-                        <p>Use this form to upload a video. Mediathread supports video files that end in <b><i>.mov</i></b>, <b><i>.mp4</i></b>, or <b><i>.avi</i></b>. 
-                        Any other video should be converted to a Quicktime-compatible format before uploading. Submitted files must be less than 2GB.</p>
-                    {% endif %}
+                        {% if audio %}
+                            <p>Use this form to upload audio. Mediathread supports audio files that end in <b><i>.mp3</i></b>. 
+                            Any other audio should be converted to a mp3 before uploading. Submitted files must be less than 4MB.</p>
+                        {% else %}
+                            <p>Use this form to upload a video. Mediathread supports video files that end in <b><i>.mov</i></b>, <b><i>.mp4</i></b>, or <b><i>.avi</i></b>. 
+                            Any other video should be converted to one of these formats before uploading. Submitted files must be less than 2GB.</p>
+                        {% endif %}
                     </div>
 
                     <form action="post/" method="post" enctype="multipart/form-data">
-{% if audio %}
-                    <input type="hidden" name="audio" value="True" />
-{% endif %}
-                    <input type="hidden" name="folder" value="{{folder}}" />
+                        {% if audio %}
+                            <input type="hidden" name="audio" value="True" />
+                        {% endif %}
+                        <input type="hidden" name="folder" value="{{folder}}" />
 
-                    <div id="vitaldropform" class="adminformcontainer">
-                        <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
-                            <tr>
-                                <td class="step one">
-                                    <img src="{{STATIC_URL}}img/steps.png" alt="step one"></img>
-                                </td>
-                                <td class="step">
-                                    <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
-                                    <div>
-                                        <p id="status"><b>Please select a file</b></p>
-                                        {% if audio %}
-                                            <input type="file" id="file" onchange="s3_upload();" accept=".mp3" />                                            
-                                        {% else %}
-                                            <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v" />
-                                        {% endif %}
-                                        <input type="hidden" name="s3_url" id="uploaded-url" />
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="height: 30px"><td></td></tr>
-                        
-                            <tr class="post-upload" style="display: none">
-                                <td class="step two">
-                                    <img src="{{STATIC_URL}}img/steps.png" alt="step two"></img>
-                                </td>
-                                <td class="step">
-                                    <h4>UPDATE the {% if audio %}audio{% else %}video{% endif %} title</h4>
-                                    <input type="text" name="title" value="Mediathread {% if audio %}audio{% else %}video{% endif %} uploaded by {{user.username}}" size="50" />
-                                </td>
-                            </tr> 
-                            <tr style="height: 30px"><td></td></tr>
-                            <tr class="post-upload" style="display: none">
-                                <td class="step three">
-                                    <img src="{{STATIC_URL}}img/steps.png" alt="step three"></img>
-                                </td>
-                                <td class="step three" colspan="2">
-                                    <h4>UPLOAD the {% if audio %}audio{% else %}video{% endif %}</h4>
-                                    <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
-                               </td>
-                            </tr> 
-                        
-                        
-                        </table> 
-                    
-                    </div>
+                        <div id="vitaldropform" class="adminformcontainer">
+                            <table border="0" cellpadding="0" cellspacing="0" id="adminformtable" class="adminformtable"> 
+                                <tr>
+                                    <td class="step one">
+                                        <img src="{{STATIC_URL}}img/steps.png" alt="step one"></img>
+                                    </td>
+                                    <td class="step">
+                                        <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
+                                        <div>
+                                            <p id="status"><b>Please select a file</b></p>
+                                            {% if audio %}
+                                                <input type="file" id="file" onchange="s3_upload();" accept=".mp3" />
+                                            {% else %}
+                                                <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v" />
+                                            {% endif %}
+                                            <input type="hidden" name="s3_url" id="uploaded-url" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="height: 30px"><td></td></tr>
+                                <tr class="post-upload" style="display: none">
+                                    <td class="step two">
+                                        <img src="{{STATIC_URL}}img/steps.png" alt="step two"></img>
+                                    </td>
+                                    <td class="step">
+                                        <h4>UPDATE the {% if audio %}audio{% else %}video{% endif %} title</h4>
+                                        <input type="text" name="title" value="Mediathread {% if audio %}audio{% else %}video{% endif %} uploaded by {{user.username}}" size="50" />
+                                    </td>
+                                </tr> 
+                                <tr style="height: 30px"><td></td></tr>
+                                <tr class="post-upload" style="display: none">
+                                    <td class="step three">
+                                        <img src="{{STATIC_URL}}img/steps.png" alt="step three"></img>
+                                    </td>
+                                    <td class="step three" colspan="2">
+                                        <h4>UPLOAD the {% if audio %}audio{% else %}video{% endif %}</h4>
+                                        <input type="submit" value="Upload" class="regButton" id="submit" disabled="disabled" />
+                                   </td>
+                                </tr> 
+                            </table> 
+                        </div>
                     </form>
-            
+
                     <hr />
                     <div style="padding: 5px 15px 0 15px;">
                       <p>if you encounter a problem converting or uploading a {% if audio %}audio{% else %}video{% endif %}, please visit CCNMTL's Helpdesk <a href="http://support.ccnmtl.columbia.edu/knowledgebase">http://support.ccnmtl.columbia.edu/knowledgebase</a></p>
                     </div>
-            
+
                     <div id="admincontent-bottom"> 
                     <div id="admincontent-bottom-inner"> 
                         <div id="admincontent-bottom-body"></div> 
@@ -125,35 +121,35 @@
                     </div> 
                 </div><!-- End id="admincontent-inner" --> 
             </div><!-- End id="admincontent" --> 
+        </div>
+        <br />
+        <br />
+    {% else %}
+        {% include 'main/maintenance_mode.html' %}
+    {% endflag %}
 
-</div>
-<br />
-<br />
-{% else %}
-{% include 'main/maintenance_mode.html' %}
-{% endflag %}
     <!-- ###### Footer ###### -->
-    <div id="footer_m"><div></div>
-
-</div>
-<script type="text/javascript">
- function s3_upload() {
-    var s3upload = new S3Upload({
-        file_dom_selector: 'file',
-        s3_sign_put_url: '/sign_s3/',
-        s3_object_name: $('#file')[0].value,
-        onProgress: function(percent, message) {
-            $('#status').text('Upload progress: ' + percent + '% ' + message);
-        },
-        onFinishS3Put: function(url) {
-            $('#uploaded-url').val(url);
-            $("#submit").removeAttr("disabled");            
-            jQuery(".post-upload").fadeIn();
-        },
-        onError: function(status) {
-            $('#status').text('Upload error: ' + status);
-        }
-    });
-}
-</script>
+    <div id="footer_m">
+        <div></div>
+    </div>
+    <script type="text/javascript">
+     function s3_upload() {
+        var s3upload = new S3Upload({
+            file_dom_selector: 'file',
+            s3_sign_put_url: '/sign_s3/',
+            s3_object_name: $('#file')[0].value,
+            onProgress: function(percent, message) {
+                $('#status').text('Upload progress: ' + percent + '% ' + message);
+            },
+            onFinishS3Put: function(url) {
+                $('#uploaded-url').val(url);
+                $("#submit").removeAttr("disabled");
+                jQuery(".post-upload").fadeIn();
+            },
+            onError: function(status) {
+                $('#status').text('Upload error: ' + status);
+            }
+        });
+    }
+    </script>
 </body>
