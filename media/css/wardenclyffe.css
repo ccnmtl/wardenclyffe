@@ -294,14 +294,14 @@ body.mediathread
     padding: 0;
     border: 0;
     background-color: #fff;
-    font: .875em/1.5em 'helvetica neue', helvetica, arial, sans-serif !important;
+    font-family: 'Open Sans', sans-serif;
     color: #383838;
     width: 100% auto;
 }
 
 body.mediathread h1
 {
-  font-family: 'helvetica neue', helvetica, arial, sans-serif !important;
+  font-family: 'Montserrat', sans-serif;
   font-size: 200%;
   font-weight: normal;
 }
@@ -331,17 +331,21 @@ body.mediathread #standardnav_container {
     float: left;
     margin: 0;
     width: 100%;
-    padding: 0;
-    background-color: #383838;
+    padding: .5rem 1rem;
+    background-color: #000;
 }
 
 body.mediathread #mediathread_logo {
     float: left;
-    height: 35px;
+    padding-top: .3125rem;
+    padding-bottom: .3125rem;
+    font-size: 1.25rem;
     overflow: hidden;
-    padding: 0 0 0 10px;
-    position: relative;
-    top: -3px;
+}
+
+body.mediathread #mediathread_logo a img {
+    height: 50px;
+    width: auto;
 }
 
 body.mediathread #content
@@ -355,19 +359,74 @@ body.mediathread #content
 }
 
 
-body.mediathread #footer_m
-{
-  display: block;
-    height: 33px;
-    width: 100%;
-  clear: both;
-  margin: 0;
-  padding: 3px 0;
-  border: 0;
-    background: transparent url('../img/logo_ccnmtl_mediathread_bw.gif') 10px top no-repeat;
+/* ---- Footer block elements ---------- */
+/* Footer */
+body.mediathread footer {
+    height: 100%;
+    min-height: 13rem;
+    border: 1px solid #E9ECEF;
+    background-color: #f8f9fa!important;
 }
 
+body.mediathread footer p {
+    margin-bottom: 0;
+}
 
+body.mediathread footer ul {
+    text-align: center;
+}
+
+body.mediathread footer a, body.mediathread footer a:visited {
+    color: #212529;
+}
+
+body.mediathread footer a:hover {
+    color: #212529;
+    text-decoration: underline;
+}
+
+body.mediathread footer .footer-logo {
+    padding-left: 0;
+    margin-bottom: 1rem;
+    padding-top: 1.5rem !important;
+}
+
+body.mediathread footer .footer-logo li {
+    display: inline-block;
+    margin: 0;
+}
+
+body.mediathread footer .footer-logo li+li {
+    margin-left: 1rem;
+}
+
+body.mediathread footer .footer-logo img {
+    height: 45px;
+    display: block;
+    margin: auto;
+}
+
+body.mediathread footer .footer-navigation {
+  margin: 30px 0;
+  padding: 0;
+  color: #212529;
+  text-align: center;
+  list-style: none;
+}
+
+body.mediathread footer .footer-navigation li {
+    display: inline-block;
+    padding: 0 10px;
+}
+
+body.mediathread footer .footer-navigation li a {
+    color: #212529;
+}
+
+body.mediathread footer .footer-navigation li a:hover {
+    color: #212529;
+    text-decoration: underline;
+}
 
 .uploadifyQueueItem
 {
