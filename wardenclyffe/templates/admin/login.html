@@ -14,13 +14,10 @@
 <p class="errornote">{{ error_message }}</p>
 {% endif %}
 <div id="content-main">
-<form method="get" action="https://cas.columbia.edu/cas/login">
-<input type="hidden" name="destination" value="https://{{ request.get_host }}/accounts/caslogin/?n
-ext=/admin/&this_is_the_login_form=1" />
-
-<p>If you have a Columbia UNI, you already have an account and can
-login through CAS with it</p>
-<input type="submit" value="Here" />
+<form method="get" action="/cas/login">
+    <input type="hidden" name="next" value="{{next|default:'/admin/'}}" />
+    <p>Columbia Users:</p>
+    <input type="submit" value="Log In with Columbia UNI" />
 </form>
 
 {% if debug %}

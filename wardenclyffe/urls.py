@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import path
 from django.views.generic import TemplateView
 import django.views.static
+from django_cas_ng import views as cas_views
 
 from wardenclyffe.main.feeds import CollectionFeed
 import wardenclyffe.main.views as views
@@ -18,7 +20,11 @@ urlpatterns = [
     url('^recent_operations/', views.RecentOperationsView.as_view()),
     url('^slow_operations/', views.SlowOperationsView.as_view()),
     url('^most_recent_operation/', views.MostRecentOperationView.as_view()),
-    url('^accounts/', include('djangowind.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    path('cas/login', cas_views.LoginView.as_view(),
+         name='cas_ng_login'),
+    path('cas/logout', cas_views.LogoutView.as_view(),
+         name='cas_ng_logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^streamlogs/', include('wardenclyffe.streamlogs.urls')),
     url(r'^capture/file_upload', views.test_upload),
