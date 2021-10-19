@@ -74,7 +74,7 @@ factory_boy==3.2.0
 rcssmin==1.0.6
 rjsmin==1.1.0
 
-python-cas==1.5.0
+python-cas==1.6.0
 requirements/src/django_cas_ng-4.2.2ctl-py2.py3-none-any.whl
 
 django-staticmedia==0.2.2
