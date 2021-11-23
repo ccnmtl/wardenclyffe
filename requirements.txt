@@ -20,7 +20,7 @@ celery>=4.4.7,<5.0.0
 django-celery-results==2.2.0
 
 asn1crypto==1.4.0
-cryptography==35.0.0
+cryptography==36.0.0
 ecdsa==0.17.0
 cffi==1.15.0
 idna==3.3
