@@ -51,7 +51,7 @@ astroid==2.9.0
 
 editdistance==0.6.0
 
-pylint==2.11.1
+pylint==2.12.1
 
 ldap3==2.9.1
 surelink==1.1.1
