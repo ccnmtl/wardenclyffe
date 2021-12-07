@@ -143,8 +143,11 @@ var removeTag = function(tagName,tagId) {
         <tt>{{operation.uuid}}</tt>
     </td>
     <td>[<a href="/operation/{{operation.id}}/delete/">X</a>]</td>
-    <td><form action="/operation/{{operation.id}}/rerun/"
-                    method="post"><input type="submit" value="RERUN"/></form>
+    <td>
+      <form action="/operation/{{operation.id}}/rerun/" method="post">
+        <input type="submit" value="RERUN"/>
+        {% csrf_token %}
+      </form>
     </td>
 
 </tr>
@@ -196,6 +199,7 @@ var removeTag = function(tagName,tagId) {
 
 {% if video.flv_convertable %}
     <form action="{% url 'video-flv-to-mp4' video.id %}" method="post" class="mt-1">
+        {% csrf_token %}
         <input type="submit" value="convert flv to mp4" />
     </form>
 {% endif %}
@@ -203,6 +207,7 @@ var removeTag = function(tagName,tagId) {
 {% if not video.has_s3_transcoded %}
 <p>
 <form action="{% url 'video-mov-to-mp4' video.id %}" method="post" class="mt-1">
+    {% csrf_token %}
     <button class="btn btn-link pl-0" type="submit">submit to elastic transcoder -&gt;</button>
 </form>
 </p>

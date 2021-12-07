@@ -28,10 +28,16 @@
 		<td><a href="{{operation.video.collection.get_absolute_url}}">{{operation.video.collection.title}}</a></td>
 		<td class="modified">{{operation.modified}}</td>
 		<td>{{operation.owner}}</td>
-		<td><form action="/operation/{{operation.id}}/delete/"
-		method="post"><input type="submit" value="CLEAR"/></form>
-			<form action="/operation/{{operation.id}}/rerun/"
-		method="post"><input type="submit" value="RERUN"/></form></td>
+		<td>
+                  <form action="/operation/{{operation.id}}/delete/" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="CLEAR"/>
+                  </form>
+		  <form action="/operation/{{operation.id}}/rerun/" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="RERUN"/>
+                  </form>
+                </td>
 		</tr>
 		{% endfor %}
 	</tbody>
