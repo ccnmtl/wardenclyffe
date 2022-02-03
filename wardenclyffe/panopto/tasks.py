@@ -184,10 +184,13 @@ def pull_thumb_from_panopto(operation):
 
 
 def get_panopto_session_url(panopto_id):
-    session_mgr = PanoptoSessionManager(
-        settings.PANOPTO_SERVER, settings.PANOPTO_API_USER,
-        instance_name=settings.PANOPTO_INSTANCE_NAME,
-        password=settings.PANOPTO_API_PASSWORD,
-        cache_dir=getattr(settings, 'ZEEP_CACHE_DIR', None))
+    try:
+        session_mgr = PanoptoSessionManager(
+            settings.PANOPTO_SERVER, settings.PANOPTO_API_USER,
+            instance_name=settings.PANOPTO_INSTANCE_NAME,
+            password=settings.PANOPTO_API_PASSWORD,
+            cache_dir=getattr(settings, 'ZEEP_CACHE_DIR', None))
 
-    return session_mgr.get_session_url(panopto_id)
+        return session_mgr.get_session_url(panopto_id)
+    except AttributeError:
+        return ''
