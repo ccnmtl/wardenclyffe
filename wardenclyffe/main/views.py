@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta
 from json import dumps, loads
 import os
+import re
+import uuid
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,12 +25,11 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_statsd.clients import statsd
 from oembed.core import replace
-import re
 import requests
 from s3sign.views import SignS3View as BaseSignS3View
 from surelink.helpers import SureLink
 from taggit.models import Tag
-import uuid
+
 from wardenclyffe.main.forms import ServerForm, EditCollectionForm
 from wardenclyffe.main.forms import VideoForm, AddCollectionForm
 from wardenclyffe.main.mixins import CSVResponseMixin
@@ -42,6 +43,7 @@ from wardenclyffe.mediathread.views import AuthenticatedNonAtomic
 from wardenclyffe.streamlogs.models import StreamLog
 from wardenclyffe.util import uuidparse, safe_basename
 from wardenclyffe.util.mail import send_mediathread_received_mail
+from wardenclyffe.panopto.tasks import get_panopto_session_url
 
 
 try:
@@ -280,7 +282,8 @@ class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
     def headers(self):
         return ['Id', 'Title', 'Views', 'Url',
                 'CUNIX Filename', 'Panopto Id',
-                'Panopto Link', 'Panopto Embed Code']
+                'Panopto Link', 'Panopto Embed Code',
+                'Panopto MP4']
 
     def rows(self, collection):
         rows = []
@@ -290,13 +293,14 @@ class CollectionReportView(StaffMixin,  CSVResponseMixin, View):
                    'https://wardenclyffe.ctl.columbia.edu{}'.format(
                        reverse('video-details', kwargs={'pk': video.id})),
                    self.cuit_filename(video),
-                   '', '', '', '', '']
+                   '', '', '', '', '', '']
 
             pf = video.panopto_file()
             if pf:
                 row[5] = pf.filename
                 row[6] = settings.PANOPTO_LINK_URL.format(pf.filename)
                 row[7] = settings.PANOPTO_EMBED_URL.format(pf.filename)
+                row[8] = get_panopto_session_url(pf.filename)
 
             yt = video.youtube_file()
             if yt and yt.url:

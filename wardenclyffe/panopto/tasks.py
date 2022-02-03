@@ -135,24 +135,21 @@ def verify_upload_to_panopto(operation):
     video_id = params['video_id']
     video = Video.objects.get(id=video_id)
 
-    f = video.panopto_file()
+    upload_status = PanoptoUploadStatus()
+    upload_status.server = settings.PANOPTO_SERVER
+    upload_status.username = settings.PANOPTO_API_USER
+    upload_status.password = settings.PANOPTO_API_PASSWORD
+    upload_status.upload_id = params['upload_id']
 
-    if not f:
-        upload_status = PanoptoUploadStatus()
-        upload_status.server = settings.PANOPTO_SERVER
-        upload_status.username = settings.PANOPTO_API_USER
-        upload_status.password = settings.PANOPTO_API_PASSWORD
-        upload_status.upload_id = params['upload_id']
+    (state, panopto_id) = upload_status.check()
+    if state != 4:  # Panopto "Complete" State
+        raise Exception('Panopto is not yet finished.')
 
-        (state, panopto_id) = upload_status.check()
-        if state != 4:  # Panopto "Complete" State
-            raise Exception('Panopto is not yet finished.')
+    url = settings.PANOPTO_LINK_URL.format(panopto_id)
 
-        url = settings.PANOPTO_LINK_URL.format(panopto_id)
-
-        f = File.objects.create(
-            video=video, location_type='panopto', url=url,
-            filename=panopto_id, label='uploaded to panopto')
+    f = File.objects.create(
+        video=video, location_type='panopto', url=url,
+        filename=panopto_id, label='uploaded to panopto')
 
     params['panopto_id'] = f.filename
     operation.params = dumps(params)
@@ -184,3 +181,13 @@ def pull_thumb_from_panopto(operation):
     img = Image.objects.create(video=operation.video, image=url)
     Poster.objects.create(video=video, image=img)
     return ('complete', '')
+
+
+def get_panopto_session_url(panopto_id):
+    session_mgr = PanoptoSessionManager(
+        settings.PANOPTO_SERVER, settings.PANOPTO_API_USER,
+        instance_name=settings.PANOPTO_INSTANCE_NAME,
+        password=settings.PANOPTO_API_PASSWORD,
+        cache_dir=getattr(settings, 'ZEEP_CACHE_DIR', None))
+
+    return session_mgr.get_session_url(panopto_id)
