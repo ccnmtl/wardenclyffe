@@ -13,7 +13,7 @@
         </li>
         {% if collection %}
             <li class="breadcrumb-item">
-                <a href="{% url 'collection' collection.id %}">{{collection.title}}</a>
+                <a href="{% url 'collection-view' collection.id %}">{{collection.title}}</a>
             </li>
         {% endif %}
         <li class="breadcrumb-item active" aria-current="page">
