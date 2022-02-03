@@ -15,6 +15,10 @@ class CollectionSubmitForm(forms.Form):
         required=False,
         help_text="Only submit videos with views > 0")
 
+    allow_reupload = forms.BooleanField(
+        required=False,
+        help_text="Allow videos to be reuploaded to Panopto")
+
 
 class VideoSubmitForm(forms.Form):
     folder_id = forms.CharField(

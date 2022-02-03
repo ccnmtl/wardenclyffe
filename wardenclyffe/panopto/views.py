@@ -103,9 +103,10 @@ class CollectionSubmitView(AuthenticatedNonAtomic, FormView):
         # This method is called when valid form data has been POSTed.
         collection = form.cleaned_data['collection']
         folder_id = form.cleaned_data['folder_id']
+        allow_reupload = form.cleaned_data['allow_reupload']
 
         for video in collection.video_set.all():
-            if not video.has_panopto_source():
+            if allow_reupload or not video.has_panopto_source():
                 submit_video_to_panopto(self.request.user, video, folder_id,
                                         form.cleaned_data['viewed'])
 
