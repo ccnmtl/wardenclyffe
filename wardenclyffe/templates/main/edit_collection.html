@@ -9,7 +9,7 @@
 {% block content %}
 
 <h2>Edit Collection {{collection.title}}</h2>
-<form action="." method="post">
+<form action="." method="post">{% csrf_token %}
 <table>
 {{form.as_table}}
 </table>
