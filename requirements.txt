@@ -43,11 +43,11 @@ mccabe==0.7.0
 pycodestyle==2.8.0
 configparser==5.2.0
 importlib-metadata<4.12 # for flake8
-typing_extensions==4.0.0
+typing_extensions==4.1.1
 zipp==3.6.0  # for flake8
 flake8==4.0.1
 logilab-common==1.8.1
-astroid==2.9.0
+astroid==2.10.0
 
 editdistance==0.6.0
 
@@ -60,8 +60,8 @@ surelink==1.1.1
 s3transfer==0.5.0
 jmespath==0.10.0
 
-botocore>=1.12.0,<1.24.0
-boto3>=1.12.0,<1.21.0
+botocore>=1.12.0,<1.25.0
+boto3>=1.12.0,<1.22.0
 
 sqlparse==0.4.2
 filechunkio==1.8
@@ -69,7 +69,7 @@ httpretty==1.1.4
 contextlib2==21.6.0
 ipaddress==1.0.23
 text-unidecode==1.3  # for faker
-Faker==12.1.0
+Faker==13.3.0
 factory_boy==3.2.0
 rcssmin==1.1.0
 rjsmin==1.2.0
@@ -93,7 +93,7 @@ django-storages==1.12.2
 tornado==6.1
 django-cacheds3storage==0.2.2
 gunicorn==20.1.0
-django-impersonate==1.7.3
+django-impersonate==1.8.1
 django-stagingcontext==0.1.0
 django-ga-context==0.1.0
 django-s3sign==0.1.8
@@ -108,7 +108,7 @@ stevedore>=1.20.0 # Apache-2.0
 bandit==1.7.0
 
 defusedxml==0.7.1
-lxml==4.7.1
+lxml==4.8.0
 requests-toolbelt==0.9.1
 isodate==0.6.0
 cached-property==1.5.2
