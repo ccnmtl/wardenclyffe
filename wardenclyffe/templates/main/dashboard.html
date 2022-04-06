@@ -12,7 +12,7 @@
 <script src="{{STATIC_URL}}js/underscore/underscore-min.js" type="application/javascript"></script>
 <script src="{{STATIC_URL}}js/backbone/backbone-min.js" type="application/javascript"></script>
 <script src="{{STATIC_URL}}js/dashboard.js" type="application/javascript"></script>
-<script type="text/javascript" src="{{STATIC_URL}}js/jquery.tablesorter.min.js"></script> 
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery.tablesorter.min.js"></script>
 {% endcompress %}
 {% endblock %}
 
@@ -23,24 +23,33 @@
 <form action="." method="get">
 <h3>Filters</h3>
 
-<p><b>Status:</b>
-<input type="hidden" name="submitted" value="1" />
-<input type="checkbox" name="status_filter_failed" 
-{% if failed %}checked="checked"{% endif %}
-/> failed
-<input type="checkbox" name="status_filter_complete" 
-{% if complete %}checked="checked"{% endif %}
-/> complete
-<input type="checkbox" name="status_filter_submitted" 
-{% if submitted %}checked="checked"{% endif %}
-/> submitted
-<input type="checkbox" name="status_filter_inprogress" 
-{% if inprogress %}checked="checked"{% endif %}
-/> in progress
-<input type="checkbox" name="status_filter_enqueued" 
-{% if enqueued %}checked="checked"{% endif %}
-/> enqueued
-
+<p><strong>Status:</strong>
+    <input type="hidden" name="submitted" value="1" />
+    <label>
+        <input type="checkbox" name="status_filter_failed"
+               {% if failed %}checked="checked"{% endif %}
+        /> failed
+    </label>
+    <label>
+        <input type="checkbox" name="status_filter_complete"
+               {% if complete %}checked="checked"{% endif %}
+        /> complete
+    </label>
+    <label>
+        <input type="checkbox" name="status_filter_submitted"
+               {% if submitted %}checked="checked"{% endif %}
+        /> submitted
+    </label>
+    <label>
+        <input type="checkbox" name="status_filter_inprogress"
+               {% if inprogress %}checked="checked"{% endif %}
+        /> in progress
+    </label>
+    <label>
+        <input type="checkbox" name="status_filter_enqueued"
+               {% if enqueued %}checked="checked"{% endif %}
+        /> enqueued
+    </label>
 </p>
 
 <p><b>Collection:</b>
@@ -84,18 +93,18 @@
 
   <tbody id="bb-operations">
 
-	</tbody>
+    </tbody>
 </table>
 
 
 <script type="text/template" id="operation-template">
 
-		<td><div class="operation_status <%- clean_status %>"></div></td>
-		<td><%- action %></td>
+        <td><div class="operation_status <%- clean_status %>"></div></td>
+        <td><%- action %></td>
     <td><a href="<%- video_url %>"><%- video_title %></a></td>
-		<td><a href="<%- collection_url %>"><%- collection_title %></a></td>
-		<td class="modified"><%- modified %></td>
-		<td><%- video_creator %></td>
+        <td><a href="<%- collection_url %>"><%- collection_title %></a></td>
+        <td class="modified"><%- modified %></td>
+        <td><%- video_creator %></td>
 
 </script>
 
