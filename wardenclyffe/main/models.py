@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.deletion import SET
 from django.db.models.query_utils import Q
-from django.utils.encoding import python_2_unicode_compatible, smart_bytes
+from django.utils.encoding import smart_bytes
 from django_extensions.db.models import TimeStampedModel
 from django_statsd.clients import statsd
 from surelink.helpers import SureLink, AUTHTYPE_OPTIONS, PROTECTION_OPTIONS
@@ -28,7 +28,6 @@ import uuid
 from wardenclyffe.util.mail import send_failed_operation_mail
 
 
-@python_2_unicode_compatible
 class Collection(TimeStampedModel):
     title = models.CharField(max_length=256)
     creator = models.CharField(max_length=256, default="", blank=True)
@@ -101,7 +100,6 @@ def unclassified():
     return Collection.objects.get_or_create(title='Unclassified')[0]
 
 
-@python_2_unicode_compatible
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection, on_delete=SET(unclassified))
     title = models.CharField(max_length=256)
@@ -1230,7 +1228,6 @@ class DummyPoster:
         return settings.DEFAULT_POSTER_URL
 
 
-@python_2_unicode_compatible
 class Server(models.Model):
     name = models.CharField(max_length=256)
     hostname = models.CharField(max_length=256)

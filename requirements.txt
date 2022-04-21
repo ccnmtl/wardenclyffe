@@ -1,4 +1,4 @@
-Django>=2.2.12,<3
+Django==3.2.12
 httplib2==0.20.1
 Markdown==3.3.4
 smartypants==2.0.1
@@ -124,3 +124,4 @@ appdirs==1.4.4
 beautifulsoup4==4.11.0
 requests_file==1.5.1
 platformdirs==2.4.0
+asgiref==3.4.1
