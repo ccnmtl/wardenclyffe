@@ -50,7 +50,7 @@ astroid==2.11.0
 
 editdistance==0.6.0
 
-pylint==2.13.0
+pylint==2.14.0
 
 ldap3==2.9.1
 surelink==1.1.1
@@ -60,7 +60,7 @@ s3transfer==0.5.0
 jmespath==1.0.0
 
 botocore>=1.12.0,<1.28.0
-boto3>=1.12.0,<1.24.0
+boto3>=1.12.0,<1.25.0
 
 sqlparse==0.4.2
 filechunkio==1.8
@@ -81,7 +81,7 @@ requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
 django-taggit==3.0.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.2.0
-django-waffle==2.4.1
+django-waffle==2.5.0
 django-debug-toolbar==3.4.0
 django-appconf==1.0.5
 django-compressor==3.1
@@ -107,7 +107,7 @@ stevedore>=1.20.0 # Apache-2.0
 bandit==1.7.0
 
 defusedxml==0.7.1
-lxml==4.8.0
+lxml==4.9.0
 requests-toolbelt==0.9.1
 isodate==0.6.0
 cached-property==1.5.2
