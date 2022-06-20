@@ -6,7 +6,7 @@ psycopg2<2.9
 olefile==0.46
 billiard==3.6.4.0
 
-django-picklefield==3.0.1
+django-picklefield==3.1
 pyparsing==3.0.1
 six==1.16.0
 pytz==2022.1
