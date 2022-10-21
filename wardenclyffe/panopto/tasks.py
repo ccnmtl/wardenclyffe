@@ -177,7 +177,12 @@ def pull_thumb_from_panopto(operation):
     if not thumb_url or 'no_thumbnail' in thumb_url:
         raise Exception('Panopto thumbnail is not yet ready.')
 
-    url = 'https://{}{}'.format(settings.PANOPTO_SERVER, thumb_url)
+    url = thumb_url
+    # If the thumb_url is already an absolute URI, don't do
+    # further processing.
+    if not thumb_url.startswith('https://'):
+        url = 'https://{}{}'.format(settings.PANOPTO_SERVER, thumb_url)
+
     img = Image.objects.create(video=operation.video, image=url)
     Poster.objects.create(video=video, image=img)
     return ('complete', '')
