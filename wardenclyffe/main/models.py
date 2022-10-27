@@ -1053,6 +1053,15 @@ class VerifyUploadToPanoptoOperation(OperationType):
         return wardenclyffe.panopto.tasks.verify_upload_to_panopto
 
     def post_process(self):
+        # If this is an audio file, don't try to get a thumbnail from
+        # Panopto, because that will fail. Skip directly to
+        # mediathread submit.
+        s3_file = self.operation.video.s3_file()
+        if s3_file and s3_file.is_audio():
+            ops = self.operation.video.handle_mediathread_submit()
+            ops.extend(self.operation.video.handle_mediathread_update())
+            return ops
+
         operation = self.operation
         params = loads(operation.params)
 
