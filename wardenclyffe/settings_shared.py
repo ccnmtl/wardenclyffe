@@ -21,25 +21,17 @@ CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//wardenclyffe'
 CELERY_WORKER_CONCURRENCY = 1
 
-
-class MyRouter(object):
-    def route_for_task(self, task, args=None, kwargs=None):
-        if task.startswith('wardenclyffe.graphite.tasks'):
-            return {'exchange': 'graphite',
-                    'exchange_type': 'direct',
-                    'routing_key': 'graphite'}
-        if task == 'wardenclyffe.main.tasks.check_for_slow_operations':
-            return {'exchange': 'short',
-                    'exchange_type': 'direct',
-                    'routing_key': 'short'}
-        if task == 'wardenclyffe.main.tasks.move_file':
-            return {'exchange': 'batch',
-                    'exchange_type': 'direct',
-                    'routing_key': 'batch'}
-        return None
-
-
-CELERY_TASK_ROUTES = (MyRouter(),)
+CELERY_TASK_ROUTES = {
+    'wardenclyffe.graphite.tasks.*': {
+        'queue': 'graphite'
+    },
+    'wardenclyffe.main.tasks.check_for_slow_operations': {
+        'queue': 'short'
+    },
+    'wardenclyffe.main.tasks.move_file': {
+        'queue': 'batch'
+    },
+}
 
 
 if 'test' in sys.argv or 'jenkins' in sys.argv:
