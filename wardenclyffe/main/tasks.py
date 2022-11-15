@@ -16,7 +16,7 @@ import paramiko
 from paramiko.sftp import SFTPError
 import waffle
 
-from celery.task.schedules import crontab
+from celery.schedules import crontab
 from wardenclyffe.celery import app
 from wardenclyffe.main.models import File, Operation, OperationFile
 from wardenclyffe.main.models import Image, Poster

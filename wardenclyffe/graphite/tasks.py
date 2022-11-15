@@ -1,4 +1,4 @@
-from celery.task.schedules import crontab
+from celery.schedules import crontab
 from django_statsd.clients import statsd
 from wardenclyffe.celery import app
 from wardenclyffe.graphite.models import operation_count_by_status, \
