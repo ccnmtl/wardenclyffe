@@ -3,9 +3,9 @@
 
 Wardenclyffe is a Django-based tool for orchestrating asynchronous
 workflows. The current implementation focuses on managing, encoding,
-and publishing audio/video/multimedia files. Wardenclyffe was eveloped
-at the Columbia Center for New Media Teaching and Learning
-(http://ccnmtl.columbia.edu).
+and publishing audio/video/multimedia files. Wardenclyffe was developed
+at Columbia University's Center for Teaching and Learning
+(http://ctl.columbia.edu).
 
 For a breif whitepaper on the history and origins of Wardenclyffe, see
 
