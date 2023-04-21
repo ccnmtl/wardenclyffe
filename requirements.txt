@@ -67,7 +67,7 @@ jmespath==1.0.0
 botocore>=1.12.0,<1.30.0
 boto3>=1.12.0,<1.27.0
 
-sqlparse==0.4.2
+sqlparse==0.4.4
 filechunkio==1.8
 httpretty==1.1.4
 contextlib2==21.6.0
