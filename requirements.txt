@@ -113,7 +113,7 @@ bandit==1.7.0
 
 defusedxml==0.7.1
 lxml==4.9.1
-requests-toolbelt==0.10.0
+requests-toolbelt==1.0.0
 isodate==0.6.0
 cached-property==1.5.2
 
