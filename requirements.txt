@@ -50,7 +50,7 @@ importlib-metadata<6.9 # for flake8
 typing_extensions==4.7.0
 zipp==3.16.0  # for flake8
 flake8==6.0.0
-logilab-common==1.9.2
+logilab-common==1.10.0
 astroid==2.15.0
 
 editdistance==0.6.2
