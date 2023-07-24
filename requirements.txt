@@ -102,7 +102,7 @@ django-stagingcontext==0.1.0
 django-ga-context==0.1.0
 django-s3sign==0.1.8
 django-smtp-ssl==1.0
-certifi==2023.5.7  # sentry-sdk
+certifi==2023.7.22  # sentry-sdk
 
 ccnmtlsettings==1.9.4
 
