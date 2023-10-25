@@ -1,28 +1,24 @@
 {% extends 'base.html' %}
-{% load waffle_tags bootstrap4 %}
-{% load compress %}
+{% load bootstrap4 %}
 {% block title %}Add Video from Desktop{% endblock %}
 {% block pagetitle %}Add Video from Desktop{% endblock %}
 
 {% block extra_head %}
-    {% compress js %}
     <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
     <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
-{% endcompress %}
 
-{% compress css %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-{% endcompress %}
-
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
 {% endblock %}
 
 {% block content %}
 
-{% flag allow_uploads %}
     <form action="/upload/post/" method="post" enctype="multipart/form-data">
-        {% bootstrap_field form.collection %}
+        {% if form.collection %}
+            {% bootstrap_field form.collection %}
+        {% endif %}
+
         {% bootstrap_field form.title %}
         {% bootstrap_field form.creator %}
         {% bootstrap_field form.description %}
@@ -109,9 +105,5 @@ jQuery(document).ready(function()
 </script>
 
 <script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
-
-{% else %}
-    {% include 'main/maintenance_mode.html' %}
-{% endflag %}
 
 {% endblock %}

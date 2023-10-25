@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load waffle_tags %}
 {% block title %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 {% block pagetitle %}{% if scan_directory %}Add Video from Drop-off Directory{% else %}Add Video from Desktop{% endif %}{% endblock %}
 
@@ -12,7 +11,6 @@
 
 {% block content %}
 
-    {% flag allow_uploads %}
     <form action="/upload/batch/post/" method="post" enctype="multipart/form-data">
 
 <div class="panel_top">
@@ -115,8 +113,6 @@ $(function () {
 {% include "flatpages/help_windows.html" %}
 
 <script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
-{% else %}
-{% include 'main/maintenance_mode.html' %}
-{% endflag %}
+
 {% endblock %}
 <!--  -->
