@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load markup %}
 {% block content %}
 
 <a href="/server/">&lt;- Servers</a>
@@ -8,7 +7,7 @@
 
 <tr><th>name</th><td>{{server.name}}</td></tr>
 <tr><th>hostname</th><td><tt>{{server.hostname}}</tt></td></tr>
-<tr><th>description</th><td>{{server.description|markdown}}</td></tr>
+<tr><th>description</th><td>{{server.description}}</td></tr>
 <tr><th>credentials</th><td>{{server.credentials}}</td></tr>
 <tr><th>base_dir</th><td><tt>{{server.base_dir}}</tt></td></tr>
 <tr><th>base_url</th><td><tt>{{server.base_url}}</tt></td></tr>
