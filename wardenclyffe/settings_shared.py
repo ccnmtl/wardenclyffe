@@ -1,7 +1,7 @@
 # Django settings for wardenclyffe project.
 import os.path
 import sys
-from ccnmtlsettings.shared import common
+from ctlsettings.shared import common
 
 project = 'wardenclyffe'
 base = os.path.dirname(__file__)
@@ -73,24 +73,17 @@ INSTALLED_APPS += [  # noqa
     'taggit',
     'wardenclyffe.graphite',
     'django_extensions',
-    'django_cas_ng',
     's3sign',
     'wardenclyffe.streamlogs',
     'bootstrap4',
     'django_celery_results',
+    'waffle',
 ]
-
-INSTALLED_APPS.remove('djangowind')  # noqa
 
 MIDDLEWARE += [  # noqa
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django_cas_ng.middleware.CASMiddleware',
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'django_cas_ng.backends.CASBackend'
-]
 # email addresses of video team members how want to
 # be annoyed by lots of status email
 ANNOY_EMAILS = ["jhanford@columbia.edu"]
@@ -149,19 +142,6 @@ PANOPTO_EMBED_URL = 'http://testserver/embed/{}/'
 PANOPTO_MIGRATIONS_USER = 'migrations'
 PANOPTO_COLLECTION = 'Automatic Panopto Migrations'
 PANOPTO_MIGRATIONS_FOLDER = 'dummy'
-
-CAS_SERVER_URL = 'https://cas.columbia.edu/cas/'
-CAS_VERSION = '3'
-CAS_ADMIN_REDIRECT = False
-
-# Translate CUIT's CAS user attributes to the Django user model.
-# https://cuit.columbia.edu/content/cas-3-ticket-validation-response
-CAS_APPLY_ATTRIBUTES_TO_USER = True
-CAS_RENAME_ATTRIBUTES = {
-    'givenName': 'first_name',
-    'lastName': 'last_name',
-    'mail': 'email',
-}
 
 TEMPLATES = [
     {

@@ -76,11 +76,11 @@ ipaddress==1.0.23
 text-unidecode==1.3  # for faker
 Faker==19.12.0
 factory_boy==3.3.0
-rcssmin==1.1.0
-rjsmin==1.2.0
+rcssmin==1.1.2
+rjsmin==1.2.2
 
 python-cas==1.6.0
-django-cas-ng==5.0.0
+django-cas-ng==5.0.1
 
 django-staticmedia==0.2.2
 requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
@@ -90,10 +90,8 @@ django-smoketest==1.2.0
 django-waffle==4.0.0
 django-debug-toolbar==4.2.0
 django-appconf==1.0.5
-django-compressor>=3.1,<5.0
 django-extensions==3.2.0
 
-django-markwhat==1.6.2
 django-storages==1.13.2
 tornado==6.3.3
 django-cacheds3storage==0.3.0
@@ -105,7 +103,7 @@ django-s3sign==0.1.8
 django-smtp-ssl==1.0
 certifi==2023.7.22  # sentry-sdk
 
-ccnmtlsettings==1.9.4
+ctlsettings==0.2.0
 
 pbr==5.11.0
 PyYAML>=3.10.0 # MIT

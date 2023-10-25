@@ -1,28 +1,22 @@
-{% load waffle_tags %}
-{% load compress %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Mediathread  &mdash; {% if audio %}Audio{% else %}Video{% endif %} Upload</title>
-    {% compress css %}
-        <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
-        <link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
-    {% endcompress %}
+    <link rel="stylesheet" href="{{STATIC_URL}}css/wardenclyffe.css?v=1" media="screen" />
+    <link rel="stylesheet" href="{{STATIC_URL}}css/print.css" media="print" />
     <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico" type="image/x-icon" />
 
     <link href="https://fonts.googleapis.com/css?family=Montserrat|Montserrat:bold|Open+Sans|Open+Sans:bold" rel="stylesheet">
 
     {% include 'main/jquery.html' %}
 
-    {% compress js %}
-        <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
-        <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
-        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
-        <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
-        <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
-    {% endcompress %}
+    <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
+    <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/plupload.full.min.js"></script>
 </head>
 
 <body class="one_column fixed mediathread">
@@ -41,7 +35,6 @@
         <div class="visualclear"></div>
 
         <div id="content">
-            {% flag allow_uploads %}
             <h1>Mediathread {% if audio %}Audio{% else %}Video{% endif %} Upload</h1>
 
             <div id="admincontent" style="width: 600px;"> 
@@ -127,9 +120,6 @@
         </div>
         <br />
         <br />
-    {% else %}
-        {% include 'main/maintenance_mode.html' %}
-    {% endflag %}
 
     <!-- ###### Footer ###### -->
     <footer>
