@@ -897,8 +897,8 @@ class SureLinkVideoViewTest(TestCase):
         view.request = RequestFactory().get('/')
 
         ctx = view.get_context_data()
-        self.assertEquals(len(ctx), 0)
-        self.assertEquals(StreamLog.objects.count(), 0)
+        self.assertEqual(len(ctx), 0)
+        self.assertEqual(StreamLog.objects.count(), 0)
 
     def test_get_context_data_youtube(self):
         cuit = FileFactory()
@@ -909,9 +909,9 @@ class SureLinkVideoViewTest(TestCase):
         view = SureLinkVideoView()
         view.request = RequestFactory().get('/', {'file': cuit.filename})
         ctx = view.get_context_data()
-        self.assertEquals(
+        self.assertEqual(
             ctx['youtube'], 'https://www.youtube.com/embed/fS4qBPdhr8A')
-        self.assertEquals(
+        self.assertEqual(
             StreamLog.objects.filter(filename=cuit.filename).count(), 1)
 
     def test_get_context_data_panopto(self):
@@ -922,6 +922,6 @@ class SureLinkVideoViewTest(TestCase):
         view = SureLinkVideoView()
         view.request = RequestFactory().get('/', {'file': cuit.filename})
         ctx = view.get_context_data()
-        self.assertEquals(ctx['panopto'], 'alpha')
-        self.assertEquals(
+        self.assertEqual(ctx['panopto'], 'alpha')
+        self.assertEqual(
             StreamLog.objects.filter(filename=cuit.filename).count(), 1)
