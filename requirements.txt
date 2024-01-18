@@ -116,7 +116,7 @@ isodate==0.6.0
 cached-property==1.5.2
 
 attrs==23.2.0
-zeep==4.2.0
+zeep==4.2.1
 pypanopto==0.2.0
 django-bootstrap4==23.4
 
