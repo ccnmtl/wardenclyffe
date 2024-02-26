@@ -52,7 +52,7 @@ typing_extensions==4.9.0
 zipp==3.17.0  # for flake8
 flake8==7.0.0
 logilab-common==2.0.0
-astroid==3.0.0
+astroid==3.1.0
 
 git+https://github.com/roy-ht/editdistance.git@v0.6.2
 
