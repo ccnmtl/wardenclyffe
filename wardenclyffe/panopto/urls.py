@@ -1,15 +1,15 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from wardenclyffe.panopto.views import (
     CollectionSubmitView, CollectionSubmitSuccessView, VideoSubmitView)
 
 
 urlpatterns = [
-    url(r'^collection/(?P<pk>\d+)/$', CollectionSubmitView.as_view(),
-        name='panopto-collection-submit'),
-    url(r'^collection/(?P<pk>\d+)/success/$',
-        CollectionSubmitSuccessView.as_view(),
-        name='panopto-collection-success-submit'),
-    url(r'^video/(?P<pk>\d+)/$', VideoSubmitView.as_view(),
-        name='panopto-video-submit'),
+    re_path(r'^collection/(?P<pk>\d+)/$', CollectionSubmitView.as_view(),
+            name='panopto-collection-submit'),
+    re_path(r'^collection/(?P<pk>\d+)/success/$',
+            CollectionSubmitSuccessView.as_view(),
+            name='panopto-collection-success-submit'),
+    re_path(r'^video/(?P<pk>\d+)/$', VideoSubmitView.as_view(),
+            name='panopto-video-submit'),
 ]

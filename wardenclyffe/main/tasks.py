@@ -10,7 +10,7 @@ import uuid
 
 import boto3
 from django.conf import settings
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_bytes
 from django_statsd.clients import statsd
 import paramiko
 from paramiko.sftp import SFTPError
@@ -258,7 +258,7 @@ def extract_metadata(operation):
 
 def do_extract_metadata(source_file, filename):
     statsd.incr("extract_metadata")
-    output = smart_text(
+    output = smart_bytes(
         subprocess.Popen(  # nosec
             [midentify_path(), filename],
             stdout=subprocess.PIPE).communicate()[0],

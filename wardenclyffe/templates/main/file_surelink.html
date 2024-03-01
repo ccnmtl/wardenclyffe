@@ -45,9 +45,9 @@
     {% endif %}
 		{% for po in poster_options %}
 		<option value="{{po.value}}"
-						{% ifequal po.value poster %}
+						{% if po.value == poster %}
 						selected
-						{% endifequal %}>{{po.label}}</option>
+						{% endif %}>{{po.label}}</option>
 		{% endfor %}
   </select> 
   <br /> 
@@ -65,9 +65,9 @@
   <select name="protection"> 
 		{% for po in protection_options %}
 		<option value="{{po.value}}"
-						{% ifequal po.value protection %}
+						{% if po.value == protection %}
 						selected
-						{% endifequal %}>{{po.label}}</option>
+						{% endif %}>{{po.label}}</option>
 		{% endfor %}
   </select> 
   <br /> 
@@ -76,9 +76,9 @@
   <select name="authtype"> 
 		{% for ato in authtype_options %}
 		<option value="{{ato.value}}"
-						{% ifequal ato.value authtype %}
+						{% if ato.value == authtype %}
 						selected
-						{% endifequal %}>{{ato.label}}</option>
+						{% endif %}>{{ato.label}}</option>
 		{% endfor %}
   </select> 
 </td></tr>
@@ -135,7 +135,7 @@ style="width:100%">{{surelink.drupal_embed}}
 <div style="width:{{width}}"><script type="text/javascript" src="{{surelink.src_url}}"></script>
 </div>
 <br />
-<div style="display:{% ifequal protection "public-mp4-download"%}none{% else %}block{% endifequal %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
+<div style="display:{% if protection == "public-mp4-download"%}none{% else %}block{% endif %}"><b>Unprotected Public</b> URL (e.g. for download):<br />
 <a href="{{surelink.public_url}}">{{surelink.public_url}}</a>
   <p>To test a slow connection, replace "OPTIONS" with "slow".</p>
 </div>
