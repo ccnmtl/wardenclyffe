@@ -42,9 +42,9 @@ S3 Key
 
 </table>
 
-{% ifequal file.location_type "mediathread" %}
+{% if file.location_type == "mediathread" %}
 <p><a href="{{file.url}}">Annotate this video in mediathread</a></p>
-{% endifequal %}
+{% endif %}
 
 {% if file.location_type == 'rtsp_url' %}
 <div>
@@ -73,9 +73,9 @@ S3 Key
   <select name="poster"> 
 		{% for po in poster_options %}
 		<option value="{{po.value}}"
-						{% ifequal po.value poster %}
+						{% if po.value == poster %}
 						selected
-						{% endifequal %}>{{po.label}}</option>
+						{% endif %}>{{po.label}}</option>
 		{% endfor %}
   </select> 
   <br /> 
@@ -90,9 +90,9 @@ S3 Key
   <select name="protection"> 
 		{% for po in protection_options %}
 		<option value="{{po.value}}"
-						{% ifequal po.value protection %}
+						{% if po.value == protection %}
 						selected
-						{% endifequal %}>{{po.label}}</option>
+						{% endif %}>{{po.label}}</option>
 		{% endfor %}
   </select> 
   <br /> 
@@ -100,9 +100,9 @@ S3 Key
   <select name="authtype"> 
 		{% for ato in authtype_options %}
 		<option value="{{ato.value}}"
-						{% ifequal ato.value authtype %}
+						{% if ato.value == authtype %}
 						selected
-						{% endifequal %}>{{ato.label}}</option>
+						{% endif %}>{{ato.label}}</option>
 		{% endfor %}
   </select> 
   <input type="hidden" name="player" value="v4" /> 
