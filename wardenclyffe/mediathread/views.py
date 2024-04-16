@@ -15,45 +15,41 @@ import wardenclyffe.main.tasks as maintasks
 from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 
 
-def mediathread(request):
-    # check their credentials
-    authenticator = MediathreadAuthenticator(request.GET)
-    if not authenticator.is_valid():
-        statsd.incr("mediathread.auth_failure")
-        return HttpResponse("invalid authentication token")
+class MediathreadUploadFormView(View):
+    def get(self, request):
+        # check their credentials
+        authenticator = MediathreadAuthenticator(request.GET)
+        if not authenticator.is_valid():
+            statsd.incr("mediathread.auth_failure")
+            return HttpResponse("invalid authentication token")
 
-    username = authenticator.username
-    user, created = User.objects.get_or_create(username=username)
-    if created:
-        statsd.incr("mediathread.user_created")
+        username = authenticator.username
+        user, created = User.objects.get_or_create(username=username)
+        if created:
+            statsd.incr("mediathread.user_created")
 
-    request.session['username'] = username
-    request.session['set_course'] = authenticator.set_course
-    request.session['nonce'] = authenticator.nonce
-    request.session['redirect_to'] = authenticator.redirect_to
-    request.session['hmac'] = authenticator.hmc
-    audio = request.GET.get('audio', False)
-    folder = request.GET.get('folder', '')
-    template = 'mediathread/mediathread.html'
-    return render(
-        request, template,
-        dict(username=username, user=user, audio=audio, folder=folder))
+        request.session['username'] = username
+        request.session['set_course'] = authenticator.set_course
+        request.session['nonce'] = authenticator.nonce
+        request.session['redirect_to'] = authenticator.redirect_to
+        request.session['hmac'] = authenticator.hmc
+        audio = request.GET.get('audio', False)
+        folder = request.GET.get('folder', '')
+        template = 'mediathread/mediathread.html'
+        return render(
+            request, template,
+            dict(username=username, user=user, audio=audio, folder=folder))
 
+    def post(self, request):
+        # we see this now and then, probably due to browser plugins
+        # that provide "privacy" by stripping session cookies off
+        # requests. we really don't have any way of handling
+        # the upload if we can't maintain a session, so bail.
+        if 'username' not in request.session \
+                or 'set_course' not in request.session:
+            return HttpResponse("invalid session")
 
-@transaction.non_atomic_requests
-def mediathread_post(request):
-    if request.method != "POST":
-        return HttpResponse("post only")
-
-    # we see this now and then, probably due to browser plugins
-    # that provide "privacy" by stripping session cookies off
-    # requests. we really don't have any way of handling
-    # the upload if we can't maintain a session, so bail.
-    if 'username' not in request.session \
-            or 'set_course' not in request.session:
-        return HttpResponse("invalid session")
-
-    return s3_upload(request)
+        return s3_upload(request)
 
 
 def s3_upload(request):
