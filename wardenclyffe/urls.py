@@ -109,8 +109,9 @@ urlpatterns = [
     re_path(r'^upload/batch/$', views.BatchUploadFormView.as_view()),
     re_path(r'^upload/batch/post/$', views.batch_upload),
 
-    re_path(r'^mediathread/$', mediathread_views.mediathread),
-    re_path(r'^mediathread/post/$', mediathread_views.mediathread_post),
+    path('mediathread/',
+         mediathread_views.MediathreadUploadFormView.as_view()),
+
     re_path(r'^panopto/', include('wardenclyffe.panopto.urls')),
     re_path(r'^received/$', views.ReceivedView.as_view()),
 

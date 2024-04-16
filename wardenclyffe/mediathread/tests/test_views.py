@@ -8,7 +8,7 @@ import hashlib
 from django.conf import settings
 from django.utils.encoding import smart_bytes
 from wardenclyffe.mediathread.views import (
-    mediathread_post, s3_upload, VideoMediathreadSubmit,
+    MediathreadUploadFormView, s3_upload, VideoMediathreadSubmit,
     CollectionMediathreadSubmit)
 from wardenclyffe.main.tests.factories import (
     UserFactory, CollectionFactory, VideoFactory)
@@ -120,7 +120,7 @@ class TestS3Upload(TestCase):
         c = CollectionFactory()
         s3url = "https://s3.amazonaws.com/f/2016/02/29/filename.mp4"
         r = self.factory.post(
-            "/mediathread/post/",
+            "/mediathread/",
             dict(s3_url=s3url, title="test video")
         )
         r.session = dict(username=u.username,
@@ -135,7 +135,7 @@ class TestS3Upload(TestCase):
         c = CollectionFactory()
         s3url = "https://s3.amazonaws.com/f/2016/02/29/filename.mp3"
         r = self.factory.post(
-            "/mediathread/post/",
+            "/mediathread/",
             dict(s3_url=s3url, title="test audio", audio=True)
         )
         r.session = dict(username=u.username,
@@ -152,10 +152,10 @@ class TestInvalidUpload(TestCase):
 
     def test_bad_upload(self):
         request = self.factory.post(
-            "/mediathread/post",
+            "/mediathread/",
             dict(tmpfilename=''))
         request.session = dict(username='foo', set_course='bar')
-        response = mediathread_post(request)
+        response = MediathreadUploadFormView.as_view()(request)
         self.assertContains(response, "Bad file upload. Please try again.")
 
 
@@ -163,10 +163,6 @@ class TestInvalidSessions(TestCase):
     def setUp(self):
         self.c = Client()
 
-    def test_get(self):
-        r = self.c.get("/mediathread/post/")
-        self.assertContains(r, "post only")
-
     def test_no_session(self):
-        r = self.c.post("/mediathread/post/", {})
+        r = self.c.post("/mediathread/", {})
         self.assertContains(r, "invalid session")

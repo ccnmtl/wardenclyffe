@@ -56,7 +56,7 @@
                         {% endif %}
                     </div>
 
-                    <form action="post/" method="post" enctype="multipart/form-data">{% csrf_token %}
+                    <form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
                         {% if audio %}
                             <input type="hidden" name="audio" value="True" />
                         {% endif %}
