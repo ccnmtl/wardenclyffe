@@ -7,6 +7,7 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import requires_csrf_token
 from django.views.generic import View
 from django_statsd.clients import statsd
 import requests
@@ -15,8 +16,11 @@ import wardenclyffe.main.tasks as maintasks
 from wardenclyffe.mediathread.auth import MediathreadAuthenticator
 
 
+@method_decorator(requires_csrf_token, name="dispatch")
 class MediathreadUploadFormView(View):
-    def get(self, request):
+    template_name = 'mediathread/mediathread.html'
+
+    def get(self, request, *args, **kwargs):
         # check their credentials
         authenticator = MediathreadAuthenticator(request.GET)
         if not authenticator.is_valid():
@@ -35,12 +39,11 @@ class MediathreadUploadFormView(View):
         request.session['hmac'] = authenticator.hmc
         audio = request.GET.get('audio', False)
         folder = request.GET.get('folder', '')
-        template = 'mediathread/mediathread.html'
         return render(
-            request, template,
+            request, self.template_name,
             dict(username=username, user=user, audio=audio, folder=folder))
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         # we see this now and then, probably due to browser plugins
         # that provide "privacy" by stripping session cookies off
         # requests. we really don't have any way of handling
