@@ -98,7 +98,7 @@ gunicorn==22.0.0
 django-impersonate==1.9.1
 django-stagingcontext==0.1.0
 django-ga-context==0.1.0
-django-s3sign==0.1.8
+django-s3sign==0.1.9
 django-smtp-ssl==1.0
 certifi==2024.7.4  # sentry-sdk
 
