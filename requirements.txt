@@ -2,7 +2,7 @@ Django>=4.2.10,<5
 httplib2==0.22.0
 Markdown==3.6
 smartypants==2.0.1
-psycopg2==2.9.9
+psycopg[binary]==3.2.1
 olefile==0.47
 billiard==4.2.0
 
