@@ -84,7 +84,7 @@ django-cas-ng==5.0.1
 
 django-staticmedia==0.2.2
 requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
-django-taggit==4.0.0
+django-taggit==6.0.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.2.0
 django-waffle==4.1.0
