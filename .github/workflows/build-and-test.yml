@@ -8,7 +8,7 @@ jobs:
           python-version: ["3.8", "3.12"]
     services:
       rabbitmq:
-        image: rabbitmq:3.8
+        image: rabbitmq:3.12
         ports:
           - 5672:5672
     steps:
