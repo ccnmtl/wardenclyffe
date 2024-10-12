@@ -33,7 +33,6 @@ idna==3.10
 bcrypt==4.2.0
 pynacl==1.5.0
 paramiko==3.5.0
-raven==6.10.0
 
 sentry-sdk==2.16.0
 chardet==5.2.0
@@ -102,7 +101,7 @@ django-s3sign==0.1.9
 django-smtp-ssl==1.0
 certifi==2024.8.30  # sentry-sdk
 
-ctlsettings==0.3.5
+ctlsettings==0.4.1
 
 pbr==6.1.0
 PyYAML>=3.10.0 # MIT
