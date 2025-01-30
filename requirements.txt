@@ -82,7 +82,7 @@ python-cas==1.6.0
 django-cas-ng==5.0.1
 
 django-staticmedia==0.2.2
-requirements/src/django_oembed-0.1.4ctl-py2.py3-none-any.whl
+requirements/src/django_oembed-0.1.5-py3-none-any.whl
 django-taggit==6.1.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.2.0
