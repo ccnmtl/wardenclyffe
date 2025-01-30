@@ -35,7 +35,7 @@ paramiko==3.5.0
 
 sentry-sdk==2.20.0
 chardet==5.2.0
-urllib3==2.2.2  # sentry-sdk
+urllib3==2.3.0  # sentry-sdk
 
 requests==2.32.1
 statsd==4.0.1
