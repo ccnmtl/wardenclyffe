@@ -68,7 +68,7 @@
 
 function s3_upload_{{idx}}() {
     var s3upload = new S3Upload({
-        file_dom_selector: 'file-{{idx}}',
+        file_dom_selector: '#file-{{idx}}',
         s3_sign_put_url: '/sign_s3/',
         s3_object_name: $('#file-{{idx}}')[0].value,
         onProgress: function(percent, message) {
