@@ -366,12 +366,12 @@ class TestSignS3View(TestCase):
         with self.settings(
                 AWS_ACCESS_KEY='',
                 AWS_SECRET_KEY='',
-                AWS_S3_UPLOAD_BUCKET=''):
+                AWS_S3_UPLOAD_BUCKET='test_bucket_name'):
             r = self.c.get(
                 "/sign_s3/?s3_object_name=default_name&s3_object_type=foo")
             self.assertEqual(r.status_code, 200)
             j = json.loads(r.content)
-            self.assertTrue('signed_request' in j)
+            self.assertTrue('presigned_post_url' in j)
 
 
 class TestStaff(TestCase):
