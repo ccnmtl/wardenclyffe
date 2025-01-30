@@ -159,7 +159,7 @@ def verify_upload_to_panopto(operation):
 
 
 def pull_thumb_from_panopto(operation):
-    statsd.incr('verify upload to panopto')
+    statsd.incr('pull thumb from panopto')
 
     params = loads(operation.params)
     video_id = params['video_id']
