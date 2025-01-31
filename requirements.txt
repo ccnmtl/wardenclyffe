@@ -9,7 +9,7 @@ billiard==4.2.1
 django-picklefield==3.2
 pyparsing==3.2.1
 six==1.17.0
-pytz==2024.2
+pytz==2025.1
 python-dateutil==2.9.0
 
 vine==5.1.0
