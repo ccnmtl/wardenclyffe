@@ -27,7 +27,7 @@ class VideoAdmin(admin.ModelAdmin):
 
 @admin.register(Operation)
 class OperationAdmin(admin.ModelAdmin):
-    list_display = ('video', 'owner', 'action', 'status')
+    list_display = ('video', 'owner', 'action', 'status', 'updated_at')
     search_fields = ('video__title', 'action', 'status')
 
 
