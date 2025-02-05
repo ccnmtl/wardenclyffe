@@ -143,7 +143,13 @@ def verify_upload_to_panopto(operation):
 
     (state, panopto_id) = upload_status.check()
     if state != 4:  # Panopto "Complete" State
-        raise Exception('Panopto is not yet finished.')
+        status_msg = None
+        if state in upload_status.UPLOAD_STATES:
+            status_msg = upload_status.UPLOAD_STATES[state]
+
+        raise Exception(
+            'Panopto is not yet finished. Status: {}'.format(status_msg)
+        )
 
     url = settings.PANOPTO_LINK_URL.format(panopto_id)
 
