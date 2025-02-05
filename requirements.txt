@@ -52,7 +52,7 @@ flake8==7.1.0
 logilab-common==2.0.0
 astroid==3.3.8
 
-git+https://github.com/roy-ht/editdistance.git@v0.6.2
+editdistance==0.8.1
 
 pylint==3.3.4
 
