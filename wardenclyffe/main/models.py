@@ -857,6 +857,8 @@ class Operation(TimeStampedModel):
     status = models.CharField(max_length=256, default="in progress")
     params = models.TextField(default="")
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __json__(self):
         return self.as_dict()
