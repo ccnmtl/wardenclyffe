@@ -15,8 +15,9 @@ app = Celery('wardenclyffe')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+# https://docs.sentry.io/platforms/python/integrations/celery/
 if hasattr(settings, 'ENVIRONMENT') and hasattr(settings, 'SENTRY_DSN'):
-    # Initialize Sentry SDK on Celery startup
+    # Initialize Sentry SDK on Celery worker startup
     @signals.worker_init.connect
     def init_sentry(**_kwargs):
         sentry_sdk.init(
