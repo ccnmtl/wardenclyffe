@@ -7,8 +7,7 @@ and publishing audio/video/multimedia files. Wardenclyffe was developed
 at Columbia University's Center for Teaching and Learning
 (http://ctl.columbia.edu).
 
-For a breif whitepaper on the history and origins of Wardenclyffe, see
-
+For a brief whitepaper on the history and origins of Wardenclyffe, see:
 [KINO and Wardenclyffe: A framework for encoding, managing, and publishing web video](https://docs.google.com/document/d/1Wux_2tpNgjt9wA7I-ZoVNdA6Eoxof3d3r7e3bx8WOlM/edit?usp=sharing)
 
 ## Requirements
