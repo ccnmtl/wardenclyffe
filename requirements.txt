@@ -106,6 +106,7 @@ pbr==6.1.0
 PyYAML==6.0.2
 stevedore==5.4.0
 bandit==1.8.3
+rich==13.9.4
 
 defusedxml==0.7.1
 lxml==5.3.0
