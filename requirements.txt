@@ -118,7 +118,7 @@ zeep==4.3.1
 pypanopto==0.3.0
 django-bootstrap4==25.1
 
-mock==5.1.0
+mock==5.2.0
 
 entrypoints==0.4
 appdirs==1.4.4
