@@ -33,7 +33,7 @@ bcrypt==4.3.0
 pynacl==1.5.0
 paramiko==3.5.0
 
-sentry-sdk[celery]==2.22.0
+sentry-sdk[celery]==2.23.1
 chardet==5.2.0
 urllib3==2.3.0  # sentry-sdk
 
