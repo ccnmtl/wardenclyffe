@@ -41,7 +41,7 @@ requests==2.32.3
 statsd==4.0.1
 coverage==7.8.0
 pep8==1.7.1
-pyflakes==3.2.0
+pyflakes==3.3.2
 mccabe==0.7.0
 pycodestyle==2.13.0
 configparser==7.2.0
