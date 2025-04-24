@@ -1,55 +1,55 @@
 Django>=5.1,<5.2
 httplib2==0.22.0
-Markdown==3.7
+Markdown==3.8
 smartypants==2.0.1
 psycopg[binary]==3.2.4
 olefile==0.47
 billiard==4.2.1
 
-django-picklefield==3.2
+django-picklefield==3.3
 pyparsing==3.2.1
 six==1.17.0
-pytz==2025.1
+pytz==2025.2
 python-dateutil==2.9.0
 
 vine==5.1.0
 amqp==5.3.1
-kombu==5.4.2
+kombu==5.5.1
 wcwidth==0.2.5
 prompt-toolkit==3.0.32
-celery==5.4.0
+celery==5.5.1
 click>=8.0.3,<9.0
 click-didyoumean>=0.0.3
 click-repl>=0.2.0
 click-plugins>=1.1.1
-django-celery-results==2.5.1
+django-celery-results==2.6.0
 
 asn1crypto==1.5.0
 cryptography==44.0.1
 ecdsa==0.19.0
 cffi==1.17.0
 idna==3.10
-bcrypt==4.2.0
+bcrypt==4.3.0
 pynacl==1.5.0
 paramiko==3.5.0
 
-sentry-sdk[celery]==2.22.0
+sentry-sdk[celery]==2.27.0
 chardet==5.2.0
-urllib3==2.3.0  # sentry-sdk
+urllib3==2.4.0  # sentry-sdk
 
 requests==2.32.3
 statsd==4.0.1
-coverage==7.6.0
+coverage==7.8.0
 pep8==1.7.1
-pyflakes==3.2.0
+pyflakes==3.3.2
 mccabe==0.7.0
-pycodestyle==2.12.0
-configparser==7.1.0
+pycodestyle==2.13.0
+configparser==7.2.0
 importlib-metadata<8.7 # for flake8
-typing_extensions==4.12.0
+typing_extensions==4.13.1
 zipp==3.21.0  # for flake8
-flake8==7.1.0
-logilab-common==2.0.0
+flake8==7.2.0
+logilab-common==2.1.0
 astroid==3.3.8
 
 editdistance==0.8.1
@@ -72,7 +72,7 @@ httpretty==1.1.4
 contextlib2==21.6.0
 ipaddress==1.0.23
 text-unidecode==1.3  # for faker
-Faker==36.1.0
+Faker==37.1.0
 factory_boy==3.3.0
 rcssmin==1.2.0
 rjsmin==1.2.2
@@ -86,9 +86,9 @@ django-taggit==6.1.0
 django-statsd-mozilla==0.4.0
 django-smoketest==1.2.0
 django-waffle==4.2.0
-django-debug-toolbar==5.0.1
+django-debug-toolbar==5.1.0
 django-appconf==1.1.0
-django-extensions==3.2.0
+django-extensions==4.1
 
 django-storages==1.14.4
 tornado==6.4.2
@@ -105,21 +105,22 @@ ctlsettings==0.4.3
 pbr==6.1.0
 PyYAML==6.0.2
 stevedore==5.4.0
+
 bandit==1.8.3
 rich==13.9.4
 
 defusedxml==0.7.1
-lxml==5.3.0
+lxml==5.4.0
 requests-toolbelt==1.0.0
 isodate==0.7.2
 cached-property==2.0.1
 
-attrs==25.1.0
+attrs==25.3.0
 zeep==4.3.1
 pypanopto==0.3.0
-django-bootstrap4==24.4
+django-bootstrap4==25.1
 
-mock==5.1.0
+mock==5.2.0
 
 entrypoints==0.4
 appdirs==1.4.4
