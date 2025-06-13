@@ -15,7 +15,7 @@ locals().update(
 TMP_DIR = "/var/www/wardenclyffe/tmp/"
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 
-FFMPEG_PATH = "/usr/local/bin/ffmpeg"
+FFMPEG_PATH = "/usr/bin/ffmpeg"
 
 try:
     from wardenclyffe.local_settings import *  # noqa: F403

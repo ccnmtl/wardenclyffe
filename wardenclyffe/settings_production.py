@@ -15,7 +15,7 @@ locals().update(
 TMP_DIR = "/var/www/wardenclyffe/tmp/"
 WATCH_DIRECTORY = "/var/www/wardenclyffe/tmp/watch_dir/"
 
-FFMPEG_PATH = "/usr/local/bin/ffmpeg"
+FFMPEG_PATH = "/usr/bin/ffmpeg"
 
 IMAGES_BUCKET = "ccnmtl-wardenclyffe-images-prod"
 IMAGES_URL_BASE = "https://d369ay3g98xik5.cloudfront.net/"
