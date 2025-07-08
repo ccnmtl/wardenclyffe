@@ -125,4 +125,4 @@ appdirs==1.4.4
 beautifulsoup4==4.13.1
 requests_file==2.1.0
 platformdirs==4.3.2
-asgiref==3.8.1
+asgiref==3.9.1
