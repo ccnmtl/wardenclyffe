@@ -124,5 +124,5 @@ entrypoints==0.4
 appdirs==1.4.4
 beautifulsoup4==4.13.1
 requests_file==2.1.0
-platformdirs==4.3.2
+platformdirs==4.4.0
 asgiref==3.9.1
