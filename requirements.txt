@@ -1,5 +1,5 @@
 Django>=5.1,<5.2
-httplib2==0.30.0
+httplib2==0.31.0
 Markdown==3.9
 smartypants==2.0.1
 psycopg[binary]==3.2.4
