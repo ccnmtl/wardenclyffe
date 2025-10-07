@@ -113,7 +113,7 @@ requests-toolbelt==1.0.0
 isodate==0.7.2
 cached-property==2.0.1
 
-attrs==25.3.0
+attrs==25.4.0
 zeep==4.3.1
 pypanopto==0.3.0
 django-bootstrap4==25.2
