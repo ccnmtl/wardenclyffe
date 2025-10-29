@@ -96,7 +96,7 @@ def submit_to_mediathread(operation):
         audio, width, height
     )
 
-    r = requests.post(mediathread_base + "save/", params, timeout=5)
+    r = requests.post(mediathread_base + "save/", params, timeout=30)
     if r.status_code == 200:
         # requests follows redirects, so we need to get the location
         # out of the history
