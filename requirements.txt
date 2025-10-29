@@ -14,7 +14,7 @@ python-dateutil==2.9.0
 
 vine==5.1.0
 amqp==5.3.1
-kombu==5.5.1
+kombu==5.5.4
 wcwidth==0.2.5
 prompt-toolkit==3.0.32
 celery==5.5.1
