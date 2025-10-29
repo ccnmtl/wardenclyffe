@@ -96,7 +96,7 @@ def submit_to_mediathread(operation):
         audio, width, height
     )
 
-    r = requests.post(mediathread_base + "save/", params)
+    r = requests.post(mediathread_base + "save/", params, timeout=5)
     if r.status_code == 200:
         # requests follows redirects, so we need to get the location
         # out of the history
@@ -136,7 +136,7 @@ def update_mediathread(operation):
 
     params = mediathread_update_params(video, mediathread_secret)
 
-    r = requests.post(mediathread_base + 'update/', params)
+    r = requests.post(mediathread_base + 'update/', params, timeout=5)
     if r.status_code == 200:
         return ("complete", "")
     elif r.status_code == 404:

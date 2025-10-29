@@ -1378,7 +1378,12 @@ class SNSView(View):
         if "SubscribeURL" not in message:
             return HttpResponse("no subscribe url", status=400)
         url = message["SubscribeURL"]
-        r = requests.get(url)
+        parsed_url = urlparse(url)
+
+        if parsed_url.scheme != 'https':
+            return HttpResponse('invalid subscribe url', status=400)
+
+        r = requests.get(url, timeout=5)
         if r.status_code == 200:
             return HttpResponse("OK")
         return HttpResponse("Failed to confirm")
