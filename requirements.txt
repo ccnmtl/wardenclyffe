@@ -59,11 +59,17 @@ ldap3==2.9.1
 surelink==1.1.1
 
 
-s3transfer==0.14.0
+s3transfer==0.10.4
 jmespath==1.0.0
 
-botocore>=1.12.0,<1.41.0
-boto3>=1.12.0,<1.41.0
+# Boto libraries pinned to 1.35.x for panopto error:
+#
+#   2025-10-29 02:29:09 PM: Error processing upload: :
+#   (7f36b653-7efa-4c77-9b62-ce51bd025ca9.xml: Data at the root level is
+#   invalid. Line 1, position 1.)
+#
+botocore>=1.35.0,<1.36.0
+boto3>=1.35.0,<1.36.0
 
 sqlparse==0.5.0
 filechunkio==1.8
