@@ -681,7 +681,7 @@ confirmation_body = """
   "Token" : "2336412f37fb687f5d51e6e241d09",
   "TopicArn" : "arn:aws:sns:us-east-1:123456789012:MyTopic",
   "Message" : "You have chosen to subscribe to the topic arn:aws:sns:",
-  "SubscribeURL" : "http://example.com/?Action=ConfirmSubscription",
+  "SubscribeURL" : "https://example.com/?Action=ConfirmSubscription",
   "Timestamp" : "2012-04-26T20:45:04.751Z",
   "SignatureVersion" : "1",
   "Signature" : "EXAMPLEpH+DcEwjAPg8O9mY8dReBSwksfg2S7WKQcikcNK+gLPoBc1Q=",
@@ -705,7 +705,7 @@ class SNSTest(TestCase):
     def test_subscription_confirmation(self):
         HTTPretty.register_uri(
             HTTPretty.GET,
-            "http://example.com/?Action=ConfirmSubscription",
+            "https://example.com/?Action=ConfirmSubscription",
             body="yes"
         )
         r = self.c.post(
@@ -856,11 +856,11 @@ class CollectionReportViewTest(TestCase):
         f = FileFactory()
         FileFactory(location_type='panopto', video=f.video, filename='alpha')
         FileFactory(location_type='youtube', video=f.video,
-                    url='http://www.youtube.com/watch?v=fS4qBPdhr8A')
+                    url='https://www.youtube.com/watch?v=fS4qBPdhr8A')
 
         with self.settings(
-            PANOPTO_LINK_URL='http://testserver/link/{}/',
-                PANOPTO_EMBED_URL='http://testserver/embed/{}/'):
+            PANOPTO_LINK_URL='https://testserver/link/{}/',
+                PANOPTO_EMBED_URL='https://testserver/embed/{}/'):
             view = CollectionReportView()
             rows = view.rows(f.video.collection)
             self.assertEqual(len(rows), 1)
@@ -876,12 +876,12 @@ class CollectionReportViewTest(TestCase):
                 ("56d27944-4131-11e1-8164-0017f20ea192"
                  "-Mediathread_video_uploaded_by_mlp55.mp4"))
             self.assertEqual(rows[0][5], 'alpha')
-            self.assertEqual(rows[0][6], 'http://testserver/link/alpha/')
-            self.assertEqual(rows[0][7], 'http://testserver/embed/alpha/')
+            self.assertEqual(rows[0][6], 'https://testserver/link/alpha/')
+            self.assertEqual(rows[0][7], 'https://testserver/embed/alpha/')
             self.assertEqual(
-                rows[0][8], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+                rows[0][8], 'https://www.youtube.com/watch?v=fS4qBPdhr8A')
             self.assertEqual(
-                rows[0][9], 'http://www.youtube.com/watch?v=fS4qBPdhr8A')
+                rows[0][9], 'https://www.youtube.com/watch?v=fS4qBPdhr8A')
 
 
 class MockSftpStatAttrs(object):
@@ -904,7 +904,7 @@ class SureLinkVideoViewTest(TestCase):
         cuit = FileFactory()
         FileFactory(
             location_type='youtube', video=cuit.video,
-            url='http://www.youtube.com/watch?v=fS4qBPdhr8A')
+            url='https://www.youtube.com/watch?v=fS4qBPdhr8A')
 
         view = SureLinkVideoView()
         view.request = RequestFactory().get('/', {'file': cuit.filename})

@@ -109,7 +109,7 @@ class MediathreadCourseGetter(object):
     def run(self, username):
         try:
             url = mediathread_url(username)
-            r = requests.get(url)
+            r = requests.get(url, timeout=5)
             courses = r.json()['courses']
             courses = [dict(id=k, title=v['title'])
                        for (k, v) in courses.items()]
