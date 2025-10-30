@@ -59,7 +59,7 @@ ldap3==2.9.1
 surelink==1.1.1
 
 
-s3transfer==0.10.4
+s3transfer==0.14.0
 jmespath==1.0.0
 
 # Boto libraries pinned to 1.35.x for panopto error:
