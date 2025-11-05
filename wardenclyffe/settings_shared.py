@@ -69,6 +69,7 @@ INSTALLED_APPS += [  # noqa
     'wardenclyffe.mediathread',
     'wardenclyffe.panopto',
     'wardenclyffe.util',
+    'debug_toolbar',
     'oembed',
     'taggit',
     'wardenclyffe.graphite',
@@ -82,6 +83,7 @@ INSTALLED_APPS += [  # noqa
 
 MIDDLEWARE += [  # noqa
     'django.middleware.csrf.CsrfViewMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 # email addresses of video team members how want to
