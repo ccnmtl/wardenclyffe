@@ -83,7 +83,7 @@ rcssmin==1.2.0
 rjsmin==1.2.2
 
 python-cas==1.7.1
-django-cas-ng==5.0.1
+django-cas-ng==5.1.0
 
 django-staticmedia==0.2.2
 requirements/src/django_oembed-0.1.5-py3-none-any.whl
