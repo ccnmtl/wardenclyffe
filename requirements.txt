@@ -68,7 +68,7 @@ jmespath==1.0.0
 #   (7f36b653-7efa-4c77-9b62-ce51bd025ca9.xml: Data at the root level is
 #   invalid. Line 1, position 1.)
 #
-botocore>=1.35.0,<1.36.0
+botocore>=1.35.0,<1.42.0
 boto3>=1.35.0,<1.36.0
 
 sqlparse==0.5.0
