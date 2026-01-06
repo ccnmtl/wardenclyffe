@@ -32,7 +32,7 @@ ecdsa==0.19.0
 cffi==2.0.0
 idna==3.11
 bcrypt==5.0.0
-pynacl==1.6.0
+pynacl==1.6.2
 paramiko==4.0.0
 
 sentry-sdk[celery]==2.48.0
