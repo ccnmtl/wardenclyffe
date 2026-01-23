@@ -62,7 +62,7 @@ surelink==1.1.1
 
 
 s3transfer==0.10.4
-jmespath==1.0.0
+jmespath==1.1.0
 
 # Boto libraries pinned to 1.35.x for panopto error:
 #
