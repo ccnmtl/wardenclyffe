@@ -88,8 +88,8 @@ MIDDLEWARE += [  # noqa
 
 # email addresses of video team members how want to
 # be annoyed by lots of status email
-ANNOY_EMAILS = ["jhanford@columbia.edu"]
-VIDEO_TEAM_EMAILS = ["jhanford@columbia.edu"]
+ANNOY_EMAILS = ["ctl-media@columbia.edu"]
+VIDEO_TEAM_EMAILS = ["ctl-media@columbia.edu"]
 
 H264_SECURE_STREAM_DIRECTORY = "/media/h264/ccnmtl/secure/"
 H264_PUBLIC_STREAM_DIRECTORY = "/media/h264/ccnmtl/public/"
