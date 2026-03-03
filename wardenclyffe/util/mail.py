@@ -2,6 +2,7 @@ from django.core.mail import send_mail
 from django_statsd.clients import statsd
 from django.conf import settings
 from django.template.loader import get_template
+from smtplib import SMTPException
 
 
 def send_to_everyone(subject, body, toaddress, fromaddress):
@@ -10,8 +11,11 @@ def send_to_everyone(subject, body, toaddress, fromaddress):
         send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
     statsd.incr('event.mail_sent')
     for vuser in settings.ANNOY_EMAILS:
-        send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
-        statsd.incr('event.mail_sent')
+        try:
+            send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
+            statsd.incr('event.mail_sent')
+        except SMTPException:
+            pass
 
 
 def send_to_videoteam(subject, body, toaddress, fromaddress):
@@ -25,8 +29,11 @@ def send_to_videoteam(subject, body, toaddress, fromaddress):
         send_mail(subject, body, fromaddress, [toaddress], fail_silently=False)
     statsd.incr('event.mail_sent')
     for vuser in settings.VIDEO_TEAM_EMAILS:
-        send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
-        statsd.incr('event.mail_sent')
+        try:
+            send_mail(subject, body, fromaddress, [vuser], fail_silently=False)
+            statsd.incr('event.mail_sent')
+        except SMTPException:
+            pass
 
 
 def slow_operations_email_body(cnt):
