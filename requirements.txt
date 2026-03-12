@@ -98,7 +98,7 @@ django-appconf==1.2.0
 django-extensions==4.1
 
 django-storages==1.14.4
-tornado==6.5.4
+tornado==6.5.5
 gunicorn==25.1.0
 django-impersonate==1.9.1
 django-stagingcontext==0.1.0
