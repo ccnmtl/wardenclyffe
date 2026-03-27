@@ -51,7 +51,21 @@
                             <p>Use this form to upload audio. Mediathread supports audio files that end in <b><i>.mp3</i></b>. 
                             Any other audio should be converted to a mp3 before uploading. Submitted files must be less than 2GB.</p>
                         {% else %}
-                            <p>Use this form to upload a video. Mediathread supports video files that end in <b><i>.mov</i></b>, <b><i>.mp4</i></b>, or <b><i>.avi</i></b>. 
+                        <p>Use this form to upload a video. Supported video types:
+                            <ul>
+                                <li>
+                                    <strong>.mov</strong>
+                                </li>
+                                <li>
+                                    <strong>.mp4</strong>
+                                </li>
+                                <li>
+                                    <strong>.avi</strong>
+                                </li>
+                                <li>
+                                    <strong>.webm</strong>
+                                </li>
+                            </ul>
                             Any other video should be converted to one of these formats before uploading. Submitted files must be less than 2GB.</p>
                         {% endif %}
                     </div>
@@ -69,13 +83,13 @@
                                         <img src="{{STATIC_URL}}img/steps.png" alt="step one"></img>
                                     </td>
                                     <td class="step">
-                                        <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi){% endif %}</h4>
+                                        <h4 id="upload_area">SELECT {% if audio %}audio{% else %}video{% endif %} file to upload {% if audio %}(.mp3){% else %}(.mov, .mp4, .avi, .webm){% endif %}</h4>
                                         <div>
                                             <p id="status"><b>Please select a file</b></p>
                                             {% if audio %}
                                                 <input type="file" id="file" onchange="s3_upload();" accept=".mp3" />
                                             {% else %}
-                                                <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v" />
+                                                <input type="file" id="file" onchange="s3_upload();" accept=".mov,.avi,.mp4,.mpg,.wmv,.m4v,.webm" />
                                             {% endif %}
                                             <input type="hidden" name="s3_url" id="uploaded-url" />
                                         </div>
