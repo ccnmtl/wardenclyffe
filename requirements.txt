@@ -36,7 +36,7 @@ pynacl==1.6.2
 paramiko==4.0.0
 
 sentry-sdk[celery]==2.56.0
-chardet==7.3.0
+chardet==7.4.0.post1
 urllib3==2.6.3  # sentry-sdk
 
 requests==2.33.0
