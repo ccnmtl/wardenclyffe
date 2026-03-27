@@ -4,10 +4,6 @@ body
   color: #2E2E2E;
 }
 
-a, a:visited {
-    color: #3F729B;
-}
-
 a:hover {
     color: #1C2331;
 }
