@@ -76,7 +76,7 @@ INSTALLED_APPS += [  # noqa
     'django_extensions',
     's3sign',
     'wardenclyffe.streamlogs',
-    'bootstrap4',
+    'django_bootstrap5',
     'django_celery_results',
     'waffle',
 ]
