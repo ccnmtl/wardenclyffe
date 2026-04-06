@@ -4,9 +4,12 @@
 {% block pagetitle %}Add Video from Desktop{% endblock %}
 
 {% block extra_head %}
-    <script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/jquery.autocomplete.min.js"></script>
-    <script src="{{STATIC_URL}}s3sign/js/s3upload.js"></script>
+<script src="{{STATIC_URL}}js/jquery.tagsinput.min.js"
+        crossorigin="anonymous"></script>
+<script src="{{STATIC_URL}}js/jquery.autocomplete.min.js"
+        crossorigin="anonymous"></script>
+<script src="{{STATIC_URL}}s3sign/js/s3upload.js"
+        crossorigin="anonymous"></script>
 
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.tagsinput.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.autocomplete.css" />
@@ -104,6 +107,7 @@ jQuery(document).ready(function()
 
 </script>
 
-<script src="{{STATIC_URL}}js/help_windows.js" type="text/javascript" language="javascript"></script>
+<script src="{{STATIC_URL}}js/help_windows.js"
+        crossorigin="anonymous"></script>
 
 {% endblock %}
