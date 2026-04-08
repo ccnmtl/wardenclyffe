@@ -131,6 +131,6 @@ mock==5.2.0
 entrypoints==0.4
 appdirs==1.4.4
 beautifulsoup4==4.14.3
-requests_file==3.0.0
+requests_file==3.0.1
 platformdirs==4.9.4
 asgiref==3.11.0
