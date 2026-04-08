@@ -93,33 +93,46 @@ class MailTest(TestCase):
         pass
 
     def test_send_slow_operations_email(self):
-        operations = DummyOperationsSet(1)
-        send_slow_operations_email(operations)
-        assert len(mail.outbox) > 0
-        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
+        with self.settings(
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
+            operations = DummyOperationsSet(1)
+            send_slow_operations_email(operations)
+            assert len(mail.outbox) > 0
+            self.assertEqual(
+                mail.outbox[0].subject, 'Slow operations detected')
 
     def test_send_slow_operations_to_videoteam_email(self):
-        operations = DummyOperationsSet(1)
-        send_slow_operations_email(operations)
-        assert len(mail.outbox) > 0
-        self.assertEqual(mail.outbox[0].subject, 'Slow operations detected')
+        with self.settings(
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
+            operations = DummyOperationsSet(1)
+            send_slow_operations_email(operations)
+            assert len(mail.outbox) > 0
+            self.assertEqual(
+                mail.outbox[0].subject, 'Slow operations detected')
 
     def test_send_failed_operation_mail(self):
-        dummy_op = DummyOperation(action="dummy",
-                                  video=DummyVideo("dummy video"))
-        send_failed_operation_mail(dummy_op, "fake error message")
-        assert len(mail.outbox) > 0
-        self.assertEqual(mail.outbox[0].subject, 'Video upload failed')
+        with self.settings(
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
+            dummy_op = DummyOperation(
+                action="dummy",
+                video=DummyVideo("dummy video"))
+            send_failed_operation_mail(dummy_op, "fake error message")
+            assert len(mail.outbox) > 0
+            self.assertEqual(mail.outbox[0].subject, 'Video upload failed')
 
     def test_send_mediathread_received_mail(self):
-        send_mediathread_received_mail("fake video", "fakeuni")
-        assert len(mail.outbox) > 1
-        self.assertEqual(mail.outbox[0].subject,
-                         "Mediathread submission received")
+        with self.settings(
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
+            send_mediathread_received_mail("fake video", "fakeuni")
+            assert len(mail.outbox) > 1
+            self.assertEqual(
+                mail.outbox[0].subject,
+                "Mediathread submission received")
 
     def test_send_mediathread_uploaded_mail(self):
         with self.settings(
-                MEDIATHREAD_BASE='https://mediathread.ctl.columbia.edu/'):
+                MEDIATHREAD_BASE='https://mediathread.ctl.columbia.edu/',
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
             send_mediathread_uploaded_mail("fake video", "fakeuni",
                                            "/asset/1/")
             assert len(mail.outbox) > 1
@@ -130,12 +143,16 @@ class MailTest(TestCase):
                     "https://mediathread.ctl.columbia.edu/asset/1") > 0)
 
     def test_send_youtube_submitted_mail(self):
-        send_youtube_submitted_mail("fake video title", "fakeuni",
-                                    "http://example.com/")
-        assert len(mail.outbox) > 1
-        self.assertEqual(
-            mail.outbox[0].subject,
-            "\"fake video title\" was submitted to Columbia on YouTube EDU")
+        with self.settings(
+                ANNOY_EMAILS=['ctl-test@columbia.edu']):
+            send_youtube_submitted_mail(
+                "fake video title", "fakeuni",
+                "http://example.com/")
+            assert len(mail.outbox) > 1
+            self.assertEqual(
+                mail.outbox[0].subject,
+                "\"fake video title\" was submitted to Columbia on YouTube EDU"
+            )
 
 
 class UUIDParseTest(TestCase):
