@@ -722,7 +722,7 @@ class File(TimeStampedModel):
                 return None
 
     def surelinkable(self):
-        return self.location_type == 'cuit'
+        return False
 
     def has_cuit_poster(self):
         return File.objects.filter(video=self.video,

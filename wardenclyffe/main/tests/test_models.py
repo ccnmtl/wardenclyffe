@@ -34,7 +34,7 @@ class CUITFileTest(TestCase):
         assert self.file.is_cuit()
 
     def test_surelinkable(self):
-        assert self.file.surelinkable()
+        assert not self.file.surelinkable()
 
     def test_mediathread_url(self):
         self.assertEqual(
