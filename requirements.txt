@@ -112,7 +112,7 @@ ctlsettings==0.4.6
 pbr==7.0.3
 PyYAML==6.0.3
 stevedore==5.7.0
-rich==14.3.3  # bandit
+rich==15.0.0  # bandit
 bandit==1.9.4
 
 defusedxml==0.7.1
