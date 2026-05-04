@@ -15,7 +15,7 @@ python-dateutil==2.9.0.post0
 vine==5.1.0
 amqp==5.3.1
 kombu==5.6.2
-wcwidth==0.6.0
+wcwidth==0.7.0
 prompt-toolkit==3.0.52
 celery==5.6.3
 tzlocal==5.3.1  # celery
