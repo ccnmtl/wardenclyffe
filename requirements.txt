@@ -84,7 +84,7 @@ factory_boy==3.3.3
 rcssmin==1.2.2
 rjsmin==1.2.5
 
-python-cas==1.7.1
+python-cas==1.7.2
 django-cas-ng==5.1.0
 
 django-staticmedia==0.2.2
