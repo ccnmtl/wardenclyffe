@@ -60,6 +60,8 @@ updates:
     versions:
     - 2.5.4
     - 2.5.5
+  - dependency-name: boto3
+  - dependency-name: botocore
 - package-ecosystem: npm
   directory: "/"
   schedule:
