@@ -29,7 +29,7 @@ django-celery-results==2.6.0
 asn1crypto==1.5.1
 cryptography==49.0.0
 ecdsa==0.19.2
-cffi==2.0.0
+cffi==2.1.0
 idna==3.18
 bcrypt==5.0.0
 pynacl==1.6.2
