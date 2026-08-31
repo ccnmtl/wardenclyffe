@@ -121,7 +121,7 @@ cached-property==2.0.1
 attrs==26.1.0
 zeep==4.3.3
 pypanopto==0.3.2
-django-bootstrap5==26.2
+django-bootstrap5==26.3
 
 mock==5.2.0
 
