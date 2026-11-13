@@ -1,66 +1,66 @@
 <div class="panel_middle">
-	<div class="leftcol">
-		<div class="sectionbox">
-			<div class="fieldwrapper">
-				<label for="id_title_{{idx}}">Title:</label>
-				<input id="id_title_{{idx}}" maxlength="256" name="title_{{idx}}"
-							 onblur="copyDown('id_title_', {{idx}})"
-							 type="text">
-			</div>
-		
-			<div class="fieldwrapper">
-			<label for="id_description_{{idx}}">Description:</label>
-			<textarea cols="40" id="id_description_{{idx}}"
-								name="description_{{idx}}" rows="10"
-								onblur="copyDown('id_description_', {{idx}})"></textarea>
-			</div>
+    <div class="leftcol">
+        <div class="sectionbox">
+            <div class="fieldwrapper">
+                <label for="id_title_{{idx}}">Title:</label>
+                <input id="id_title_{{idx}}" maxlength="1024" name="title_{{idx}}"
+                             onblur="copyDown('id_title_', {{idx}})"
+                             type="text">
+            </div>
 
-		</div><!-- class="sectionbox" -->
-	</div><!--  class="leftcol" -->
-	<div class="rightcol">
-		<div class="sectionbox">
-			<div class="section-header">
-			Video file 
-			</div>
-			<div class="fieldwrapper">
+            <div class="fieldwrapper">
+            <label for="id_description_{{idx}}">Description:</label>
+            <textarea cols="40" id="id_description_{{idx}}"
+                                name="description_{{idx}}" rows="10"
+                                onblur="copyDown('id_description_', {{idx}})"></textarea>
+            </div>
+
+        </div><!-- class="sectionbox" -->
+    </div><!--  class="leftcol" -->
+    <div class="rightcol">
+        <div class="sectionbox">
+            <div class="section-header">
+            Video file
+            </div>
+            <div class="fieldwrapper">
         <p id="status-{{idx}}"><b>Please select a file</b></p>
         <input type="file" id="file-{{idx}}" onchange="s3_upload_{{idx}}();" accept=".mov,.avi,.mp4,.flv,.mpg,.wmv,.m4v,.mp3"/>
         <input type="hidden" name="s3url_{{idx}}" id="uploaded-url-{{idx}}" />
-			</div>
+            </div>
 
 <script type="text/javascript">
 </script>
-		
-			<div class="fieldwrapper inlinewrapper">
-			<label for="id_creator_{{idx}}">Creator:</label>
-			<input id="id_creator_{{idx}}" maxlength="256" name="creator_{{idx}}"
-						 type="text"
-						 onblur="copyDown('id_creator_', {{idx}})">
-			</div>
-		
-			<div class="fieldwrapper inlinewrapper">
-			<label for="id_language_{{idx}}">Language:</label>
-			<input id="id_language_{{idx}}" maxlength="256" name="language_{{idx}}"
-						 type="text"
-						 onblur="copyDown('id_language_', {{idx}})">
-			</div>
-		
-			<div class="fieldwrapper inlinewrapper">
-			<label for="id_license_{{idx}}">License:</label>
-			<input id="id_license_{{idx}}" maxlength="256" name="license_{{idx}}"
-						 type="text"
-						 onblur="copyDown('id_license_', {{idx}})">
-			</div>
-		
-		</div><!-- class="sectionbox" -->
+
+            <div class="fieldwrapper inlinewrapper">
+            <label for="id_creator_{{idx}}">Creator:</label>
+            <input id="id_creator_{{idx}}" maxlength="256" name="creator_{{idx}}"
+                         type="text"
+                         onblur="copyDown('id_creator_', {{idx}})">
+            </div>
+
+            <div class="fieldwrapper inlinewrapper">
+            <label for="id_language_{{idx}}">Language:</label>
+            <input id="id_language_{{idx}}" maxlength="256" name="language_{{idx}}"
+                         type="text"
+                         onblur="copyDown('id_language_', {{idx}})">
+            </div>
+
+            <div class="fieldwrapper inlinewrapper">
+            <label for="id_license_{{idx}}">License:</label>
+            <input id="id_license_{{idx}}" maxlength="256" name="license_{{idx}}"
+                         type="text"
+                         onblur="copyDown('id_license_', {{idx}})">
+            </div>
+
+        </div><!-- class="sectionbox" -->
 
 
-		<div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box_{{idx}}">
-		  <div class="section-header">Extra Fields</div>
-		</div>
+        <div class="sectionbox extra_fields ui-helper-hidden" id="extra_fields_box_{{idx}}">
+          <div class="section-header">Extra Fields</div>
+        </div>
 
-	</div><!-- class="rightcol" -->
-	<div class="visualclear"></div>
+    </div><!-- class="rightcol" -->
+    <div class="visualclear"></div>
 </div><!-- class="panel_middle" -->
 
 
