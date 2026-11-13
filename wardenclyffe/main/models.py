@@ -102,7 +102,7 @@ def unclassified():
 
 class Video(TimeStampedModel):
     collection = models.ForeignKey(Collection, on_delete=SET(unclassified))
-    title = models.CharField(max_length=256)
+    title = models.CharField(max_length=1024)
     creator = models.CharField(max_length=256, default="", blank=True)
     description = models.TextField(default="", blank=True, null=True)
     subject = models.TextField(default="", blank=True, null=True)
