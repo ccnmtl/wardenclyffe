@@ -107,7 +107,7 @@ certifi==2026.10.23  # sentry-sdk
 ctlsettings==0.4.9
 
 pbr==7.1.3
-PyYAML==6.0.3
+PyYAML==6.0.4
 stevedore==5.10.0
 rich==15.0.0  # bandit
 bandit==1.9.4
